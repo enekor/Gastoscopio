@@ -16,7 +16,7 @@ publish_to: 'none' # Remove this line if you wish to publish to pub.dev
 # https://developer.apple.com/library/archive/documentation/General/Reference/InfoPlistKeyReference/Articles/CoreFoundationKeys.html
 # In Windows, build-name is used as the major, minor, and patch parts
 # of the product and file versions while build-number is used as the build suffix.
-version: 1.0.0+1
+version: 0.1.2
 
 environment:
   sdk: '>=2.18.2 <3.0.0'
@@ -37,6 +37,13 @@ dependencies:
   dart_format: ^1.1.17
   firebase_auth: ^4.17.9
   flutter_launcher_icons: ^0.13.1
+  font_awesome_flutter: ^10.7.0
+  path_provider: ^2.1.2
+  path_provider_windows: ^2.2.0
+  file_picker: ^8.0.0+1
+  fluttertoast: ^8.2.4
+  shared_preferences: ^2.2.2
+  url_launcher: ^6.2.5
 
 dev_dependencies:
   flutter_test:
@@ -62,8 +69,14 @@ flutter:
     - lib/assets/images/gatook.png
     - lib/assets/images/gatohola.png
     - lib/assets/images/gatoapunta.png
-    - lib/assets/images/logo.png
     - lib/assets/images/gatobuscando.png
+    - lib/assets/images/gatoRascandoCabeza.png
+    - lib/assets/images/personaok.png
+    - lib/assets/images/personahola.png
+    - lib/assets/images/personaapunta.png
+    - lib/assets/images/personabuscando.png
+    - lib/assets/images/personaRascandoCabeza.png
+    - lib/assets/images/logo.png
   #   - images/a_dot_ham.jpeg
 
   # An image asset can refer to one or more resolution-specific "variants", see
