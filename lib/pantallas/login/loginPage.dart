@@ -1,7 +1,10 @@
 import 'package:cuentas_android/pattern/pattern.dart';
+import 'package:cuentas_android/utils.dart';
+import 'package:cuentas_android/widgets/toast.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:cuentas_android/dao/userDao.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 
 class LoginPage extends StatefulWidget {
   LoginPage({Key? key}) : super(key: key);
@@ -13,6 +16,7 @@ class LoginPage extends StatefulWidget {
 class _LoginPageState extends State<LoginPage> {
   String? errorMessage = "";
   bool isLogin = true;
+  String email = "gastoscopio.com";
 
   final TextEditingController _emailCOntroller = TextEditingController();
   final TextEditingController _passwordCOntroller = TextEditingController();
@@ -20,8 +24,20 @@ class _LoginPageState extends State<LoginPage> {
 
   Future signIn() async{
     try{
-      await Auth().signInEmailPassword(email: "${_emailCOntroller.text}@gastoscopio.com", password: _passwordCOntroller.text);
+      await Auth().signInEmailPassword(email: "${_emailCOntroller.text}@$email", password: _passwordCOntroller.text);
     } on FirebaseAuthException catch (e) {
+      setState(() {
+        errorMessage = e.message;
+      });
+    }
+  }
+
+  Future rememberPassword(String email)async{
+    try{
+      await Auth().rememberPassword(email);
+      showToast(text: "Email enviado al correo $email",length: Toast.LENGTH_LONG);
+      Navigator.pop(context);
+    }on FirebaseAuthException catch(e){
       setState(() {
         errorMessage = e.message;
       });
@@ -50,22 +66,74 @@ class _LoginPageState extends State<LoginPage> {
       _hidePass = !_hidePass;
     });
   }
+
+  Widget selectEmail(){
+    return DropdownButtonFormField(
+      icon: const SizedBox(),
+      value: 'gastoscopio.com',
+      items: ['gastoscopio.com','gmail.com','hotmail.com','outlook.com','yahoo.com'].map((emailend) => DropdownMenuItem(
+        value: emailend, 
+        child: getEmailIcon(emailend)
+      )).toList(),
+      onChanged: (item) {
+        setState(() {
+          String extratext = item=='gastoscopio.com' ? '(No se puede restablecer contraseña)' : '';
+          showToast(text: "$item $extratext");
+          email = item!;
+        });
+      },
+    );
+  }
+
+  void showEmailResetDialog(){
+    if(email != 'gastoscopio.com'){
+      TextEditingController _email = TextEditingController();
+      showDialog(
+        context: context, 
+        builder: (context)=>
+          AlertDialog(
+            title: const Text("He olvidado mi contraseña"),
+            content: Expanded(
+              child: TextField(
+                controller: _email,
+                autofocus: true,
+                decoration: InputDecoration(labelText: "Email del usuario"),
+              ),
+            ),
+            actions: [
+              TextButton(onPressed: ()=>Navigator.pop(context), child: const Text("Cancelar")),
+              TextButton(onPressed: ()=>rememberPassword(_email.text), child: const Text("Enviar"))
+            ],
+          )
+      );
+    }
+  }
+
   Widget login() => 
     Center(
       child: Padding(
-        padding: const EdgeInsets.all(100.0),
+        padding: const EdgeInsets.all(50.0),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Image.asset(
-              "lib/assets/images/gatohola.png",
+              getImageUri(ImageUris.hola),
               height: 200,
-              width: 200,),
-            TextField(
-              controller: _emailCOntroller,
-              decoration: const InputDecoration(
-                labelText: "Nombre de usuario"
-              ),
+              width: 200
+            ),
+            Row(
+              children: [
+                Expanded(
+                  flex:9,
+                  child: TextField(
+                    controller: _emailCOntroller,
+                    decoration: const InputDecoration(
+                      labelText: "Nombre de usuario"
+                    ),
+                  ),
+                ),
+                Expanded(flex:1,child: selectEmail())
+              ],
             ),
             TextField(
               obscureText: _hidePass,
@@ -91,6 +159,8 @@ class _LoginPageState extends State<LoginPage> {
                 )
               ),
             ),
+            const SizedBox(height: 20,),
+           // TextButton(onPressed: showEmailResetDialog, child: const Text("He olvidado la contraseña"))
           ],
         ),
       ),
@@ -99,19 +169,27 @@ class _LoginPageState extends State<LoginPage> {
   Widget register() => 
     Center(
       child: Padding(
-        padding: const EdgeInsets.all(100.0),
+        padding: const EdgeInsets.all(50.0),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Image.asset(
-              "lib/assets/images/gatoapunta.png",
+              getImageUri(ImageUris.apunta),
               height: 200,
               width: 200,),
-            TextField(
-              controller: _emailCOntroller,
-              decoration: const InputDecoration(
-                labelText: "Nombre de usuario"
-              ),
+            Row(
+              children: [
+                Expanded(
+                  flex:9,
+                  child: TextField(
+                    controller: _emailCOntroller,
+                    decoration: const InputDecoration(
+                      labelText: "Nombre de usuario"
+                    ),
+                  ),
+                ),
+                Expanded(flex:1,child: selectEmail())
+              ],
             ),
             TextField(
               obscureText: _hidePass,

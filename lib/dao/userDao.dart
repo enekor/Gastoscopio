@@ -18,4 +18,8 @@ class Auth{
     await _firebaseAuth.signOut();
   }
 
+  Future rememberPassword(String email) async{
+    await _firebaseAuth.sendPasswordResetEmail(email: email);
+  }
+
 }

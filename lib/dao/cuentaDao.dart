@@ -75,4 +75,19 @@ class cuentaDao{
     
   }
 
+  Future deleteCuenta(Cuenta c) async{
+    await  ref.doc("${c.id}-${c.posicion}").delete();
+  }
+
+  Future<Cuenta> importFromJson(Map<String,dynamic> json, int posicion)async{
+    String documento = "${user!.uid}-$posicion";
+    Cuenta c = Cuenta.fromJson(json);
+    c.id = user!.uid;
+    c.posicion = posicion;
+
+    await ref.doc(documento).set(c.toJson());
+
+    return c;
+  }
+
 }

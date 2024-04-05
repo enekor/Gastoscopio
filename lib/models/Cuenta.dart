@@ -44,4 +44,8 @@ class Cuenta{
 
     return ret;
   }
+
+  @override String toString() {
+    return Nombre;
+  }
 }

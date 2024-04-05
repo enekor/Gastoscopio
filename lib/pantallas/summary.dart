@@ -17,9 +17,12 @@ class SummaryPage extends StatelessWidget {
       child: Scaffold(
           body: CustomPaint(
             painter: MyPattern(context),
-            child: Center(
-              child: SingleChildScrollView(
-                child: summaryView(cuenta.Meses,context)
+            child: Padding(
+              padding: const EdgeInsets.all(15.0),
+              child: Center(
+                child: SingleChildScrollView(
+                  child: summaryView(cuenta.Meses,context)
+                ),
               ),
             )
           )

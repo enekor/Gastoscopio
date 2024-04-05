@@ -1,7 +1,9 @@
 import 'package:cuentas_android/dao/cuentaDao.dart';
 import 'package:cuentas_android/models/Gasto.dart';
+import 'package:cuentas_android/pantallas/summary.dart';
+import 'package:cuentas_android/pantallas/visionado/deudas.dart';
 import 'package:cuentas_android/pantallas/visionado/ingresosGastos.dart';
-import 'package:cuentas_android/pantallas/visionado/settings.dart';
+import 'package:cuentas_android/pantallas/visionado/fijos.dart';
 import 'package:cuentas_android/pattern/pattern.dart';
 import 'package:cuentas_android/pattern/positions.dart';
 import 'package:flutter/material.dart';
@@ -10,6 +12,7 @@ import 'package:cuentas_android/models/Cuenta.dart';
 import 'package:cuentas_android/models/Mes.dart';
 import 'package:get/Get.dart';
 import 'package:cuentas_android/widgets/views/infoWidgets.dart' as iw;
+import 'package:cuentas_android/utils.dart';
 
 class Info extends StatelessWidget {
   Info({Key? key,required Cuenta cuenta}) : super(key: key){
@@ -63,14 +66,33 @@ class Info extends StatelessWidget {
       });
   }
 
-  void _navigateSettings(BuildContext context){
+  void _navigateFijos(BuildContext context){
     Values().gastoSeleccionado.value = -1;
     cuentaDao().almacenarDatos(c.value);
     positions().ChangePositions(MediaQuery.of(context).size.width,MediaQuery.of(context).size.height);
     Navigator.push(
-      context, MaterialPageRoute(builder: (context) => settings(cuenta: c.value,))).then((value) {
+      context, MaterialPageRoute(builder: (context) => gastosFijos(cuenta: c.value,))).then((value) {
         c.value = Values().cuentaRet!;
       });
+  }
+
+  void _navigateSummary(BuildContext context){
+    positions().ChangePositions(MediaQuery.of(context).size.width,MediaQuery.of(context).size.height);
+    Navigator.of(context).push(MaterialPageRoute(builder: (context) => SummaryPage(cuenta:c.value)));
+  }
+
+  void _navigateDeudas(BuildContext context){
+    Values().gastoSeleccionado.value = -1;
+    cuentaDao().almacenarDatos(c.value);
+    positions().ChangePositions(MediaQuery.of(context).size.width,MediaQuery.of(context).size.height);
+    Navigator.push(
+      context, MaterialPageRoute(builder: (context) => deudas(cuenta: c.value,))).then((value) {
+        c.value = Values().cuentaRet!;
+      });
+  }
+
+  Future _writeData(Cuenta c) async{
+    await writeToDownloadPath(c);
   }
 
 //pantalla
@@ -78,42 +100,41 @@ class Info extends StatelessWidget {
   Widget build(BuildContext context) {
     _seleccionarMes(Values().GetMes());
     return PopScope(
-        onPopInvoked: (_)=> _pop(context),
-    child:Obx(()=>Scaffold(
-      resizeToAvoidBottomInset: true,
-      appBar: AppBar(
-        centerTitle: false,
-        backgroundColor: Theme.of(context).primaryColor,
-        elevation: 0.0,
-        title:  c.value.Meses.where((element) => element.NMes == _mes.value && element.Anno == Values().anno.value).first.Ingreso != 0
+      onPopInvoked: (_)=> _pop(context),
+      child:Obx(()=>Scaffold(
+        resizeToAvoidBottomInset: true,
+        appBar: AppBar(
+          centerTitle: false,
+          backgroundColor: Theme.of(context).primaryColor,
+          elevation: 0.0,
+          title:  c.value.Meses.where((element) => element.NMes == _mes.value && element.Anno == Values().anno.value).first.Ingreso != 0
             ? iw.appBarMesExists(
               mes: _mes.value,
               c: c.value,
               width: MediaQuery.of(context).size.width,
-              navigateSettings: ()=>_navigateSettings(context)
             )
             : const Text("Inicio de mes"),
-      ),
-      body: CustomPaint(
-        painter: MyPattern(context),
-        child: Padding(
+        ),
+        bottomNavigationBar: iw.navigationBar(onDeudas: ()=>_navigateDeudas(context),onSummary: ()=>_navigateSummary(context), onRecurrentes: ()=>_navigateFijos(context), theme: Theme.of(context)),
+        body: CustomPaint(
+          painter: MyPattern(context),
+          child: Padding(
             padding: const EdgeInsets.all(20.0),
             child: Center(
               child: iw.bodyMesExists(
-                  context: context,
-                  mes: _mes.value,
-                  cuenta: c,
-                  theme: Theme.of(context),
-                  onSelected: (v)=>Values().gastoSeleccionado.value = v,
-                  deleted: _toDelete,
-                  onSelecMes: _seleccionarMes,
-                  onIngresoGastosPressed: (isIngreso)=>_navigateIngresosGasto(context,isIngreso)
-                )
+                context: context,
+                mes: _mes.value,
+                cuenta: c,
+                theme: Theme.of(context),
+                onSelected: (v)=>Values().gastoSeleccionado.value = v,
+                deleted: _toDelete,
+                onSelecMes: _seleccionarMes,
+                onIngresoGastosPressed: (isIngreso)=>_navigateIngresosGasto(context,isIngreso),
               )
-            ),
+            )
           ),
         ),
-      ),
+      )),
     );
   }
 }

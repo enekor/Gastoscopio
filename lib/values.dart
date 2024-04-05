@@ -5,6 +5,8 @@ import 'dart:collection';
 //import 'package:cuentas_android/models/Mes.dart';
 //import 'package:flutter/material.dart';
 
+import 'package:cuentas_android/utils.dart';
+
 import 'models/Cuenta.dart';
 import 'package:get/get.dart';
 
@@ -16,6 +18,7 @@ class Values {
   }
   Values._internal();
 
+//variables
   final nombresMes = [
     'Enero',
     'Febrero',
@@ -30,38 +33,20 @@ class Values {
     'Noviembre',
     'Diciembre',
   ];
-
-  //List<Cuenta> cuentas = [];
-
   Cuenta? cuentaRet = null;
-  //int seleccionado = -1;
   RxInt mes = RxInt(DateTime.now().month-1);
   RxInt anno = RxInt(DateTime.now().year);
   RxInt gastoSeleccionado = (-1).obs;
+  RxBool mostrarGatos = false.obs;
+  RxBool fondoSimple = true.obs;
 
-  /*void seleccionar(int id){
-    seleccionado = cuentas.indexOf(cuentas.where((v)=>v.id==id).first);
-  }*/
-
+//metodos
   String GetMes() => nombresMes[mes.value];
 
   void ChangeMes(String m)=>mes.value = nombresMes.indexOf(m);
 
-  List<int> GetAnnosDisponibles(List<Cuenta> cuentas){
-    int annoActual = DateTime.now().year;
-    HashSet<int> ret = HashSet<int>();
-    
-    for(Cuenta c in cuentas){
-      List<int> annos = c.Meses.map((e) => e.Anno).toList();
-      ret.addAll(annos);
-    }
-
-    ret.add(annoActual);
-    ret.add(annoActual+1);
-    ret.add(annoActual+2);
-    ret.add(annoActual+3);
-
-    return ret.toList();
+  Future init() async{
+    mostrarGatos.value = await readSharedPreferences(SharedPreferencesKeys.gatos);
+    fondoSimple.value = await readSharedPreferences(SharedPreferencesKeys.fondoSimple);
   }
-  
 }

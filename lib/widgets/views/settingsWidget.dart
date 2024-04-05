@@ -1,104 +1,35 @@
-import 'package:cuentas_android/models/Gasto.dart';
-import 'package:cuentas_android/themes/DarkTheme.dart';
-import 'package:cuentas_android/themes/LightTheme.dart';
+import 'package:cuentas_android/models/Cuenta.dart';
 import 'package:cuentas_android/values.dart';
-import 'package:cuentas_android/widgets/GastoView.dart';
+import 'package:cuentas_android/widgets/ItemView.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 
-Widget fijosView({required List<Gasto> gastos, required Function(String,double) onDelete, required Function(String,double) onChange, required ThemeData theme}){
-  int contador = 0;
-  List<Widget> gastosW = [];
-
-  for(Gasto v in gastos){
-    gastosW.add(gastoView(
-      onChange, 
-      onDelete, 
-      (v2)=>Values().gastoSeleccionado.value = v2,
-      v.nombre, 
-      v.valor, 
-      contador, 
-      theme)
-    );
-      
-    contador++;
-  }
-
-  return Column(
-    mainAxisAlignment: MainAxisAlignment.center,
-    children: gastosW
-  );
-}
-
-Widget nuevoFijo({required Function(String,double) onCreate, required ThemeData theme}){
-  String _nombre = "";
-  double _valor = 0;
-  return Row(
-    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-    children: [
-      Expanded(
-        flex: 4,
-        child: Padding(
-          padding: const EdgeInsets.only(right: 8,left: 8),
-          child: 
-            TextField(
-              onChanged: (v)=>_nombre = v,
-              decoration: const InputDecoration(
-                labelText: "Nombre"
-              ),
-              autofocus: true,
-          ),
-        )
+Widget settingsBody({required List<Cuenta> cuentas, required Function(Cuenta) saveToJson, required Function importFromJson, required BuildContext context, required Function(bool) onChangeStyle, required Function(bool) onChangeTheme, required Function onAboutUs}){
+  return Obx(()=> Center(
+      child: Padding(
+        padding: const EdgeInsets.all(50),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+           !kIsWeb
+            ?Column(
+              children: [
+                selectableSettingView(title: "Copia de seguridad", values: cuentas, onSelected: saveToJson, width: MediaQuery.of(context).size.width),
+                const Divider(),
+              ],
+            )
+            :Container(),
+            buttonSettingView(text: "Restaurar copia", onTap: importFromJson),
+            const Divider(),
+            switchSettingView(onChange: onChangeStyle, text: "Estilos informales", inicial: Values().mostrarGatos.value),
+            const Divider(),
+            switchSettingView(onChange: onChangeTheme, text: "Fondo simple", inicial: Values().fondoSimple.value),
+            const Divider(),
+            redirectSettingView(onTap: onAboutUs, text: "Sobre nosotros")
+          ],
+        ),
       ),
-      Expanded(
-        flex: 4,
-        child: Padding(
-          padding: const EdgeInsets.only(right: 8,left: 8),
-          child: 
-            TextField(
-              onChanged: (v)=>_valor = double.parse(v),
-              decoration: const InputDecoration(
-                labelText: "Monto"
-              ),
-              autofocus: true,
-              keyboardType: TextInputType.number,
-          ),
-        )
-      ),
-      Expanded(
-        child: IconButton(
-          onPressed: ()=>onCreate(_nombre,_valor),
-          icon: const Icon(Icons.check),
-          color: theme.brightness == Brightness.dark
-            ? AppColorsD.okButtonColor
-            : AppColorsL.okButtonColor
-          )
-      )
-    ],
-  );
-}
-
-Widget noFijos(){
-  return Column(
-    mainAxisAlignment: MainAxisAlignment.center,
-    children: [
-      Image.asset(
-        "lib/assets/images/gatobuscando.png",
-        width: 300,
-        height: 300,
-      ),
-      Text("No tienes gastos fijos")
-    ],
-  );
-}
-
-FloatingActionButton crearNuevo(){
-  return FloatingActionButton(
-    onPressed: ()=>Values().gastoSeleccionado.value != -2
-      ?Values().gastoSeleccionado.value = -2
-      :Values().gastoSeleccionado.value = -1,
-    child: Icon(Values().gastoSeleccionado.value == -2
-        ?Icons.close
-        :Icons.add
     ),
   );
 }

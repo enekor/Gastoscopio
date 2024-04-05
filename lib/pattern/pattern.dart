@@ -1,6 +1,7 @@
 import 'package:cuentas_android/pattern/positions.dart';
 import 'package:cuentas_android/themes/DarkTheme.dart';
 import 'package:cuentas_android/themes/LightTheme.dart';
+import 'package:cuentas_android/values.dart';
 import 'package:flutter/material.dart';
 import 'dart:math' as math;
 
@@ -17,19 +18,20 @@ class MyPattern extends CustomPainter {
     ThemeData theme = Theme.of(context);
     bool claro = theme.brightness == Brightness.dark;
 
+    if(!Values().fondoSimple.value){
+      //circulo
+      paint.color = claro?AppColorsL.secondaryColor1:AppColorsD.secondaryColor1;
+      canvas.drawCircle(positions().posiciones[0], 100, paint);
 
-    //circulo
-    paint.color = claro?AppColorsL.secondaryColor1:AppColorsD.secondaryColor1;
-    canvas.drawCircle(positions().posiciones[0], 100, paint);
+      paint.color = claro?AppColorsL.secondaryColor2:AppColorsD.secondaryColor2;
+      canvas.drawCircle(positions().posiciones[1], 75, paint);
 
-    paint.color = claro?AppColorsL.secondaryColor2:AppColorsD.secondaryColor2;
-    canvas.drawCircle(positions().posiciones[1], 75, paint);
+      paint.color = claro?AppColorsL.secondaryColor3:AppColorsD.secondaryColor3;
+      canvas.drawCircle(positions().posiciones[2], 50, paint);
 
-    paint.color = claro?AppColorsL.secondaryColor3:AppColorsD.secondaryColor3;
-    canvas.drawCircle(positions().posiciones[2], 50, paint);
-
-    paint.color = claro?AppColorsL.secondaryColor4:AppColorsD.secondaryColor4;
-    canvas.drawCircle(positions().posiciones[3], 40, paint);
+      paint.color = claro?AppColorsL.secondaryColor4:AppColorsD.secondaryColor4;
+      canvas.drawCircle(positions().posiciones[3], 40, paint);
+    }
 
     paint.color = claro?AppColorsL.secondaryColor5:AppColorsD.secondaryColor5;
 
