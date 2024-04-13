@@ -19,7 +19,7 @@ Gastoscopio es una aplicación de gestión financiera personal desarrollada en F
 ### ¿Te interesa probar Gastoscopio?
 
 Descarga la aplicación:
-- Android: [Última release](https://github.com/enekor/Gastoscopio/releases/tag/v1.0)
+- Android: [Última release](https://github.com/enekor/Gastoscopio/releases/tag/v0.1.2)
 - Web: [Aplicación web](https://fcuentas-3e40c.web.app/)
   
 Visita el repositorio de GitHub: https://github.com/enekor/Gastoscopio
