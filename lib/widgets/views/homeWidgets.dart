@@ -50,12 +50,14 @@ void nuevoUsuario({required BuildContext context, required Function(String) onCh
       padding: const EdgeInsets.all(15.0),
       child: AlertDialog(
         title: const Text("Nuevo usuario"),
-        content: TextField(
-          onChanged: onChange,
-          autofocus: true,
-          decoration: const InputDecoration(
-            labelText: "Nombre"
-          ),
+        content: Expanded(
+          child: TextField(
+            onChanged: onChange,
+            autofocus: true,
+            decoration: const InputDecoration(
+              labelText: "Nombre"
+            ),
+          )
         ),
         actions: [
           TextButton(onPressed: ()=>Navigator.pop(context), child: const Text("Cancelar")),
@@ -121,16 +123,17 @@ BottomNavigationBar navigationBar({required Function onLogOut, required Function
   }
 
   return BottomNavigationBar(
-    type: BottomNavigationBarType.shifting,
+    selectedLabelStyle: const TextStyle(color: Colors.black,fontWeight: FontWeight.bold),
+    unselectedLabelStyle: const TextStyle(color: Colors.black,fontWeight: FontWeight.bold),
     elevation: 0,
-    items: [
-      BottomNavigationBarItem(icon: const Icon(Icons.person_add), label: "Nueva cuenta", backgroundColor: oscuro?AppColorsL.secondaryColor5:AppColorsD.secondaryColor5),
-      BottomNavigationBarItem(icon: const Icon(Icons.settings), label: "Ajustes", backgroundColor: oscuro?AppColorsL.secondaryColor5:AppColorsD.secondaryColor5),
-      BottomNavigationBarItem(icon: const Icon(Icons.logout),label: "Cerrar sesión", backgroundColor:oscuro?AppColorsL.secondaryColor5:AppColorsD.secondaryColor5 )
+    items: const [
+      BottomNavigationBarItem(icon: Icon(Icons.person_add,color: Colors.black87), label: "Nueva cuenta"),
+      BottomNavigationBarItem(icon: Icon(Icons.settings,color: Colors.black87), label: "Ajustes"),
+      BottomNavigationBarItem(icon: Icon(Icons.logout,color: Colors.black87),label: "Cerrar sesión"),
     ],
     onTap: onTap,
     currentIndex: 0,
-    backgroundColor: Colors.red,
+    backgroundColor: oscuro?AppColorsL.secondaryColor5:AppColorsD.secondaryColor5,
     showSelectedLabels: true,
     showUnselectedLabels: true,
   );

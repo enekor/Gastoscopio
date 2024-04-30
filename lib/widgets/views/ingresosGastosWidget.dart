@@ -1,14 +1,17 @@
 import 'package:cuentas_android/models/Gasto.dart';
+import 'package:cuentas_android/models/Mes.dart';
 import 'package:cuentas_android/themes/DarkTheme.dart';
 import 'package:cuentas_android/themes/LightTheme.dart';
 import 'package:cuentas_android/utils.dart';
 import 'package:cuentas_android/values.dart';
 import 'package:cuentas_android/widgets/GastoView.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get/Get.dart';
 import 'package:get/get.dart';
 
 TextEditingController _nombreNuevo = TextEditingController();
+String _nombreNuevoDropdown = "";
 TextEditingController _valorNuevo = TextEditingController();
 TextEditingController _ingresoNuevo = TextEditingController();
 RxBool _isIngresoSeleccionado = false.obs;
@@ -64,7 +67,7 @@ Widget bodyHasDatos({required List<Gasto> gastos, required RxList<Gasto> extras,
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceAround,
               children: [
-                const Text("Gastos"),
+                Text(isIngreso ? "Ingresos extra" : "Gastos"),
                 Text("${gastos.fold<double>(0.0, (previousValue, gasto) => previousValue+gasto.valor).toStringAsFixed(2)}€")
               ],
             ),
@@ -83,24 +86,26 @@ Widget bodyHasDatos({required List<Gasto> gastos, required RxList<Gasto> extras,
           ],
         )
         : Container(),
-      _extraSelected.value
-        ? extras.isNotEmpty
-          ? Column( 
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: extraCards,
-          )
-          : Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Image.asset(
-                getImageUri(ImageUris.ok),
-                height: 200,
-                width: 200
-              ),
-              const Text("¡Que bien! no hay extras")
-            ],
-          )
-        : Container()
+      !isIngreso
+        ? _extraSelected.value
+          ? extras.isNotEmpty
+            ? Column( 
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: extraCards,
+            )
+            : Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Image.asset(
+                  getImageUri(ImageUris.ok),
+                  height: 200,
+                  width: 200
+                ),
+                const Text("¡Que bien! no hay extras")
+              ],
+            )
+          : Container()
+        :Container()
     ],
   );
 }
@@ -161,43 +166,74 @@ FloatingActionButton floatingButton(){
   );
 }
 
-Widget createNew({required Function(String,double) onCreateGasto, required Function(String,double) onCreateExtra, required ThemeData theme}){
-  return Row(
-    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-    children: [
-      IconButton(
-        onPressed: () {
-          Values().gastoSeleccionado.value = -1;
-          if(_extraSelected.value){
-            onCreateExtra(_nombreNuevo.text,double.parse(_valorNuevo.text));
-          }else{
-            onCreateGasto(_nombreNuevo.text,double.parse(_valorNuevo.text));
-          }
-          _nombreNuevo.clear();
-          _valorNuevo.clear();
-        }, 
-        icon: const Icon(Icons.check), 
-        color: theme.brightness == Brightness.dark
-          ?AppColorsD.okButtonColor
-          :AppColorsL.okButtonColor
-      ),
-      const SizedBox(width: 8,),
-      Expanded(child: TextField(
-        controller: _nombreNuevo,
-        decoration: const InputDecoration(
-          labelText: "Nombre",
+Widget createNew({required Function(String,double) onCreateGasto, required Function(String,double) onCreateExtra, required ThemeData theme, required bool IsIngresos, required RxList<Gasto> gastos, required RxList<Gasto> extras}){
+  RxBool _yaExistente = false.obs;
+  List<String> datos = _extraSelected.value
+            ?extras.map((e) => e.nombre).toList()
+            :gastos.where((gasto) => IsIngresos ? gasto.valor<0 : gasto.valor>0).map((e) => e.nombre).toList();
+
+  return Obx(()=>Column(
+      children: [
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Expanded(
+              flex:2,
+              child: IconButton(
+                onPressed: () {
+                  Values().gastoSeleccionado.value = -1;
+                  if(_extraSelected.value && !IsIngresos){
+                    onCreateExtra(!_yaExistente.value?_nombreNuevo.text:_nombreNuevoDropdown,double.parse(_valorNuevo.text));
+                  }else{
+                    onCreateGasto(!_yaExistente.value?_nombreNuevo.text:_nombreNuevoDropdown,double.parse(_valorNuevo.text));
+                  }
+                  _nombreNuevo.clear();
+                  _valorNuevo.clear();
+                }, 
+                icon: const Icon(Icons.check), 
+                color: theme.brightness == Brightness.dark
+                  ?AppColorsD.okButtonColor
+                  :AppColorsL.okButtonColor
+              ),
+            ),
+            Expanded(
+              flex:5,
+              child: _yaExistente.value
+                ?DropdownButtonFormField(
+                  items: datos.map((e) => DropdownMenuItem(value: e,child: Text(e),)).toList(),
+                  onChanged: (selected)=>_nombreNuevoDropdown = selected!,
+                  value: datos.first,
+                  iconSize: 1,
+                  )
+                :TextField(
+                  autofillHints: _extraSelected.value ? extras.map((e) => e.nombre).toList() :gastos.map((e) => e.nombre).toList(),
+                  controller: _nombreNuevo,
+                  decoration: const InputDecoration(labelText: "Nombre"),
+                  autofocus: true,
+                )
+            ),
+            Expanded(
+              flex: 3,
+              child: TextField(
+              controller: _valorNuevo,
+              decoration: const InputDecoration(
+                labelText: "Monto"
+              ),
+              keyboardType: TextInputType.number,
+            )),
+          ],
         ),
-        autofocus: true,
-      )),
-      const SizedBox(width: 8,),
-      Expanded(child: TextField(
-        controller: _valorNuevo,
-        decoration: const InputDecoration(
-          labelText: "Monto"
-        ),
-        keyboardType: TextInputType.number,
-      )),
-    ],
+        datos.isNotEmpty
+          ?Row(
+            mainAxisAlignment: MainAxisAlignment.spaceAround,
+            children: [
+              Switch(value: _yaExistente.value, onChanged: (value)=>_yaExistente.value = value),
+              const Text("Aumentar a uno ya existente")
+            ],
+          )
+          :Container()
+      ],
+    ),
   );
 }
 

@@ -42,6 +42,7 @@ class Values {
 
 //metodos
   String GetMes() => nombresMes[mes.value];
+  int GetMesNumber(String mes)=>nombresMes.indexOf(mes)+1;
 
   void ChangeMes(String m)=>mes.value = nombresMes.indexOf(m);
 

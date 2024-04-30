@@ -1,19 +1,26 @@
 import 'package:cuentas_android/models/Gasto.dart';
+import 'package:cuentas_android/values.dart';
 
-class Mes {
+class Mes implements Comparable<Mes>{
   List<Gasto> Gastos = [];
   double Ingreso = 0;
   List<Gasto> Extras = [];
   String NMes;
   int Anno;
+  DateTime fecha = DateTime(1,1,1);
 
-  Mes(this.NMes,this.Anno);
-  Mes.complete(
-      {required this.Gastos,
-      required this.Extras,
-      required this.Ingreso,
-      required this.NMes,
-      required this.Anno});
+  Mes(this.NMes,this.Anno){
+    fecha = DateTime(Anno,Values().GetMesNumber(NMes),1);
+  }
+  Mes.complete({
+    required this.Gastos,
+    required this.Extras,
+    required this.Ingreso,
+    required this.NMes,
+    required this.Anno
+    }){
+      fecha  = DateTime(Anno,Values().GetMesNumber(NMes),1);
+    }
 
   factory Mes.fromJson(Map<String, dynamic> json) => Mes.complete(
         Gastos: List<Gasto>.from(json["Gastos"].map((x) => Gasto.fromJson(x))),
@@ -73,5 +80,10 @@ class Mes {
 
   double GetAhorros() {
     return GetIngresos() - GetGastos();
+  }
+
+  @override
+  int compareTo(Mes otro){
+    return fecha.compareTo(otro.fecha);
   }
 }

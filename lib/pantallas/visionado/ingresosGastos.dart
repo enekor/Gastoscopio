@@ -66,11 +66,20 @@ class IngresosGastos extends StatelessWidget {
 
   void _onCreate(String nombre, double valor){
     valor = _isIngresos ? -1*valor : valor;
-    _datos.add(Gasto(nombre: nombre, valor: valor));
+    if(_datos.where((gasto) => gasto.nombre == nombre).isNotEmpty){
+      _datos.value.firstWhere((gasto) => gasto.nombre == nombre).valor += valor;
+    }else{
+      _datos.value.add(Gasto(nombre: nombre, valor: valor));
+    }
   }
 
   void _onCreateExtra(String nombre, double valor){
-    _extras.value.add(Gasto(nombre: nombre, valor: valor));
+    if(_extras.value.where((extra) => extra.nombre == nombre).isNotEmpty){
+      _extras.value.firstWhere((extra) => extra.nombre == nombre).valor += valor;
+    }
+    else{
+      _extras.value.add(Gasto(nombre: nombre, valor: valor));
+    }
   }
 
   void _onIngresoChange(double valor){
@@ -97,7 +106,7 @@ class IngresosGastos extends StatelessWidget {
                         ? bodyHasDatos(gastos: _datos.value, onSaveValue: _onSaveValue, onDeleteValue: _onDeleteValue, theme: Theme.of(context),isIngresos: _isIngresos, extras: _extras,onSaveExtra: _onSaveExtra,onDeleteExtra: _onDeleteExtra,ingreso: _ingreso.value, isIngreso: _isIngresos, onIngresoChange: _onIngresoChange)
                         : bodyHasNoDatos(ingreso: _ingreso.value, isIngreso: _isIngresos, onIngresoChange: _onIngresoChange,theme: Theme.of(context),extras: _extras,onSaveExtra: _onSaveExtra,onDeleteExtra: _onDeleteExtra),
                       Values().gastoSeleccionado.value == -2
-                        ? createNew(onCreateGasto: _onCreate, theme: Theme.of(context),onCreateExtra: _onCreateExtra,)
+                        ? createNew(onCreateGasto: _onCreate, theme: Theme.of(context),onCreateExtra: _onCreateExtra,IsIngresos: _isIngresos, gastos: _datos, extras: _extras)
                         : Container()
                     ],
                   )    

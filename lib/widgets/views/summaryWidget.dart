@@ -211,12 +211,14 @@ Widget showIngresos(Mes mes, BuildContext context) =>
   )
   :const Text("No hay",textAlign: TextAlign.center,);
 
-Widget summaryView(List<Mes> meses, BuildContext context) =>
-  Center(
+Widget summaryView(List<Mes> meses, BuildContext context) {
+  meses.sort((a,b)=>a.compareTo(b));
+  return Center(
     child: Column(
       children: showSummary(meses,context).map<Widget>((e) => 
         Card(child: e,)
       ).toList()
     ),
   );
+}
 

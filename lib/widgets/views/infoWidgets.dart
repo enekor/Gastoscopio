@@ -250,16 +250,18 @@ BottomNavigationBar navigationBar({required Function onDeudas, required Function
   }
 
   return BottomNavigationBar(
-    type: BottomNavigationBarType.shifting,
+    selectedLabelStyle: const TextStyle(color: Colors.black,fontWeight: FontWeight.bold),
+    unselectedLabelStyle: const TextStyle(color: Colors.black,fontWeight: FontWeight.bold),
     elevation: 0,
-    items: [
-      BottomNavigationBarItem(icon: const Icon(Icons.summarize), label: "Resumen", backgroundColor: oscuro?AppColorsL.secondaryColor5:AppColorsD.secondaryColor5),
-      BottomNavigationBarItem(icon: const FaIcon(FontAwesomeIcons.moneyCheckDollar), label: "Recurrentes", backgroundColor: oscuro?AppColorsL.secondaryColor5:AppColorsD.secondaryColor5),
-      BottomNavigationBarItem(icon: const FaIcon(FontAwesomeIcons.handHoldingDollar),label: "Deudas", backgroundColor:oscuro?AppColorsL.secondaryColor5:AppColorsD.secondaryColor5 )
+    items: const [
+      BottomNavigationBarItem(icon: Icon(Icons.summarize,color: Colors.black87,), label: "Resumen"),
+      BottomNavigationBarItem(icon: FaIcon(FontAwesomeIcons.moneyCheckDollar,color: Colors.black87), label: "Recurrentes"),
+      BottomNavigationBarItem(icon: FaIcon(FontAwesomeIcons.handHoldingDollar,color: Colors.black87),label: "Deudas")
     ],
     onTap: onTap,
     currentIndex: 0,
-    backgroundColor: Colors.red,
+    backgroundColor: oscuro?AppColorsL.secondaryColor5:AppColorsD.secondaryColor5,
     showUnselectedLabels: true,
+    showSelectedLabels: true,
   );
 }
