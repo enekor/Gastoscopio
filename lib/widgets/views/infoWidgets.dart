@@ -109,7 +109,7 @@ List<Widget> GetGastos({required List<Mes> meses, required String mes, required 
     );
   }
 
-  Widget bodyMesExists({required ThemeData theme,required String mes, required BuildContext context,  required Rx<Cuenta> cuenta,required Function(int) onSelected, required List<Gasto> deleted, required Function(String) onSelecMes, required Function(bool) onIngresoGastosPressed}){
+  Widget bodyMesExists({required ThemeData theme,required String mes, required BuildContext context,  required Cuenta cuenta,required Function(int) onSelected, required List<Gasto> deleted, required Function(String) onSelecMes, required Function(bool) onIngresoGastosPressed}){
     
     return Obx(()=>Column(
         mainAxisAlignment: MainAxisAlignment.center,
@@ -160,7 +160,7 @@ List<Widget> GetGastos({required List<Mes> meses, required String mes, required 
                           MainAxisAlignment.center,
                       children: [
                         const Text("Ingresos"),
-                        Text("${cuenta.value.Meses.where((v) => v.NMes == mes && v.Anno == Values().anno.value).first.GetIngresos().toStringAsFixed(2)}€")
+                        Text("${cuenta.Meses.where((v) => v.NMes == mes && v.Anno == Values().anno.value).first.GetIngresos().toStringAsFixed(2)}€")
                       ],
                     ),
                   ),
@@ -180,7 +180,7 @@ List<Widget> GetGastos({required List<Mes> meses, required String mes, required 
                           MainAxisAlignment.center,
                       children: [
                         const Text("Gastos"),
-                        Text("${cuenta.value.Meses.where((v) => v.NMes == mes && v.Anno == Values().anno.value).first.GetGastos().toStringAsFixed(2)}€")
+                        Text("${cuenta.Meses.where((v) => v.NMes == mes && v.Anno == Values().anno.value).first.GetGastos().toStringAsFixed(2)}€")
                       ],
                     ),
                   ),

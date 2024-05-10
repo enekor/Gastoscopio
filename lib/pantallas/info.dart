@@ -6,93 +6,111 @@ import 'package:cuentas_android/pantallas/visionado/ingresosGastos.dart';
 import 'package:cuentas_android/pantallas/visionado/fijos.dart';
 import 'package:cuentas_android/pattern/pattern.dart';
 import 'package:cuentas_android/pattern/positions.dart';
+import 'package:cuentas_android/widgets/dialog.dart';
 import 'package:flutter/material.dart';
 import 'package:cuentas_android/values.dart';
 import 'package:cuentas_android/models/Cuenta.dart';
 import 'package:cuentas_android/models/Mes.dart';
-import 'package:get/Get.dart';
 import 'package:cuentas_android/widgets/views/infoWidgets.dart' as iw;
-import 'package:cuentas_android/utils.dart';
 
-class Info extends StatelessWidget {
+late Cuenta c;
+String _mes = Values().GetMes();
+List<Gasto> _toDelete = [];
+
+class Info extends StatefulWidget {
   Info({Key? key,required Cuenta cuenta}) : super(key: key){
-    c = cuenta.obs;
+    c = cuenta;
   }
 
-  late Rx<Cuenta> c;
-  RxString _mes = Values().GetMes().obs;
-  RxList<Gasto> _toDelete = RxList<Gasto>([]);
-  RxBool _hasMesData = false.obs;
+  @override
+  State<Info> createState() => _InfoState();
+}
 
+class _InfoState extends State<Info> {
 //metodos
   bool _hasData(String mes) {
-    bool exists = c.value.Meses.where((v) => v.NMes == _mes.value && v.Anno == Values().anno.value).isNotEmpty;
+    if(c.Meses.isEmpty) return false;
+
+    bool exists = c.Meses.where((v) => v.NMes == mes && v.Anno == Values().anno.value).isNotEmpty;
     return exists;
   }
 
   void _seleccionarMes(String mes){
-    _mes.value = mes;
-    if(_hasData(mes)){
-      _hasMesData.value = true;
+
+    if (!_hasData(mes)) {
+      if(DateTime.now().month == Values().GetMesNumber(mes)){
+        _createMes(mes,0);
+      }
+      else{
+        showYesNoDialog(
+          title: "¿Crear nuevo mes?", 
+          onYes: () => _createMes(mes,0),
+          context: context, 
+          body: const Text("¿Desea crear un nuevo mes? Se crearán gastos nuevos a corde a los gastos fijos de la cuenta")
+        );
+      }
     }
     else{
-      _createMes(mes,0);
-      _hasMesData.value = false;
+      setState(() {
+        _mes = mes;
+      });
     }
   }
 
   void _createMes(String mes, double valor){
-    if(_hasData(mes)){
-      c.value.Meses.where((element) => element.NMes == mes && element.Anno == Values().anno).first.Ingreso = valor;
-    }else{
-      c.value.Meses.add(Mes.complete(Gastos: c.value.fijos, Extras: [], Ingreso: valor, NMes: mes, Anno: Values().anno.value));
+    if(!_hasData(mes)){
+      c.Meses.add(Mes.complete(Gastos: c.fijos, Extras: [], Ingreso: valor, NMes: mes, Anno: Values().anno.value));
+      setState(() {
+        _mes = mes;
+      });
     }
-
   }
 
   void _pop(BuildContext context) {
     positions().ChangePositions(MediaQuery.of(context).size.width,MediaQuery.of(context).size.height);
-    cuentaDao().almacenarDatos(c.value);
-    Values().cuentaRet = c.value;
+    cuentaDao().almacenarDatos(c);
+    Values().cuentaRet = c;
   }
 
   void _navigateIngresosGasto(BuildContext context, bool isIngreso) {
     Values().gastoSeleccionado.value = -1;
-    cuentaDao().almacenarDatos(c.value);
+    cuentaDao().almacenarDatos(c);
     positions().ChangePositions(MediaQuery.of(context).size.width,MediaQuery.of(context).size.height);
     Navigator.push(
-      context, MaterialPageRoute(builder: (context) => IngresosGastos(cuenta: c.value,isIngresos: isIngreso,mes: _mes.value))).then((value) {
-        c.value = Values().cuentaRet!;
+      context, MaterialPageRoute(builder: (context) => IngresosGastos(cuenta: c,isIngresos: isIngreso,mes: _mes))).then((value) {
+        setState(() {
+          c = Values().cuentaRet!;
+        });
       });
   }
 
   void _navigateFijos(BuildContext context){
     Values().gastoSeleccionado.value = -1;
-    cuentaDao().almacenarDatos(c.value);
+    cuentaDao().almacenarDatos(c);
     positions().ChangePositions(MediaQuery.of(context).size.width,MediaQuery.of(context).size.height);
     Navigator.push(
-      context, MaterialPageRoute(builder: (context) => gastosFijos(cuenta: c.value,))).then((value) {
-        c.value = Values().cuentaRet!;
+      context, MaterialPageRoute(builder: (context) => gastosFijos(cuenta: c,))).then((value) {
+        setState(() {
+          c = Values().cuentaRet!;
+        });
       });
   }
 
   void _navigateSummary(BuildContext context){
     positions().ChangePositions(MediaQuery.of(context).size.width,MediaQuery.of(context).size.height);
-    Navigator.of(context).push(MaterialPageRoute(builder: (context) => SummaryPage(cuenta:c.value)));
+    Navigator.of(context).push(MaterialPageRoute(builder: (context) => SummaryPage(cuenta:c)));
   }
 
   void _navigateDeudas(BuildContext context){
     Values().gastoSeleccionado.value = -1;
-    cuentaDao().almacenarDatos(c.value);
+    cuentaDao().almacenarDatos(c);
     positions().ChangePositions(MediaQuery.of(context).size.width,MediaQuery.of(context).size.height);
     Navigator.push(
-      context, MaterialPageRoute(builder: (context) => deudas(cuenta: c.value,))).then((value) {
-        c.value = Values().cuentaRet!;
+      context, MaterialPageRoute(builder: (context) => deudas(cuenta: c,))).then((value) {
+        setState(() {
+          c = Values().cuentaRet!;
+        });
       });
-  }
-
-  Future _writeData(Cuenta c) async{
-    await writeToDownloadPath(c);
   }
 
 //pantalla
@@ -101,16 +119,16 @@ class Info extends StatelessWidget {
     _seleccionarMes(Values().GetMes());
     return PopScope(
       onPopInvoked: (_)=> _pop(context),
-      child:Obx(()=>Scaffold(
+      child:Scaffold(
         resizeToAvoidBottomInset: true,
         appBar: AppBar(
           centerTitle: false,
           backgroundColor: Theme.of(context).primaryColor,
           elevation: 0.0,
-          title:  c.value.Meses.where((element) => element.NMes == _mes.value && element.Anno == Values().anno.value).first.Ingreso != 0
+          title:  c.Meses.where((element) => element.NMes == _mes && element.Anno == Values().anno.value).first.Ingreso != 0
             ? iw.appBarMesExists(
-              mes: _mes.value,
-              c: c.value,
+              mes: _mes,
+              c: c,
               width: MediaQuery.of(context).size.width,
             )
             : const Text("Inicio de mes"),
@@ -123,7 +141,7 @@ class Info extends StatelessWidget {
             child: Center(
               child: iw.bodyMesExists(
                 context: context,
-                mes: _mes.value,
+                mes: _mes,
                 cuenta: c,
                 theme: Theme.of(context),
                 onSelected: (v)=>Values().gastoSeleccionado.value = v,
@@ -134,7 +152,7 @@ class Info extends StatelessWidget {
             )
           ),
         ),
-      )),
+      )
     );
   }
 }

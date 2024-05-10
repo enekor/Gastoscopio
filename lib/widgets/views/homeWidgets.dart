@@ -73,14 +73,14 @@ void nuevoUsuario({required BuildContext context, required Function(String) onCh
   );
 }
 
-Widget hasData({required BuildContext context,required RxList<Cuenta> cuentas,required double width, required double height, required Function(dynamic) vuelto, required Function(Cuenta) navigateInfo, required Function(Cuenta) delete, required Function logout, required List<int> annosDisponibles}){
+Widget hasData({required BuildContext context,required List<Cuenta> cuentas,required double width, required double height, required Function(dynamic) vuelto, required Function(Cuenta) navigateInfo, required Function(Cuenta) delete, required Function logout, required List<int> annosDisponibles}){
   return Obx(()=>Center(
     child:Column(
       mainAxisAlignment: MainAxisAlignment.center,
       crossAxisAlignment: CrossAxisAlignment.center,
       children: [
         selectYear(
-          cc: cuentas.value, 
+          cc: cuentas, 
           width: MediaQuery.of(context).size.width, 
           theme: Theme.of(context),
           annosDisponibles: annosDisponibles
@@ -91,7 +91,7 @@ Widget hasData({required BuildContext context,required RxList<Cuenta> cuentas,re
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
             crossAxisAlignment: CrossAxisAlignment.center,
-            children: cuentas.value.map<Widget>((cuenta) => SizedBox(
+            children: cuentas.map<Widget>((cuenta) => SizedBox(
               width:  width/4,
               child: Center(
                 child: ItemCard(cuenta.Nombre,cuenta.GetTotal(Values().anno.value),delete: ()=>delete(cuenta),open: ()=>navigateInfo(cuenta)),

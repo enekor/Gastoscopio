@@ -2,51 +2,68 @@ import 'package:cuentas_android/dao/cuentaDao.dart';
 import 'package:cuentas_android/models/Cuenta.dart';
 import 'package:cuentas_android/models/Gasto.dart';
 import 'package:cuentas_android/pattern/pattern.dart';
-import 'package:cuentas_android/widgets/views/fijosWidget.dart';
 import 'package:cuentas_android/pattern/positions.dart';
 import 'package:cuentas_android/values.dart';
+import 'package:cuentas_android/widgets/views/fijosWidget.dart';
 import 'package:flutter/material.dart';
-import 'package:get/get.dart';
 
-class gastosFijos extends StatelessWidget {
-  late Rx<Cuenta> cuenta;
+late Cuenta _cuenta;
+bool nuevo = false;
+
+class gastosFijos extends StatefulWidget {
   gastosFijos({Key? key, required Cuenta cuenta}) : super(key: key) {
-    this.cuenta = cuenta.obs;
+    _cuenta = cuenta;
   }
 
+  @override
+  State<gastosFijos> createState() => _gastosFijosState();
+}
+
+class _gastosFijosState extends State<gastosFijos> {
   void _onDelete(String nombre, double valor) {
-    cuenta.value.fijos.removeWhere(
-        (element) => element.nombre == nombre && element.valor == valor);
+    setState(() {
+      _cuenta.fijos.removeWhere((element) => element.nombre == nombre && element.valor == valor);
+    });
   }
 
   void _onChange(String nombre, double valor) {
-    cuenta.value.fijos
-        .where((element) => element.nombre == nombre)
-        .first
-        .valor = valor;
+    setState(() {
+      _cuenta.fijos
+          .where((element) => element.nombre == nombre)
+          .first
+          .valor = valor;
+    });
   }
 
   void _onCreate(String nombre, double valor) {
-    cuenta.value.fijos.add(Gasto(nombre: nombre, valor: valor));
-    Values().gastoSeleccionado.value = -1;
+    _cuenta.fijos.add(Gasto(nombre: nombre, valor: valor));
+    setState(() {
+      Values().gastoSeleccionado.value = -1;
+      nuevo = !nuevo;
+    });
   }
 
   void _pop(BuildContext context) {
     positions().ChangePositions(
         MediaQuery.of(context).size.width, MediaQuery.of(context).size.height);
-    cuentaDao().almacenarDatos(cuenta.value);
-    Values().cuentaRet = cuenta.value;
+    cuentaDao().almacenarDatos(_cuenta);
+    Values().cuentaRet = _cuenta;
+  }
+
+  void _changeNuevo(){
+    setState(() {
+      nuevo = !nuevo;
+    });
   }
 
   @override
   Widget build(BuildContext context) {
-    return Obx(
-      () => PopScope(
+    return  PopScope(
         onPopInvoked: (_) => _pop(context),
         child: Scaffold(
           resizeToAvoidBottomInset: true,
-          floatingActionButton:crearNuevo(),
-          appBar: fijosAppBar(fijos: cuenta.value.fijos, size: MediaQuery.of(context).size.width),
+          floatingActionButton:crearNuevo(nuevo,onChange: _changeNuevo),
+          appBar: fijosAppBar(fijos: _cuenta.fijos, size: MediaQuery.of(context).size.width),
           body: CustomPaint(
             painter: MyPattern(context),
             child: Center(
@@ -55,23 +72,22 @@ class gastosFijos extends StatelessWidget {
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      cuenta.value.fijos.isNotEmpty
+                      _cuenta.fijos.isNotEmpty
                         ?fijosView(
-                          gastos: cuenta.value.fijos,
+                          gastos: _cuenta.fijos,
                           onDelete: _onDelete,
                           onChange: _onChange,
                           theme: Theme.of(context))
                         :noFijos(),
-                      Values().gastoSeleccionado.value == -2
-                          ? nuevoFijo(
-                              onCreate: _onCreate, theme: Theme.of(context))
-                          : Container()
+                      nuevo
+                        ? nuevoFijo(
+                            onCreate: _onCreate, theme: Theme.of(context))
+                        : Container()
                     ],
                   )),
             ),
           ),
         ),
-      ),
     );
   }
 }

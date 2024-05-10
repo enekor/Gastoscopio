@@ -92,15 +92,16 @@ Widget noFijos(){
   );
 }
 
-FloatingActionButton crearNuevo(){
-  return FloatingActionButton(
-    onPressed: ()=>Values().gastoSeleccionado.value != -2
-      ?Values().gastoSeleccionado.value = -2
-      :Values().gastoSeleccionado.value = -1,
-    child: Icon(Values().gastoSeleccionado.value == -2
-        ?Icons.close
-        :Icons.add
+FloatingActionButton crearNuevo(bool nuevo, {required Function onChange}){
+  return FloatingActionButton.extended(
+    onPressed: ()=>onChange(),
+    icon: Icon( nuevo
+      ?Icons.close
+      :Icons.add
     ),
+    label: nuevo
+      ?const Text("Cancelar")
+      :const Text("Nuevo fijo"),
   );
 }
 

@@ -2,6 +2,7 @@ import 'package:cuentas_android/models/Gasto.dart';
 import 'package:cuentas_android/utils.dart';
 import 'package:cuentas_android/values.dart';
 import 'package:cuentas_android/widgets/GastoView.dart';
+import 'package:cuentas_android/widgets/dialog.dart';
 import 'package:flutter/material.dart';
 
 AppBar appBar(){
@@ -50,9 +51,9 @@ FloatingActionButton floatingButton({required Function(String,double) onCreate, 
 TextEditingController _nombre = TextEditingController();
 TextEditingController _valor = TextEditingController();
 void nuevaDeuda({required Function(String,double) onCreate, required BuildContext context}){
-  showDialog(context: context, builder: (context)=>AlertDialog(
-    title: const Text("Nueva deuda"),
-    content: Row(
+  showYesNoDialog(
+    context: context,
+    body: Row(
       children: [
         Expanded(
           flex:5,
@@ -77,12 +78,12 @@ void nuevaDeuda({required Function(String,double) onCreate, required BuildContex
         )
       ],
     ),
-    actions: [
-      TextButton(onPressed: ()=>Navigator.pop(context), child: const Text("Cancelar")),
-      TextButton(onPressed: (){
+    onYes: (){
         onCreate(_nombre.text,double.parse(_valor.text));
         Navigator.pop(context);
-      }, child: const Text("Guardar"))
-    ],
-  ));
+      },
+    yesButton: "Guardar",
+    noButton: "Cancelar",
+    title: "Nueva deuda"
+  );
 }

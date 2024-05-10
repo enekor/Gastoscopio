@@ -1,12 +1,11 @@
 import 'package:cuentas_android/models/Gasto.dart';
-import 'package:cuentas_android/models/Mes.dart';
 import 'package:cuentas_android/themes/DarkTheme.dart';
 import 'package:cuentas_android/themes/LightTheme.dart';
 import 'package:cuentas_android/utils.dart';
 import 'package:cuentas_android/values.dart';
 import 'package:cuentas_android/widgets/GastoView.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
 import 'package:get/Get.dart';
 import 'package:get/get.dart';
 
@@ -15,7 +14,6 @@ String _nombreNuevoDropdown = "";
 TextEditingController _valorNuevo = TextEditingController();
 TextEditingController _ingresoNuevo = TextEditingController();
 RxBool _isIngresoSeleccionado = false.obs;
-RxBool _extraSelected = false.obs;
 
 String valorTotal(bool isIngreso, double gastos, double extras, double ingresos){
   return isIngreso ? (-1*gastos + ingresos).toStringAsFixed(2) : (gastos+extras).toStringAsFixed(2);
@@ -35,140 +33,110 @@ AppBar appBar({required List<Gasto> datos,required List<Gasto> extras, required 
   );
 }
 
-Widget bodyHasDatos({required List<Gasto> gastos, required RxList<Gasto> extras,required Function(String,double) onSaveValue, required Function(String,double) onDeleteValue, required ThemeData theme, required bool isIngresos, required Function(String,double) onSaveExtra,required Function(String,double) onDeleteExtra, required bool isIngreso, required Function(double) onIngresoChange, required double ingreso,}){
+Widget bodyHasDatos({required List<Gasto> gastos,required Function(String,double) onSaveValue, required Function(String,double) onDeleteValue, required ThemeData theme, required bool isIngresos}){
   List<Widget> cards = [];
-  List<Widget> extraCards = [];
   int contador = 1;
-  double valorExtras = extras.fold<double>(0.0, (previousValue, gasto) => previousValue+gasto.valor);
 
-  if(gastos.isNotEmpty){
-    for(Gasto gasto in gastos){
-      cards.add(gastoView(onSaveValue, onDeleteValue, (selec)=>Values().gastoSeleccionado.value = selec, gasto.nombre, isIngresos?-1*gasto.valor:gasto.valor, contador, theme));
-      contador++;
-    }
-  }else{
-    _extraSelected.value = true;
-  }
-
-  for(Gasto extra in extras){
-    extraCards.add(gastoView(onSaveExtra, onDeleteExtra, (pos)=>Values().gastoSeleccionado.value = pos, extra.nombre, extra.valor, contador, theme));
+  for(Gasto gasto in gastos){
+    cards.add(gastoView(onSaveValue, onDeleteValue, (selec)=>Values().gastoSeleccionado.value = selec, gasto.nombre, isIngresos?-1*gasto.valor:gasto.valor, contador, theme));
     contador++;
   }
 
-  return Column(
-    mainAxisAlignment: MainAxisAlignment.center,
-    children: [
-      isIngreso
-          ? ingresoView(onIngresoChange: onIngresoChange, ingreso: ingreso, theme: theme)
-          :Container(),
-      Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children:[
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceAround,
-              children: [
-                Text(isIngreso ? "Ingresos extra" : "Gastos"),
-                Text("${gastos.fold<double>(0.0, (previousValue, gasto) => previousValue+gasto.valor).toStringAsFixed(2)}€")
-              ],
-            ),
-            Column(children: cards,)
-          ]
+  return gastos.isNotEmpty
+  ? Column(
+      children:[
+        Expanded(
+          flex:1,
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceAround,
+            children: [
+              Text(isIngresos ? "Ingresos extra" : "Gastos básicos"),
+              Text("${gastos.fold<double>(0.0, (previousValue, gasto) => isIngresos ? previousValue+(-1*gasto.valor) : previousValue+gasto.valor).toStringAsFixed(2)}€")
+            ],
+          ),
         ),
-      !isIngresos
-        ? Divider()
-        : Container(),
-      !isIngresos
-        ?Row(
-          mainAxisAlignment: MainAxisAlignment.spaceAround,
-          children: [
-            const Text("Extras"),
-            TextButton(onPressed: ()=>_extraSelected.value = !_extraSelected.value, child: Text("${valorExtras.toStringAsFixed(2)}€"))
-          ],
+        Expanded(
+          flex:9,
+          child: ListView.builder(
+            itemCount: cards.length,
+            itemBuilder: (context, index) => cards[index],
+          ),
         )
-        : Container(),
-      !isIngreso
-        ? _extraSelected.value
-          ? extras.isNotEmpty
-            ? Column( 
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: extraCards,
-            )
-            : Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Image.asset(
-                  getImageUri(ImageUris.ok),
-                  height: 200,
-                  width: 200
-                ),
-                const Text("¡Que bien! no hay extras")
-              ],
-            )
-          : Container()
-        :Container()
-    ],
-  );
+      ]
+    )
+  : bodyHasNoDatos();
 }
 
-Widget bodyHasNoDatos({  required RxList<Gasto> extras,required bool isIngreso, required Function(double) onIngresoChange, required double ingreso, required ThemeData theme,required Function(String,double) onSaveExtra,required Function(String,double) onDeleteExtra}){
+Widget extrasListView ({ required List<Gasto> extras, required Function(String,double,bool) onCreate, required Function(String,double) onSaveExtra, required Function(String,double) onDeleteExtra, required, required ThemeData theme}){
   List<Widget> extraCards = [];
-  int contador = 1;
 
+  int contador = 0;
   for(Gasto extra in extras){
     extraCards.add(gastoView(onSaveExtra, onDeleteExtra, (pos)=>Values().gastoSeleccionado.value = pos, extra.nombre, extra.valor, contador, theme));
     contador++;
   }
+
+  return extras.isNotEmpty
+    ? ListView( 
+      children: extraCards,
+    )
+    : Center(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Image.asset(
+            getImageUri(ImageUris.ok),
+            height: 200,
+            width: 200
+          ),
+          const Text("¡Que bien! no hay extras")
+        ],
+      ),
+    );
+}
+
+Widget bodyHasNoDatos(){
   
   return Center(
     child: Column(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
-        isIngreso
-          ?ingresoView(onIngresoChange: onIngresoChange, ingreso: ingreso, theme: theme)
-          :Container(),
         Image.asset(
-            getImageUri(ImageUris.RascandoCabeza),
-            height: 200,
-            width: 200,
-          ),
-          const Text("Esto está muy vacio"),
-          _extraSelected.value
-        ? extras.isNotEmpty
-          ? Column( 
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: extraCards,
-          )
-          : Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Image.asset(
-                getImageUri(ImageUris.ok),
-                height: 200,
-                width: 200
-              ),
-              const Text("¡Que bien! no hay extras")
-            ],
-          )
-        : Container()
+          getImageUri(ImageUris.buscando),
+          height: 200,
+          width: 200,
+        ),
+        const Text("Esto está muy vacio"),
       ],
     ),
   );
 }
 
-FloatingActionButton floatingButton(){
-  return FloatingActionButton(
-    onPressed: Values().gastoSeleccionado.value == -2
-      ? ()=> Values().gastoSeleccionado.value = -1
-      : ()=> Values().gastoSeleccionado.value = -2 ,
-    child: Values().gastoSeleccionado.value != -2
+FloatingActionButton floatingButton(bool nuevo, {required Function onChange}){
+  return FloatingActionButton.extended(
+    onPressed: ()=>onChange(),
+    icon: !nuevo
       ? const Icon(Icons.add)
-      : const Icon(Icons.close)
+      : const Icon(Icons.close),
+    label: nuevo
+      ?const Text("Cancelar")
+      :const Text("Nuevo fijo"),
   );
 }
 
-Widget createNew({required Function(String,double) onCreateGasto, required Function(String,double) onCreateExtra, required ThemeData theme, required bool IsIngresos, required RxList<Gasto> gastos, required RxList<Gasto> extras}){
+Widget showExtras({required double valorExtras, required Function(bool) checkExtras, required bool extrasChecked}){
+  return Row(
+    mainAxisAlignment: MainAxisAlignment.spaceAround,
+    children: [
+      Text("Ver extras (${valorExtras.toStringAsFixed(2)}€)"),
+      Switch(value: extrasChecked, onChanged: checkExtras)
+    ],
+  );
+}
+
+Widget createNew({required bool extraSelected, required Function(String,double,bool) onCreateGasto,required ThemeData theme, required bool IsIngresos, required List<Gasto> gastos, required List<Gasto> extras}){
   RxBool _yaExistente = false.obs;
-  List<String> datos = _extraSelected.value
+  List<String> datos = extraSelected
             ?extras.map((e) => e.nombre).toList()
             :gastos.where((gasto) => IsIngresos ? gasto.valor<0 : gasto.valor>0).map((e) => e.nombre).toList();
 
@@ -181,12 +149,7 @@ Widget createNew({required Function(String,double) onCreateGasto, required Funct
               flex:2,
               child: IconButton(
                 onPressed: () {
-                  Values().gastoSeleccionado.value = -1;
-                  if(_extraSelected.value && !IsIngresos){
-                    onCreateExtra(!_yaExistente.value?_nombreNuevo.text:_nombreNuevoDropdown,double.parse(_valorNuevo.text));
-                  }else{
-                    onCreateGasto(!_yaExistente.value?_nombreNuevo.text:_nombreNuevoDropdown,double.parse(_valorNuevo.text));
-                  }
+                  onCreateGasto(!_yaExistente.value?_nombreNuevo.text:_nombreNuevoDropdown,double.parse(_valorNuevo.text),extraSelected);
                   _nombreNuevo.clear();
                   _valorNuevo.clear();
                 }, 
@@ -206,7 +169,7 @@ Widget createNew({required Function(String,double) onCreateGasto, required Funct
                   iconSize: 1,
                   )
                 :TextField(
-                  autofillHints: _extraSelected.value ? extras.map((e) => e.nombre).toList() :gastos.map((e) => e.nombre).toList(),
+                  autofillHints: extraSelected ? extras.map((e) => e.nombre).toList() :gastos.map((e) => e.nombre).toList(),
                   controller: _nombreNuevo,
                   decoration: const InputDecoration(labelText: "Nombre"),
                   autofocus: true,
@@ -238,40 +201,41 @@ Widget createNew({required Function(String,double) onCreateGasto, required Funct
 }
 
 Widget ingresoView({required Function(double) onIngresoChange, required double ingreso, required ThemeData theme}){
-  return Card(
-    color: theme.brightness == Brightness.dark ? AppColorsD.okButtonColor : AppColorsL.okButtonColor,
-    child: _isIngresoSeleccionado.value
-      ? Row(
-        mainAxisAlignment: MainAxisAlignment.spaceAround,
-        children: [
-          IconButton(
-            onPressed: (){
-              _isIngresoSeleccionado.value = false;
-              onIngresoChange(double.parse(_ingresoNuevo.text));
-            },
-            icon: const Icon(Icons.check),
-            iconSize: theme.textTheme.labelLarge!.fontSize
-          ),
-          const SizedBox(width: 8,),
-          Text("Ingreso base", style: TextStyle(fontSize: theme.textTheme.labelLarge!.fontSize),),
-          const SizedBox(width: 8,),
-          Expanded(
-            child: TextField(
-              style: TextStyle(fontSize: theme.textTheme.labelLarge!.fontSize),
-              autofocus: true,
-              controller: _ingresoNuevo,
-              decoration: const InputDecoration(labelText: "Monto"),
-              keyboardType: TextInputType.number,
+  return Obx(()=> Card(
+      color: theme.brightness == Brightness.dark ? AppColorsD.okButtonColor : AppColorsL.okButtonColor,
+      child: _isIngresoSeleccionado.value
+        ? Row(
+          mainAxisAlignment: MainAxisAlignment.spaceAround,
+          children: [
+            IconButton(
+              onPressed: (){
+                _isIngresoSeleccionado.value = false;
+                onIngresoChange(double.parse(_ingresoNuevo.text));
+              },
+              icon: const Icon(Icons.check),
+              iconSize: theme.textTheme.labelLarge!.fontSize
             ),
-          ),
+            const SizedBox(width: 8,),
+            Text("Ingreso base", style: TextStyle(fontSize: theme.textTheme.labelLarge!.fontSize),),
+            const SizedBox(width: 8,),
+            Expanded(
+              child: TextField(
+                style: TextStyle(fontSize: theme.textTheme.labelLarge!.fontSize),
+                autofocus: true,
+                controller: _ingresoNuevo,
+                decoration: const InputDecoration(labelText: "Monto"),
+                keyboardType: TextInputType.number,
+              ),
+            ),
+          ],
+        )
+        :Row(
+          mainAxisAlignment: MainAxisAlignment.spaceAround,
+          children: [
+          Text("Ingreso base",style: TextStyle(fontSize: theme.textTheme.labelLarge!.fontSize)),
+          TextButton(child: Text("${ingreso.toStringAsFixed(2)}€",style: TextStyle(fontSize: theme.textTheme.labelLarge!.fontSize)), onPressed: ()=>_isIngresoSeleccionado.value = true,)
         ],
-      )
-      :Row(
-        mainAxisAlignment: MainAxisAlignment.spaceAround,
-        children: [
-        Text("Ingreso base",style: TextStyle(fontSize: theme.textTheme.labelLarge!.fontSize)),
-        TextButton(child: Text("${ingreso.toStringAsFixed(2)}€",style: TextStyle(fontSize: theme.textTheme.labelLarge!.fontSize)), onPressed: ()=>_isIngresoSeleccionado.value = true,)
-      ],
+      ),
     ),
   );
 }

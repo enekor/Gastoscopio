@@ -233,6 +233,7 @@ class _LoginPageState extends State<LoginPage> {
 
   @override
   Widget build(BuildContext context) {
+    //Auth().signInEmailPassword(email: "test@gastoscopio.com", password: "test12345");
     return Scaffold(
       resizeToAvoidBottomInset: true,
       appBar: AppBar(

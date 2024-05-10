@@ -5,30 +5,38 @@ import 'package:cuentas_android/models/Mes.dart';
 import 'package:cuentas_android/pattern/pattern.dart';
 import 'package:cuentas_android/pattern/positions.dart';
 import 'package:cuentas_android/values.dart';
-import 'package:flutter/material.dart';
-import 'package:get/Get.dart';
 import 'package:cuentas_android/widgets/views/ingresosGastosWidget.dart';
+import 'package:flutter/material.dart';
 
-class IngresosGastos extends StatelessWidget {
-  late RxList<Gasto> _datos;
-  late RxList<Gasto> _extras;
-  late RxDouble _ingreso;
+late List<Gasto> _datos;
+late List<Gasto> _extras;
+late double _ingreso;
+late Cuenta _cuenta;
+late bool _isIngresos;
+late String _mes;
 
-  late Cuenta _cuenta;
-  late bool _isIngresos;
-  late String _mes;
+bool _nuevo = false;
+bool _showExtras = false;
+
+class IngresosGastos extends StatefulWidget {
 
   IngresosGastos({Key? key, required Cuenta cuenta, required String mes, required bool isIngresos}) : super(key: key){
     _cuenta = cuenta;
     Mes mesCompleto = cuenta.Meses.firstWhere((m) => m.NMes == mes && m.Anno == Values().anno.value);
     _isIngresos = isIngresos;
     _datos = isIngresos
-      ? mesCompleto.Gastos.where((gasto)=>gasto.valor<0).toList().obs
-      : mesCompleto.Gastos.where((gasto)=>gasto.valor>0).toList().obs;
-    _ingreso = cuenta.Meses.where((mes) => mes.NMes == Values().GetMes() && mes.Anno == Values().anno.value).first.Ingreso.obs;
+      ? mesCompleto.Gastos.where((gasto)=>gasto.valor<0).toList()
+      : mesCompleto.Gastos.where((gasto)=>gasto.valor>0).toList();
+    _ingreso = cuenta.Meses.where((mes) => mes.NMes == Values().GetMes() && mes.Anno == Values().anno.value).first.Ingreso;
     _mes = mes;
-    _extras = cuenta.Meses.where((mes) => mes.NMes == Values().GetMes() && mes.Anno == Values().anno.value).first.Extras.obs;
+    _extras = cuenta.Meses.where((mes) => mes.NMes == Values().GetMes() && mes.Anno == Values().anno.value).first.Extras;
   }
+
+  @override
+  State<IngresosGastos> createState() => _IngresosGastosState();
+}
+
+class _IngresosGastosState extends State<IngresosGastos> {
 
    void _pop(BuildContext context) {
     if(_isIngresos){
@@ -37,85 +45,132 @@ class IngresosGastos extends StatelessWidget {
     else{
       _cuenta.Meses.where((m) => m.NMes == _mes && m.Anno == Values().anno.value).first.Gastos.removeWhere((gasto)=>gasto.valor>0);
     }
-    _cuenta.Meses.where((m) => m.NMes == _mes && m.Anno == Values().anno.value).first.Gastos.addAll(_datos.value);
-    _cuenta.Meses.where((m) => m.NMes == _mes && m.Anno == Values().anno.value).first.Ingreso = _ingreso.value;
-    _cuenta.Meses.where((m) => m.NMes == _mes && m.Anno == Values().anno.value).first.Extras = _extras.value;
+    _cuenta.Meses.where((m) => m.NMes == _mes && m.Anno == Values().anno.value).first.Gastos.addAll(_datos);
+    _cuenta.Meses.where((m) => m.NMes == _mes && m.Anno == Values().anno.value).first.Ingreso = _ingreso;
+    _cuenta.Meses.where((m) => m.NMes == _mes && m.Anno == Values().anno.value).first.Extras = _extras;
 
     positions().ChangePositions(MediaQuery.of(context).size.width,MediaQuery.of(context).size.height);
     cuentaDao().almacenarDatos(_cuenta);
     Values().cuentaRet = _cuenta;
   }
 
+  void _onCreateGasto(String nombre, double valor, bool extra){
+    if(_isIngresos){
+      valor = -1*valor;
+      if(_datos.where((gasto) => gasto.nombre == nombre).isNotEmpty){
+        _datos.firstWhere((gasto) => gasto.nombre == nombre).valor += valor;
+      }else{
+        _datos.add(Gasto(nombre: nombre, valor: valor));
+      }
+    }
+    else{
+      if(extra){
+        if(_extras.where((gasto) => gasto.nombre == nombre).isNotEmpty){
+          _extras.firstWhere((gasto) => gasto.nombre == nombre).valor += valor;
+        }else{
+          _extras.add(Gasto(nombre: nombre, valor: valor));
+        }
+      }
+      else{
+        if(_datos.where((gasto) => gasto.nombre == nombre).isNotEmpty){
+          _datos.firstWhere((gasto) => gasto.nombre == nombre).valor += valor;
+        }else{
+          _datos.add(Gasto(nombre: nombre, valor: valor));
+        }
+      }
+    }
+
+    setState(() {
+      _nuevo = !_nuevo;
+    });
+  }
+
   void _onSaveValue(String nombre, double valor){
     valor = _isIngresos ? -1*valor : valor;
-    _datos.value.where((gasto) => gasto.nombre == nombre).first.valor = valor;
+    setState(() {
+      _datos.where((gasto) => gasto.nombre == nombre).first.valor = valor;
+    });
   }
 
   void _onSaveExtra(String nombre, double valor){
-    _extras.value.firstWhere((extra) => extra.nombre == nombre).valor = valor;
+    setState(() {
+      _extras.firstWhere((extra) => extra.nombre == nombre).valor = valor;
+    });
   }
 
   void _onDeleteValue(String nombre,double valor){
     valor = _isIngresos ? -1*valor : valor;
-    _datos.value.removeWhere((gasto) => gasto.nombre == nombre && gasto.valor == valor);
+    setState(() {
+      _datos.removeWhere((gasto) => gasto.nombre == nombre && gasto.valor == valor);
+    });
   }
 
   void _onDeleteExtra(String nombre, double valor){
-    _extras.value.removeWhere((extra) => extra.nombre == nombre && extra.valor == valor);
-  }
-
-  void _onCreate(String nombre, double valor){
-    valor = _isIngresos ? -1*valor : valor;
-    if(_datos.where((gasto) => gasto.nombre == nombre).isNotEmpty){
-      _datos.value.firstWhere((gasto) => gasto.nombre == nombre).valor += valor;
-    }else{
-      _datos.value.add(Gasto(nombre: nombre, valor: valor));
-    }
-  }
-
-  void _onCreateExtra(String nombre, double valor){
-    if(_extras.value.where((extra) => extra.nombre == nombre).isNotEmpty){
-      _extras.value.firstWhere((extra) => extra.nombre == nombre).valor += valor;
-    }
-    else{
-      _extras.value.add(Gasto(nombre: nombre, valor: valor));
-    }
+    setState(() {
+      _extras.removeWhere((extra) => extra.nombre == nombre && extra.valor == valor);
+    });
   }
 
   void _onIngresoChange(double valor){
-    _ingreso.value = valor;
+    setState(() {
+      _ingreso = valor;
+    });
+  }
+
+  void _setNuevo(){
+    setState(() {
+      _nuevo = !_nuevo;
+    });
+  }
+
+  void _checkExtras(bool checked){
+    setState(() {
+      _showExtras = checked;
+    });
   }
 
   @override
   Widget build(BuildContext context) {
      return PopScope(
         onPopInvoked: (_)=> _pop(context),
-        child:Obx(()=>Scaffold(
+        child:Scaffold(
           resizeToAvoidBottomInset: true,
-          appBar: appBar(datos: _datos.value, extras: _extras.value,ingreso: _ingreso.value, isIngreso: _isIngresos,theme: Theme.of(context)),
-          floatingActionButton: floatingButton(),
+          appBar: appBar(datos: _datos, extras: _extras,ingreso: _ingreso, isIngreso: _isIngresos,theme: Theme.of(context)),
+          floatingActionButton: floatingButton(_nuevo, onChange: _setNuevo),
           body: CustomPaint(
             painter: MyPattern(context),
-            child: SingleChildScrollView(
-              child: Padding(
-                padding: const EdgeInsets.all(20.0),
-                child: Center(
-                  child:Column(
-                    children: [
-                      _datos.value.isNotEmpty
-                        ? bodyHasDatos(gastos: _datos.value, onSaveValue: _onSaveValue, onDeleteValue: _onDeleteValue, theme: Theme.of(context),isIngresos: _isIngresos, extras: _extras,onSaveExtra: _onSaveExtra,onDeleteExtra: _onDeleteExtra,ingreso: _ingreso.value, isIngreso: _isIngresos, onIngresoChange: _onIngresoChange)
-                        : bodyHasNoDatos(ingreso: _ingreso.value, isIngreso: _isIngresos, onIngresoChange: _onIngresoChange,theme: Theme.of(context),extras: _extras,onSaveExtra: _onSaveExtra,onDeleteExtra: _onDeleteExtra),
-                      Values().gastoSeleccionado.value == -2
-                        ? createNew(onCreateGasto: _onCreate, theme: Theme.of(context),onCreateExtra: _onCreateExtra,IsIngresos: _isIngresos, gastos: _datos, extras: _extras)
-                        : Container()
-                    ],
-                  )    
-                )
-              ),
+            child: Padding(
+              padding: const EdgeInsets.only(top:10,right: 10,left: 10),
+              child: Center(
+                child:Column(
+                  mainAxisSize: MainAxisSize.max,
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    _isIngresos
+                      ? ingresoView(onIngresoChange: _onIngresoChange, ingreso: _ingreso, theme: Theme.of(context))
+                      :Container(),
+                    !_isIngresos
+                      ?showExtras(valorExtras: _extras.fold(0.0, (previousValue, element) => previousValue + element.valor),checkExtras: _checkExtras, extrasChecked: _showExtras)
+                      :Container(),
+                    _nuevo
+                      ? createNew(extraSelected:_showExtras, onCreateGasto: _onCreateGasto, theme: Theme.of(context),IsIngresos: _isIngresos, gastos: _datos, extras: _extras)
+                      : Container(),
+                    Expanded(
+                      flex:7,
+                      child: Card.filled(
+                        child: _isIngresos
+                          ? bodyHasDatos(gastos: _datos, onSaveValue: _onSaveValue, onDeleteValue: _onDeleteValue, theme: Theme.of(context),isIngresos: _isIngresos)
+                          : _showExtras
+                            ? extrasListView(extras: _extras, onCreate: _onCreateGasto, onSaveExtra: _onSaveExtra, onDeleteExtra: _onDeleteExtra, theme: Theme.of(context))
+                            : bodyHasDatos(gastos: _datos, onSaveValue: _onSaveValue, onDeleteValue: _onDeleteValue, theme: Theme.of(context),isIngresos: _isIngresos)
+                      ),
+                    )
+                  ],
+                )    
+              )
             )
           ),
         ),
-      ),
     );
   }
 }

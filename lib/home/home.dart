@@ -13,22 +13,29 @@ import 'package:cuentas_android/widgets/views/homeWidgets.dart' as hw;
 
 import '../pantallas/settings.dart';
 
-class Home extends StatelessWidget {
+List<Cuenta> _cuentas = [];
+bool _vuelto = false;
+bool _cargado = false;
+String nuevoNombre = "";
+
+class Home extends StatefulWidget {
   Home({Key? key}) : super(key: key);
 
-  RxList<Cuenta> _cuentas = RxList([]);
-  RxBool _vuelto = false.obs;
-  RxBool _cargado = false.obs;
+  @override
+  State<Home> createState() => _HomeState();
+}
 
-  String nuevoNombre = "";
+class _HomeState extends State<Home> {
 
   Future _getCuentas()async{
-    if(!_vuelto.value){
-      _cuentas.value = await cuentaDao().getDatos();
+    if(!_vuelto){
+      _cuentas = await cuentaDao().getDatos();
     }
     
-    _cargado.value = true;
-    _vuelto.value = true;
+    _cargado = true;
+    setState(() {
+      _vuelto = true;
+    });
   }
 
   Future _logout() async{
@@ -38,8 +45,9 @@ class Home extends StatelessWidget {
   Future _createUser(BuildContext context)async{
     var cuenta = await cuentaDao().crearNuevaCuenta(nuevoNombre,_cuentas.length+1);
     _cuentas.add(cuenta);
-    _vuelto.value = true;
-    Navigator.pop(context);
+    setState(() {
+      _vuelto = true;
+    });
   }
 
   void _navigateInfo(BuildContext context, Cuenta cuenta){
@@ -47,8 +55,11 @@ class Home extends StatelessWidget {
     Navigator.of(context).push(
     MaterialPageRoute(builder: (context) => Info(cuenta:cuenta))
     ).then((value) {
-      _cuentas.value.where((c) => c.id == cuenta.id).toList().first = Values().cuentaRet!;
+      _cuentas.where((c) => c.id == cuenta.id).toList().first = Values().cuentaRet!;
       Values().anno.value = DateTime.now().year;
+      setState(() {
+        
+      });
     });
   }
 
@@ -56,11 +67,15 @@ class Home extends StatelessWidget {
     positions().ChangePositions(MediaQuery.of(context).size.width,MediaQuery.of(context).size.height);
     Navigator.of(context).push(
       MaterialPageRoute(builder: (context) => Settings(cc:cuentas))
-    ).then((value) => _vuelto.value = false);
+    ).then((value) => setState(() {
+      _vuelto = false;
+    }));
   }
 
   void _deleteCuenta(Cuenta cuenta)async {
-    _cuentas.value.remove(cuenta);
+    setState(() {
+      _cuentas.remove(cuenta);
+    });
     await cuentaDao().deleteCuenta(cuenta);
   }
 
@@ -68,7 +83,7 @@ class Home extends StatelessWidget {
     int annoActual = DateTime.now().year;
     HashSet<int> ret = HashSet<int>();
     
-    for(Cuenta c in _cuentas.value){
+    for(Cuenta c in _cuentas){
       List<int> annos = c.Meses.map((e) => e.Anno).toList();
       ret.addAll(annos);
     }
@@ -84,13 +99,13 @@ class Home extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     _getCuentas();
-    return Obx(()=>_cargado.value
+    return _cargado
       ?Scaffold(
         resizeToAvoidBottomInset: true,
         bottomNavigationBar: hw.navigationBar(
           onLogOut: ()=>_logout(),
           onNewCuenta: ()=>hw.nuevoUsuario(context: context, onChange: (nombre)=>nuevoNombre =nombre, onPressed: ()=>_createUser(context)),
-          onSettings: ()=>_navigateSettings(context, _cuentas.value),
+          onSettings: ()=>_navigateSettings(context, _cuentas),
           theme: Theme.of(context)
         ),
         body: CustomPaint(
@@ -105,7 +120,7 @@ class Home extends StatelessWidget {
                 cuentas: _cuentas,
                 height: MediaQuery.of(context).size.height,
                 width: MediaQuery.of(context).size.width,
-                vuelto:(value)=>_vuelto.value = true,
+                vuelto:(value)=>_vuelto = true,
                 navigateInfo: (cuenta)=>_navigateInfo(context,cuenta),
                 delete: (cuenta)=>_deleteCuenta(cuenta),
                 logout: _logout,
@@ -118,7 +133,6 @@ class Home extends StatelessWidget {
           ),
         ),
       )
-      :CircularProgressIndicator(color: Theme.of(context).primaryColor,)
-    );
+      :Center(child: CircularProgressIndicator(color: Theme.of(context).primaryColor,));
   }
 }
