@@ -3,10 +3,12 @@ import 'package:cuentas_android/themes/DarkTheme.dart';
 import 'package:cuentas_android/themes/LightTheme.dart';
 import 'package:cuentas_android/utils.dart';
 import 'package:cuentas_android/values.dart';
+import 'package:cuentas_android/widgets/CustomFAB.dart';
 import 'package:cuentas_android/widgets/GastoView.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
 
-Widget fijosView({required List<Gasto> gastos, required Function(String,double) onDelete, required Function(String,double) onChange, required ThemeData theme}){
+Widget fijosView({required List<Gasto> gastos, required Function(String,double) onDelete, required Function(String,double) onChange, required ThemeData theme, required ScrollController scrollController}){
   int contador = 0;
   List<Widget> gastosW = [];
 
@@ -24,9 +26,10 @@ Widget fijosView({required List<Gasto> gastos, required Function(String,double) 
     contador++;
   }
 
-  return Column(
-    mainAxisAlignment: MainAxisAlignment.center,
-    children: gastosW
+  return ListView.builder(
+    controller: scrollController,
+    itemBuilder: (context, index) => gastosW[index],
+    itemCount: gastosW.length,
   );
 }
 
@@ -92,16 +95,15 @@ Widget noFijos(){
   );
 }
 
-FloatingActionButton crearNuevo(bool nuevo, {required Function onChange}){
+FloatingActionButton crearNuevo(bool nuevo, {required Function onChange, required ScrollController scrollController}){
   return FloatingActionButton.extended(
     onPressed: ()=>onChange(),
-    icon: Icon( nuevo
-      ?Icons.close
-      :Icons.add
-    ),
-    label: nuevo
-      ?const Text("Cancelar")
-      :const Text("Nuevo fijo"),
+    icon: Icon(!nuevo
+      ? Icons.add
+      : Icons.close),
+    label: Text(nuevo
+      ?"Cancelar"
+      :"Crear nuevo")
   );
 }
 
@@ -113,7 +115,7 @@ AppBar fijosAppBar({required List<Gasto> fijos, required double size}){
         mainAxisAlignment: MainAxisAlignment.spaceAround,
         children: [
           const Text("Valor total",style: TextStyle(fontWeight: FontWeight.bold),),
-          Text("${fijos.fold(0.0, (previousValue, fijo) => previousValue+fijo.valor).toStringAsFixed(2)}€",style: TextStyle(fontWeight: FontWeight.bold)),
+          Text("${fijos.fold(0.0, (previousValue, fijo) => previousValue+fijo.valor).toStringAsFixed(2)}${Values().moneda.value}",style: TextStyle(fontWeight: FontWeight.bold)),
         ],
       ),),
     ),

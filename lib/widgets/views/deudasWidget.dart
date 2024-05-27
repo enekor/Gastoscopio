@@ -1,9 +1,11 @@
 import 'package:cuentas_android/models/Gasto.dart';
 import 'package:cuentas_android/utils.dart';
 import 'package:cuentas_android/values.dart';
+import 'package:cuentas_android/widgets/CustomFAB.dart';
 import 'package:cuentas_android/widgets/GastoView.dart';
 import 'package:cuentas_android/widgets/dialog.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
 
 AppBar appBar(){
   return AppBar();
@@ -40,11 +42,11 @@ List<Widget> deudasList({required List<Gasto> deudas, required Function(String,d
   return deudasW;
 }
 
-FloatingActionButton floatingButton({required Function(String,double) onCreate, required BuildContext context}){
+FloatingActionButton floatingButton({required Function(String,double) onCreate, required BuildContext context, required ScrollController scrollController}){
   return FloatingActionButton.extended(
     onPressed: ()=>nuevaDeuda(context: context,onCreate: onCreate),
-    label: const Text("Nueva deuda"),
-    icon: const Icon(Icons.add),
+    label:Text("Nueva deuda"),
+    icon: Icon(Icons.add),
   );
 }
 

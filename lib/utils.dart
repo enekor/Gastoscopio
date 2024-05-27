@@ -101,7 +101,7 @@ String getImageUri(ImageUris image){
 }
 
 enum SharedPreferencesKeys{
-  gatos, fondoSimple
+  gatos, fondoSimple, moneda
 }
 
 enum ImageUris{

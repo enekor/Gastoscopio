@@ -14,9 +14,10 @@ late double _ingreso;
 late Cuenta _cuenta;
 late bool _isIngresos;
 late String _mes;
-
+ScrollController _scrollController = ScrollController();
 bool _nuevo = false;
 bool _showExtras = false;
+
 
 class IngresosGastos extends StatefulWidget {
 
@@ -55,6 +56,7 @@ class _IngresosGastosState extends State<IngresosGastos> {
   }
 
   void _onCreateGasto(String nombre, double valor, bool extra){
+    nombre = nombre.endsWith(" ") ? nombre.substring(0,nombre.length-1) : nombre;
     if(_isIngresos){
       valor = -1*valor;
       if(_datos.where((gasto) => gasto.nombre == nombre).isNotEmpty){
@@ -86,6 +88,7 @@ class _IngresosGastosState extends State<IngresosGastos> {
   }
 
   void _onSaveValue(String nombre, double valor){
+    nombre = nombre.endsWith(" ") ? nombre.substring(0,nombre.length-1) : nombre;
     valor = _isIngresos ? -1*valor : valor;
     setState(() {
       _datos.where((gasto) => gasto.nombre == nombre).first.valor = valor;
@@ -93,12 +96,14 @@ class _IngresosGastosState extends State<IngresosGastos> {
   }
 
   void _onSaveExtra(String nombre, double valor){
+    nombre = nombre.endsWith(" ") ? nombre.substring(0,nombre.length-1) : nombre;
     setState(() {
       _extras.firstWhere((extra) => extra.nombre == nombre).valor = valor;
     });
   }
 
   void _onDeleteValue(String nombre,double valor){
+    nombre = nombre.endsWith(" ") ? nombre.substring(0,nombre.length-1) : nombre;
     valor = _isIngresos ? -1*valor : valor;
     setState(() {
       _datos.removeWhere((gasto) => gasto.nombre == nombre && gasto.valor == valor);
@@ -106,6 +111,7 @@ class _IngresosGastosState extends State<IngresosGastos> {
   }
 
   void _onDeleteExtra(String nombre, double valor){
+    nombre = nombre.endsWith(" ") ? nombre.substring(0,nombre.length-1) : nombre;
     setState(() {
       _extras.removeWhere((extra) => extra.nombre == nombre && extra.valor == valor);
     });
@@ -136,7 +142,7 @@ class _IngresosGastosState extends State<IngresosGastos> {
         child:Scaffold(
           resizeToAvoidBottomInset: true,
           appBar: appBar(datos: _datos, extras: _extras,ingreso: _ingreso, isIngreso: _isIngresos,theme: Theme.of(context)),
-          floatingActionButton: floatingButton(_nuevo, onChange: _setNuevo),
+          floatingActionButton: floatingButton(_nuevo, onChange: _setNuevo, scrollController: _scrollController),
           body: CustomPaint(
             painter: MyPattern(context),
             child: Padding(
@@ -159,10 +165,10 @@ class _IngresosGastosState extends State<IngresosGastos> {
                       flex:7,
                       child: Card.filled(
                         child: _isIngresos
-                          ? bodyHasDatos(gastos: _datos, onSaveValue: _onSaveValue, onDeleteValue: _onDeleteValue, theme: Theme.of(context),isIngresos: _isIngresos)
+                          ? bodyHasDatos(gastos: _datos, onSaveValue: _onSaveValue, onDeleteValue: _onDeleteValue, theme: Theme.of(context),isIngresos: _isIngresos, scrollController: _scrollController)
                           : _showExtras
                             ? extrasListView(extras: _extras, onCreate: _onCreateGasto, onSaveExtra: _onSaveExtra, onDeleteExtra: _onDeleteExtra, theme: Theme.of(context))
-                            : bodyHasDatos(gastos: _datos, onSaveValue: _onSaveValue, onDeleteValue: _onDeleteValue, theme: Theme.of(context),isIngresos: _isIngresos)
+                            : bodyHasDatos(gastos: _datos, onSaveValue: _onSaveValue, onDeleteValue: _onDeleteValue, theme: Theme.of(context),isIngresos: _isIngresos, scrollController: _scrollController)
                       ),
                     )
                   ],

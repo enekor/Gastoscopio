@@ -1,5 +1,6 @@
 import 'package:cuentas_android/models/Mes.dart';
 import 'package:cuentas_android/themes/LightTheme.dart';
+import 'package:cuentas_android/values.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
@@ -79,7 +80,7 @@ List<Widget> showSummary(List<Mes> meses, BuildContext context){
                         flex:7,
                         child: Card(
                           color: AppColorsL.okButtonColor,
-                          child: Center(child: Text("${e.Ingreso.toStringAsFixed(2)}€"),),
+                          child: Center(child: Text("${e.Ingreso.toStringAsFixed(2)}${Values().moneda.value}"),),
                         )
                       )
                     ],
@@ -128,7 +129,7 @@ Widget showGastos(Mes mes,BuildContext context) =>
                   ),
                 ),
               ),
-              Expanded(flex:3,child: Text("${e.valor.toStringAsFixed(2)}€"))
+              Expanded(flex:3,child: Text("${e.valor.toStringAsFixed(2)}${Values().moneda.value}"))
             ],
           )
         ).toList(),
@@ -165,7 +166,7 @@ Widget showExtras(Mes mes, BuildContext context) =>
                   ),
                 ),
               ),
-              Expanded(flex:3,child: Text("${e.valor.toStringAsFixed(2)}€"))
+              Expanded(flex:3,child: Text("${e.valor.toStringAsFixed(2)}${Values().moneda.value}"))
             ],
           )  
         ).toList(),
@@ -202,7 +203,7 @@ Widget showIngresos(Mes mes, BuildContext context) =>
                   ),
                 ),
               ),
-              Expanded(flex:3,child: Text("${(-1*e.valor).toStringAsFixed(2)}€"))
+              Expanded(flex:3,child: Text("${(-1*e.valor).toStringAsFixed(2)}${Values().moneda.value}"))
             ],
           )
         ).toList(),

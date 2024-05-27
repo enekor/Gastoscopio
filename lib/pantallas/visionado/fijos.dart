@@ -9,6 +9,7 @@ import 'package:flutter/material.dart';
 
 late Cuenta _cuenta;
 bool nuevo = false;
+ScrollController _scrollController = ScrollController();
 
 class gastosFijos extends StatefulWidget {
   gastosFijos({Key? key, required Cuenta cuenta}) : super(key: key) {
@@ -62,7 +63,7 @@ class _gastosFijosState extends State<gastosFijos> {
         onPopInvoked: (_) => _pop(context),
         child: Scaffold(
           resizeToAvoidBottomInset: true,
-          floatingActionButton:crearNuevo(nuevo,onChange: _changeNuevo),
+          floatingActionButton:crearNuevo(nuevo,onChange: _changeNuevo, scrollController: _scrollController),
           appBar: fijosAppBar(fijos: _cuenta.fijos, size: MediaQuery.of(context).size.width),
           body: CustomPaint(
             painter: MyPattern(context),
@@ -77,7 +78,8 @@ class _gastosFijosState extends State<gastosFijos> {
                           gastos: _cuenta.fijos,
                           onDelete: _onDelete,
                           onChange: _onChange,
-                          theme: Theme.of(context))
+                          theme: Theme.of(context),
+                          scrollController: _scrollController)
                         :noFijos(),
                       nuevo
                         ? nuevoFijo(

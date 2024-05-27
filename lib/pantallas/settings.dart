@@ -74,6 +74,12 @@ class Settings extends StatelessWidget {
     }
   }
 
+  void _onChangeCurrency(String currency){
+    writeSharedPreferences(SharedPreferencesKeys.moneda, currency);
+    Values().moneda.value = currency;
+    showToast(text: "Ahora tu moneda es ${Values().moneda.value}");
+  }
+
   @override
   Widget build(BuildContext context) {
     return PopScope(
@@ -89,7 +95,8 @@ class Settings extends StatelessWidget {
                     context: context,
                     onChangeStyle: _setImageStyle,
                     onChangeTheme: _setFondoSimple,
-                    onAboutUs: _onAboutUs
+                    onAboutUs: _onAboutUs,
+                    onChangeCurrency: _onChangeCurrency
                   ))),
       ),
     );

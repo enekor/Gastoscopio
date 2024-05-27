@@ -40,7 +40,7 @@ List<Widget> GetGastos({required List<Mes> meses, required String mes, required 
             mainAxisAlignment: MainAxisAlignment.spaceAround,
             children: [
               const Text("Extras"),
-              Text("${meses.where((v) => v.NMes == mes && v.Anno == Values().anno.value).first.GetExtras().toStringAsFixed(2)}€")
+              Text("${meses.where((v) => v.NMes == mes && v.Anno == Values().anno.value).first.GetExtras().toStringAsFixed(2)}${Values().moneda.value}")
             ],
           ),
         ),
@@ -90,7 +90,7 @@ List<Widget> GetGastos({required List<Mes> meses, required String mes, required 
                       MainAxisAlignment.spaceAround,
                   children: [
                     Text(mes),
-                    Text("${c.Meses.where((v) => v.NMes == mes && v.Anno == Values().anno.value).first.GetAhorros().toStringAsFixed(2)}€")
+                    Text("${c.Meses.where((v) => v.NMes == mes && v.Anno == Values().anno.value).first.GetAhorros().toStringAsFixed(2)}${Values().moneda.value}")
                   ],
                 )),
               ),
@@ -100,7 +100,7 @@ List<Widget> GetGastos({required List<Mes> meses, required String mes, required 
                     child: Row(mainAxisAlignment: MainAxisAlignment.spaceAround,
                       children: [
                         Text(c.Nombre),
-                        Text("${c.GetTotal(Values().anno.value).toStringAsFixed(2)}€")
+                        Text("${c.GetTotal(Values().anno.value).toStringAsFixed(2)}${Values().moneda.value}")
                     ])),
               )
             ],
@@ -160,7 +160,7 @@ List<Widget> GetGastos({required List<Mes> meses, required String mes, required 
                           MainAxisAlignment.center,
                       children: [
                         const Text("Ingresos"),
-                        Text("${cuenta.Meses.where((v) => v.NMes == mes && v.Anno == Values().anno.value).first.GetIngresos().toStringAsFixed(2)}€")
+                        Text("${cuenta.Meses.where((v) => v.NMes == mes && v.Anno == Values().anno.value).first.GetIngresos().toStringAsFixed(2)}${Values().moneda.value}")
                       ],
                     ),
                   ),
@@ -180,7 +180,7 @@ List<Widget> GetGastos({required List<Mes> meses, required String mes, required 
                           MainAxisAlignment.center,
                       children: [
                         const Text("Gastos"),
-                        Text("${cuenta.Meses.where((v) => v.NMes == mes && v.Anno == Values().anno.value).first.GetGastos().toStringAsFixed(2)}€")
+                        Text("${cuenta.Meses.where((v) => v.NMes == mes && v.Anno == Values().anno.value).first.GetGastos().toStringAsFixed(2)}${Values().moneda.value}")
                       ],
                     ),
                   ),

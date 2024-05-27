@@ -9,6 +9,7 @@ import 'package:flutter/material.dart';
 
 late List<Gasto> _debts;
 late Cuenta _cuenta;
+ScrollController _scrollController = ScrollController();
 class deudas extends StatefulWidget {
 
   deudas({Key? key, required Cuenta cuenta}) : super(key: key){
@@ -59,12 +60,13 @@ class _deudasState extends State<deudas> {
     return PopScope(
         onPopInvoked: (pop)=>_pop(pop,context),
         child: Scaffold(
-          floatingActionButton: floatingButton(onCreate: _onCreate, context: context),
+          floatingActionButton: floatingButton(onCreate: _onCreate, context: context, scrollController: _scrollController),
           resizeToAvoidBottomInset: true,
           body: CustomPaint(
             painter: MyPattern(context),
             child: Center(
               child: SingleChildScrollView(
+                controller: _scrollController,
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: _debts.isNotEmpty

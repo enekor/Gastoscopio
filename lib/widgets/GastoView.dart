@@ -70,7 +70,7 @@ Widget gastoView(
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               children: [
                 Text(nombre),
-                Text("${valor.toStringAsFixed(2)}€"),
+                Text("${valor.toStringAsFixed(2)}${Values().moneda.value}"),
                 IconButton(
                   onPressed: () {
                     Values().gastoSeleccionado.value = -1;

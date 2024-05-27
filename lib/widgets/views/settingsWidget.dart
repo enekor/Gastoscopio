@@ -5,7 +5,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
-Widget settingsBody({required List<Cuenta> cuentas, required Function(Cuenta) saveToJson, required Function importFromJson, required BuildContext context, required Function(bool) onChangeStyle, required Function(bool) onChangeTheme, required Function onAboutUs}){
+Widget settingsBody({required List<Cuenta> cuentas, required Function(Cuenta) saveToJson, required Function importFromJson, required BuildContext context, required Function(bool) onChangeStyle, required Function(bool) onChangeTheme, required Function onAboutUs, required Function(String) onChangeCurrency}){
   return Obx(()=> Center(
       child: Padding(
         padding: const EdgeInsets.all(50),
@@ -25,6 +25,8 @@ Widget settingsBody({required List<Cuenta> cuentas, required Function(Cuenta) sa
             switchSettingView(onChange: onChangeStyle, text: "Estilos informales", inicial: Values().mostrarGatos.value),
             const Divider(),
             switchSettingView(onChange: onChangeTheme, text: "Fondo simple", inicial: Values().fondoSimple.value),
+            const Divider(),
+            selectableSettingView(title: "Moneda", values: ["€","\$"], onSelected: onChangeCurrency, width: MediaQuery.of(context).size.width),
             const Divider(),
             redirectSettingView(onTap: onAboutUs, text: "Sobre nosotros")
           ],

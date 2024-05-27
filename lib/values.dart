@@ -39,6 +39,7 @@ class Values {
   RxInt gastoSeleccionado = (-1).obs;
   RxBool mostrarGatos = false.obs;
   RxBool fondoSimple = true.obs;
+  RxString moneda = "€".obs;
 
 //metodos
   String GetMes() => nombresMes[mes.value];
@@ -49,5 +50,6 @@ class Values {
   Future init() async{
     mostrarGatos.value = await readSharedPreferences(SharedPreferencesKeys.gatos);
     fondoSimple.value = await readSharedPreferences(SharedPreferencesKeys.fondoSimple);
+    moneda.value = await readSharedPreferences(SharedPreferencesKeys.moneda);
   }
 }

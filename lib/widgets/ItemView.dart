@@ -1,3 +1,4 @@
+import 'package:cuentas_android/values.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:get/Get.dart';
@@ -19,7 +20,7 @@ Widget ItemCard(String nombre,double ahorro, {required Function open, required F
             size:50.0
           ),
           Text(text.value),
-          Text("${ahorro.toStringAsFixed(2)}€"),
+          Text("${ahorro.toStringAsFixed(2)}${Values().moneda.value}"),
           seleccionado.value
             ?Row(
               mainAxisAlignment: MainAxisAlignment.spaceAround,

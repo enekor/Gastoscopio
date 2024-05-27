@@ -48,7 +48,7 @@ class _LoginPageState extends State<LoginPage> {
     
     if (_passwordCOntroller.text == _repPasswordCOntroller.text) {
       try{
-        await Auth().registerWithUserPassword(email: "${_emailCOntroller.text}@gastoscopio.com", password: _passwordCOntroller.text);
+        await Auth().registerWithUserPassword(email: "${_emailCOntroller.text}@$email", password: _passwordCOntroller.text);
       } on FirebaseAuthException catch (e){
         setState(() {
           errorMessage = e.message;
@@ -160,7 +160,7 @@ class _LoginPageState extends State<LoginPage> {
               ),
             ),
             const SizedBox(height: 20,),
-           // TextButton(onPressed: showEmailResetDialog, child: const Text("He olvidado la contraseña"))
+            TextButton(onPressed: showEmailResetDialog, child: const Text("He olvidado la contraseña"))
           ],
         ),
       ),
@@ -233,7 +233,7 @@ class _LoginPageState extends State<LoginPage> {
 
   @override
   Widget build(BuildContext context) {
-    //Auth().signInEmailPassword(email: "test@gastoscopio.com", password: "test12345");
+    //Auth().signInEmailPassword(email: "eneko12rebollo@gmail.com", password: "test12345");
     return Scaffold(
       resizeToAvoidBottomInset: true,
       appBar: AppBar(
