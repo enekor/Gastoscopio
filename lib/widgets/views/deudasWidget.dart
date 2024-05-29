@@ -1,11 +1,9 @@
 import 'package:cuentas_android/models/Gasto.dart';
 import 'package:cuentas_android/utils.dart';
 import 'package:cuentas_android/values.dart';
-import 'package:cuentas_android/widgets/CustomFAB.dart';
 import 'package:cuentas_android/widgets/GastoView.dart';
 import 'package:cuentas_android/widgets/dialog.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/rendering.dart';
 
 AppBar appBar(){
   return AppBar();

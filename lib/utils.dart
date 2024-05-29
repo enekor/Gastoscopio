@@ -53,15 +53,15 @@ Future<T> readSharedPreferences<T>(SharedPreferencesKeys key)async{
 
   switch(T){
     case int:
-      return prefs.getInt(key.toString().replaceAll("SharedPreferencesKeys.","")) as T;
+      return (prefs.getInt(key.toString().replaceAll("SharedPreferencesKeys.",""))??-1) as T;
     case String:
-      return prefs.getString(key.toString().replaceAll("SharedPreferencesKeys.","")) as T;
+      return (prefs.getString(key.toString().replaceAll("SharedPreferencesKeys.","")) ?? "") as T;
     case double:
-      return prefs.getDouble(key.toString().replaceAll("SharedPreferencesKeys.","")) as T;
+      return (prefs.getDouble(key.toString().replaceAll("SharedPreferencesKeys.","")) ?? double.nan) as T;
     case List<String>:
-      return prefs.getStringList(key.toString().replaceAll("SharedPreferencesKeys.","")) as T;
+      return (prefs.getStringList(key.toString().replaceAll("SharedPreferencesKeys.","")) ?? []) as T;
     case bool:
-      return prefs.getBool(key.toString().replaceAll("SharedPreferencesKeys.","")) as T;
+      return (prefs.getBool(key.toString().replaceAll("SharedPreferencesKeys.",""))??false) as T;
     default:
       return null as T;
   }

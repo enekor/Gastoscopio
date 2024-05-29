@@ -26,7 +26,7 @@ Widget settingsBody({required List<Cuenta> cuentas, required Function(Cuenta) sa
             const Divider(),
             switchSettingView(onChange: onChangeTheme, text: "Fondo simple", inicial: Values().fondoSimple.value),
             const Divider(),
-            selectableSettingView(title: "Moneda", values: ["€","\$"], onSelected: onChangeCurrency, width: MediaQuery.of(context).size.width),
+            textBoxSettingView(title: "Moneda", placeholder: "Divisa", onClick: onChangeCurrency),
             const Divider(),
             redirectSettingView(onTap: onAboutUs, text: "Sobre nosotros")
           ],

@@ -109,3 +109,30 @@ Widget switchSettingView({required Function(bool) onChange, required String text
 Widget redirectSettingView({required Function onTap, required String text}){
   return TextButton(onPressed: ()=>onTap(), child: Text(text));
 }
+
+Widget textBoxSettingView({required Function(String) onClick, required String title, String placeholder = ""}){
+  TextEditingController controller = TextEditingController(text: Values().moneda.value);
+  
+  return Row(
+    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+    children: [
+      Expanded(
+        flex:3,
+        child: Text(title)
+      ),
+      Expanded(
+        flex:3,
+        child: TextField(
+          controller:controller,
+          decoration: InputDecoration(
+            labelText: placeholder,
+          ),
+        ),
+      ),
+      Expanded(
+        flex:3, 
+        child: IconButton(onPressed: ()=>onClick(controller.text), icon: const Icon(Icons.check))
+      )
+    ],
+  );
+}

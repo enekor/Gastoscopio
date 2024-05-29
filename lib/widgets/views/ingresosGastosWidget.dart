@@ -1,16 +1,11 @@
-import 'dart:js_interop';
-
 import 'package:cuentas_android/models/Gasto.dart';
 import 'package:cuentas_android/themes/DarkTheme.dart';
 import 'package:cuentas_android/themes/LightTheme.dart';
 import 'package:cuentas_android/utils.dart';
 import 'package:cuentas_android/values.dart';
-import 'package:cuentas_android/widgets/CustomFAB.dart';
 import 'package:cuentas_android/widgets/GastoView.dart';
 import 'package:cuentas_android/widgets/ItemView.dart';
-import 'package:cuentas_android/widgets/views/homeWidgets.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/rendering.dart';
 import 'package:get/Get.dart';
 import 'package:get/get.dart';
 

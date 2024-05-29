@@ -73,18 +73,24 @@ class _gastosFijosState extends State<gastosFijos> {
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      _cuenta.fijos.isNotEmpty
-                        ?fijosView(
-                          gastos: _cuenta.fijos,
-                          onDelete: _onDelete,
-                          onChange: _onChange,
-                          theme: Theme.of(context),
-                          scrollController: _scrollController)
-                        :noFijos(),
-                      nuevo
-                        ? nuevoFijo(
-                            onCreate: _onCreate, theme: Theme.of(context))
-                        : Container()
+                      Expanded(
+                        flex:1,
+                        child: nuevo
+                          ? nuevoFijo(
+                              onCreate: _onCreate, theme: Theme.of(context))
+                          : Container(),
+                      ),
+                      Expanded(
+                        flex:10,
+                        child: _cuenta.fijos.isNotEmpty
+                          ?fijosView(
+                            gastos: _cuenta.fijos,
+                            onDelete: _onDelete,
+                            onChange: _onChange,
+                            theme: Theme.of(context),
+                            scrollController: _scrollController)
+                          :noFijos(),
+                      ),
                     ],
                   )),
             ),

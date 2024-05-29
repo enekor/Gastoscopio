@@ -3,33 +3,21 @@ import 'package:cuentas_android/themes/DarkTheme.dart';
 import 'package:cuentas_android/themes/LightTheme.dart';
 import 'package:cuentas_android/utils.dart';
 import 'package:cuentas_android/values.dart';
-import 'package:cuentas_android/widgets/CustomFAB.dart';
 import 'package:cuentas_android/widgets/GastoView.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/rendering.dart';
 
 Widget fijosView({required List<Gasto> gastos, required Function(String,double) onDelete, required Function(String,double) onChange, required ThemeData theme, required ScrollController scrollController}){
-  int contador = 0;
-  List<Widget> gastosW = [];
-
-  for(Gasto v in gastos){
-    gastosW.add(gastoView(
+  return ListView.builder(
+    controller: scrollController,
+    itemBuilder: (context, index) => gastoView(
       onChange, 
       onDelete, 
       (v2)=>Values().gastoSeleccionado.value = v2,
-      v.nombre, 
-      v.valor, 
-      contador, 
-      theme)
-    );
-      
-    contador++;
-  }
-
-  return ListView.builder(
-    controller: scrollController,
-    itemBuilder: (context, index) => gastosW[index],
-    itemCount: gastosW.length,
+      gastos[index].nombre, 
+      gastos[index].valor, 
+      index, 
+      theme),
+    itemCount: gastos.length,
   );
 }
 
