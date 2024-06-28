@@ -67,23 +67,33 @@ class Settings extends StatelessWidget {
             : "No hay mas que soledad");
   }
 
-  void _onAboutUs()async{
+  void _onAboutUs() async {
     Uri url = Uri.parse('https://www.youtube.com/watch?v=xvFZjo5PgG0');
-    if(await canLaunchUrl(url)){
+    if (await canLaunchUrl(url)) {
       await launchUrl(url);
     }
   }
 
-  void _onChangeCurrency(String currency){
+  void _onChangeCurrency(String currency) {
     writeSharedPreferences(SharedPreferencesKeys.moneda, currency);
     Values().moneda.value = currency;
     showToast(text: "Ahora tu moneda es ${Values().moneda.value}");
+  }
+
+  void _onChangeFiguraAbajo(bool active) {
+    writeSharedPreferences(SharedPreferencesKeys.figuraAbajo, active);
+    Values().figuraAbajo.value = active;
+    showToast(
+        text: active
+            ? "Ahora se muestra un ola en la parte de abajo"
+            : "Parece que hay sequía");
   }
 
   @override
   Widget build(BuildContext context) {
     return PopScope(
       child: Scaffold(
+        backgroundColor: GetColor(ColorTypes.background, context),
         resizeToAvoidBottomInset: true,
         body: CustomPaint(
             painter: MyPattern(context),
@@ -96,8 +106,8 @@ class Settings extends StatelessWidget {
                     onChangeStyle: _setImageStyle,
                     onChangeTheme: _setFondoSimple,
                     onAboutUs: _onAboutUs,
-                    onChangeCurrency: _onChangeCurrency
-                  ))),
+                    onChangeCurrency: _onChangeCurrency,
+                    onChangeFiguraAbajo: _onChangeFiguraAbajo))),
       ),
     );
   }

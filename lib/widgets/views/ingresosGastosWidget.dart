@@ -1,6 +1,4 @@
 import 'package:cuentas_android/models/Gasto.dart';
-import 'package:cuentas_android/themes/DarkTheme.dart';
-import 'package:cuentas_android/themes/LightTheme.dart';
 import 'package:cuentas_android/utils.dart';
 import 'package:cuentas_android/values.dart';
 import 'package:cuentas_android/widgets/GastoView.dart';
@@ -28,6 +26,7 @@ AppBar appBar(
     required double ingreso,
     required ThemeData theme}) {
   return AppBar(
+    backgroundColor: Colors.transparent,
     title: Card(
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
@@ -47,7 +46,8 @@ Widget bodyHasDatos(
     required Function(String, double) onDeleteValue,
     required ThemeData theme,
     required bool isIngresos,
-    required ScrollController scrollController}) {
+    required ScrollController scrollController,
+    required BuildContext context}) {
   List<Widget> cards = [];
   int contador = 1;
 
@@ -59,7 +59,8 @@ Widget bodyHasDatos(
         gasto.nombre,
         isIngresos ? -1 * gasto.valor : gasto.valor,
         contador,
-        theme));
+        theme,
+        context));
     contador++;
   }
 
@@ -93,8 +94,8 @@ Widget extrasListView(
     required Function(String, double, bool) onCreate,
     required Function(String, double) onSaveExtra,
     required Function(String, double) onDeleteExtra,
-    required,
-    required ThemeData theme}) {
+    required ThemeData theme,
+    required BuildContext context}) {
   List<Widget> extraCards = [];
 
   int contador = 0;
@@ -106,7 +107,8 @@ Widget extrasListView(
         extra.nombre,
         extra.valor,
         contador,
-        theme));
+        theme,
+        context));
     contador++;
   }
 
@@ -145,7 +147,7 @@ FloatingActionButton floatingButton(bool nuevo,
     {required Function onChange, required ScrollController scrollController}) {
   return FloatingActionButton.extended(
     onPressed: () => onChange(),
-    icon: !nuevo ? Icon(Icons.add) : Icon(Icons.close),
+    icon: !nuevo ? const Icon(Icons.add) : const Icon(Icons.close),
     label: Text(nuevo ? "Cancelar" : "Crear nuevo"),
   );
 }
@@ -171,19 +173,20 @@ Widget createNew(
     required ThemeData theme,
     required bool IsIngresos,
     required List<Gasto> gastos,
-    required List<Gasto> extras}) {
+    required List<Gasto> extras,
+    required BuildContext context}) {
   List<DropdownMenuItem> datos = extraSelected
       ? extras
           .map((e) => DropdownMenuItem(
-                child: Text(e.nombre),
                 value: e.nombre,
+                child: Text(e.nombre),
               ))
           .toList()
       : gastos
           .where((gasto) => IsIngresos ? gasto.valor < 0 : gasto.valor > 0)
           .map((e) => DropdownMenuItem(
-                child: Text(e.nombre),
                 value: e.nombre,
+                child: Text(e.nombre),
               ))
           .toList();
 
@@ -203,9 +206,7 @@ Widget createNew(
                     _valorNuevo.clear();
                   },
                   icon: const Icon(Icons.check),
-                  color: theme.brightness == Brightness.dark
-                      ? AppColorsD.okButtonColor
-                      : AppColorsL.okButtonColor),
+                  color: GetColor(ColorTypes.secondary, context)),
             ),
             Expanded(
                 flex: 5,
@@ -243,12 +244,11 @@ Widget createNew(
 Widget ingresoView(
     {required Function(double) onIngresoChange,
     required double ingreso,
-    required ThemeData theme}) {
+    required ThemeData theme,
+    required BuildContext context}) {
   return Obx(
     () => Card(
-      color: theme.brightness == Brightness.dark
-          ? AppColorsD.okButtonColor
-          : AppColorsL.okButtonColor,
+      color: GetColor(ColorTypes.secondary, context),
       child: _isIngresoSeleccionado.value
           ? Row(
               mainAxisAlignment: MainAxisAlignment.spaceAround,

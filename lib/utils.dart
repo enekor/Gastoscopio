@@ -1,7 +1,10 @@
 import 'dart:convert';
 import 'dart:io';
 import 'package:cuentas_android/models/Cuenta.dart';
+import 'package:cuentas_android/themes/DarkTheme.dart';
+import 'package:cuentas_android/themes/LightTheme.dart';
 import 'package:cuentas_android/values.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -106,6 +109,30 @@ String getImageUri(ImageUris image) {
   return 'lib/assets/images/$type${image.toString().replaceAll("ImageUris.", "")}.png';
 }
 
-enum SharedPreferencesKeys { gatos, fondoSimple, moneda }
+enum SharedPreferencesKeys { gatos, fondoSimple, moneda, figuraAbajo }
 
 enum ImageUris { ok, apunta, buscando, hola, RascandoCabeza }
+
+enum ColorTypes { primary, secondary, tertiary, background, icono, error }
+
+Color GetColor(ColorTypes type, BuildContext context) {
+  bool isDark = Theme.of(context).brightness == Brightness.dark;
+
+  switch (type) {
+    case ColorTypes.primary:
+      return isDark ? AppColorsD.primaryColor : AppColorsL.primaryColor;
+
+    case ColorTypes.secondary:
+      return isDark ? AppColorsD.secondaryColor : AppColorsL.secondaryColor;
+
+    case ColorTypes.tertiary:
+      return isDark ? AppColorsD.tertiaryColor : AppColorsL.tertiaryColor;
+
+    case ColorTypes.background:
+      return isDark ? AppColorsD.backgroundColor : AppColorsL.backgroundColor;
+    case ColorTypes.icono:
+      return const Color.fromARGB(255, 135, 206, 234);
+    case ColorTypes.error:
+      return isDark ? AppColorsD.errorButtonColor : AppColorsL.errorButtonColor;
+  }
+}

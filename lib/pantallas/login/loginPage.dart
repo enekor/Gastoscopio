@@ -1,5 +1,5 @@
-import 'package:cuentas_android/pattern/pattern.dart';
 import 'package:cuentas_android/utils.dart';
+import 'package:cuentas_android/widgets/dialog.dart';
 import 'package:cuentas_android/widgets/toast.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
@@ -14,7 +14,6 @@ class LoginPage extends StatefulWidget {
 }
 
 class _LoginPageState extends State<LoginPage> {
-  String? errorMessage = "";
   bool isLogin = true;
 
   final TextEditingController _emailCOntroller = TextEditingController();
@@ -27,7 +26,11 @@ class _LoginPageState extends State<LoginPage> {
           email: _emailCOntroller.text, password: _passwordCOntroller.text);
     } on FirebaseAuthException catch (e) {
       setState(() {
-        errorMessage = e.message;
+        showYesNoDialog(
+            title: "OAuth error",
+            onYes: () {},
+            context: context,
+            body: Text(e.message!));
       });
     }
   }
@@ -40,7 +43,11 @@ class _LoginPageState extends State<LoginPage> {
       Navigator.pop(context);
     } on FirebaseAuthException catch (e) {
       setState(() {
-        errorMessage = e.message;
+        showYesNoDialog(
+            title: "OAuth error",
+            onYes: () {},
+            context: context,
+            body: Text(e.message!));
       });
     }
   }
@@ -49,15 +56,24 @@ class _LoginPageState extends State<LoginPage> {
     if (_passwordCOntroller.text == _repPasswordCOntroller.text) {
       try {
         await Auth().registerWithUserPassword(
-            email: "${_emailCOntroller.text}",
-            password: _passwordCOntroller.text);
+            email: _emailCOntroller.text, password: _passwordCOntroller.text);
       } on FirebaseAuthException catch (e) {
         setState(() {
-          errorMessage = e.message;
+          showYesNoDialog(
+              title: "OAuth error",
+              onYes: () {},
+              context: context,
+              body: Text(e.message!));
         });
       }
     } else {
-      errorMessage = "Las contraseñas no coinciden";
+      setState(() {
+        showYesNoDialog(
+            title: "OAuth error",
+            onYes: () {},
+            context: context,
+            body: const Text("Las contraseñas no coinciden"));
+      });
     }
   }
 
@@ -78,7 +94,8 @@ class _LoginPageState extends State<LoginPage> {
                 child: TextField(
                   controller: _email,
                   autofocus: true,
-                  decoration: InputDecoration(labelText: "Email del usuario"),
+                  decoration:
+                      const InputDecoration(labelText: "Email del usuario"),
                 ),
               ),
               actions: [
@@ -92,142 +109,303 @@ class _LoginPageState extends State<LoginPage> {
             ));
   }
 
-  Widget login() => Center(
-        child: Padding(
-          padding: const EdgeInsets.all(50.0),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Image.asset(getImageUri(ImageUris.hola), height: 200, width: 200),
-              Row(
+  Widget login() => Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Expanded(
+            flex: 8,
+            child: Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Expanded(
-                    flex: 9,
-                    child: TextField(
-                      controller: _emailCOntroller,
-                      decoration:
-                          const InputDecoration(labelText: "Nombre de usuario"),
+                  SizedBox(
+                    height: 250,
+                    width: 250,
+                    child: ClipOval(
+                      child: Image.asset(
+                        "lib/assets/images/logo.png",
+                      ),
+                    ),
+                  ),
+                  Text(
+                    "Gastoscopio",
+                    style: TextStyle(
+                      color: GetColor(ColorTypes.icono, context),
+                      fontSize: 50,
                     ),
                   ),
                 ],
               ),
-              TextField(
-                obscureText: _hidePass,
-                controller: _passwordCOntroller,
-                decoration: InputDecoration(
-                    labelText: "Contraseña",
-                    suffixIcon: IconButton(
-                        onPressed: changeVisible,
-                        icon: Icon(_hidePass
-                            ? Icons.visibility
-                            : Icons.visibility_off))),
-              ),
-              Text(errorMessage!),
-              const SizedBox(height: 50),
-              GestureDetector(
-                onTap: signIn,
-                child: Card(
-                    color: Theme.of(context).primaryColor,
-                    child: const Padding(
-                      padding: EdgeInsets.all(10.0),
-                      child: Text("Iniciar sesion"),
-                    )),
-              ),
-              const SizedBox(
-                height: 20,
-              ),
-              TextButton(
-                  onPressed: showEmailResetDialog,
-                  child: const Text("He olvidado la contraseña"))
-            ],
+            ),
           ),
-        ),
+          const Expanded(
+              flex: 1,
+              child: Padding(
+                padding: EdgeInsets.only(top: 10.0),
+                child: Text("Iniciar sesión",
+                    textAlign: TextAlign.center,
+                    style: TextStyle(fontSize: 35)),
+              )),
+          Expanded(
+            flex: 8,
+            child: Card(
+                color: GetColor(ColorTypes.tertiary, context),
+                shape: const RoundedRectangleBorder(
+                    borderRadius:
+                        BorderRadius.only(topRight: Radius.circular(100))),
+                child: Padding(
+                  padding: const EdgeInsets.all(25),
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Expanded(
+                        flex: 7,
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Padding(
+                              padding: const EdgeInsets.all(15.0),
+                              child: Row(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  const Expanded(
+                                      flex: 2,
+                                      child: Icon(Icons.email_rounded)),
+                                  Expanded(
+                                    flex: 8,
+                                    child: TextField(
+                                      controller: _emailCOntroller,
+                                      decoration: const InputDecoration(
+                                        labelText: "Email",
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                            Padding(
+                              padding: const EdgeInsets.all(15.0),
+                              child: Row(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  const Expanded(
+                                      flex: 2, child: Icon(Icons.lock)),
+                                  Expanded(
+                                    flex: 8,
+                                    child: TextField(
+                                      obscureText: _hidePass,
+                                      controller: _passwordCOntroller,
+                                      decoration: InputDecoration(
+                                          labelText: "Constraseña",
+                                          suffixIcon: IconButton(
+                                              onPressed: changeVisible,
+                                              icon: Icon(_hidePass
+                                                  ? Icons.visibility
+                                                  : Icons.visibility_off))),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                            Center(
+                              child: TextButton(
+                                onPressed: showEmailResetDialog,
+                                style: const ButtonStyle(
+                                    alignment: Alignment.center),
+                                child: const Text("¿Olvidaste la contraseña?"),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                      Expanded(
+                        flex: 3,
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            ElevatedButton(
+                                style: ButtonStyle(
+                                    backgroundColor: MaterialStateProperty.all(
+                                        GetColor(
+                                            ColorTypes.secondary, context))),
+                                onPressed: signIn,
+                                child: const Text("Entrar")),
+                            TextButton(
+                                onPressed: () => setState(() {
+                                      isLogin = false;
+                                    }),
+                                child: const Text("No tengo una cuenta"))
+                          ],
+                        ),
+                      )
+                    ],
+                  ),
+                )),
+          )
+        ],
       );
 
-  Widget register() => Center(
-        child: Padding(
-          padding: const EdgeInsets.all(50.0),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Image.asset(
-                getImageUri(ImageUris.apunta),
-                height: 200,
-                width: 200,
-              ),
-              Row(
+  Widget register() => Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Expanded(
+            flex: 8,
+            child: Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Expanded(
-                    flex: 9,
-                    child: TextField(
-                      controller: _emailCOntroller,
-                      decoration:
-                          const InputDecoration(labelText: "Nombre de usuario"),
+                  SizedBox(
+                    height: 250,
+                    width: 250,
+                    child: ClipOval(
+                      child: Image.asset(
+                        "lib/assets/images/logo.png",
+                      ),
                     ),
-                  )
+                  ),
+                  Text(
+                    "Gastoscopio",
+                    style: TextStyle(
+                      color: GetColor(ColorTypes.icono, context),
+                      fontSize: 50,
+                    ),
+                  ),
                 ],
               ),
-              TextField(
-                obscureText: _hidePass,
-                controller: _passwordCOntroller,
-                decoration: InputDecoration(
-                    labelText: "Contraseña",
-                    suffixIcon: IconButton(
-                        onPressed: changeVisible,
-                        icon: Icon(_hidePass
-                            ? Icons.visibility
-                            : Icons.visibility_off))),
-              ),
-              TextField(
-                obscureText: _hidePass,
-                controller: _repPasswordCOntroller,
-                decoration: InputDecoration(
-                    labelText: "Repite la contraseña",
-                    suffixIcon: IconButton(
-                        onPressed: changeVisible,
-                        icon: Icon(_hidePass
-                            ? Icons.visibility
-                            : Icons.visibility_off))),
-              ),
-              Text(errorMessage!),
-              const SizedBox(height: 50),
-              GestureDetector(
-                onTap: registerUser,
-                child: Card(
-                    color: Theme.of(context).primaryColor,
-                    child: const Padding(
-                      padding: EdgeInsets.all(10.0),
-                      child: Text("Registrar"),
-                    )),
-              ),
-            ],
+            ),
           ),
-        ),
+          const Expanded(
+              flex: 1,
+              child: Padding(
+                padding: EdgeInsets.only(top: 10.0),
+                child: Text("Registrar",
+                    textAlign: TextAlign.center,
+                    style: TextStyle(fontSize: 35)),
+              )),
+          Expanded(
+            flex: 8,
+            child: Card(
+                color: GetColor(ColorTypes.tertiary, context),
+                shape: const RoundedRectangleBorder(
+                    borderRadius:
+                        BorderRadius.only(topLeft: Radius.circular(100))),
+                child: Padding(
+                  padding: const EdgeInsets.all(25),
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Expanded(
+                        flex: 7,
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Padding(
+                              padding: const EdgeInsets.all(15.0),
+                              child: Row(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  const Expanded(
+                                      flex: 2,
+                                      child: Icon(Icons.email_rounded)),
+                                  Expanded(
+                                    flex: 8,
+                                    child: TextField(
+                                      controller: _emailCOntroller,
+                                      decoration: const InputDecoration(
+                                        labelText: "Email",
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                            Padding(
+                              padding: const EdgeInsets.all(15.0),
+                              child: Row(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  const Expanded(
+                                      flex: 2, child: Icon(Icons.lock)),
+                                  Expanded(
+                                    flex: 8,
+                                    child: TextField(
+                                      obscureText: _hidePass,
+                                      controller: _passwordCOntroller,
+                                      decoration: InputDecoration(
+                                          labelText: "Constraseña",
+                                          suffixIcon: IconButton(
+                                              onPressed: changeVisible,
+                                              icon: Icon(_hidePass
+                                                  ? Icons.visibility
+                                                  : Icons.visibility_off))),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                            Padding(
+                              padding: const EdgeInsets.all(15.0),
+                              child: Row(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  const Expanded(
+                                      flex: 2, child: Icon(Icons.lock)),
+                                  Expanded(
+                                    flex: 8,
+                                    child: TextField(
+                                      obscureText: _hidePass,
+                                      controller: _repPasswordCOntroller,
+                                      decoration: InputDecoration(
+                                          labelText: "Repetir constraseña",
+                                          suffixIcon: IconButton(
+                                              onPressed: changeVisible,
+                                              icon: Icon(_hidePass
+                                                  ? Icons.visibility
+                                                  : Icons.visibility_off))),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                      Expanded(
+                        flex: 3,
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            ElevatedButton(
+                                style: ButtonStyle(
+                                    backgroundColor: MaterialStateProperty.all(
+                                        GetColor(
+                                            ColorTypes.secondary, context))),
+                                onPressed: registerUser,
+                                child: const Text("Login")),
+                            TextButton(
+                                onPressed: () => setState(() {
+                                      isLogin = true;
+                                    }),
+                                child: const Text("Ya tengo una cuenta"))
+                          ],
+                        ),
+                      )
+                    ],
+                  ),
+                )),
+          )
+        ],
       );
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      resizeToAvoidBottomInset: true,
-      appBar: AppBar(
-          title: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          Text(isLogin ? "Login" : "Register"),
-          TextButton(
-              onPressed: () => setState(() {
-                    isLogin = !isLogin;
-                  }),
-              child:
-                  Text(isLogin ? "No tengo una cuenta" : "Ya tengo una cuenta"))
-        ],
-      )),
-      body: CustomPaint(
-        painter: MyPattern(context),
-        child: SingleChildScrollView(
-          child: isLogin ? login() : register(),
-        ),
-      ),
+    //Auth().signInEmailPassword(
+    //email: "test@gastoscopio.com", password: "admin1234");
+    return MaterialApp(
+      debugShowCheckedModeBanner: false,
+      home: Scaffold(
+          backgroundColor: GetColor(ColorTypes.background, context),
+          body: isLogin ? login() : register()),
     );
   }
 }

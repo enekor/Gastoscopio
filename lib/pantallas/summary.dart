@@ -1,6 +1,7 @@
 import 'package:cuentas_android/models/Cuenta.dart';
 import 'package:cuentas_android/pattern/pattern.dart';
 import 'package:cuentas_android/pattern/positions.dart';
+import 'package:cuentas_android/utils.dart';
 import 'package:cuentas_android/widgets/views/summaryWidget.dart';
 import 'package:flutter/material.dart';
 
@@ -12,21 +13,20 @@ class SummaryPage extends StatelessWidget {
   Widget build(BuildContext context) {
     return PopScope(
       onPopInvoked: (didPop) {
-        positions().ChangePositions(MediaQuery.of(context).size.width,MediaQuery.of(context).size.height);
+        positions().ChangePositions(MediaQuery.of(context).size.width,
+            MediaQuery.of(context).size.height);
       },
       child: Scaffold(
+          backgroundColor: GetColor(ColorTypes.background, context),
           body: CustomPaint(
-            painter: MyPattern(context),
-            child: Padding(
-              padding: const EdgeInsets.all(15.0),
-              child: Center(
-                child: SingleChildScrollView(
-                  child: summaryView(cuenta.Meses,context)
+              painter: MyPattern(context),
+              child: Padding(
+                padding: const EdgeInsets.all(15.0),
+                child: Center(
+                  child: SingleChildScrollView(
+                      child: summaryView(cuenta.Meses, context)),
                 ),
-              ),
-            )
-          )
-      ),
+              ))),
     );
   }
 }

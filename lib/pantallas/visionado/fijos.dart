@@ -3,6 +3,7 @@ import 'package:cuentas_android/models/Cuenta.dart';
 import 'package:cuentas_android/models/Gasto.dart';
 import 'package:cuentas_android/pattern/pattern.dart';
 import 'package:cuentas_android/pattern/positions.dart';
+import 'package:cuentas_android/utils.dart';
 import 'package:cuentas_android/values.dart';
 import 'package:cuentas_android/widgets/views/fijosWidget.dart';
 import 'package:flutter/material.dart';
@@ -23,16 +24,15 @@ class gastosFijos extends StatefulWidget {
 class _gastosFijosState extends State<gastosFijos> {
   void _onDelete(String nombre, double valor) {
     setState(() {
-      _cuenta.fijos.removeWhere((element) => element.nombre == nombre && element.valor == valor);
+      _cuenta.fijos.removeWhere(
+          (element) => element.nombre == nombre && element.valor == valor);
     });
   }
 
   void _onChange(String nombre, double valor) {
     setState(() {
-      _cuenta.fijos
-          .where((element) => element.nombre == nombre)
-          .first
-          .valor = valor;
+      _cuenta.fijos.where((element) => element.nombre == nombre).first.valor =
+          valor;
     });
   }
 
@@ -51,7 +51,7 @@ class _gastosFijosState extends State<gastosFijos> {
     Values().cuentaRet = _cuenta;
   }
 
-  void _changeNuevo(){
+  void _changeNuevo() {
     setState(() {
       nuevo = !nuevo;
     });
@@ -59,43 +59,48 @@ class _gastosFijosState extends State<gastosFijos> {
 
   @override
   Widget build(BuildContext context) {
-    return  PopScope(
-        onPopInvoked: (_) => _pop(context),
-        child: Scaffold(
-          resizeToAvoidBottomInset: true,
-          floatingActionButton:crearNuevo(nuevo,onChange: _changeNuevo, scrollController: _scrollController),
-          appBar: fijosAppBar(fijos: _cuenta.fijos, size: MediaQuery.of(context).size.width),
-          body: CustomPaint(
-            painter: MyPattern(context),
-            child: Center(
-              child: Padding(
-                  padding: const EdgeInsets.all(15),
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Expanded(
-                        flex:1,
-                        child: nuevo
+    return PopScope(
+      onPopInvoked: (_) => _pop(context),
+      child: Scaffold(
+        backgroundColor: GetColor(ColorTypes.background, context),
+        resizeToAvoidBottomInset: true,
+        floatingActionButton: crearNuevo(nuevo,
+            onChange: _changeNuevo, scrollController: _scrollController),
+        appBar: fijosAppBar(
+            fijos: _cuenta.fijos, size: MediaQuery.of(context).size.width),
+        body: CustomPaint(
+          painter: MyPattern(context),
+          child: Center(
+            child: Padding(
+                padding: const EdgeInsets.all(15),
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Expanded(
+                      flex: 1,
+                      child: nuevo
                           ? nuevoFijo(
-                              onCreate: _onCreate, theme: Theme.of(context))
+                              onCreate: _onCreate,
+                              theme: Theme.of(context),
+                              context: context)
                           : Container(),
-                      ),
-                      Expanded(
-                        flex:10,
-                        child: _cuenta.fijos.isNotEmpty
-                          ?fijosView(
-                            gastos: _cuenta.fijos,
-                            onDelete: _onDelete,
-                            onChange: _onChange,
-                            theme: Theme.of(context),
-                            scrollController: _scrollController)
-                          :noFijos(),
-                      ),
-                    ],
-                  )),
-            ),
+                    ),
+                    Expanded(
+                      flex: 10,
+                      child: _cuenta.fijos.isNotEmpty
+                          ? fijosView(
+                              gastos: _cuenta.fijos,
+                              onDelete: _onDelete,
+                              onChange: _onChange,
+                              theme: Theme.of(context),
+                              scrollController: _scrollController)
+                          : noFijos(),
+                    ),
+                  ],
+                )),
           ),
         ),
+      ),
     );
   }
 }

@@ -39,6 +39,7 @@ class Values {
   RxInt gastoSeleccionado = (-1).obs;
   RxBool mostrarGatos = false.obs;
   RxBool fondoSimple = true.obs;
+  RxBool figuraAbajo = true.obs;
   RxString moneda = "€".obs;
 
 //metodos
@@ -51,5 +52,6 @@ class Values {
     mostrarGatos.value = await readSharedPreferences(SharedPreferencesKeys.gatos);
     fondoSimple.value = await readSharedPreferences(SharedPreferencesKeys.fondoSimple);
     moneda.value = await readSharedPreferences(SharedPreferencesKeys.moneda);
+    figuraAbajo.value = await readSharedPreferences(SharedPreferencesKeys.figuraAbajo);
   }
 }
