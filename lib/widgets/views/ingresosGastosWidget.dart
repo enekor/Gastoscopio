@@ -24,7 +24,8 @@ AppBar appBar(
     required List<Gasto> extras,
     required bool isIngreso,
     required double ingreso,
-    required ThemeData theme}) {
+    required ThemeData theme,
+    required BuildContext context}) {
   return AppBar(
     backgroundColor: Colors.transparent,
     title: Card(
@@ -144,11 +145,17 @@ Widget bodyHasNoDatos() {
 }
 
 FloatingActionButton floatingButton(bool nuevo,
-    {required Function onChange, required ScrollController scrollController}) {
+    {required Function onChange,
+    required ScrollController scrollController,
+    required BuildContext context}) {
   return FloatingActionButton.extended(
     onPressed: () => onChange(),
-    icon: !nuevo ? const Icon(Icons.add) : const Icon(Icons.close),
-    label: Text(nuevo ? "Cancelar" : "Crear nuevo"),
+    icon: !nuevo
+        ? const Icon(color: Colors.black, Icons.add)
+        : const Icon(Icons.close),
+    label: Text(
+        style: TextStyle(color: Colors.black),
+        nuevo ? "Cancelar" : "Crear nuevo"),
   );
 }
 
@@ -199,14 +206,14 @@ Widget createNew(
             Expanded(
               flex: 2,
               child: IconButton(
-                  onPressed: () {
-                    onCreateGasto(_nombreNuevo.text,
-                        double.parse(_valorNuevo.text), extraSelected);
-                    _nombreNuevo.clear();
-                    _valorNuevo.clear();
-                  },
-                  icon: const Icon(Icons.check),
-                  color: GetColor(ColorTypes.secondary, context)),
+                onPressed: () {
+                  onCreateGasto(_nombreNuevo.text,
+                      double.parse(_valorNuevo.text), extraSelected);
+                  _nombreNuevo.clear();
+                  _valorNuevo.clear();
+                },
+                icon: const Icon(Icons.check),
+              ),
             ),
             Expanded(
                 flex: 5,
@@ -225,7 +232,9 @@ Widget createNew(
                 flex: 3,
                 child: TextField(
                   controller: _valorNuevo,
-                  decoration: const InputDecoration(labelText: "Monto"),
+                  decoration: InputDecoration(
+                    labelText: "Monto",
+                  ),
                   keyboardType: TextInputType.number,
                 )),
           ],
@@ -246,9 +255,9 @@ Widget ingresoView(
     required double ingreso,
     required ThemeData theme,
     required BuildContext context}) {
+  _ingresoNuevo.value = TextEditingValue(text: ingreso.toStringAsFixed(2));
   return Obx(
     () => Card(
-      color: GetColor(ColorTypes.secondary, context),
       child: _isIngresoSeleccionado.value
           ? Row(
               mainAxisAlignment: MainAxisAlignment.spaceAround,
@@ -272,9 +281,7 @@ Widget ingresoView(
                   width: 8,
                 ),
                 Expanded(
-                  child: TextField(
-                    style: TextStyle(
-                        fontSize: theme.textTheme.labelLarge!.fontSize),
+                  child: TextFormField(
                     autofocus: true,
                     controller: _ingresoNuevo,
                     decoration: const InputDecoration(labelText: "Monto"),
@@ -293,6 +300,7 @@ Widget ingresoView(
                   child: Text(
                       "${ingreso.toStringAsFixed(2)}${Values().moneda.value}",
                       style: TextStyle(
+                          color: Colors.black,
                           fontSize: theme.textTheme.labelLarge!.fontSize)),
                   onPressed: () => _isIngresoSeleccionado.value = true,
                 )

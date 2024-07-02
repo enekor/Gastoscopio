@@ -21,44 +21,48 @@ Widget ItemCard(String nombre, double ahorro,
             kIsWeb ? () => seleccionado.value = !seleccionado.value : () {},
         onTap: () => open(),
         child: Card(
-            color: GetColor(ColorTypes.primary, context),
             child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: [
-                Icon(Icons.face,
-                    color: GetColor(ColorTypes.icono, context), size: 50.0),
-                Text(text.value),
-                seleccionado.value
-                    ? Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceAround,
-                        children: [
-                          Expanded(
-                            flex: 5,
-                            child: IconButton(
-                                onPressed: () {
-                                  seleccionado.value = false;
-                                  open();
-                                },
-                                icon: const Icon(Icons.open_in_new_rounded)),
-                          ),
-                          Expanded(
-                            flex: 5,
-                            child: IconButton(
-                                onPressed: () {
-                                  seleccionado.value = false;
-                                  text.value = "Borrado";
-                                  delete();
-                                },
-                                icon: const Icon(Icons.delete)),
-                          )
-                        ],
+          mainAxisAlignment: MainAxisAlignment.center,
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            const Icon(
+              Icons.face,
+              size: 50.0,
+              color: Colors.black,
+            ),
+            Text(
+              text.value,
+            ),
+            seleccionado.value
+                ? Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceAround,
+                    children: [
+                      Expanded(
+                        flex: 5,
+                        child: IconButton(
+                            onPressed: () {
+                              seleccionado.value = false;
+                              open();
+                            },
+                            icon: const Icon(Icons.open_in_new_rounded)),
+                      ),
+                      Expanded(
+                        flex: 5,
+                        child: IconButton(
+                            onPressed: () {
+                              seleccionado.value = false;
+                              text.value = "Borrado";
+                              delete();
+                            },
+                            icon: const Icon(Icons.delete)),
                       )
-                    : SizedBox(
-                        height: 0,
-                      )
-              ],
-            )),
+                    ],
+                  )
+                : SizedBox(
+                    height: 0,
+                  )
+          ],
+        )),
       ),
     ),
   );

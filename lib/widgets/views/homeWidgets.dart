@@ -95,7 +95,7 @@ Widget hasData(
               Expanded(
                   flex: 8,
                   child: Padding(
-                    padding: const EdgeInsets.all(100.0),
+                    padding: const EdgeInsets.all(50.0),
                     child: Image.asset(getImageUri(ImageUris.hola)),
                   )),
               Expanded(
@@ -112,7 +112,7 @@ Widget hasData(
                   padding: const EdgeInsets.all(25),
                   child: cuentas.length >= 2
                       ? GridView.count(
-                          childAspectRatio: 2,
+                          childAspectRatio: 1.2,
                           crossAxisCount: 2,
                           children: cuentas
                               .map((cuenta) => ItemCard(cuenta.Nombre,
@@ -146,7 +146,6 @@ BottomNavigationBar navigationBar(
     required Function onNewCuenta,
     required ThemeData theme,
     required BuildContext context}) {
-  bool oscuro = theme.brightness != Brightness.light;
   void onTap(int pos) {
     switch (pos) {
       case 0:
@@ -160,48 +159,40 @@ BottomNavigationBar navigationBar(
   }
 
   return BottomNavigationBar(
-    selectedLabelStyle:
-        const TextStyle(color: Colors.black, fontWeight: FontWeight.bold),
-    unselectedLabelStyle: const TextStyle(color: Colors.black),
     elevation: 0,
-    items: [
+    items: const [
       BottomNavigationBarItem(
           icon: Icon(
             Icons.person_add,
-            color: Values().figuraAbajo.value
-                ? Colors.black
-                : oscuro
-                    ? Colors.white
-                    : Colors.black,
           ),
           label: "Nueva cuenta"),
       BottomNavigationBarItem(
           icon: Icon(
             Icons.logout,
-            color: Values().figuraAbajo.value
-                ? Colors.black
-                : oscuro
-                    ? Colors.white
-                    : Colors.black,
           ),
           label: "Cerrar sesión"),
     ],
     onTap: onTap,
     currentIndex: 0,
-    backgroundColor: GetColor(ColorTypes.tertiary, context),
     showSelectedLabels: true,
     showUnselectedLabels: true,
   );
 }
 
-AppBar appBar({required Function onSettings, bool withName = true}) {
+AppBar appBar(
+    {required Function onSettings,
+    bool withName = true,
+    required BuildContext context}) {
   return AppBar(
     backgroundColor: Colors.transparent,
-    title: withName ? const Text("Gastoscopio") : const Text(""),
+    title: withName
+        ? const Text(
+            "Gastoscopio",
+          )
+        : const Text(""),
     actions: [
       IconButton(
           iconSize: 40,
-          color: Colors.black,
           onPressed: () => onSettings(),
           icon: const Icon(Icons.settings))
     ],

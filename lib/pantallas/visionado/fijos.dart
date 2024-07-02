@@ -62,7 +62,6 @@ class _gastosFijosState extends State<gastosFijos> {
     return PopScope(
       onPopInvoked: (_) => _pop(context),
       child: Scaffold(
-        backgroundColor: GetColor(ColorTypes.background, context),
         resizeToAvoidBottomInset: true,
         floatingActionButton: crearNuevo(nuevo,
             onChange: _changeNuevo, scrollController: _scrollController),

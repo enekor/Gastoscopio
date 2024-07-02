@@ -1,8 +1,7 @@
 import 'dart:convert';
 import 'dart:io';
 import 'package:cuentas_android/models/Cuenta.dart';
-import 'package:cuentas_android/themes/DarkTheme.dart';
-import 'package:cuentas_android/themes/LightTheme.dart';
+import 'package:cuentas_android/themes/CustomTheme.dart';
 import 'package:cuentas_android/values.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
@@ -113,26 +112,31 @@ enum SharedPreferencesKeys { gatos, fondoSimple, moneda, figuraAbajo }
 
 enum ImageUris { ok, apunta, buscando, hola, RascandoCabeza }
 
-enum ColorTypes { primary, secondary, tertiary, background, icono, error }
+enum ColorTypes {
+  background,
+  appBar,
+  card,
+  primary,
+  errorButton,
+  switchBack,
+  switchCircle
+}
 
 Color GetColor(ColorTypes type, BuildContext context) {
-  bool isDark = Theme.of(context).brightness == Brightness.dark;
-
   switch (type) {
     case ColorTypes.primary:
-      return isDark ? AppColorsD.primaryColor : AppColorsL.primaryColor;
-
-    case ColorTypes.secondary:
-      return isDark ? AppColorsD.secondaryColor : AppColorsL.secondaryColor;
-
-    case ColorTypes.tertiary:
-      return isDark ? AppColorsD.tertiaryColor : AppColorsL.tertiaryColor;
-
+      return AppColorsC.primaryColor;
+    case ColorTypes.card:
+      return AppColorsC.cardColor;
+    case ColorTypes.errorButton:
+      return AppColorsC.errorButtonColor;
+    case ColorTypes.switchBack:
+      return AppColorsC.switchBackColor;
     case ColorTypes.background:
-      return isDark ? AppColorsD.backgroundColor : AppColorsL.backgroundColor;
-    case ColorTypes.icono:
-      return const Color.fromARGB(255, 135, 206, 234);
-    case ColorTypes.error:
-      return isDark ? AppColorsD.errorButtonColor : AppColorsL.errorButtonColor;
+      return AppColorsC.backgroundColor;
+    case ColorTypes.switchCircle:
+      return AppColorsC.switchCircleColor;
+    case ColorTypes.appBar:
+      return AppColorsC.appBarColor;
   }
 }

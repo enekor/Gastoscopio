@@ -60,7 +60,6 @@ class _deudasState extends State<deudas> {
     return PopScope(
         onPopInvoked: (pop) => _pop(pop, context),
         child: Scaffold(
-          backgroundColor: GetColor(ColorTypes.background, context),
           floatingActionButton: floatingButton(
               onCreate: _onCreate,
               context: context,

@@ -41,7 +41,11 @@ Widget topPart(
       children: [
         Expanded(
           flex: 4,
-          child: Text(style: const TextStyle(fontSize: 130), userName),
+          child: Text(
+              style: TextStyle(
+                fontSize: 130,
+              ),
+              userName),
         ),
         Expanded(
           flex: 6,
@@ -49,15 +53,17 @@ Widget topPart(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               Text(
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: 50,
                   ),
                   textAlign: TextAlign.center,
                   "${Values().GetMes()}    ${currentMounth.toStringAsFixed(2)}${Values().moneda.value}"),
               Text(
-                  style: const TextStyle(fontSize: 50),
+                  style: TextStyle(
+                    fontSize: 50,
+                  ),
                   textAlign: TextAlign.center,
-                  "${Values().anno.value.toString()}    ${currentMounth.toStringAsFixed(2)}${Values().moneda.value}"),
+                  "${Values().anno.value.toString()}    ${currentYear.toStringAsFixed(2)}${Values().moneda.value}"),
             ],
           ),
         ),
@@ -85,13 +91,13 @@ Widget middlePart(
       Expanded(
         flex: 5,
         child: Padding(
-          padding: const EdgeInsets.only(left: 10),
-          child: Card(
-            color: GetColor(ColorTypes.tertiary, context),
-            child: GestureDetector(
-              onTap: () => onIngresoTap(),
+          padding: const EdgeInsets.only(left: 10, top: 15, bottom: 15),
+          child: GestureDetector(
+            onTap: () => onIngresoTap(),
+            child: Card(
               child: Center(
                 child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
                   crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
                     const Text(
@@ -128,22 +134,26 @@ Widget bottomPart(
           flex: 5,
           child: GestureDetector(
             onTap: () => onGastosTap(),
-            child: Row(
+            child: const Row(
               children: [
                 Expanded(
                   flex: 7,
                   child: Card(
-                    color: GetColor(ColorTypes.primary, context),
-                    child: const Center(
+                    shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.only(
+                            topRight: Radius.circular(25),
+                            bottomRight: Radius.circular(25))),
+                    child: Center(
                       child: Text(
                           style: TextStyle(fontWeight: FontWeight.bold),
                           "Gestión de gastos"),
                     ),
                   ),
                 ),
-                const Expanded(
+                Expanded(
                   flex: 3,
                   child: Icon(
+                    color: Colors.black,
                     Icons.attach_money_rounded,
                     size: 50,
                   ),
@@ -156,11 +166,12 @@ Widget bottomPart(
           flex: 5,
           child: GestureDetector(
             onTap: () => onPricesTap(),
-            child: Row(
+            child: const Row(
               children: [
-                const Expanded(
+                Expanded(
                   flex: 3,
                   child: Icon(
+                    color: Colors.black,
                     Icons.shopping_cart_rounded,
                     size: 50,
                   ),
@@ -168,8 +179,11 @@ Widget bottomPart(
                 Expanded(
                   flex: 7,
                   child: Card(
-                    color: GetColor(ColorTypes.primary, context),
-                    child: const Center(
+                    shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.only(
+                            topLeft: Radius.circular(25),
+                            bottomLeft: Radius.circular(25))),
+                    child: Center(
                       child: Text(
                           style: TextStyle(fontWeight: FontWeight.bold),
                           "Comparación de precios"),
@@ -215,7 +229,6 @@ BottomNavigationBar bottomNavBar(
     ],
     onTap: (index) => onCLick(index),
     currentIndex: 0,
-    backgroundColor: GetColor(ColorTypes.tertiary, context),
     showUnselectedLabels: true,
     showSelectedLabels: true,
   );
@@ -252,7 +265,7 @@ Widget body(
                 context: context)),
       ),
       Expanded(
-        flex: 1,
+        flex: 2,
         child: Padding(
           padding:
               const EdgeInsets.only(top: 8.0, bottom: 8, right: 25, left: 25),
@@ -267,9 +280,9 @@ Widget body(
         ),
       ),
       Expanded(
-        flex: 4,
+        flex: 7,
         child: Padding(
-          padding: const EdgeInsets.only(top: 25),
+          padding: const EdgeInsets.only(bottom: 50),
           child: bottomPart(
               onGastosTap: onGastosTap,
               onPricesTap: onPricesTap,

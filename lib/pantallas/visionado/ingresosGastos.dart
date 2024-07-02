@@ -170,16 +170,18 @@ class _IngresosGastosState extends State<IngresosGastos> {
     return PopScope(
       onPopInvoked: (_) => _pop(context),
       child: Scaffold(
-        backgroundColor: GetColor(ColorTypes.background, context),
         resizeToAvoidBottomInset: true,
         appBar: appBar(
+            context: context,
             datos: _datos,
             extras: _extras,
             ingreso: _ingreso,
             isIngreso: _isIngresos,
             theme: Theme.of(context)),
         floatingActionButton: floatingButton(_nuevo,
-            onChange: _setNuevo, scrollController: _scrollController),
+            onChange: _setNuevo,
+            scrollController: _scrollController,
+            context: context),
         body: CustomPaint(
             painter: MyPattern(context),
             child: Padding(

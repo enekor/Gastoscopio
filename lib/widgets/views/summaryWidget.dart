@@ -94,8 +94,6 @@ List<Widget> showSummary(List<Mes> meses, BuildContext context) {
                               Expanded(
                                   flex: 7,
                                   child: Card(
-                                    color:
-                                        GetColor(ColorTypes.secondary, context),
                                     child: Center(
                                       child: Text(
                                           "${e.Ingreso.toStringAsFixed(2)}${Values().moneda.value}"),
@@ -122,7 +120,6 @@ List<Widget> showSummary(List<Mes> meses, BuildContext context) {
 Widget showGastos(Mes mes, BuildContext context) =>
     mes.Gastos.where((element) => element.valor > 0).isNotEmpty
         ? Card(
-            color: Theme.of(context).primaryColor,
             child: Padding(
               padding: const EdgeInsets.all(8),
               child: Column(
@@ -164,7 +161,6 @@ Widget showGastos(Mes mes, BuildContext context) =>
 
 Widget showExtras(Mes mes, BuildContext context) => mes.Extras.isNotEmpty
     ? Card(
-        color: Theme.of(context).primaryColor,
         child: Padding(
           padding: const EdgeInsets.all(8.0),
           child: Column(
@@ -205,7 +201,6 @@ Widget showExtras(Mes mes, BuildContext context) => mes.Extras.isNotEmpty
 Widget showIngresos(Mes mes, BuildContext context) =>
     mes.Gastos.where((element) => element.valor < 0).isNotEmpty
         ? Card(
-            color: Theme.of(context).primaryColor,
             child: Padding(
               padding: const EdgeInsets.all(8.0),
               child: Column(

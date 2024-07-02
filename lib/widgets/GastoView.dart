@@ -34,20 +34,20 @@ Widget gastoView(
                       keyboardType: TextInputType.number),
                 ),
                 IconButton(
-                    onPressed: () {
-                      Values().gastoSeleccionado.value = -1;
-                      onSave(nombre, _nuevoValor);
-                    },
-                    icon: const Icon(Icons.check),
-                    color: GetColor(ColorTypes.secondary, context)),
+                  onPressed: () {
+                    Values().gastoSeleccionado.value = -1;
+                    onSave(nombre, _nuevoValor);
+                  },
+                  icon: const Icon(Icons.check),
+                ),
                 IconButton(
-                    onPressed: () {
-                      Values().gastoSeleccionado.value = -1;
-                      onDelete(nombre, valor);
-                      borrado.value = true;
-                    },
-                    icon: const Icon(Icons.delete),
-                    color: GetColor(ColorTypes.secondary, context))
+                  onPressed: () {
+                    Values().gastoSeleccionado.value = -1;
+                    onDelete(nombre, valor);
+                    borrado.value = true;
+                  },
+                  icon: const Icon(Icons.delete),
+                )
               ],
             ),
           )),
@@ -69,7 +69,6 @@ Widget gastoView(
                           onSelect(contador);
                         },
                         icon: const Icon(Icons.edit),
-                        color: theme.hintColor,
                       ),
                     ],
                   ),
@@ -90,7 +89,6 @@ Widget deletedView(void Function(String, double) onRestore, Gasto gasto) {
           IconButton(
             onPressed: () => onRestore(gasto.nombre, gasto.valor),
             icon: const Icon(Icons.restore),
-            color: Colors.blue,
           )
         ],
       ),

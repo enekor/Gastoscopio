@@ -106,9 +106,10 @@ class _HomeState extends State<Home> {
   Widget build(BuildContext context) {
     _getCuentas();
     return Scaffold(
-      backgroundColor: GetColor(ColorTypes.background, context),
       resizeToAvoidBottomInset: true,
-      appBar: appBar(onSettings: () => _navigateSettings(context, _cuentas)),
+      appBar: appBar(
+          context: context,
+          onSettings: () => _navigateSettings(context, _cuentas)),
       bottomNavigationBar: hw.navigationBar(
           onLogOut: () => _logout(),
           onNewCuenta: () => hw.nuevoUsuario(

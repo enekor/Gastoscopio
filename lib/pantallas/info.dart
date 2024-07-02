@@ -1,5 +1,3 @@
-import 'dart:ffi';
-
 import 'package:cuentas_android/dao/cuentaDao.dart';
 import 'package:cuentas_android/models/Gasto.dart';
 import 'package:cuentas_android/pantallas/settings.dart';
@@ -9,7 +7,6 @@ import 'package:cuentas_android/pantallas/visionado/ingresosGastos.dart';
 import 'package:cuentas_android/pantallas/visionado/fijos.dart';
 import 'package:cuentas_android/pattern/pattern.dart';
 import 'package:cuentas_android/pattern/positions.dart';
-import 'package:cuentas_android/utils.dart';
 import 'package:cuentas_android/widgets/dialog.dart';
 import 'package:cuentas_android/widgets/views/homeWidgets.dart';
 import 'package:flutter/material.dart';
@@ -157,10 +154,11 @@ class _InfoState extends State<Info> {
         onPopInvoked: (_) => _pop(context),
         child: Scaffold(
           extendBodyBehindAppBar: true,
-          backgroundColor: GetColor(ColorTypes.background, context),
           resizeToAvoidBottomInset: true,
           appBar: appBar(
-              onSettings: () => _navigateSettings(context), withName: false),
+              context: context,
+              onSettings: () => _navigateSettings(context),
+              withName: false),
           bottomNavigationBar: iw.bottomNavBar(
               onDeudasTap: () => _navigateDeudas(context),
               onRecurrentesTap: () => _navigateFijos(context),

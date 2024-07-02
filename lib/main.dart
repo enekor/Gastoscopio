@@ -1,5 +1,6 @@
 import 'package:cuentas_android/dao/cuentaDao.dart';
 import 'package:cuentas_android/pantallas/login/widgetTree.dart';
+import 'package:cuentas_android/themes/CustomTheme.dart';
 import 'package:cuentas_android/themes/DarkTheme.dart';
 import 'package:cuentas_android/themes/LightTheme.dart';
 import 'package:cuentas_android/utils.dart';
@@ -34,8 +35,8 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'Flutter App!!',
-      theme: MyLightTheme,
-      darkTheme: MyDarkTheme,
+      theme: MyCustomTheme,
+      darkTheme: MyCustomTheme,
       home: Tree(),
       debugShowCheckedModeBanner: false,
     );

@@ -17,7 +17,6 @@ class SummaryPage extends StatelessWidget {
             MediaQuery.of(context).size.height);
       },
       child: Scaffold(
-          backgroundColor: GetColor(ColorTypes.background, context),
           body: CustomPaint(
               painter: MyPattern(context),
               child: Padding(

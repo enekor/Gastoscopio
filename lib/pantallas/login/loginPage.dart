@@ -114,7 +114,8 @@ class _LoginPageState extends State<LoginPage> {
         children: [
           Expanded(
             flex: 8,
-            child: Center(
+            child: SingleChildScrollView(
+              padding: EdgeInsets.only(top: 50),
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
@@ -129,10 +130,6 @@ class _LoginPageState extends State<LoginPage> {
                   ),
                   Text(
                     "Gastoscopio",
-                    style: TextStyle(
-                      color: GetColor(ColorTypes.icono, context),
-                      fontSize: 50,
-                    ),
                   ),
                 ],
               ),
@@ -142,17 +139,21 @@ class _LoginPageState extends State<LoginPage> {
               flex: 1,
               child: Padding(
                 padding: EdgeInsets.only(top: 10.0),
-                child: Text("Iniciar sesión",
-                    textAlign: TextAlign.center,
-                    style: TextStyle(fontSize: 35)),
+                child: Text(
+                  "Iniciar sesión",
+                  textAlign: TextAlign.center,
+                ),
               )),
           Expanded(
             flex: 8,
-            child: Card(
-                color: GetColor(ColorTypes.tertiary, context),
+            child: Card.filled(
                 shape: const RoundedRectangleBorder(
-                    borderRadius:
-                        BorderRadius.only(topRight: Radius.circular(100))),
+                    borderRadius: BorderRadius.only(
+                  topRight: Radius.circular(100),
+                  topLeft: Radius.circular(0),
+                  bottomLeft: Radius.circular(0),
+                  bottomRight: Radius.circular(0),
+                )),
                 child: Padding(
                   padding: const EdgeInsets.all(25),
                   child: Column(
@@ -163,49 +164,42 @@ class _LoginPageState extends State<LoginPage> {
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Padding(
-                              padding: const EdgeInsets.all(15.0),
-                              child: Row(
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                children: [
-                                  const Expanded(
-                                      flex: 2,
-                                      child: Icon(Icons.email_rounded)),
-                                  Expanded(
-                                    flex: 8,
-                                    child: TextField(
-                                      controller: _emailCOntroller,
-                                      decoration: const InputDecoration(
-                                        labelText: "Email",
-                                      ),
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                const Expanded(
+                                    flex: 2, child: Icon(Icons.email_rounded)),
+                                Expanded(
+                                  flex: 8,
+                                  child: TextField(
+                                    controller: _emailCOntroller,
+                                    decoration: const InputDecoration(
+                                      labelText: "Email",
                                     ),
                                   ),
-                                ],
-                              ),
+                                ),
+                              ],
                             ),
-                            Padding(
-                              padding: const EdgeInsets.all(15.0),
-                              child: Row(
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                children: [
-                                  const Expanded(
-                                      flex: 2, child: Icon(Icons.lock)),
-                                  Expanded(
-                                    flex: 8,
-                                    child: TextField(
-                                      obscureText: _hidePass,
-                                      controller: _passwordCOntroller,
-                                      decoration: InputDecoration(
-                                          labelText: "Constraseña",
-                                          suffixIcon: IconButton(
-                                              onPressed: changeVisible,
-                                              icon: Icon(_hidePass
-                                                  ? Icons.visibility
-                                                  : Icons.visibility_off))),
-                                    ),
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                const Expanded(
+                                    flex: 2, child: Icon(Icons.lock)),
+                                Expanded(
+                                  flex: 8,
+                                  child: TextField(
+                                    obscureText: _hidePass,
+                                    controller: _passwordCOntroller,
+                                    decoration: InputDecoration(
+                                        labelText: "Constraseña",
+                                        suffixIcon: IconButton(
+                                            onPressed: changeVisible,
+                                            icon: Icon(_hidePass
+                                                ? Icons.visibility
+                                                : Icons.visibility_off))),
                                   ),
-                                ],
-                              ),
+                                ),
+                              ],
                             ),
                             Center(
                               child: TextButton(
@@ -224,12 +218,7 @@ class _LoginPageState extends State<LoginPage> {
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
                             ElevatedButton(
-                                style: ButtonStyle(
-                                    backgroundColor: MaterialStateProperty.all(
-                                        GetColor(
-                                            ColorTypes.secondary, context))),
-                                onPressed: signIn,
-                                child: const Text("Entrar")),
+                                onPressed: signIn, child: const Text("Entrar")),
                             TextButton(
                                 onPressed: () => setState(() {
                                       isLogin = false;
@@ -250,7 +239,8 @@ class _LoginPageState extends State<LoginPage> {
         children: [
           Expanded(
             flex: 8,
-            child: Center(
+            child: SingleChildScrollView(
+              padding: const EdgeInsets.only(top: 50),
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
@@ -266,7 +256,6 @@ class _LoginPageState extends State<LoginPage> {
                   Text(
                     "Gastoscopio",
                     style: TextStyle(
-                      color: GetColor(ColorTypes.icono, context),
                       fontSize: 50,
                     ),
                   ),
@@ -285,10 +274,13 @@ class _LoginPageState extends State<LoginPage> {
           Expanded(
             flex: 8,
             child: Card(
-                color: GetColor(ColorTypes.tertiary, context),
                 shape: const RoundedRectangleBorder(
-                    borderRadius:
-                        BorderRadius.only(topLeft: Radius.circular(100))),
+                    borderRadius: BorderRadius.only(
+                  topLeft: Radius.circular(100),
+                  topRight: Radius.circular(0),
+                  bottomLeft: Radius.circular(0),
+                  bottomRight: Radius.circular(0),
+                )),
                 child: Padding(
                   padding: const EdgeInsets.all(25),
                   child: Column(
@@ -299,73 +291,63 @@ class _LoginPageState extends State<LoginPage> {
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Padding(
-                              padding: const EdgeInsets.all(15.0),
-                              child: Row(
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                children: [
-                                  const Expanded(
-                                      flex: 2,
-                                      child: Icon(Icons.email_rounded)),
-                                  Expanded(
-                                    flex: 8,
-                                    child: TextField(
-                                      controller: _emailCOntroller,
-                                      decoration: const InputDecoration(
-                                        labelText: "Email",
-                                      ),
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                const Expanded(
+                                    flex: 2, child: Icon(Icons.email_rounded)),
+                                Expanded(
+                                  flex: 8,
+                                  child: TextField(
+                                    controller: _emailCOntroller,
+                                    decoration: const InputDecoration(
+                                      labelText: "Email",
                                     ),
                                   ),
-                                ],
-                              ),
+                                ),
+                              ],
                             ),
-                            Padding(
-                              padding: const EdgeInsets.all(15.0),
-                              child: Row(
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                children: [
-                                  const Expanded(
-                                      flex: 2, child: Icon(Icons.lock)),
-                                  Expanded(
-                                    flex: 8,
-                                    child: TextField(
-                                      obscureText: _hidePass,
-                                      controller: _passwordCOntroller,
-                                      decoration: InputDecoration(
-                                          labelText: "Constraseña",
-                                          suffixIcon: IconButton(
-                                              onPressed: changeVisible,
-                                              icon: Icon(_hidePass
-                                                  ? Icons.visibility
-                                                  : Icons.visibility_off))),
-                                    ),
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                const Expanded(
+                                    flex: 2, child: Icon(Icons.lock)),
+                                Expanded(
+                                  flex: 8,
+                                  child: TextField(
+                                    obscureText: _hidePass,
+                                    controller: _passwordCOntroller,
+                                    decoration: InputDecoration(
+                                        labelText: "Constraseña",
+                                        suffixIcon: IconButton(
+                                            onPressed: changeVisible,
+                                            icon: Icon(_hidePass
+                                                ? Icons.visibility
+                                                : Icons.visibility_off))),
                                   ),
-                                ],
-                              ),
+                                ),
+                              ],
                             ),
-                            Padding(
-                              padding: const EdgeInsets.all(15.0),
-                              child: Row(
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                children: [
-                                  const Expanded(
-                                      flex: 2, child: Icon(Icons.lock)),
-                                  Expanded(
-                                    flex: 8,
-                                    child: TextField(
-                                      obscureText: _hidePass,
-                                      controller: _repPasswordCOntroller,
-                                      decoration: InputDecoration(
-                                          labelText: "Repetir constraseña",
-                                          suffixIcon: IconButton(
-                                              onPressed: changeVisible,
-                                              icon: Icon(_hidePass
-                                                  ? Icons.visibility
-                                                  : Icons.visibility_off))),
-                                    ),
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                const Expanded(
+                                    flex: 2, child: Icon(Icons.lock)),
+                                Expanded(
+                                  flex: 8,
+                                  child: TextField(
+                                    obscureText: _hidePass,
+                                    controller: _repPasswordCOntroller,
+                                    decoration: InputDecoration(
+                                        labelText: "Repetir constraseña",
+                                        suffixIcon: IconButton(
+                                            onPressed: changeVisible,
+                                            icon: Icon(_hidePass
+                                                ? Icons.visibility
+                                                : Icons.visibility_off))),
                                   ),
-                                ],
-                              ),
+                                ),
+                              ],
                             ),
                           ],
                         ),
@@ -376,10 +358,6 @@ class _LoginPageState extends State<LoginPage> {
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
                             ElevatedButton(
-                                style: ButtonStyle(
-                                    backgroundColor: MaterialStateProperty.all(
-                                        GetColor(
-                                            ColorTypes.secondary, context))),
                                 onPressed: registerUser,
                                 child: const Text("Login")),
                             TextButton(
@@ -404,7 +382,7 @@ class _LoginPageState extends State<LoginPage> {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       home: Scaffold(
-          backgroundColor: GetColor(ColorTypes.background, context),
+          resizeToAvoidBottomInset: false,
           body: isLogin ? login() : register()),
     );
   }

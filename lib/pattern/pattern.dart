@@ -22,20 +22,20 @@ class MyPattern extends CustomPainter {
       paint.color = GetColor(ColorTypes.primary, context);
       canvas.drawCircle(positions().posiciones[0], 100, paint);
 
-      paint.color = GetColor(ColorTypes.secondary, context);
+      paint.color = GetColor(ColorTypes.appBar, context);
       canvas.drawCircle(positions().posiciones[1], 75, paint);
 
-      paint.color = GetColor(ColorTypes.tertiary, context);
+      paint.color = GetColor(ColorTypes.switchBack, context);
       canvas.drawCircle(positions().posiciones[2], 50, paint);
 
-      paint.color = GetColor(ColorTypes.icono, context);
+      paint.color = GetColor(ColorTypes.switchCircle, context);
       canvas.drawCircle(positions().posiciones[3], 40, paint);
     }
 
 //ola
     if (Values().figuraAbajo.value) {
       var sSize = MediaQuery.of(context).size;
-      paint.color = GetColor(ColorTypes.tertiary, context);
+      paint.color = GetColor(ColorTypes.card, context);
       Path path = Path()..moveTo(0, sSize.height / 2);
       path.moveTo(0, sSize.height * 0.7);
       path.quadraticBezierTo(sSize.width * 0.25, sSize.height * 0.7,

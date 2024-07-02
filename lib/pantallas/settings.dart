@@ -93,7 +93,6 @@ class Settings extends StatelessWidget {
   Widget build(BuildContext context) {
     return PopScope(
       child: Scaffold(
-        backgroundColor: GetColor(ColorTypes.background, context),
         resizeToAvoidBottomInset: true,
         body: CustomPaint(
             painter: MyPattern(context),

@@ -57,10 +57,9 @@ Widget nuevoFijo(
           )),
       Expanded(
           child: IconButton(
-              onPressed: () =>
-                  onCreate(_nombre.text, double.parse(_valor.text)),
-              icon: const Icon(Icons.check),
-              color: GetColor(ColorTypes.secondary, context)))
+        onPressed: () => onCreate(_nombre.text, double.parse(_valor.text)),
+        icon: const Icon(Icons.check),
+      ))
     ],
   );
 }
@@ -98,11 +97,10 @@ AppBar fijosAppBar({required List<Gasto> fijos, required double size}) {
           children: [
             const Text(
               "Valor total",
-              style: TextStyle(fontWeight: FontWeight.bold),
             ),
             Text(
-                "${fijos.fold(0.0, (previousValue, fijo) => previousValue + fijo.valor).toStringAsFixed(2)}${Values().moneda.value}",
-                style: const TextStyle(fontWeight: FontWeight.bold)),
+              "${fijos.fold(0.0, (previousValue, fijo) => previousValue + fijo.valor).toStringAsFixed(2)}${Values().moneda.value}",
+            ),
           ],
         ),
       ),
