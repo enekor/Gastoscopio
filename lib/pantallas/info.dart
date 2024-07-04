@@ -1,5 +1,4 @@
 import 'package:cuentas_android/dao/cuentaDao.dart';
-import 'package:cuentas_android/models/Gasto.dart';
 import 'package:cuentas_android/pantallas/settings.dart';
 import 'package:cuentas_android/pantallas/summary.dart';
 import 'package:cuentas_android/pantallas/visionado/deudas.dart';
@@ -18,7 +17,6 @@ import 'package:cuentas_android/widgets/views/infoWidgets.dart' as iw;
 late Cuenta c;
 late List<Cuenta> _cuentas;
 String _mes = Values().GetMes();
-List<Gasto> _toDelete = [];
 
 class Info extends StatefulWidget {
   Info({Key? key, required Cuenta cuenta, required List<Cuenta> cuentas})
@@ -98,7 +96,10 @@ class _InfoState extends State<Info> {
         context,
         MaterialPageRoute(
             builder: (context) => IngresosGastos(
-                cuenta: c, isIngresos: isIngreso, mes: _mes))).then((value) {
+                cuentas: _cuentas,
+                cuenta: c,
+                isIngresos: isIngreso,
+                mes: _mes))).then((value) {
       setState(() {
         c = Values().cuentaRet!;
       });
@@ -115,6 +116,7 @@ class _InfoState extends State<Info> {
         MaterialPageRoute(
             builder: (context) => gastosFijos(
                   cuenta: c,
+                  cuentas: _cuentas,
                 ))).then((value) {
       setState(() {
         c = Values().cuentaRet!;
@@ -139,6 +141,7 @@ class _InfoState extends State<Info> {
         MaterialPageRoute(
             builder: (context) => deudas(
                   cuenta: c,
+                  cuentas: _cuentas,
                 ))).then((value) {
       setState(() {
         c = Values().cuentaRet!;

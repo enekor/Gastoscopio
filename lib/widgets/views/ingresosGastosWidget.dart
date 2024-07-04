@@ -24,20 +24,24 @@ AppBar appBar(
     required List<Gasto> extras,
     required bool isIngreso,
     required double ingreso,
-    required ThemeData theme,
+    required Function onSettings,
     required BuildContext context}) {
   return AppBar(
-    backgroundColor: Colors.transparent,
-    title: Card(
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-        children: [
-          const Text("Valor total"),
-          Text(
-              "${valorTotal(isIngreso, datos.fold(0.0, (prevValue, gasto) => prevValue + gasto.valor), extras.fold<double>(0, (previousValue, extra) => previousValue + extra.valor), ingreso)}${Values().moneda.value}")
-        ],
-      ),
+    backgroundColor: GetColor(ColorTypes.card, context),
+    title: Row(
+      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+      children: [
+        const Text("Valor total"),
+        Text(
+            "${valorTotal(isIngreso, datos.fold(0.0, (prevValue, gasto) => prevValue + gasto.valor), extras.fold<double>(0, (previousValue, extra) => previousValue + extra.valor), ingreso)}${Values().moneda.value}")
+      ],
     ),
+    actions: [
+      IconButton(
+          iconSize: 40,
+          onPressed: () => onSettings(),
+          icon: const Icon(Icons.settings))
+    ],
   );
 }
 
@@ -240,10 +244,13 @@ Widget createNew(
           ],
         ),
         datos.isNotEmpty
-            ? switchSettingView(
-                onChange: (activo) => _existente.value = activo,
-                text: "Elegir uno existente",
-                inicial: _existente.value)
+            ? Padding(
+                padding: const EdgeInsets.only(left: 15.0, right: 15),
+                child: switchSettingView(
+                    onChange: (activo) => _existente.value = activo,
+                    text: "Elegir uno existente",
+                    inicial: _existente.value),
+              )
             : Container()
       ],
     ),
@@ -257,55 +264,53 @@ Widget ingresoView(
     required BuildContext context}) {
   _ingresoNuevo.value = TextEditingValue(text: ingreso.toStringAsFixed(2));
   return Obx(
-    () => Card(
-      child: _isIngresoSeleccionado.value
-          ? Row(
-              mainAxisAlignment: MainAxisAlignment.spaceAround,
-              children: [
-                IconButton(
-                    onPressed: () {
-                      _isIngresoSeleccionado.value = false;
-                      onIngresoChange(double.parse(_ingresoNuevo.text));
-                    },
-                    icon: const Icon(Icons.check),
-                    iconSize: theme.textTheme.labelLarge!.fontSize),
-                const SizedBox(
-                  width: 8,
+    () => _isIngresoSeleccionado.value
+        ? Row(
+            mainAxisAlignment: MainAxisAlignment.spaceAround,
+            children: [
+              IconButton(
+                  onPressed: () {
+                    _isIngresoSeleccionado.value = false;
+                    onIngresoChange(double.parse(_ingresoNuevo.text));
+                  },
+                  icon: const Icon(Icons.check),
+                  iconSize: theme.textTheme.labelLarge!.fontSize),
+              const SizedBox(
+                width: 8,
+              ),
+              Text(
+                "Ingreso base",
+                style:
+                    TextStyle(fontSize: theme.textTheme.labelLarge!.fontSize),
+              ),
+              const SizedBox(
+                width: 8,
+              ),
+              Expanded(
+                child: TextFormField(
+                  autofocus: true,
+                  controller: _ingresoNuevo,
+                  decoration: const InputDecoration(labelText: "Monto"),
+                  keyboardType: TextInputType.number,
                 ),
-                Text(
-                  "Ingreso base",
-                  style:
-                      TextStyle(fontSize: theme.textTheme.labelLarge!.fontSize),
-                ),
-                const SizedBox(
-                  width: 8,
-                ),
-                Expanded(
-                  child: TextFormField(
-                    autofocus: true,
-                    controller: _ingresoNuevo,
-                    decoration: const InputDecoration(labelText: "Monto"),
-                    keyboardType: TextInputType.number,
-                  ),
-                ),
-              ],
-            )
-          : Row(
-              mainAxisAlignment: MainAxisAlignment.spaceAround,
-              children: [
-                Text("Ingreso base",
+              ),
+            ],
+          )
+        : Row(
+            mainAxisAlignment: MainAxisAlignment.spaceAround,
+            children: [
+              Text("Ingreso base",
+                  style: TextStyle(
+                      fontSize: theme.textTheme.labelLarge!.fontSize)),
+              TextButton(
+                child: Text(
+                    "${ingreso.toStringAsFixed(2)}${Values().moneda.value}",
                     style: TextStyle(
+                        color: Colors.black,
                         fontSize: theme.textTheme.labelLarge!.fontSize)),
-                TextButton(
-                  child: Text(
-                      "${ingreso.toStringAsFixed(2)}${Values().moneda.value}",
-                      style: TextStyle(
-                          color: Colors.black,
-                          fontSize: theme.textTheme.labelLarge!.fontSize)),
-                  onPressed: () => _isIngresoSeleccionado.value = true,
-                )
-              ],
-            ),
-    ),
+                onPressed: () => _isIngresoSeleccionado.value = true,
+              )
+            ],
+          ),
   );
 }

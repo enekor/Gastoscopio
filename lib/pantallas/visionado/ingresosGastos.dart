@@ -2,13 +2,14 @@ import 'package:cuentas_android/dao/cuentaDao.dart';
 import 'package:cuentas_android/models/Cuenta.dart';
 import 'package:cuentas_android/models/Gasto.dart';
 import 'package:cuentas_android/models/Mes.dart';
+import 'package:cuentas_android/pantallas/settings.dart';
 import 'package:cuentas_android/pattern/pattern.dart';
 import 'package:cuentas_android/pattern/positions.dart';
-import 'package:cuentas_android/utils.dart';
 import 'package:cuentas_android/values.dart';
 import 'package:cuentas_android/widgets/views/ingresosGastosWidget.dart';
 import 'package:flutter/material.dart';
 
+late List<Cuenta> _cuentas;
 late List<Gasto> _datos;
 late List<Gasto> _extras;
 late double _ingreso;
@@ -22,10 +23,12 @@ bool _showExtras = false;
 class IngresosGastos extends StatefulWidget {
   IngresosGastos(
       {Key? key,
+      required List<Cuenta> cuentas,
       required Cuenta cuenta,
       required String mes,
       required bool isIngresos})
       : super(key: key) {
+    _cuentas = cuentas;
     _cuenta = cuenta;
     Mes mesCompleto = cuenta.Meses.firstWhere(
         (m) => m.NMes == mes && m.Anno == Values().anno.value);
@@ -165,11 +168,19 @@ class _IngresosGastosState extends State<IngresosGastos> {
     });
   }
 
+  void _navigateSettings(BuildContext context) {
+    positions().ChangePositions(
+        MediaQuery.of(context).size.width, MediaQuery.of(context).size.height);
+    Navigator.of(context)
+        .push(MaterialPageRoute(builder: (context) => Settings(cc: _cuentas)));
+  }
+
   @override
   Widget build(BuildContext context) {
     return PopScope(
       onPopInvoked: (_) => _pop(context),
       child: Scaffold(
+        extendBody: true,
         resizeToAvoidBottomInset: true,
         appBar: appBar(
             context: context,
@@ -177,77 +188,90 @@ class _IngresosGastosState extends State<IngresosGastos> {
             extras: _extras,
             ingreso: _ingreso,
             isIngreso: _isIngresos,
-            theme: Theme.of(context)),
+            onSettings: () => _navigateSettings(context)),
         floatingActionButton: floatingButton(_nuevo,
             onChange: _setNuevo,
             scrollController: _scrollController,
             context: context),
         body: CustomPaint(
             painter: MyPattern(context),
-            child: Padding(
-                padding: const EdgeInsets.only(top: 10, right: 10, left: 10),
-                child: Center(
+            child: Column(
+              mainAxisSize: MainAxisSize.max,
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                SizedBox(
+                  width: MediaQuery.of(context).size.width,
+                  child: Card(
+                    margin: EdgeInsets.all(0),
+                    shape: const RoundedRectangleBorder(
+                        borderRadius: BorderRadius.only(
+                            bottomLeft: Radius.circular(25),
+                            bottomRight: Radius.circular(25))),
                     child: Column(
-                  mainAxisSize: MainAxisSize.max,
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    _isIngresos
-                        ? ingresoView(
-                            onIngresoChange: _onIngresoChange,
-                            ingreso: _ingreso,
-                            theme: Theme.of(context),
-                            context: context)
-                        : Container(),
-                    !_isIngresos
-                        ? showExtras(
-                            valorExtras: _extras.fold(
-                                0.0,
-                                (previousValue, element) =>
-                                    previousValue + element.valor),
-                            checkExtras: _checkExtras,
-                            extrasChecked: _showExtras)
-                        : Container(),
-                    _nuevo
-                        ? createNew(
-                            extraSelected: _showExtras,
-                            onCreateGasto: _onCreateGasto,
-                            theme: Theme.of(context),
-                            IsIngresos: _isIngresos,
-                            gastos: _datos,
-                            extras: _extras,
-                            context: context)
-                        : Container(),
-                    Expanded(
-                      flex: 7,
-                      child: Card.filled(
-                          child: _isIngresos
-                              ? bodyHasDatos(
-                                  gastos: _datos,
-                                  onSaveValue: _onSaveValue,
-                                  onDeleteValue: _onDeleteValue,
-                                  theme: Theme.of(context),
-                                  isIngresos: _isIngresos,
-                                  scrollController: _scrollController,
-                                  context: context)
-                              : _showExtras
-                                  ? extrasListView(
-                                      extras: _extras,
-                                      onCreate: _onCreateGasto,
-                                      onSaveExtra: _onSaveExtra,
-                                      onDeleteExtra: _onDeleteExtra,
-                                      theme: Theme.of(context),
-                                      context: context)
-                                  : bodyHasDatos(
-                                      gastos: _datos,
-                                      onSaveValue: _onSaveValue,
-                                      onDeleteValue: _onDeleteValue,
-                                      theme: Theme.of(context),
-                                      isIngresos: _isIngresos,
-                                      scrollController: _scrollController,
-                                      context: context)),
-                    )
-                  ],
-                )))),
+                      children: [
+                        Text(
+                            style: Theme.of(context).textTheme.bodyLarge,
+                            _isIngresos ? "Ingresos" : "Gastos"),
+                        _isIngresos
+                            ? ingresoView(
+                                onIngresoChange: _onIngresoChange,
+                                ingreso: _ingreso,
+                                theme: Theme.of(context),
+                                context: context)
+                            : Container(),
+                        !_isIngresos
+                            ? showExtras(
+                                valorExtras: _extras.fold(
+                                    0.0,
+                                    (previousValue, element) =>
+                                        previousValue + element.valor),
+                                checkExtras: _checkExtras,
+                                extrasChecked: _showExtras)
+                            : Container(),
+                        _nuevo
+                            ? createNew(
+                                extraSelected: _showExtras,
+                                onCreateGasto: _onCreateGasto,
+                                theme: Theme.of(context),
+                                IsIngresos: _isIngresos,
+                                gastos: _datos,
+                                extras: _extras,
+                                context: context)
+                            : Container(),
+                      ],
+                    ),
+                  ),
+                ),
+                Expanded(
+                  flex: 7,
+                  child: _isIngresos
+                      ? bodyHasDatos(
+                          gastos: _datos,
+                          onSaveValue: _onSaveValue,
+                          onDeleteValue: _onDeleteValue,
+                          theme: Theme.of(context),
+                          isIngresos: _isIngresos,
+                          scrollController: _scrollController,
+                          context: context)
+                      : _showExtras
+                          ? extrasListView(
+                              extras: _extras,
+                              onCreate: _onCreateGasto,
+                              onSaveExtra: _onSaveExtra,
+                              onDeleteExtra: _onDeleteExtra,
+                              theme: Theme.of(context),
+                              context: context)
+                          : bodyHasDatos(
+                              gastos: _datos,
+                              onSaveValue: _onSaveValue,
+                              onDeleteValue: _onDeleteValue,
+                              theme: Theme.of(context),
+                              isIngresos: _isIngresos,
+                              scrollController: _scrollController,
+                              context: context),
+                )
+              ],
+            )),
       ),
     );
   }

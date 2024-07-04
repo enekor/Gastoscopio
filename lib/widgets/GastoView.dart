@@ -19,8 +19,7 @@ Widget gastoView(
   RxBool borrado = false.obs;
   return Obx(() => Values().gastoSeleccionado.value == contador
       ? Center(
-          child: Card(
-              child: Padding(
+          child: Padding(
             padding: EdgeInsets.all(10),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
@@ -50,28 +49,25 @@ Widget gastoView(
                 )
               ],
             ),
-          )),
+          ),
         )
       : borrado.value == false
-          ? Card(
-              child: Padding(
-                padding: const EdgeInsets.all(10),
-                child: Center(
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                    children: [
-                      Text(nombre),
-                      Text(
-                          "${valor.toStringAsFixed(2)}${Values().moneda.value}"),
-                      IconButton(
-                        onPressed: () {
-                          Values().gastoSeleccionado.value = -1;
-                          onSelect(contador);
-                        },
-                        icon: const Icon(Icons.edit),
-                      ),
-                    ],
-                  ),
+          ? Padding(
+              padding: const EdgeInsets.all(10),
+              child: Center(
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                  children: [
+                    Text(nombre),
+                    Text("${valor.toStringAsFixed(2)}${Values().moneda.value}"),
+                    IconButton(
+                      onPressed: () {
+                        Values().gastoSeleccionado.value = -1;
+                        onSelect(contador);
+                      },
+                      icon: const Icon(Icons.edit),
+                    ),
+                  ],
                 ),
               ),
             )
