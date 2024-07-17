@@ -1,253 +1,170 @@
-import 'package:cuentas_android/models/Mes.dart';
+import 'package:cuentas_android/models/Cuenta.dart';
+import 'package:cuentas_android/models/Gasto.dart';
 import 'package:cuentas_android/utils.dart';
 import 'package:cuentas_android/values.dart';
 import 'package:flutter/material.dart';
-import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:get/get.dart';
 
-List<Widget> showSummary(List<Mes> meses, BuildContext context) {
-  List<Widget> ret = [];
-  List<int> annos = meses.map((e) => e.Anno).toSet().toList();
+RxString _month = "".obs;
+RxInt _year = DateTime.now().year.obs;
+RxList<String> _months = RxList.empty();
 
-  for (int anno in annos) {
-    ret.add(Padding(
-      padding: const EdgeInsets.all(8.0),
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceAround,
-            children: [
-              const FaIcon(FontAwesomeIcons.caretDown),
-              Text(
-                anno.toString(),
-                style: Theme.of(context).textTheme.bodyMedium,
-              ),
-              const FaIcon(FontAwesomeIcons.caretDown),
-            ],
+Widget summaryView({required Cuenta cuenta, required BuildContext context}) {
+  _months.value = cuenta.Meses.where((mes)=>mes.Anno == _year.value).map((mes)=>mes.NMes).toSet().toList();
+  _month.value = _months.value.last;
+  return Obx(
+    ()=> Column(
+      mainAxisAlignment: MainAxisAlignment.center,
+      crossAxisAlignment: CrossAxisAlignment.center,
+      children: [
+        Expanded(
+          flex:2,
+          child: filters(cuenta: cuenta, context: context) ,
+        ),
+        Expanded(
+          flex:8,
+          child: Card(
+            child: Padding(
+              padding: const EdgeInsets.all(25),
+              child: body(cuenta: cuenta, context: context),
+            ),
           ),
-          Column(
-              children: meses
-                  .where((element) => element.Anno == anno)
-                  .map<Widget>((e) => Column(
-                        children: [
-                          Text(
-                            e.NMes,
-                            style: Theme.of(context).textTheme.bodyMedium,
-                          ),
-                          const SizedBox(height: 8),
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceAround,
-                            crossAxisAlignment: CrossAxisAlignment.center,
-                            children: [
-                              Expanded(
-                                  flex: 3,
-                                  child: Text(
-                                    "Gastos fijos",
-                                    style:
-                                        Theme.of(context).textTheme.bodyLarge,
-                                  )),
-                              Expanded(flex: 7, child: showGastos(e, context)),
-                            ],
-                          ),
-                          const SizedBox(height: 8),
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceAround,
-                            crossAxisAlignment: CrossAxisAlignment.center,
-                            children: [
-                              Expanded(
-                                  flex: 3,
-                                  child: Text(
-                                    "Gastos extra",
-                                    style:
-                                        Theme.of(context).textTheme.bodyLarge,
-                                  )),
-                              Expanded(flex: 7, child: showExtras(e, context)),
-                            ],
-                          ),
-                          const SizedBox(height: 8),
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceAround,
-                            crossAxisAlignment: CrossAxisAlignment.center,
-                            children: [
-                              Expanded(
-                                  flex: 3,
-                                  child: Text(
-                                    "Ingresos extra",
-                                    style:
-                                        Theme.of(context).textTheme.bodyLarge,
-                                  )),
-                              Expanded(
-                                  flex: 7, child: showIngresos(e, context)),
-                            ],
-                          ),
-                          const SizedBox(height: 8),
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceAround,
-                            children: [
-                              Expanded(
-                                  flex: 3,
-                                  child: Text(
-                                    "Ingreso",
-                                    style:
-                                        Theme.of(context).textTheme.bodyLarge,
-                                  )),
-                              Expanded(
-                                  flex: 7,
-                                  child: Card(
-                                    child: Center(
-                                      child: Text(
-                                          "${e.Ingreso.toStringAsFixed(2)}${Values().moneda.value}"),
-                                    ),
-                                  ))
-                            ],
-                          ),
-                          const SizedBox(height: 8),
-                          const Padding(
-                            padding: EdgeInsets.only(top: 10, bottom: 10),
-                            child: Divider(),
-                          )
-                        ],
-                      ))
-                  .toList())
-        ],
-      ),
-    ));
-  }
-
-  return ret;
+        )
+      ],
+    ),
+  );
 }
 
-Widget showGastos(Mes mes, BuildContext context) =>
-    mes.Gastos.where((element) => element.valor > 0).isNotEmpty
-        ? Card(
-            child: Padding(
-              padding: const EdgeInsets.all(8),
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: mes.Gastos.where((element) => element.valor > 0)
-                    .map<Widget>((e) => Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          crossAxisAlignment: CrossAxisAlignment.center,
-                          children: [
-                            Expanded(
-                              flex: 7,
-                              child: Padding(
-                                padding: const EdgeInsets.all(8.0),
-                                child: Text(e.nombre,
-                                    style: TextStyle(
-                                        fontSize: Theme.of(context)
-                                            .textTheme
-                                            .bodyMedium!
-                                            .fontSize,
-                                        overflow: TextOverflow.ellipsis),
-                                    maxLines: 3,
-                                    textAlign: TextAlign.center),
-                              ),
-                            ),
-                            Expanded(
-                                flex: 3,
-                                child: Text(
-                                    "${e.valor.toStringAsFixed(2)}${Values().moneda.value}"))
-                          ],
-                        ))
-                    .toList(),
-              ),
-            ),
-          )
-        : const Text(
-            "No hay",
-            textAlign: TextAlign.center,
-          );
-
-Widget showExtras(Mes mes, BuildContext context) => mes.Extras.isNotEmpty
-    ? Card(
-        child: Padding(
-          padding: const EdgeInsets.all(8.0),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: mes.Extras.map((e) => Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  children: [
-                    Expanded(
-                      flex: 7,
-                      child: Padding(
-                        padding: const EdgeInsets.all(8.0),
-                        child: Text(e.nombre,
-                            style: TextStyle(
-                                fontSize: Theme.of(context)
-                                    .textTheme
-                                    .bodyMedium!
-                                    .fontSize,
-                                overflow: TextOverflow.ellipsis),
-                            maxLines: 3,
-                            textAlign: TextAlign.center),
-                      ),
-                    ),
-                    Expanded(
-                        flex: 3,
-                        child: Text(
-                            "${e.valor.toStringAsFixed(2)}${Values().moneda.value}"))
-                  ],
-                )).toList(),
-          ),
+Widget monthSelector({required BuildContext context}) {
+  return DropdownButtonFormField(
+    dropdownColor: GetColor(ColorTypes.primary, context),
+    decoration: InputDecoration(
+        filled: true,
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(25),
         ),
-      )
-    : const Text(
-        "No hay",
-        textAlign: TextAlign.center,
+        fillColor: GetColor(ColorTypes.primary, context)),
+    value: _months.value.last,
+    items: _months.value.map((item) {
+      return DropdownMenuItem(
+        value: item,
+        child: Text(item),
       );
-
-Widget showIngresos(Mes mes, BuildContext context) =>
-    mes.Gastos.where((element) => element.valor < 0).isNotEmpty
-        ? Card(
-            child: Padding(
-              padding: const EdgeInsets.all(8.0),
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: mes.Gastos.where((element) => element.valor < 0)
-                    .map<Widget>((e) => Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          crossAxisAlignment: CrossAxisAlignment.center,
-                          children: [
-                            Expanded(
-                              flex: 7,
-                              child: Padding(
-                                padding: const EdgeInsets.all(8.0),
-                                child: Text(e.nombre,
-                                    style: TextStyle(
-                                        fontSize: Theme.of(context)
-                                            .textTheme
-                                            .bodyMedium!
-                                            .fontSize,
-                                        overflow: TextOverflow.ellipsis),
-                                    maxLines: 3,
-                                    textAlign: TextAlign.center),
-                              ),
-                            ),
-                            Expanded(
-                                flex: 3,
-                                child: Text(
-                                    "${(-1 * e.valor).toStringAsFixed(2)}${Values().moneda.value}"))
-                          ],
-                        ))
-                    .toList(),
-              ),
-            ),
-          )
-        : const Text(
-            "No hay",
-            textAlign: TextAlign.center,
-          );
-
-Widget summaryView(List<Mes> meses, BuildContext context) {
-  meses.sort((a, b) => a.compareTo(b));
-  return Center(
-    child: Column(
-        children: showSummary(meses, context)
-            .map<Widget>((e) => Card(
-                  child: e,
-                ))
-            .toList()),
+    }).toList(),
+    onChanged: (item) {
+      _month.value = item.toString();
+    },
   );
+}
+
+Widget yearSelector({required BuildContext context, required Cuenta cuenta}){
+  List<int> annos = cuenta.Meses.map((mes)=>mes.Anno).toSet().toList();
+  return DropdownButtonFormField(
+    dropdownColor: GetColor(ColorTypes.primary, context),
+    decoration: InputDecoration(
+        filled: true,
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(25),
+        ),
+        fillColor: GetColor(ColorTypes.primary, context)),
+    value: _year.value,
+    items: annos.map((item) {
+      return DropdownMenuItem(
+        value: item,
+        child: Text(item.toString()),
+      );
+    }).toList(),
+    onChanged: (item) {
+      _year.value = int.parse(item.toString());
+    },
+  );
+}
+
+
+Widget filters({required Cuenta cuenta, required BuildContext context}){
+  return Row(
+    mainAxisAlignment: MainAxisAlignment.spaceAround,
+    children: [
+      Expanded(
+        flex:5,
+        child: yearSelector(context: context, cuenta: cuenta),
+      ),
+      Expanded(
+        flex:5,
+        child: monthSelector(context: context),
+      )
+    ],
+  );
+}
+Widget total(Cuenta cuenta, BuildContext context)=>Obx(
+  ()=>Card(
+    color: GetColor(ColorTypes.appBar, context),
+    child: Padding(
+      padding: const EdgeInsets.all(20.0),
+      child: Column(
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              const Text("Total"),
+              Text("${cuenta.Meses.firstWhere((mes)=>mes.NMes == _month.value && mes.Anno == _year.value).GetAhorros().toStringAsFixed(2)}${Values().moneda.value}")
+            ],
+          ),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              const Text("Ingresos base"),
+              Text("${cuenta.Meses.firstWhere((mes)=>mes.NMes == _month.value && mes.Anno == _year.value).Ingreso.toStringAsFixed(2)}${Values().moneda.value}")
+            ],
+          )
+        ],
+      ),
+    ),
+  ),
+);
+
+Widget muestreo(String tipo, Cuenta cuenta, bool isIngreso, bool isExtra) {
+  List<String> aMostrar = [];
+  if(isIngreso){
+    List<Gasto> ingresos = cuenta.Meses.firstWhere((mes)=>mes.Anno == _year.value && mes.NMes == _month.value).Gastos.where((gasto)=>gasto.valor<0).toList();
+
+    aMostrar = ingresos.map((valor) => (-1*valor.valor).toStringAsFixed(2)).toList();
+  }
+  else{
+    if(isExtra){
+          List<Gasto> extras = cuenta.Meses.firstWhere((mes)=>mes.Anno == _year.value && mes.NMes == _month.value).Extras;
+
+          aMostrar = extras.map((valor) => valor.valor.toStringAsFixed(2)).toList();
+    }
+    else{
+      List<Gasto> gastos = cuenta.Meses.firstWhere((mes)=>mes.Anno == _year.value && mes.NMes == _month.value).Gastos.where((gasto)=>gasto.valor>0).toList();
+
+      aMostrar = gastos.map((valor) => valor.valor.toStringAsFixed(2)).toList();
+    }
+  }
+
+  return aMostrar.isNotEmpty
+  ? Padding(
+    padding: const EdgeInsets.all(15.0),
+    child: Row(
+    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+    children: [
+      Text(tipo),
+      Column(
+        children: aMostrar.map((value)=>Text("$value${Values().moneda.value}")).toList(),
+      )
+    ],
+    ),
+  )
+: Container();
+}
+
+Widget body({required Cuenta cuenta, required BuildContext context}){
+  return Padding(padding: EdgeInsets.all(15),
+  child: Column(children: [
+    total(cuenta,context),
+    muestreo("Gastos", cuenta,false,false),
+    muestreo("Gastos extra", cuenta,false,true),
+    muestreo("Ingresos", cuenta,true,false),
+  ],),);
 }

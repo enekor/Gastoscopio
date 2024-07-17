@@ -89,27 +89,29 @@ Widget middlePart(
                 theme: Theme.of(context), mes: mes, onSelecMes: onSelecMes),
           )),
       Expanded(
-        flex: 5,
-        child: Padding(
-          padding: const EdgeInsets.only(left: 10, top: 15, bottom: 15),
-          child: GestureDetector(
-            onTap: () => onIngresoTap(),
-            child: Card(
-              child: Center(
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  children: [
-                    const Text(
-                      "Ingresos",
-                      style:
-                          TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-                    ),
-                    Text(
-                        style: const TextStyle(fontWeight: FontWeight.bold),
-                        ingreso.toStringAsFixed(2) +
-                            Values().moneda.value) //si falla arreglar esto
-                  ],
+        flex: 3,
+        child: SizedBox(
+          child: Padding(
+            padding: const EdgeInsets.only(left: 10, top: 15, bottom: 15),
+            child: GestureDetector(
+              onTap: () => onIngresoTap(),
+              child: Card(
+                child: Center(
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: [
+                      const Text(
+                        "Ingresos",
+                        style: TextStyle(
+                            fontSize: 20, fontWeight: FontWeight.bold),
+                      ),
+                      Text(
+                          style: const TextStyle(fontWeight: FontWeight.bold),
+                          ingreso.toStringAsFixed(2) +
+                              Values().moneda.value) //si falla arreglar esto
+                    ],
+                  ),
                 ),
               ),
             ),
@@ -138,15 +140,18 @@ Widget bottomPart(
               children: [
                 Expanded(
                   flex: 7,
-                  child: Card(
-                    shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.only(
-                            topRight: Radius.circular(25),
-                            bottomRight: Radius.circular(25))),
-                    child: Center(
-                      child: Text(
-                          style: TextStyle(fontWeight: FontWeight.bold),
-                          "Gestión de gastos"),
+                  child: Padding(
+                    padding: EdgeInsets.only(bottom: 10.0),
+                    child: Card(
+                      shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.only(
+                              topRight: Radius.circular(25),
+                              bottomRight: Radius.circular(25))),
+                      child: Center(
+                        child: Text(
+                            style: TextStyle(fontWeight: FontWeight.bold),
+                            "Gestión de gastos"),
+                      ),
                     ),
                   ),
                 ),
@@ -178,15 +183,18 @@ Widget bottomPart(
                 ),
                 Expanded(
                   flex: 7,
-                  child: Card(
-                    shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.only(
-                            topLeft: Radius.circular(25),
-                            bottomLeft: Radius.circular(25))),
-                    child: Center(
-                      child: Text(
-                          style: TextStyle(fontWeight: FontWeight.bold),
-                          "Comparación de precios"),
+                  child: Padding(
+                    padding: EdgeInsets.only(top: 10.0),
+                    child: Card(
+                      shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.only(
+                              topLeft: Radius.circular(25),
+                              bottomLeft: Radius.circular(25))),
+                      child: Center(
+                        child: Text(
+                            style: TextStyle(fontWeight: FontWeight.bold),
+                            "Comparación de precios"),
+                      ),
                     ),
                   ),
                 ),
@@ -265,7 +273,7 @@ Widget body(
                 context: context)),
       ),
       Expanded(
-        flex: 2,
+        flex: 3,
         child: Padding(
           padding:
               const EdgeInsets.only(top: 8.0, bottom: 8, right: 25, left: 25),
@@ -280,7 +288,7 @@ Widget body(
         ),
       ),
       Expanded(
-        flex: 7,
+        flex: 5,
         child: Padding(
           padding: const EdgeInsets.only(bottom: 50),
           child: bottomPart(
@@ -288,6 +296,97 @@ Widget body(
               onPricesTap: onPricesTap,
               context: context),
         ),
+      )
+    ],
+  );
+}
+
+Widget bodyLand(
+    {required double ingreso,
+    required String mes,
+    required Function onPricesTap,
+    required Function(String) onSelecMes,
+    required Function onIngresoTap,
+    required Function onGastosTap,
+    required BuildContext context,
+    required Cuenta cuenta,
+    required Function onDeudasTap,
+    required Function onRecurrentesTap,
+    required Function onSummaryTap,
+    required Function onSettingsTap}) {
+  return Row(
+    children: [
+      Expanded(
+        flex: 1,
+        child: Card.filled(
+          shape: const RoundedRectangleBorder(
+              borderRadius: BorderRadius.only(
+                  bottomLeft: Radius.circular(0),
+                  bottomRight: Radius.circular(40),
+                  topLeft: Radius.circular(0),
+                  topRight: Radius.circular(40))),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+            children: [
+              IconButton(
+                  onPressed: () => onSettingsTap(),
+                  icon: const Icon(Icons.settings)),
+              IconButton(
+                  onPressed: () => onSummaryTap(),
+                  icon: const Icon(Icons.summarize)),
+              IconButton(
+                  onPressed: () => onRecurrentesTap(),
+                  icon: const Icon(Icons.calendar_month)),
+              IconButton(
+                  onPressed: () => onDeudasTap(),
+                  icon: const Icon(Icons.money_off_rounded)),
+            ],
+          ),
+        ),
+      ),
+      Expanded(
+        flex: 6,
+        child: Column(
+          children: [
+            Expanded(
+              child: Padding(
+                padding: const EdgeInsets.only(top: 140, bottom: 140),
+                child: middlePart(
+                    ingreso: ingreso,
+                    context: context,
+                    onSelecMes: onSelecMes,
+                    mes: mes,
+                    onIngresoTap: onIngresoTap),
+              ),
+            ),
+            Expanded(
+              child: bottomPart(
+                  onGastosTap: onGastosTap,
+                  onPricesTap: onPricesTap,
+                  context: context),
+            ),
+          ],
+        ),
+      ),
+      Expanded(
+        flex: 6,
+        child: Container(
+            margin: EdgeInsets.only(left: 10),
+            decoration: const BoxDecoration(
+              image: DecorationImage(
+                image: AssetImage('lib/assets/images/dinero.jpg'),
+                colorFilter: ColorFilter.mode(Colors.white, BlendMode.modulate),
+                fit: BoxFit.cover,
+              ),
+            ),
+            child: topPart(
+                currentMounth: cuenta.Meses.where(
+                        (v) => v.NMes == mes && v.Anno == Values().anno.value)
+                    .first
+                    .GetAhorros(),
+                currentYear: cuenta.GetTotal(Values().anno.value),
+                userName: cuenta.Nombre,
+                context: context)),
       )
     ],
   );

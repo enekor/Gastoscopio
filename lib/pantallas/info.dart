@@ -155,31 +155,57 @@ class _InfoState extends State<Info> {
     _seleccionarMes(Values().GetMes());
     return PopScope(
         onPopInvoked: (_) => _pop(context),
-        child: Scaffold(
-          extendBodyBehindAppBar: true,
-          resizeToAvoidBottomInset: true,
-          appBar: appBar(
-              context: context,
-              onSettings: () => _navigateSettings(context),
-              withName: false),
-          bottomNavigationBar: iw.bottomNavBar(
-              onDeudasTap: () => _navigateDeudas(context),
-              onRecurrentesTap: () => _navigateFijos(context),
-              onSummaryTap: () => _navigateSummary(context),
-              context: context),
-          body: CustomPaint(
-            painter: MyPattern(context),
-            child: iw.body(
-                ingreso: c.Meses.firstWhere(
-                        (v) => v.NMes == _mes && v.Anno == Values().anno.value)
-                    .Ingreso,
-                mes: _mes,
-                onPricesTap: () {},
-                onSelecMes: (mes) => _seleccionarMes(mes),
-                onIngresoTap: () => _navigateIngresosGasto(context, true),
-                onGastosTap: () => _navigateIngresosGasto(context, false),
-                context: context,
-                cuenta: c),
+        child: OrientationBuilder(
+          builder: (context, orientation) => Scaffold(
+            extendBodyBehindAppBar: true,
+            resizeToAvoidBottomInset: true,
+            extendBody: orientation == Orientation.landscape,
+            appBar: orientation == Orientation.portrait
+                ? appBar(
+                    context: context,
+                    onSettings: () => _navigateSettings(context),
+                    withName: false)
+                : AppBar(backgroundColor: Colors.transparent),
+            bottomNavigationBar: orientation == Orientation.portrait
+                ? iw.bottomNavBar(
+                    onDeudasTap: () => _navigateDeudas(context),
+                    onRecurrentesTap: () => _navigateFijos(context),
+                    onSummaryTap: () => _navigateSummary(context),
+                    context: context)
+                : BottomAppBar(
+                    color: Colors.transparent,
+                  ),
+            body: CustomPaint(
+                painter: MyPattern(context),
+                child: orientation == Orientation.portrait
+                    ? iw.body(
+                        ingreso: c.Meses.firstWhere((v) =>
+                                v.NMes == _mes && v.Anno == Values().anno.value)
+                            .Ingreso,
+                        mes: _mes,
+                        onPricesTap: () {},
+                        onSelecMes: (mes) => _seleccionarMes(mes),
+                        onIngresoTap: () =>
+                            _navigateIngresosGasto(context, true),
+                        onGastosTap: () =>
+                            _navigateIngresosGasto(context, false),
+                        context: context,
+                        cuenta: c)
+                    : iw.bodyLand(
+                        ingreso: c.Meses.firstWhere((v) =>
+                                v.NMes == _mes && v.Anno == Values().anno.value)
+                            .Ingreso,
+                        mes: _mes,
+                        onPricesTap: () {},
+                        onSelecMes: (mes) => _seleccionarMes(mes),
+                        onIngresoTap: () => _navigateIngresosGasto(context, true),
+                        onGastosTap: () => _navigateIngresosGasto(context, false),
+                        context: context,
+                        cuenta: c,
+                        onDeudasTap: () => _navigateDeudas(context),
+                        onRecurrentesTap: () => _navigateFijos(context),
+                        onSummaryTap: () => _navigateSummary(context),
+                        onSettingsTap: () => _navigateSettings(context))),
           ),
         ));
   }

@@ -44,7 +44,8 @@ ThemeData MyCustomTheme = ThemeData(
     backgroundColor: AppColorsC.appBarColor,
     extendedTextStyle: const TextStyle(color: Colors.black),
   ),
-  cardTheme: CardTheme(color: AppColorsC.cardColor),
+  cardTheme:
+      CardTheme(color: AppColorsC.cardColor, margin: const EdgeInsets.all(0)),
   colorScheme: ColorScheme(
       background: AppColorsC.backgroundColor,
       brightness: Brightness.dark,

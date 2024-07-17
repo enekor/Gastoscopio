@@ -141,6 +141,110 @@ Widget hasData(
       ));
 }
 
+Widget hasDataLand(
+    {required BuildContext context,
+    required List<Cuenta> cuentas,
+    required double width,
+    required double height,
+    required Function(dynamic) vuelto,
+    required Function(Cuenta) navigateInfo,
+    required Function(Cuenta) delete,
+    required Function logout,
+    required List<int> annosDisponibles,
+    required Function onLogOut,
+    required Function onNewCuenta,
+    required Function onSettings}) {
+  return Obx(() => Row(
+        children: [
+          Expanded(
+            flex: 1,
+            child: Card.filled(
+              shape: const RoundedRectangleBorder(
+                  borderRadius: BorderRadius.only(
+                      bottomLeft: Radius.circular(0),
+                      bottomRight: Radius.circular(40),
+                      topLeft: Radius.circular(0),
+                      topRight: Radius.circular(40))),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                children: [
+                  IconButton(
+                      onPressed: () => onSettings(),
+                      icon: Icon(Icons.settings)),
+                  IconButton(
+                      onPressed: () => onNewCuenta(),
+                      icon: Icon(Icons.person_add)),
+                  IconButton(
+                      onPressed: () => onLogOut(), icon: Icon(Icons.logout)),
+                ],
+              ),
+            ),
+          ),
+          Expanded(
+            flex: 12,
+            child: Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Expanded(
+                      flex: 8,
+                      child: Padding(
+                        padding: const EdgeInsets.all(50.0),
+                        child: Image.asset(getImageUri(ImageUris.hola)),
+                      )),
+                  Expanded(
+                    flex: 2,
+                    child: selectYear(
+                        cc: cuentas,
+                        width: MediaQuery.of(context).size.width,
+                        theme: Theme.of(context),
+                        annosDisponibles: annosDisponibles),
+                  ),
+                  Expanded(
+                    flex: 8,
+                    child: Padding(
+                      padding: const EdgeInsets.all(25),
+                      child: cuentas.length >= 0.3
+                          ? Padding(
+                              padding:
+                                  const EdgeInsets.only(left: 60, right: 60),
+                              child: Center(
+                                child: GridView.count(
+                                  childAspectRatio: 2,
+                                  crossAxisCount:
+                                      cuentas.length >= 4 ? 4 : cuentas.length,
+                                  children: cuentas
+                                      .map((cuenta) => ItemCard(cuenta.Nombre,
+                                          cuenta.GetTotal(Values().anno.value),
+                                          delete: () => delete(cuenta),
+                                          open: () => navigateInfo(cuenta),
+                                          context: context))
+                                      .toList(),
+                                ),
+                              ),
+                            )
+                          : Padding(
+                              padding: const EdgeInsets.all(60.0),
+                              child: ListView.builder(
+                                  itemCount: cuentas.length,
+                                  itemBuilder: (context, index) => ItemCard(
+                                      cuentas[index].Nombre,
+                                      cuentas[index]
+                                          .GetTotal(Values().anno.value),
+                                      delete: () => delete(cuentas[index]),
+                                      open: () => navigateInfo(cuentas[index]),
+                                      context: context)),
+                            ),
+                    ),
+                  )
+                ],
+              ),
+            ),
+          )
+        ],
+      ));
+}
+
 BottomNavigationBar navigationBar(
     {required Function onLogOut,
     required Function onNewCuenta,

@@ -93,20 +93,23 @@ class Settings extends StatelessWidget {
   Widget build(BuildContext context) {
     return PopScope(
       child: Scaffold(
+        appBar: AppBar(
+          title: Text(""),
+          backgroundColor: Colors.transparent,
+        ),
         resizeToAvoidBottomInset: true,
-        body: CustomPaint(
-            painter: MyPattern(context),
-            child: SingleChildScrollView(
-                child: settingsBody(
-                    cuentas: cuentas,
-                    saveToJson: saveToJson,
-                    importFromJson: importFromJson,
-                    context: context,
-                    onChangeStyle: _setImageStyle,
-                    onChangeTheme: _setFondoSimple,
-                    onAboutUs: _onAboutUs,
-                    onChangeCurrency: _onChangeCurrency,
-                    onChangeFiguraAbajo: _onChangeFiguraAbajo))),
+        backgroundColor: GetColor(ColorTypes.card, context),
+        body: SingleChildScrollView(
+            child: settingsBody(
+                cuentas: cuentas,
+                saveToJson: saveToJson,
+                importFromJson: importFromJson,
+                context: context,
+                onChangeStyle: _setImageStyle,
+                onChangeTheme: _setFondoSimple,
+                onAboutUs: _onAboutUs,
+                onChangeCurrency: _onChangeCurrency,
+                onChangeFiguraAbajo: _onChangeFiguraAbajo)),
       ),
     );
   }

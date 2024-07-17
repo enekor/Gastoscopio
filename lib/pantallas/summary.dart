@@ -1,7 +1,6 @@
 import 'package:cuentas_android/models/Cuenta.dart';
 import 'package:cuentas_android/pattern/pattern.dart';
 import 'package:cuentas_android/pattern/positions.dart';
-import 'package:cuentas_android/utils.dart';
 import 'package:cuentas_android/widgets/views/summaryWidget.dart';
 import 'package:flutter/material.dart';
 
@@ -22,8 +21,7 @@ class SummaryPage extends StatelessWidget {
               child: Padding(
                 padding: const EdgeInsets.all(15.0),
                 child: Center(
-                  child: SingleChildScrollView(
-                      child: summaryView(cuenta.Meses, context)),
+                  child: summaryView(cuenta:cuenta, context:context),
                 ),
               ))),
     );

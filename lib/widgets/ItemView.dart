@@ -128,8 +128,15 @@ Widget switchSettingView(
   );
 }
 
-Widget redirectSettingView({required Function onTap, required String text}) {
-  return TextButton(onPressed: () => onTap(), child: Text(text));
+Widget redirectSettingView(
+    {required Function onTap, required String text, Color? textColor}) {
+  return TextButton(
+    onPressed: () => onTap(),
+    child: Text(
+      text,
+      style: textColor != null ? TextStyle(color: textColor) : TextStyle(),
+    ),
+  );
 }
 
 Widget textBoxSettingView(

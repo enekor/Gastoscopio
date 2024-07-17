@@ -33,9 +33,7 @@ class _HomeState extends State<Home> {
     }
 
     _cargado = true;
-    setState(() {
-      _vuelto = true;
-    });
+    _vuelto = true;
   }
 
   Future _logout() async {
@@ -105,38 +103,70 @@ class _HomeState extends State<Home> {
   @override
   Widget build(BuildContext context) {
     _getCuentas();
-    return Scaffold(
-      resizeToAvoidBottomInset: true,
-      appBar: appBar(
-          context: context,
-          onSettings: () => _navigateSettings(context, _cuentas)),
-      bottomNavigationBar: hw.navigationBar(
-          onLogOut: () => _logout(),
-          onNewCuenta: () => hw.nuevoUsuario(
-              context: context,
-              onChange: (nombre) => nuevoNombre = nombre,
-              onPressed: () => _createUser(context)),
-          theme: Theme.of(context),
-          context: context),
-      body: CustomPaint(
-        painter: MyPattern(context),
-        child: FutureBuilder(
-            future: _getCuentas(),
-            builder: (c, s) => s.connectionState == ConnectionState.done
-                ? hw.hasData(
+    return OrientationBuilder(
+      builder: (context, orientation) => Scaffold(
+        resizeToAvoidBottomInset: true,
+        extendBodyBehindAppBar: orientation == Orientation.landscape,
+        extendBody: orientation == Orientation.landscape,
+        appBar: orientation == Orientation.portrait
+            ? appBar(
+                context: context,
+                onSettings: () => _navigateSettings(context, _cuentas))
+            : AppBar(
+                backgroundColor: Colors.transparent,
+              ),
+        bottomNavigationBar: orientation == Orientation.portrait
+            ? hw.navigationBar(
+                onLogOut: () => _logout(),
+                onNewCuenta: () => hw.nuevoUsuario(
                     context: context,
-                    cuentas: _cuentas,
-                    height: MediaQuery.of(context).size.height,
-                    width: MediaQuery.of(context).size.width,
-                    vuelto: (value) => _vuelto = true,
-                    navigateInfo: (cuenta) => _navigateInfo(context, cuenta),
-                    delete: (cuenta) => _deleteCuenta(cuenta),
-                    logout: _logout,
-                    annosDisponibles: GetAnnosDisponibles())
-                : Center(
-                    child: CircularProgressIndicator(
-                        color: Theme.of(context).primaryColor),
-                  )),
+                    onChange: (nombre) => nuevoNombre = nombre,
+                    onPressed: () => _createUser(context)),
+                theme: Theme.of(context),
+                context: context)
+            : const BottomAppBar(
+                color: Colors.transparent,
+              ),
+        body: CustomPaint(
+          painter: MyPattern(context),
+          child: FutureBuilder(
+              future: _getCuentas(),
+              builder: (c, s) => s.connectionState == ConnectionState.done
+                  ? orientation == Orientation.portrait
+                      ? hw.hasData(
+                          context: context,
+                          cuentas: _cuentas,
+                          height: MediaQuery.of(context).size.height,
+                          width: MediaQuery.of(context).size.width,
+                          vuelto: (value) => _vuelto = true,
+                          navigateInfo: (cuenta) =>
+                              _navigateInfo(context, cuenta),
+                          delete: (cuenta) => _deleteCuenta(cuenta),
+                          logout: _logout,
+                          annosDisponibles: GetAnnosDisponibles())
+                      : hw.hasDataLand(
+                          context: context,
+                          cuentas: _cuentas,
+                          height: MediaQuery.of(context).size.height,
+                          width: MediaQuery.of(context).size.width,
+                          vuelto: (value) => _vuelto = true,
+                          navigateInfo: (cuenta) =>
+                              _navigateInfo(context, cuenta),
+                          delete: (cuenta) => _deleteCuenta(cuenta),
+                          logout: _logout,
+                          annosDisponibles: GetAnnosDisponibles(),
+                          onLogOut: () => _logout(),
+                          onNewCuenta: () => hw.nuevoUsuario(
+                              context: context,
+                              onChange: (nombre) => nuevoNombre = nombre,
+                              onPressed: () => _createUser(context)),
+                          onSettings: () =>
+                              _navigateSettings(context, _cuentas))
+                  : Center(
+                      child: CircularProgressIndicator(
+                          color: Theme.of(context).primaryColor),
+                    )),
+        ),
       ),
     );
   }
