@@ -1,10 +1,6 @@
-import 'dart:collection';
+import 'dart:math';
 
-//import 'package:cuentas_android/dao/cuentaDao.dart';
-//import 'package:cuentas_android/models/Gasto.dart';
-//import 'package:cuentas_android/models/Mes.dart';
-//import 'package:flutter/material.dart';
-
+import 'package:cuentas_android/dao/cuentaDao.dart';
 import 'package:cuentas_android/utils.dart';
 
 import 'models/Cuenta.dart';
@@ -33,25 +29,58 @@ class Values {
     'Noviembre',
     'Diciembre',
   ];
-  Cuenta? cuentaRet = null;
-  RxInt mes = RxInt(DateTime.now().month-1);
+  RxString fondo = ''.obs;
+  RxBool mostrarFondoDinamico = true.obs;
+  bool primerInicio = true;
+  RxList<Cuenta> cuentas = RxList<Cuenta>();
+  Rx<Cuenta?> cuentaRet = Rx<Cuenta?>(null);
+  RxString mes = "".obs;
   RxInt anno = RxInt(DateTime.now().year);
   RxInt gastoSeleccionado = (-1).obs;
-  RxBool mostrarGatos = false.obs;
-  RxBool fondoSimple = true.obs;
-  RxBool figuraAbajo = true.obs;
   RxString moneda = "€".obs;
-
+  RxBool editing = false.obs;
+  Rx<ShowingGastos> showing = ShowingGastos.gastos.obs;
+  RxBool summaryShowChart = false.obs;
+  RxInt summaryAnno = DateTime.now().year.obs;
+  RxString summaryMes = "".obs;
+  RxInt selectedScreen = 0.obs;
 //metodos
-  String GetMes() => nombresMes[mes.value];
-  int GetMesNumber(String mes)=>nombresMes.indexOf(mes)+1;
+  int GetMesNumber(String mes) => nombresMes.indexOf(mes) + 1;
 
-  void ChangeMes(String m)=>mes.value = nombresMes.indexOf(m);
-
-  Future init() async{
-    mostrarGatos.value = await readSharedPreferences(SharedPreferencesKeys.gatos);
-    fondoSimple.value = await readSharedPreferences(SharedPreferencesKeys.fondoSimple);
+  Future init() async {
     moneda.value = await readSharedPreferences(SharedPreferencesKeys.moneda);
-    figuraAbajo.value = await readSharedPreferences(SharedPreferencesKeys.figuraAbajo);
+    // figuraAbajo.value =
+    //     await readSharedPreferences(SharedPreferencesKeys.figuraAbajo);
+    mes.value = nombresMes[DateTime.now().month - 1];
+    int _cuenta = await readSharedPreferences(SharedPreferencesKeys.cuenta);
+    if (_cuenta != -1) {
+      cuentas.value = await cuentaDao().getDatos();
+
+      if (cuentas.value.isNotEmpty) {
+        cuentaRet.value = cuentas.value[_cuenta];
+      }
+    }
+
+    mostrarFondoDinamico.value =
+        await readSharedPreferences(SharedPreferencesKeys.fondoSimple);
+    if (mostrarFondoDinamico.value) {
+      ponerFondo();
+    }
+  }
+
+  void ponerFondo() {
+    int random = Random().nextInt(1000);
+    int valor = random % 2 == 0 ? 1 : 2;
+    DateTime now = DateTime.now();
+    int hour = now.hour;
+
+    // Determinar el período del día
+    if (hour >= 6 && hour < 14) {
+      fondo.value = 'lib/assets/images/background/dia$valor.jpeg';
+    } else if (hour >= 14 && hour < 20) {
+      fondo.value = 'lib/assets/images/background/tarde$valor.jpeg';
+    } else {
+      fondo.value = 'lib/assets/images/background/noche$valor.jpeg';
+    }
   }
 }

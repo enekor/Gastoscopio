@@ -1,10 +1,14 @@
+import 'package:cuentas_android/dao/cuentaDao.dart';
 import 'package:cuentas_android/utils.dart';
+import 'package:cuentas_android/values.dart';
+import 'package:cuentas_android/widgets/ItemView.dart';
 import 'package:cuentas_android/widgets/dialog.dart';
 import 'package:cuentas_android/widgets/toast.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:cuentas_android/dao/userDao.dart';
 import 'package:fluttertoast/fluttertoast.dart';
+import 'package:get/get.dart';
 
 class LoginPage extends StatefulWidget {
   LoginPage({Key? key}) : super(key: key);
@@ -33,6 +37,8 @@ class _LoginPageState extends State<LoginPage> {
             body: Text(e.message!));
       });
     }
+
+    cuentaDao().getDatos().then((value) => Values().cuentas.value = value);
   }
 
   Future rememberPassword(String email) async {
@@ -109,534 +115,170 @@ class _LoginPageState extends State<LoginPage> {
             ));
   }
 
-  Widget login() => Column(
-        mainAxisAlignment: MainAxisAlignment.center,
+  Widget loginRegister() => Column(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          Expanded(
-            flex: 8,
-            child: SingleChildScrollView(
-              padding: EdgeInsets.only(top: 50),
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  SizedBox(
-                    height: 250,
-                    width: 250,
-                    child: ClipOval(
-                      child: Image.asset(
-                        "lib/assets/images/logo.png",
-                      ),
-                    ),
-                  ),
-                  Text(
-                    "Gastoscopio",
-                  ),
-                ],
-              ),
-            ),
-          ),
-          const Expanded(
-              flex: 1,
-              child: Padding(
-                padding: EdgeInsets.only(top: 10.0),
-                child: Text(
-                  "Iniciar sesión",
-                  textAlign: TextAlign.center,
-                ),
-              )),
-          Expanded(
-            flex: 8,
-            child: Card.filled(
-                shape: const RoundedRectangleBorder(
-                    borderRadius: BorderRadius.only(
-                  topRight: Radius.circular(100),
-                  topLeft: Radius.circular(0),
-                  bottomLeft: Radius.circular(0),
-                  bottomRight: Radius.circular(0),
-                )),
+          SizedBox(
+              height: 200, child: Image.asset(getImageUri(ImageUris.logo))),
+          Center(
+            child: ConstrainedBox(
+              constraints: BoxConstraints(
+                  maxWidth: MediaQuery.of(context).size.width * 0.8,
+                  maxHeight: MediaQuery.of(context).size.height * 0.8),
+              child: Card(
+                color:
+                    GetColor(ColorTypes.secondary, context).withOpacity(0.94),
                 child: Padding(
-                  padding: const EdgeInsets.all(25),
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Expanded(
-                        flex: 7,
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                const Expanded(
-                                    flex: 2, child: Icon(Icons.email_rounded)),
-                                Expanded(
-                                  flex: 8,
-                                  child: TextField(
-                                    controller: _emailCOntroller,
-                                    decoration: const InputDecoration(
-                                      labelText: "Email",
-                                    ),
-                                  ),
-                                ),
-                              ],
-                            ),
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                const Expanded(
-                                    flex: 2, child: Icon(Icons.lock)),
-                                Expanded(
-                                  flex: 8,
-                                  child: TextField(
-                                    obscureText: _hidePass,
-                                    controller: _passwordCOntroller,
-                                    decoration: InputDecoration(
-                                        labelText: "Constraseña",
-                                        suffixIcon: IconButton(
-                                            onPressed: changeVisible,
-                                            icon: Icon(_hidePass
-                                                ? Icons.visibility
-                                                : Icons.visibility_off))),
-                                  ),
-                                ),
-                              ],
-                            ),
-                            Center(
-                              child: TextButton(
-                                onPressed: showEmailResetDialog,
-                                style: const ButtonStyle(
-                                    alignment: Alignment.center),
-                                child: const Text("¿Olvidaste la contraseña?"),
-                              ),
-                            ),
-                          ],
+                  padding: const EdgeInsets.all(50.0),
+                  child: SingleChildScrollView(
+                    child: Column(
+                      children: [
+                        Text(
+                            style: TextStyle(
+                                color: GetColor(ColorTypes.text, context),
+                                fontSize: 20,
+                                fontWeight: FontWeight.bold),
+                            isLogin ? '¡Hola de nuevo!' : '¡Encantado!'),
+                        const SizedBox(
+                          height: 10,
                         ),
-                      ),
-                      Expanded(
-                        flex: 3,
-                        child: Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            ElevatedButton(
-                                onPressed: signIn, child: const Text("Entrar")),
-                            TextButton(
-                                onPressed: () => setState(() {
-                                      isLogin = false;
-                                    }),
-                                child: const Text("No tengo una cuenta"))
-                          ],
+                        const SizedBox(
+                          height: 10,
                         ),
-                      )
-                    ],
-                  ),
-                )),
-          )
-        ],
-      );
-
-  Widget LoginLand() => Row(
-        children: [
-          Expanded(
-            flex: 5,
-            child: Card.filled(
-              shape: const RoundedRectangleBorder(
-                  borderRadius: BorderRadius.only(
-                topRight: Radius.circular(100),
-                topLeft: Radius.circular(0),
-                bottomLeft: Radius.circular(0),
-                bottomRight: Radius.circular(100),
-              )),
-              child: Padding(
-                padding: const EdgeInsets.all(25),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  children: [
-                    Expanded(
-                      flex: 7,
-                      child: Center(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.center,
-                          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                          children: [
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                const Expanded(
-                                    flex: 2, child: Icon(Icons.email_rounded)),
-                                Expanded(
-                                  flex: 8,
-                                  child: TextField(
-                                    controller: _emailCOntroller,
-                                    decoration: const InputDecoration(
-                                      labelText: "Email",
-                                    ),
-                                  ),
-                                ),
-                              ],
-                            ),
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                const Expanded(
-                                    flex: 2, child: Icon(Icons.lock)),
-                                Expanded(
-                                  flex: 8,
-                                  child: TextField(
-                                    obscureText: _hidePass,
-                                    controller: _passwordCOntroller,
-                                    decoration: InputDecoration(
-                                        labelText: "Constraseña",
-                                        suffixIcon: IconButton(
-                                            onPressed: changeVisible,
-                                            icon: Icon(_hidePass
-                                                ? Icons.visibility
-                                                : Icons.visibility_off))),
-                                  ),
-                                ),
-                              ],
-                            ),
-                            Center(
-                              child: TextButton(
-                                onPressed: showEmailResetDialog,
-                                style: const ButtonStyle(
-                                    alignment: Alignment.center),
-                                child: const Text("¿Olvidaste la contraseña?"),
-                              ),
-                            ),
-                          ],
+                        TextField(
+                          controller: _emailCOntroller,
+                          decoration: InputDecoration(
+                              labelStyle: const TextStyle(
+                                  fontWeight: FontWeight.bold, fontSize: 10),
+                              label: Text(
+                                  style: TextStyle(
+                                      color:
+                                          GetColor(ColorTypes.text, context)),
+                                  'Email'),
+                              prefixIcon: Icon(
+                                  color: GetColor(ColorTypes.text, context),
+                                  Icons.email_rounded)),
                         ),
-                      ),
+                        const SizedBox(
+                          height: 10,
+                        ),
+                        TextField(
+                          controller: _passwordCOntroller,
+                          decoration: InputDecoration(
+                              labelStyle: const TextStyle(
+                                  fontWeight: FontWeight.bold, fontSize: 10),
+                              label: Text(
+                                  style: TextStyle(
+                                      color:
+                                          GetColor(ColorTypes.text, context)),
+                                  'Contraseña'),
+                              prefixIcon: Icon(
+                                  color: GetColor(ColorTypes.text, context),
+                                  Icons.password_rounded)),
+                        ),
+                        !isLogin
+                            ? const SizedBox(
+                                height: 10,
+                              )
+                            : Container(),
+                        !isLogin
+                            ? TextField(
+                                controller: _repPasswordCOntroller,
+                                decoration: InputDecoration(
+                                    labelStyle: const TextStyle(
+                                        fontWeight: FontWeight.bold,
+                                        fontSize: 10),
+                                    label: Text(
+                                        style: TextStyle(
+                                            color: GetColor(
+                                                ColorTypes.text, context)),
+                                        'Repetir contraseña'),
+                                    prefixIcon: Icon(
+                                        color:
+                                            GetColor(ColorTypes.text, context),
+                                        Icons.password_rounded)),
+                              )
+                            : Container(),
+                        !isLogin
+                            ? const SizedBox(
+                                height: 10,
+                              )
+                            : Container(),
+                        !isLogin
+                            ? Center(
+                                child: TextButton(
+                                  onPressed: showEmailResetDialog,
+                                  child: Text(
+                                      style: TextStyle(
+                                          color: GetColor(
+                                              ColorTypes.text, context),
+                                          decoration: TextDecoration.underline),
+                                      'No recuerdo mi contraseña'),
+                                ),
+                              )
+                            : Container()
+                      ],
                     ),
-                    Expanded(
-                      flex: 3,
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          ElevatedButton(
-                              onPressed: signIn, child: const Text("Entrar")),
-                          TextButton(
-                              onPressed: () => setState(() {
-                                    isLogin = false;
-                                  }),
-                              child: const Text("No tengo una cuenta"))
-                        ],
-                      ),
-                    )
-                  ],
+                  ),
                 ),
               ),
             ),
           ),
-          Expanded(
-            flex: 5,
-            child: Center(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  SizedBox(
-                    height: 250,
-                    width: 250,
-                    child: ClipOval(
-                      child: Image.asset(
-                        "lib/assets/images/logo.png",
-                      ),
-                    ),
-                  ),
-                  Text(
-                    "Gastoscopio",
-                  ),
-                ],
+          Row(
+            children: [
+              Expanded(
+                flex: 5,
+                child: CardButton(
+                    color: GetColor(ColorTypes.primary, context),
+                    onPressed: isLogin
+                        ? () => signIn()
+                        : () => setState(() {
+                              isLogin = true;
+                            }),
+                    child: Text(
+                        style: TextStyle(
+                            color: GetColor(ColorTypes.text, context)),
+                        isLogin ? 'Iniciar sesion' : 'Ya tengo cuenta'),
+                    context: context),
               ),
-            ),
-          )
-        ],
-      );
-
-  Widget register() => Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Expanded(
-            flex: 8,
-            child: SingleChildScrollView(
-              padding: const EdgeInsets.only(top: 50),
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  SizedBox(
-                    height: 250,
-                    width: 250,
-                    child: ClipOval(
-                      child: Image.asset(
-                        "lib/assets/images/logo.png",
-                      ),
-                    ),
-                  ),
-                  Text(
-                    "Gastoscopio",
-                    style: TextStyle(
-                      fontSize: 50,
-                    ),
-                  ),
-                ],
+              Expanded(
+                flex: 5,
+                child: CardButton(
+                    color: GetColor(ColorTypes.primary, context),
+                    onPressed: !isLogin
+                        ? () => registerUser()
+                        : () => setState(() {
+                              isLogin = false;
+                            }),
+                    //child: Obx(()=> Text(Values().fondo.value)),
+                    child: Text(
+                        style: TextStyle(
+                            color: GetColor(ColorTypes.text, context)),
+                        isLogin ? 'Crear cuenta' : 'Registrarme'),
+                    context: context),
               ),
-            ),
-          ),
-          const Expanded(
-              flex: 1,
-              child: Padding(
-                padding: EdgeInsets.only(top: 10.0),
-                child: Text("Registrar",
-                    textAlign: TextAlign.center,
-                    style: TextStyle(fontSize: 35)),
-              )),
-          Expanded(
-            flex: 8,
-            child: Card(
-                shape: const RoundedRectangleBorder(
-                    borderRadius: BorderRadius.only(
-                  topLeft: Radius.circular(100),
-                  topRight: Radius.circular(0),
-                  bottomLeft: Radius.circular(0),
-                  bottomRight: Radius.circular(0),
-                )),
-                child: Padding(
-                  padding: const EdgeInsets.all(25),
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Expanded(
-                        flex: 7,
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                const Expanded(
-                                    flex: 2, child: Icon(Icons.email_rounded)),
-                                Expanded(
-                                  flex: 8,
-                                  child: TextField(
-                                    controller: _emailCOntroller,
-                                    decoration: const InputDecoration(
-                                      labelText: "Email",
-                                    ),
-                                  ),
-                                ),
-                              ],
-                            ),
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                const Expanded(
-                                    flex: 2, child: Icon(Icons.lock)),
-                                Expanded(
-                                  flex: 8,
-                                  child: TextField(
-                                    obscureText: _hidePass,
-                                    controller: _passwordCOntroller,
-                                    decoration: InputDecoration(
-                                        labelText: "Constraseña",
-                                        suffixIcon: IconButton(
-                                            onPressed: changeVisible,
-                                            icon: Icon(_hidePass
-                                                ? Icons.visibility
-                                                : Icons.visibility_off))),
-                                  ),
-                                ),
-                              ],
-                            ),
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                const Expanded(
-                                    flex: 2, child: Icon(Icons.lock)),
-                                Expanded(
-                                  flex: 8,
-                                  child: TextField(
-                                    obscureText: _hidePass,
-                                    controller: _repPasswordCOntroller,
-                                    decoration: InputDecoration(
-                                        labelText: "Repetir constraseña",
-                                        suffixIcon: IconButton(
-                                            onPressed: changeVisible,
-                                            icon: Icon(_hidePass
-                                                ? Icons.visibility
-                                                : Icons.visibility_off))),
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ],
-                        ),
-                      ),
-                      Expanded(
-                        flex: 3,
-                        child: Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            ElevatedButton(
-                                onPressed: registerUser,
-                                child: const Text("Login")),
-                            TextButton(
-                                onPressed: () => setState(() {
-                                      isLogin = true;
-                                    }),
-                                child: const Text("Ya tengo una cuenta"))
-                          ],
-                        ),
-                      )
-                    ],
-                  ),
-                )),
-          )
-        ],
-      );
-
-  Widget RegisterLand() => Row(
-        children: [
-          Expanded(
-            flex: 5,
-            child: Center(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  SizedBox(
-                    height: 250,
-                    width: 250,
-                    child: ClipOval(
-                      child: Image.asset(
-                        "lib/assets/images/logo.png",
-                      ),
-                    ),
-                  ),
-                  Text(
-                    "Gastoscopio",
-                  ),
-                ],
-              ),
-            ),
-          ),
-          Expanded(
-            flex: 5,
-            child: Card.filled(
-                shape: const RoundedRectangleBorder(
-                    borderRadius: BorderRadius.only(
-                  topRight: Radius.circular(0),
-                  topLeft: Radius.circular(100),
-                  bottomLeft: Radius.circular(100),
-                  bottomRight: Radius.circular(0),
-                )),
-                child: Center(
-                  child: Column(
-                    children: [
-                      Expanded(
-                        flex: 7,
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.center,
-                          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                          children: [
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                const Expanded(
-                                    flex: 2, child: Icon(Icons.email_rounded)),
-                                Expanded(
-                                  flex: 8,
-                                  child: TextField(
-                                    controller: _emailCOntroller,
-                                    decoration: const InputDecoration(
-                                      labelText: "Email",
-                                    ),
-                                  ),
-                                ),
-                              ],
-                            ),
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                const Expanded(
-                                    flex: 2, child: Icon(Icons.lock)),
-                                Expanded(
-                                  flex: 8,
-                                  child: TextField(
-                                    obscureText: _hidePass,
-                                    controller: _passwordCOntroller,
-                                    decoration: InputDecoration(
-                                        labelText: "Constraseña",
-                                        suffixIcon: IconButton(
-                                            onPressed: changeVisible,
-                                            icon: Icon(_hidePass
-                                                ? Icons.visibility
-                                                : Icons.visibility_off))),
-                                  ),
-                                ),
-                              ],
-                            ),
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                const Expanded(
-                                    flex: 2, child: Icon(Icons.lock)),
-                                Expanded(
-                                  flex: 8,
-                                  child: TextField(
-                                    obscureText: _hidePass,
-                                    controller: _repPasswordCOntroller,
-                                    decoration: InputDecoration(
-                                        labelText: "Repetir constraseña",
-                                        suffixIcon: IconButton(
-                                            onPressed: changeVisible,
-                                            icon: Icon(_hidePass
-                                                ? Icons.visibility
-                                                : Icons.visibility_off))),
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ],
-                        ),
-                      ),
-                      Expanded(
-                        flex: 3,
-                        child: Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            ElevatedButton(
-                                onPressed: registerUser,
-                                child: const Text("Login")),
-                            TextButton(
-                                onPressed: () => setState(() {
-                                      isLogin = true;
-                                    }),
-                                child: const Text("Ya tengo una cuenta"))
-                          ],
-                        ),
-                      )
-                    ],
-                  ),
-                )),
+            ],
           )
         ],
       );
 
   @override
   Widget build(BuildContext context) {
-    //Auth().signInEmailPassword(
-    //email: "test@gastoscopio.com", password: "admin1234");
+    // Auth().signInEmailPassword(
+    //     email: "fotosenekokarolanne@gmail.com", password: "240422");
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       home: Scaffold(
-          resizeToAvoidBottomInset: false,
-          body: OrientationBuilder(
-              builder: (context, orientation) =>
-                  orientation == Orientation.portrait
-                      ? isLogin
-                          ? login()
-                          : register()
-                      : isLogin
-                          ? LoginLand()
-                          : RegisterLand())),
+          backgroundColor: GetColor(ColorTypes.background, context),
+          resizeToAvoidBottomInset: true,
+          body: Obx(
+            () => Container(
+                decoration: BoxDecoration(
+                    image: DecorationImage(
+                        image: AssetImage(Values().fondo.value),
+                        fit: BoxFit.cover)),
+                child: loginRegister()),
+          )),
     );
   }
 }

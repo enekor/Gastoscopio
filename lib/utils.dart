@@ -1,10 +1,11 @@
 import 'dart:convert';
 import 'dart:io';
 import 'package:cuentas_android/models/Cuenta.dart';
-import 'package:cuentas_android/themes/CustomTheme.dart';
+import 'package:cuentas_android/themes/DarkTheme.dart';
+import 'package:cuentas_android/themes/ITheme.dart';
+import 'package:cuentas_android/themes/LightTheme.dart';
 import 'package:cuentas_android/values.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -103,40 +104,40 @@ Widget getEmailIcon(String email) {
 }
 
 String getImageUri(ImageUris image) {
-  String type = Values().mostrarGatos.value ? "gato" : "persona";
-
-  return 'lib/assets/images/$type${image.toString().replaceAll("ImageUris.", "")}.png';
+  switch (image) {
+    case ImageUris.logo:
+      return 'lib/assets/images/logo.png';
+    case ImageUris.logosvg:
+      return 'lib/assets/images/logo.svg';
+    case ImageUris.nuevo:
+      return 'lib/assets/images/nuevo.png';
+  }
 }
 
-enum SharedPreferencesKeys { gatos, fondoSimple, moneda, figuraAbajo }
+enum SharedPreferencesKeys { fondoSimple, moneda, figuraAbajo, cuenta }
 
-enum ImageUris { ok, apunta, buscando, hola, RascandoCabeza }
+enum ImageUris { logo, logosvg, nuevo }
 
-enum ColorTypes {
-  background,
-  appBar,
-  card,
-  primary,
-  errorButton,
-  switchBack,
-  switchCircle
-}
+enum ShowingGastos { ingresos, gastos, extras, deuda, fijo }
+
+enum ColorTypes { background, primary, secondary, tertiary, errorButton, text }
 
 Color GetColor(ColorTypes type, BuildContext context) {
+  ITheme tema = Theme.of(context).brightness == Brightness.light
+      ? AppColorsL()
+      : AppColorsD();
   switch (type) {
     case ColorTypes.primary:
-      return AppColorsC.primaryColor;
-    case ColorTypes.card:
-      return AppColorsC.cardColor;
+      return tema.primaryColor;
+    case ColorTypes.secondary:
+      return tema.secondaryColor;
     case ColorTypes.errorButton:
-      return AppColorsC.errorButtonColor;
-    case ColorTypes.switchBack:
-      return AppColorsC.switchBackColor;
+      return tema.errorButtonColor;
     case ColorTypes.background:
-      return AppColorsC.backgroundColor;
-    case ColorTypes.switchCircle:
-      return AppColorsC.switchCircleColor;
-    case ColorTypes.appBar:
-      return AppColorsC.appBarColor;
+      return tema.backgroundColor;
+    case ColorTypes.text:
+      return tema.textColor;
+    case ColorTypes.tertiary:
+      return tema.tertiary;
   }
 }

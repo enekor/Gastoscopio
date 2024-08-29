@@ -1,23 +1,29 @@
 import 'dart:convert';
 import 'dart:io';
-
 import 'package:cuentas_android/dao/cuentaDao.dart';
+import 'package:cuentas_android/dao/userDao.dart';
 import 'package:cuentas_android/models/Cuenta.dart';
-import 'package:cuentas_android/pattern/pattern.dart';
+import 'package:cuentas_android/themes/hexColor.dart';
 import 'package:cuentas_android/utils.dart';
 import 'package:cuentas_android/values.dart';
 import 'package:cuentas_android/widgets/toast.dart';
 import 'package:cuentas_android/widgets/views/settingsWidget.dart';
 import 'package:flutter/material.dart';
 import 'package:file_picker/file_picker.dart';
+import 'package:flutter_colorpicker/flutter_colorpicker.dart';
+import 'package:get/get.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 class Settings extends StatelessWidget {
-  late List<Cuenta> cuentas = [
-    Cuenta(id: "", Nombre: "Seleccionar cuenta", Meses: [], posicion: -1)
-  ];
-  Settings({super.key, required List<Cuenta> cc}) {
-    cuentas.addAll(cc);
+  bool _cambiado = false;
+  late List<Cuenta> cuentas = [Cuenta.empty()];
+  Settings({super.key}) {
+    cuentas.addAll(Values().cuentas.value);
+  }
+
+  Future _logout() async {
+    await Auth().signOut();
+    Values().cuentas.clear();
   }
 
   Future saveToJson(Cuenta cuenta) async {
@@ -49,21 +55,17 @@ class Settings extends StatelessWidget {
     }
   }
 
-  void _setImageStyle(bool gatos) async {
-    writeSharedPreferences(SharedPreferencesKeys.gatos, gatos);
-    Values().mostrarGatos.value = gatos;
+  void _setFondoSimple(bool mostrarFondo) async {
+    writeSharedPreferences(SharedPreferencesKeys.fondoSimple, mostrarFondo);
+    Values().mostrarFondoDinamico.value = mostrarFondo;
+    if (mostrarFondo) {
+      Values().ponerFondo();
+    } else {
+      Values().fondo.value = '';
+    }
     showToast(
-        text: gatos
-            ? "Ahora las imagenes serán gatos"
-            : "Ahora las imagenes serán personas");
-  }
-
-  void _setFondoSimple(bool simple) async {
-    writeSharedPreferences(SharedPreferencesKeys.fondoSimple, simple);
-    Values().fondoSimple.value = simple;
-    showToast(
-        text: !simple
-            ? "El fondo tiene circulos aleatorios"
+        text: mostrarFondo
+            ? "Se muestra un bonito paisaje de fondo"
             : "No hay mas que soledad");
   }
 
@@ -80,37 +82,128 @@ class Settings extends StatelessWidget {
     showToast(text: "Ahora tu moneda es ${Values().moneda.value}");
   }
 
-  void _onChangeFiguraAbajo(bool active) {
-    writeSharedPreferences(SharedPreferencesKeys.figuraAbajo, active);
-    Values().figuraAbajo.value = active;
-    showToast(
-        text: active
-            ? "Ahora se muestra un ola en la parte de abajo"
-            : "Parece que hay sequía");
+  void _onProfileColorChange(String newColor) {
+    Values().cuentaRet.value!.color.value = newColor;
+    cuentaDao().almacenarDatos(Values().cuentaRet.value!);
+  }
+
+  void _onDeleteProfile(BuildContext context) {
+    ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+      content: Row(
+        children: [
+          Text(
+            "¿Desea borrar el perfil?",
+            style: TextStyle(color: GetColor(ColorTypes.primary, context)),
+          ),
+          SizedBox(
+            width: 30,
+          ),
+          IconButton(
+              onPressed: () {
+                ScaffoldMessenger.of(context).hideCurrentSnackBar();
+                Navigator.of(context)
+                    .pop({"insertar": 0, "obj": Values().cuentaRet.value});
+              },
+              icon: Icon(Icons.check_circle,
+                  color: GetColor(ColorTypes.errorButton, context))),
+          IconButton(
+              onPressed: () {
+                ScaffoldMessenger.of(context).hideCurrentSnackBar();
+              },
+              icon: Icon(Icons.cancel_rounded,
+                  color: GetColor(ColorTypes.primary, context))),
+        ],
+      ),
+    ));
+  }
+
+  void _onNuevoPerfil(BuildContext context) {
+    TextEditingController nombre = TextEditingController();
+    String color = "#ffffff";
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text('Color del perfil'),
+          content: SingleChildScrollView(
+            child: Column(
+              children: [
+                TextField(
+                  controller: nombre,
+                  decoration: InputDecoration(labelText: "Nombre"),
+                ),
+                ColorPicker(
+                    pickerColor: HexColor(color),
+                    onColorChanged: (c) {
+                      color = '#${c.value.toRadixString(16).padLeft(8, '0')}';
+                      _cambiado = true;
+                    }),
+              ],
+            ),
+          ),
+          actions: <Widget>[
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+              child: Text('Cancelar'),
+            ),
+            TextButton(
+              onPressed: () async {
+                Cuenta nuevo = await cuentaDao()
+                    .crearNuevaCuenta(nombre.text, cuentaDao.count + 1, color);
+                Navigator.of(context).pop();
+                Navigator.of(context).pop({"insertar": 1, "obj": nuevo});
+              },
+              child: Text('Aceptar'),
+            ),
+          ],
+        );
+      },
+    );
   }
 
   @override
   Widget build(BuildContext context) {
     return PopScope(
-      child: Scaffold(
-        appBar: AppBar(
-          title: Text(""),
-          backgroundColor: Colors.transparent,
+        child: OrientationBuilder(
+      builder: (context, orientation) => Obx(
+        () => Scaffold(
+          backgroundColor: GetColor(ColorTypes.background, context),
+          extendBodyBehindAppBar: true,
+          appBar: AppBar(
+            title: Text(""),
+            backgroundColor: Colors.transparent,
+          ),
+          resizeToAvoidBottomInset: true,
+          body: SizedBox(
+            height: double.infinity,
+            child: Container(
+              decoration: BoxDecoration(
+                  image: DecorationImage(
+                      image: AssetImage(Values().fondo.value),
+                      fit: BoxFit.cover)),
+              child: Padding(
+                padding: const EdgeInsets.only(top: 55.0),
+                child: SingleChildScrollView(
+                    child: settingsBody(
+                        isLandscape: orientation == Orientation.landscape,
+                        cuentas: cuentas,
+                        saveToJson: saveToJson,
+                        importFromJson: importFromJson,
+                        context: context,
+                        onChangeTheme: _setFondoSimple,
+                        onAboutUs: _onAboutUs,
+                        onChangeCurrency: _onChangeCurrency,
+                        onProfileColorChange: _onProfileColorChange,
+                        onNuevoPerfil: () => _onNuevoPerfil(context),
+                        onDeleteProfile: () => _onDeleteProfile(context),
+                        onLogOut: _logout)),
+              ),
+            ),
+          ),
         ),
-        resizeToAvoidBottomInset: true,
-        backgroundColor: GetColor(ColorTypes.card, context),
-        body: SingleChildScrollView(
-            child: settingsBody(
-                cuentas: cuentas,
-                saveToJson: saveToJson,
-                importFromJson: importFromJson,
-                context: context,
-                onChangeStyle: _setImageStyle,
-                onChangeTheme: _setFondoSimple,
-                onAboutUs: _onAboutUs,
-                onChangeCurrency: _onChangeCurrency,
-                onChangeFiguraAbajo: _onChangeFiguraAbajo)),
       ),
-    );
+    ));
   }
 }

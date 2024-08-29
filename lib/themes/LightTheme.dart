@@ -1,21 +1,36 @@
+import 'package:cuentas_android/themes/ITheme.dart';
+import 'package:cuentas_android/themes/hexColor.dart';
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 
-class AppColorsL {
-  static Color backgroundColor = const Color.fromARGB(255, 241, 253, 243);
-  static Color primaryColor = const Color.fromARGB(255, 229, 244, 231);
-  static Color secondaryColor = const Color.fromARGB(255, 209, 233, 210);
-  static Color tertiaryColor = const Color.fromARGB(255, 153, 205, 169);
-  static Color textColor = Colors.black;
-  static const Color errorButtonColor = Color.fromARGB(255, 255, 104, 104);
+class AppColorsL implements ITheme {
+  @override
+  Color backgroundColor = HexColor('#fdfdff');
+  @override
+  Color primaryColor = HexColor('#575594');
+  @override
+  Color secondaryColor = HexColor('#817fb2');
+  @override
+  Color textColor = Colors.black;
+  @override
+  Color errorButtonColor = const Color.fromARGB(255, 255, 104, 104);
+  @override
+  Color tertiary = HSVColor.fromColor(HexColor('#a8aa6b'))
+      .withSaturation(0.1)
+      .toColor()
+      .withOpacity(0.8);
 }
 
 ThemeData MyLightTheme = ThemeData(
-  primaryColor: AppColorsL.primaryColor,
+  primaryColor: const Color.fromARGB(255, 229, 244, 231),
   useMaterial3: true,
   brightness: Brightness.light,
   textTheme: TextTheme(
-    bodyMedium: TextStyle(fontSize: 15, color: AppColorsL.textColor),
-    bodyLarge: TextStyle(fontSize: 20, color: AppColorsL.textColor),
-    bodySmall: TextStyle(fontSize: 12, color: AppColorsL.textColor),
+    bodyMedium: GoogleFonts.mukta(fontSize: 15, color: Colors.black),
+    bodyLarge: GoogleFonts.mukta(fontSize: 20, color: Colors.black),
+    bodySmall: GoogleFonts.mukta(fontSize: 12, color: Colors.black),
+    displayMedium: GoogleFonts.mukta(fontSize: 15, color: Colors.black),
+    displayLarge: GoogleFonts.mukta(fontSize: 20, color: Colors.black),
+    displaySmall: GoogleFonts.mukta(fontSize: 12, color: Colors.black),
   ),
 );

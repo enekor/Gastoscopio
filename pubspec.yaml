@@ -43,6 +43,10 @@ dependencies:
   fluttertoast: ^8.2.4
   shared_preferences: ^2.2.2
   url_launcher: ^6.2.5
+  flutter_svg: ^2.0.10+1
+  flutter_colorpicker: ^1.1.0
+  fl_chart: ^0.68.0
+  google_fonts: ^6.2.1
 
 dev_dependencies:
   flutter_test:
@@ -65,17 +69,17 @@ flutter:
   # To add assets to your application, add an assets section, like this:
   assets:
     - lib/assets/images/
-    - lib/assets/images/gatook.png
-    - lib/assets/images/gatohola.png
-    - lib/assets/images/gatoapunta.png
-    - lib/assets/images/gatobuscando.png
-    - lib/assets/images/gatoRascandoCabeza.png
-    - lib/assets/images/personaok.png
-    - lib/assets/images/personahola.png
-    - lib/assets/images/personaapunta.png
-    - lib/assets/images/personabuscando.png
-    - lib/assets/images/personaRascandoCabeza.png
     - lib/assets/images/logo.png
+    - lib/assets/images/logo.svg
+    - lib/assets/images/nuevo.png
+    - lib/assets/images/background/
+    - lib/assets/images/background/dia1.jpeg
+    - lib/assets/images/background/dia2.jpeg
+    - lib/assets/images/background/tarde1.jpeg
+    - lib/assets/images/background/tarde2.jpeg
+    - lib/assets/images/background/noche1.jpeg
+    - lib/assets/images/background/noche2.jpeg
+
   #   - images/a_dot_ham.jpeg
 
   # An image asset can refer to one or more resolution-specific "variants", see
