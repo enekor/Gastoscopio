@@ -8,6 +8,7 @@ Gastoscopio es una aplicación de gestión financiera personal desarrollada en F
 * Almacenamiento de gastos: Clasifica tus gastos en dos categorías: básicos y extra. Los gastos básicos son aquellos que son fijos y recurrentes, como la hipoteca, la luz o el agua. Los gastos extra son aquellos que son variables y no tan importantes, como una compra en el supermercado o una salida a comer.
 * Creación de gastos recurrentes: Puedes crear gastos recurrentes que se añadirán automáticamente a tu lista de gastos cada mes, como la cuota del gimnasio o la suscripción a Netflix.
 * Resumen de la cuenta: Obtén una vista completa de todos tus movimientos en formato de lista, con información detallada sobre cada uno de ellos.
+* Comparación de precios: Compara rápidamente los precios de productos en diferentes supermercados españoles y encuentra las mejores ofertas.
 * Versión web: ¡Disfruta de Gastoscopio en tu ordenador o dispositivo iOS a través de una versión web!
 
 ## Tecnologías:
