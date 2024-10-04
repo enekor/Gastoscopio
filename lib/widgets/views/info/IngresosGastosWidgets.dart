@@ -1,9 +1,11 @@
+import 'package:cuentas_android/dao/cuentaDao.dart';
 import 'package:cuentas_android/models/Gasto.dart';
 import 'package:cuentas_android/pantallas/createNew.dart';
-import 'package:cuentas_android/utils.dart';
+import 'package:cuentas_android/utils/utils.dart';
 import 'package:cuentas_android/values.dart';
 import 'package:cuentas_android/widgets/ItemView.dart';
 import 'package:cuentas_android/widgets/dialog.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
@@ -15,17 +17,72 @@ RxInt _yearFilter = DateTime.now().year.obs;
 RxInt _monthFilter = DateTime.now().month.obs;
 RxInt _dayFilter = DateTime.now().day.obs;
 RxBool _showMoreFilters = false.obs;
+RxString _showOrderBy = ''.obs;
+
+RxList<Gasto> _gastos = Values()
+    .cuentaRet
+    .value!
+    .GetGastosToShow(
+        Values().showing.value,
+        _tagSelected.value,
+        Values().anno.value,
+        Values().mes.value,
+        _filterWord.value,
+        _dateFiltered.value
+            ? DateTime(_yearFilter.value, _monthFilter.value, _dayFilter.value)
+            : null,
+        Values().orderBy.value)
+    .obs;
+
+void changeGastos() {
+  _gastos.value = Values().cuentaRet.value!.GetGastosToShow(
+      Values().showing.value,
+      _tagSelected.value,
+      Values().anno.value,
+      Values().mes.value,
+      _filterWord.value,
+      _dateFiltered.value
+          ? DateTime(_yearFilter.value, _monthFilter.value, _dayFilter.value)
+          : null,
+      Values().orderBy.value);
+}
+
+void orderBySelected(OrderByTypes order, BuildContext context) {
+  Values().orderBy.value = order;
+  changeGastos();
+
+  switch (order) {
+    case OrderByTypes.dateAsc:
+      _showOrderBy.value = 'Fecha ascendente';
+      break;
+
+    case OrderByTypes.dateDesc:
+      _showOrderBy.value = 'Fecha descendente';
+      break;
+    case OrderByTypes.value:
+      _showOrderBy.value = 'Cantidad';
+      break;
+    case OrderByTypes.name:
+      _showOrderBy.value = 'Nombre';
+      break;
+  }
+
+  Navigator.of(context).pop();
+}
 
 void onGastosTap() {
   Values().showing.value = ShowingGastos.gastos;
+  changeGastos();
 }
 
 void onIngresosTap() {
   Values().showing.value = ShowingGastos.ingresos;
+  changeGastos();
 }
 
 void onExtrasTap() {
   Values().showing.value = ShowingGastos.extras;
+  changeGastos();
 }
 
 void _onTag(String tag) {
@@ -34,6 +91,8 @@ void _onTag(String tag) {
   } else {
     _tagSelected.value = tag;
   }
+
+  changeGastos();
 }
 
 void onDeleteTag(String tag, BuildContext context) {
@@ -57,25 +116,107 @@ void onNewTag(BuildContext context) {
         width: MediaQuery.of(context).size.width,
         child: TextField(
           controller: controller,
-          decoration: InputDecoration(label: Text("Nuevo tag")),
+          decoration: const InputDecoration(label: Text("Nuevo tag")),
         ),
       ));
 }
 
 void _onEdit(BuildContext context, Gasto gasto) {
-  Navigator.of(context).push(MaterialPageRoute(
-      builder: (context) => createNew(
-            gasto: gasto,
-          )));
+  showDialog(
+    context: context,
+    builder: (BuildContext context) {
+      return Dialog(
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(12.0),
+        ),
+        insetPadding: const EdgeInsets.all(10),
+        child: ClipRRect(
+          borderRadius: BorderRadius.circular(12.0),
+          child: SizedBox(
+            width: double.infinity, // Ocupa todo el ancho disponible
+            child: createNew(gasto: gasto),
+          ),
+        ),
+      );
+    },
+  );
+}
+
+Future<bool> _onDelete(Gasto gasto, BuildContext context) async {
+  bool borrar = false;
+
+  final snackController = ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+    content: Row(
+      children: [
+        Expanded(
+          flex: 6,
+          child: Text(
+            "¿Desea borrar ${gasto.nombre.value}?",
+            style: TextStyle(color: GetColor(ColorTypes.primary, context)),
+          ),
+        ),
+        Expanded(
+          flex: 2,
+          child: IconButton(
+              onPressed: () {
+                ScaffoldMessenger.of(context).hideCurrentSnackBar();
+                bool borrado = Values().cuentaRet.value!.DeleteValue(
+                    gasto,
+                    Values().anno.value,
+                    Values().mes.value,
+                    Values().showing.value);
+                borrar = true;
+                if (!borrado) {
+                  //mostrar mensaje de no borrado
+                  ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                    content: Container(
+                      color: GetColor(ColorTypes.errorButton, context),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                        children: [
+                          Text("No se ha podido borrar ${gasto.nombre.value}"),
+                          Icon(
+                            Icons.cancel_rounded,
+                            color: GetColor(ColorTypes.text, context),
+                          )
+                        ],
+                      ),
+                    ),
+                  ));
+                }
+              },
+              icon: Icon(Icons.check_circle,
+                  color: GetColor(ColorTypes.errorButton, context))),
+        ),
+        Expanded(
+          flex: 2,
+          child: IconButton(
+              onPressed: () {
+                ScaffoldMessenger.of(context).hideCurrentSnackBar();
+              },
+              icon: Icon(Icons.cancel_rounded,
+                  color: GetColor(ColorTypes.primary, context))),
+        ),
+      ],
+    ),
+  ));
+
+  await snackController.closed;
+
+  cuentaDao().almacenarDatos(Values().cuentaRet.value!, kIsWeb);
+  return borrar;
 }
 
 /*widgets*/
 Widget IngresosGastosHasData(BuildContext context, {bool isLandscape = false}) {
+  changeGastos();
   return Column(
     children: [
       topPart(context),
+      editIngreso(),
       Expanded(
-          child: valuesPart(context, (g) => _onEdit(context, g),
+          child: valuesPart(
+              context, (g) => _onEdit(context, g), (g) => _onDelete(g, context),
               isLandscape: isLandscape)),
       totalPart()
     ],
@@ -83,28 +224,14 @@ Widget IngresosGastosHasData(BuildContext context, {bool isLandscape = false}) {
 }
 
 Widget totalPart() => Obx(() {
-      RxList<Gasto> _gastos = Values()
-          .cuentaRet
-          .value!
-          .GetGastosToShow(
-              Values().showing.value,
-              _tagSelected.value,
-              Values().anno.value,
-              Values().mes.value,
-              _filterWord.value,
-              _dateFiltered.value
-                  ? DateTime(
-                      _yearFilter.value, _monthFilter.value, _dayFilter.value)
-                  : null)
-          .obs;
       return Card(
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
           children: [
-            Text("Total a mostrar"),
+            const Text("Total a mostrar"),
             Text(
-              style: TextStyle(fontWeight: FontWeight.bold),
-              '${_gastos.fold<double>(
+              style: const TextStyle(fontWeight: FontWeight.bold),
+              '${_gastos.value.fold<double>(
                     0,
                     (previousValue, element) =>
                         previousValue + element.valor.value,
@@ -116,17 +243,6 @@ Widget totalPart() => Obx(() {
     });
 
 Widget topPart(BuildContext context) {
-  // return Card.filled(
-  //   color: GetColor(ColorTypes.primary, context),
-  //   shape: const RoundedRectangleBorder(
-  //       borderRadius: BorderRadius.only(
-  //     topLeft: Radius.circular(0),
-  //     topRight: Radius.circular(0),
-  //     bottomLeft: Radius.circular(25),
-  //     bottomRight: Radius.circular(25),
-  //   )),
-  //   margin: EdgeInsets.all(0),
-  //   child:
   return Padding(
     padding: const EdgeInsets.only(top: 15.0),
     child: Obx(
@@ -137,7 +253,7 @@ Widget topPart(BuildContext context) {
               width: double.infinity, height: 30, child: topTagsCards(context)),
           AnimatedContainer(
             height: _showMoreFilters.value ? 50 : 0,
-            duration: Duration(milliseconds: 150),
+            duration: const Duration(milliseconds: 150),
             child: Column(
               children: [topSearchBar(context)],
             ),
@@ -152,7 +268,7 @@ Widget topPart(BuildContext context) {
 Widget topCardFilters(BuildContext context) {
   return Obx(
     () => Padding(
-      padding: EdgeInsets.only(right: 10, left: 10, top: 10),
+      padding: const EdgeInsets.only(right: 10, left: 10, top: 10),
       child: Row(
         children: [
           Expanded(
@@ -246,7 +362,10 @@ Widget topTagsCards(BuildContext context) {
                   color: Values().showing.value == ShowingGastos.fijo
                       ? GetColor(ColorTypes.background, context)
                       : GetColor(ColorTypes.tertiary, context),
-                  onPressed: () => Values().showing.value = ShowingGastos.fijo,
+                  onPressed: () {
+                    Values().showing.value = ShowingGastos.fijo;
+                    changeGastos();
+                  },
                   text: Text(
                     'Fijos',
                     style: TextStyle(
@@ -263,7 +382,10 @@ Widget topTagsCards(BuildContext context) {
                   color: Values().showing.value == ShowingGastos.deuda
                       ? GetColor(ColorTypes.background, context)
                       : GetColor(ColorTypes.tertiary, context),
-                  onPressed: () => Values().showing.value = ShowingGastos.deuda,
+                  onPressed: () {
+                    Values().showing.value = ShowingGastos.deuda;
+                    changeGastos();
+                  },
                   text: Text(
                     'Deudas',
                     style: TextStyle(
@@ -314,8 +436,12 @@ Widget topSearchBar(BuildContext context) {
         child: SingleChildScrollView(
           scrollDirection: Axis.horizontal,
           child: Row(
-            mainAxisAlignment: MainAxisAlignment.center,
             children: [
+              ActionChipButton(
+                  text: Text('Ordenar por: ${_showOrderBy.value}'),
+                  color: GetColor(ColorTypes.secondary, context),
+                  icon: const Icon(Icons.sort_rounded),
+                  onPressed: () => showOrderByDialog(context)),
               ActionChipButton(
                   text: Text(_dateFiltered.value
                       ? '${_yearFilter.value}/${_monthFilter.value}/${_dayFilter.value}'
@@ -323,13 +449,16 @@ Widget topSearchBar(BuildContext context) {
                   color: _dateFiltered.value
                       ? GetColor(ColorTypes.background, context)
                       : GetColor(ColorTypes.secondary, context),
-                  icon: Icon(Icons.calendar_month_rounded),
+                  icon: const Icon(Icons.calendar_month_rounded),
                   onPressed: () => showCalendarDialog(context)),
               _dateFiltered.value
                   ? CardButton(
-                      child: Icon(Icons.remove),
+                      child: const Icon(Icons.remove),
                       color: Colors.red,
-                      onPressed: () => _dateFiltered.value = false,
+                      onPressed: () {
+                        _dateFiltered.value = false;
+                        changeGastos();
+                      },
                       context: context,
                       padding: 5)
                   : Container(),
@@ -337,12 +466,15 @@ Widget topSearchBar(BuildContext context) {
                   text: Text(_filterWord.value),
                   color: GetColor(ColorTypes.secondary, context),
                   onPressed: () => showSearchDialog(context),
-                  icon: Icon(Icons.search_rounded)),
+                  icon: const Icon(Icons.search_rounded)),
               _filterWord.value != ''
                   ? CardButton(
-                      child: Icon(Icons.remove),
+                      child: const Icon(Icons.remove),
                       color: Colors.red,
-                      onPressed: () => _filterWord.value = '',
+                      onPressed: () {
+                        _filterWord.value = '';
+                        changeGastos();
+                      },
                       context: context,
                       padding: 5)
                   : Container(),
@@ -352,7 +484,49 @@ Widget topSearchBar(BuildContext context) {
   );
 }
 
-Widget valuesPart(BuildContext context, void Function(Gasto) onEdit,
+Widget editIngreso() {
+  return Obx(() => Values().showing.value == ShowingGastos.ingresos
+      ? Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            const Expanded(flex: 6, child: Center(child: Text("Ingreso base"))),
+            Expanded(
+              flex: 4,
+              child: Padding(
+                padding: const EdgeInsets.only(right: 50.0),
+                child: TextFormField(
+                  textAlign: TextAlign.center,
+                  keyboardType: TextInputType.number,
+                  onChanged: (value) => Values()
+                      .cuentaRet
+                      .value!
+                      .Meses
+                      .firstWhere((v) =>
+                          v.Anno.value == Values().anno.value &&
+                          v.NMes.value == Values().mes.value)
+                      .Ingreso
+                      .value = double.parse(value),
+                  initialValue: Values()
+                      .cuentaRet
+                      .value!
+                      .Meses
+                      .firstWhere((v) =>
+                          v.Anno.value == Values().anno.value &&
+                          v.NMes.value == Values().mes.value)
+                      .Ingreso
+                      .toString(),
+                  decoration:
+                      InputDecoration(suffix: Text(Values().moneda.value)),
+                ),
+              ),
+            )
+          ],
+        )
+      : Container());
+}
+
+Widget valuesPart(
+    BuildContext context, void Function(Gasto) onEdit, Function(Gasto) onDelete,
     {bool isLandscape = false}) {
   return Obx(
     () => Card(
@@ -362,75 +536,40 @@ Widget valuesPart(BuildContext context, void Function(Gasto) onEdit,
           top: 10,
           bottom: 10),
       color: GetColor(ColorTypes.primary, context).withOpacity(0.84),
-      child: SingleChildScrollView(
-        child: Padding(
-          padding: const EdgeInsets.only(top: 20.0),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Values().showing.value == ShowingGastos.ingresos
-                  ? Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Expanded(
-                            flex: 6,
-                            child: Center(child: Text("Ingreso base"))),
-                        Expanded(
-                          flex: 4,
-                          child: Padding(
-                            padding: const EdgeInsets.only(right: 50.0),
-                            child: TextFormField(
-                              textAlign: TextAlign.center,
-                              keyboardType: TextInputType.number,
-                              onChanged: (value) => Values()
-                                  .cuentaRet
-                                  .value!
-                                  .Meses
-                                  .firstWhere((v) =>
-                                      v.Anno.value == Values().anno.value &&
-                                      v.NMes.value == Values().mes.value)
-                                  .Ingreso
-                                  .value = double.parse(value),
-                              initialValue: Values()
-                                  .cuentaRet
-                                  .value!
-                                  .Meses
-                                  .firstWhere((v) =>
-                                      v.Anno.value == Values().anno.value &&
-                                      v.NMes.value == Values().mes.value)
-                                  .Ingreso
-                                  .toString(),
-                              decoration: InputDecoration(
-                                  suffix: Text(Values().moneda.value)),
-                            ),
-                          ),
-                        )
-                      ],
-                    )
-                  : Container(),
-              Column(
-                children: Values()
-                    .cuentaRet
-                    .value!
-                    .GetGastosToShow(
-                        Values().showing.value,
-                        _tagSelected.value,
-                        Values().anno.value,
-                        Values().mes.value,
-                        _filterWord.value,
-                        _dateFiltered.value
-                            ? DateTime(_yearFilter.value, _monthFilter.value,
-                                _dayFilter.value)
-                            : null)
-                    .obs
-                    .map((gasto) => gastoView(
-                        gasto: gasto, onTapEdit: onEdit, context: context))
-                    .toList(),
-              ),
-            ],
-          ),
-        ),
-      ),
+      child: ListView.builder(
+          itemCount: _gastos.value.length,
+          itemBuilder: (c, i) {
+            return Dismissible(
+                key: Key(_gastos[i].nombre + _gastos[i].valor.toString()),
+                secondaryBackground: Container(
+                  color: Colors.red,
+                  child: const Align(
+                    alignment: Alignment.centerRight,
+                    child: Padding(
+                      padding: EdgeInsets.only(right: 16),
+                      child: Icon(Icons.delete),
+                    ),
+                  ),
+                ),
+                background: Container(
+                  color: Colors.red,
+                  child: const Align(
+                    alignment: Alignment.centerLeft,
+                    child: Padding(
+                      padding: EdgeInsets.only(left: 16),
+                      child: Icon(Icons.delete),
+                    ),
+                  ),
+                ),
+                confirmDismiss: (direction) async => await onDelete(_gastos[i]),
+                onDismissed: (_) {
+                  changeGastos();
+                },
+                child: gastoView(
+                    gasto: _gastos.value[i],
+                    onTapEdit: onEdit,
+                    context: context));
+          }),
     ),
   );
 }
@@ -442,6 +581,7 @@ void showSearchDialog(BuildContext context) {
             child: Padding(
               padding: const EdgeInsets.all(8.0),
               child: TextField(
+                autofocus: true,
                 decoration: InputDecoration(
                     suffixIcon: Icon(
                       Icons.search,
@@ -449,7 +589,10 @@ void showSearchDialog(BuildContext context) {
                       size: 25,
                     ),
                     labelText: "Filtrar"),
-                onChanged: (value) => _filterWord.value = value,
+                onChanged: (value) {
+                  _filterWord.value = value;
+                  changeGastos();
+                },
               ),
             ),
           ));
@@ -467,5 +610,66 @@ void showCalendarDialog(BuildContext context) async {
     _yearFilter.value = picked.year;
     _monthFilter.value = picked.month;
     _dayFilter.value = picked.day;
+
+    changeGastos();
   }
+}
+
+void showOrderByDialog(BuildContext context) async {
+  showModalBottomSheet(
+    context: context,
+    builder: (BuildContext context) {
+      return Padding(
+        padding: const EdgeInsets.all(20.0),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Row(
+              mainAxisAlignment:
+                  MainAxisAlignment.spaceAround, // Distribuye espacio
+              children: [
+                ActionChipButton(
+                    text: const Text('Fecha ascendente'),
+                    color: Values().orderBy.value == OrderByTypes.dateAsc
+                        ? GetColor(ColorTypes.background, context)
+                        : GetColor(ColorTypes.secondary, context),
+                    icon: const Icon(Icons.calendar_month),
+                    onPressed: () =>
+                        orderBySelected(OrderByTypes.dateAsc, context)),
+                ActionChipButton(
+                    text: const Text('Fecha descendente'),
+                    color: Values().orderBy.value == OrderByTypes.dateDesc
+                        ? GetColor(ColorTypes.background, context)
+                        : GetColor(ColorTypes.secondary, context),
+                    icon: const Icon(Icons.calendar_month),
+                    onPressed: () =>
+                        orderBySelected(OrderByTypes.dateDesc, context)),
+              ],
+            ),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceAround,
+              children: [
+                ActionChipButton(
+                    text: const Text('Nombre'),
+                    color: Values().orderBy.value == OrderByTypes.name
+                        ? GetColor(ColorTypes.background, context)
+                        : GetColor(ColorTypes.secondary, context),
+                    icon: const Icon(Icons.abc),
+                    onPressed: () =>
+                        orderBySelected(OrderByTypes.name, context)),
+                ActionChipButton(
+                    text: const Text('Valor'),
+                    color: Values().orderBy.value == OrderByTypes.value
+                        ? GetColor(ColorTypes.background, context)
+                        : GetColor(ColorTypes.secondary, context),
+                    icon: const Icon(Icons.numbers),
+                    onPressed: () =>
+                        orderBySelected(OrderByTypes.value, context)),
+              ],
+            ),
+          ],
+        ),
+      );
+    },
+  );
 }

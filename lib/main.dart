@@ -2,6 +2,7 @@ import 'package:cuentas_android/pantallas/login/widgetTree.dart';
 import 'package:cuentas_android/themes/DarkTheme.dart';
 import 'package:cuentas_android/themes/LightTheme.dart';
 import 'package:cuentas_android/values.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
@@ -16,7 +17,7 @@ void main() async {
     options: DefaultFirebaseOptions.currentPlatform,
   );
 
-  Values().init();
+  Values().init(kIsWeb);
 
   // 4. Run the app
   runApp(const MyApp());
@@ -32,7 +33,7 @@ class MyApp extends StatelessWidget {
         PointerDeviceKind.touch,
         PointerDeviceKind.mouse,
       }),
-      title: 'Flutter App!!',
+      title: 'Gastoscopio',
       theme: MyLightTheme,
       darkTheme: MyDarkTheme,
       home: Tree(),

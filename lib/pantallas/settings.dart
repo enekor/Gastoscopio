@@ -4,10 +4,11 @@ import 'package:cuentas_android/dao/cuentaDao.dart';
 import 'package:cuentas_android/dao/userDao.dart';
 import 'package:cuentas_android/models/Cuenta.dart';
 import 'package:cuentas_android/themes/hexColor.dart';
-import 'package:cuentas_android/utils.dart';
+import 'package:cuentas_android/utils/utils.dart';
 import 'package:cuentas_android/values.dart';
 import 'package:cuentas_android/widgets/toast.dart';
 import 'package:cuentas_android/widgets/views/settingsWidget.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter_colorpicker/flutter_colorpicker.dart';
@@ -23,7 +24,7 @@ class Settings extends StatelessWidget {
 
   Future _logout() async {
     await Auth().signOut();
-    Values().cuentas.clear();
+    Values().cuentas.value.clear();
   }
 
   Future saveToJson(Cuenta cuenta) async {
@@ -47,7 +48,7 @@ class Settings extends StatelessWidget {
       File json = File(result.files.single.path!);
       String jsonString = await json.readAsString();
       jsonMap = jsonDecode(jsonString);
-      Cuenta c = await cuentaDao().importFromJson(jsonMap, cuentas.length);
+      Cuenta c = await cuentaDao().importFromJson(jsonMap, cuentas.length,kIsWeb);
       showToast(text: "Importado correctamente ${c.Nombre}");
     } else {
       // El usuario canceló la selección de archivos.
@@ -84,37 +85,7 @@ class Settings extends StatelessWidget {
 
   void _onProfileColorChange(String newColor) {
     Values().cuentaRet.value!.color.value = newColor;
-    cuentaDao().almacenarDatos(Values().cuentaRet.value!);
-  }
-
-  void _onDeleteProfile(BuildContext context) {
-    ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-      content: Row(
-        children: [
-          Text(
-            "¿Desea borrar el perfil?",
-            style: TextStyle(color: GetColor(ColorTypes.primary, context)),
-          ),
-          SizedBox(
-            width: 30,
-          ),
-          IconButton(
-              onPressed: () {
-                ScaffoldMessenger.of(context).hideCurrentSnackBar();
-                Navigator.of(context)
-                    .pop({"insertar": 0, "obj": Values().cuentaRet.value});
-              },
-              icon: Icon(Icons.check_circle,
-                  color: GetColor(ColorTypes.errorButton, context))),
-          IconButton(
-              onPressed: () {
-                ScaffoldMessenger.of(context).hideCurrentSnackBar();
-              },
-              icon: Icon(Icons.cancel_rounded,
-                  color: GetColor(ColorTypes.primary, context))),
-        ],
-      ),
-    ));
+    cuentaDao().almacenarDatos(Values().cuentaRet.value!,kIsWeb);
   }
 
   void _onNuevoPerfil(BuildContext context) {
@@ -124,13 +95,13 @@ class Settings extends StatelessWidget {
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          title: Text('Color del perfil'),
+          title: const Text('Color del perfil'),
           content: SingleChildScrollView(
             child: Column(
               children: [
                 TextField(
                   controller: nombre,
-                  decoration: InputDecoration(labelText: "Nombre"),
+                  decoration: const InputDecoration(labelText: "Nombre"),
                 ),
                 ColorPicker(
                     pickerColor: HexColor(color),
@@ -146,16 +117,17 @@ class Settings extends StatelessWidget {
               onPressed: () {
                 Navigator.of(context).pop();
               },
-              child: Text('Cancelar'),
+              child: const Text('Cancelar'),
             ),
             TextButton(
               onPressed: () async {
                 Cuenta nuevo = await cuentaDao()
-                    .crearNuevaCuenta(nombre.text, cuentaDao.count + 1, color);
+                    .crearNuevaCuenta(nombre.text, cuentaDao.count + 1, color,kIsWeb);
+                Values().cuentaRet.value = nuevo;
                 Navigator.of(context).pop();
                 Navigator.of(context).pop({"insertar": 1, "obj": nuevo});
               },
-              child: Text('Aceptar'),
+              child: const Text('Aceptar'),
             ),
           ],
         );
@@ -172,7 +144,7 @@ class Settings extends StatelessWidget {
           backgroundColor: GetColor(ColorTypes.background, context),
           extendBodyBehindAppBar: true,
           appBar: AppBar(
-            title: Text(""),
+            title: const Text(""),
             backgroundColor: Colors.transparent,
           ),
           resizeToAvoidBottomInset: true,
@@ -197,7 +169,6 @@ class Settings extends StatelessWidget {
                         onChangeCurrency: _onChangeCurrency,
                         onProfileColorChange: _onProfileColorChange,
                         onNuevoPerfil: () => _onNuevoPerfil(context),
-                        onDeleteProfile: () => _onDeleteProfile(context),
                         onLogOut: _logout)),
               ),
             ),

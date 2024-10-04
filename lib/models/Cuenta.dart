@@ -1,8 +1,6 @@
-import 'package:cuentas_android/dao/cuentaDao.dart';
 import 'package:cuentas_android/models/Gasto.dart';
 import 'package:cuentas_android/models/Mes.dart';
-import 'package:cuentas_android/utils.dart';
-import 'package:cuentas_android/values.dart';
+import 'package:cuentas_android/utils/utils.dart';
 import 'package:get/get_rx/src/rx_types/rx_types.dart';
 
 class Cuenta {
@@ -113,7 +111,6 @@ class Cuenta {
           deudas.add(gasto);
         }
 
-        cuentaDao().almacenarDatos(this);
         break;
       case ShowingGastos.fijo:
         if (editing) {
@@ -137,7 +134,6 @@ class Cuenta {
           fijos.add(gasto);
         }
 
-        cuentaDao().almacenarDatos(this);
         break;
       case ShowingGastos.ingresos:
         gasto.valor.value = -1 * gasto.valor.value;
@@ -169,7 +165,6 @@ class Cuenta {
               .add(gasto);
         }
 
-        cuentaDao().almacenarDatos(this);
         break;
       case ShowingGastos.gastos:
         if (editing) {
@@ -199,7 +194,6 @@ class Cuenta {
               .add(gasto);
         }
 
-        cuentaDao().almacenarDatos(this);
         break;
 
       case ShowingGastos.extras:
@@ -230,7 +224,6 @@ class Cuenta {
               .add(gasto);
         }
 
-        cuentaDao().almacenarDatos(this);
         break;
     }
   }
@@ -253,7 +246,11 @@ class Cuenta {
   }
 
   List<Gasto> GetGastosToShow(ShowingGastos primaryTag, String tag, int anno,
-      String mes, String filterByWord, DateTime? fecha) {
+      String mes, String filterByWord, DateTime? fecha, OrderByTypes orderBy) {
+    if (Meses.where((m) => m.Anno.value == anno && m.NMes.value == mes)
+        .isEmpty) {
+      NewMes(anno, mes);
+    }
     List<Gasto> datos = [];
 
     if (primaryTag != ShowingGastos.deuda && primaryTag != ShowingGastos.fijo) {
@@ -271,8 +268,10 @@ class Cuenta {
     }
 
     if (filterByWord.isNotEmpty) {
-      datos =
-          datos.where((gasto) => gasto.nombre.contains(filterByWord)).toList();
+      datos = datos
+          .where((gasto) =>
+              gasto.nombre.toLowerCase().contains(filterByWord.toLowerCase()))
+          .toList();
     }
 
     if (primaryTag == ShowingGastos.ingresos) {
@@ -297,10 +296,32 @@ class Cuenta {
           .toList();
     }
 
+    switch (orderBy) {
+      case OrderByTypes.dateAsc:
+        datos.sort((a, b) => DateTime(b.anno.value, b.mes.value, b.dia.value)
+            .compareTo(DateTime(a.anno.value, a.mes.value, a.dia.value)));
+        break;
+      case OrderByTypes.dateDesc:
+        datos.sort((a, b) => DateTime(b.anno.value, b.mes.value, b.dia.value)
+            .compareTo(DateTime(a.anno.value, a.mes.value, a.dia.value)));
+        datos = datos.reversed.toList();
+        break;
+      case OrderByTypes.name:
+        datos.sort((a, b) => b.nombre.value.compareTo(a.nombre.value));
+        break;
+      case OrderByTypes.value:
+        datos.sort((a, b) => b.valor.value.compareTo(a.valor.value));
+        break;
+    }
+
     return datos;
   }
 
   double GetGastos(int anno, String mes) {
+    if (Meses.where((m) => m.Anno.value == anno && m.NMes.value == mes)
+        .isEmpty) {
+      NewMes(anno, mes);
+    }
     var dato =
         Meses.firstWhere((m) => m.Anno.value == anno && m.NMes.value == mes)
                 .GetGastos() -
@@ -332,16 +353,42 @@ class Cuenta {
   }
 
   void NewMes(int anno, String mes) {
-    fijos.forEach((element) {
+    List<Gasto> gastosIniciales = [];
+
+    for (Gasto element in fijos.value) {
       element.nombre.value = element.nombre.value.endsWith(" ")
           ? element.nombre.value.substring(0, element.nombre.value.length - 1)
           : element.nombre.value;
-    });
+
+      gastosIniciales.add(element);
+    }
 
     Meses.add(Mes(mes.obs, anno.obs));
     Meses.firstWhere((m) => m.Anno.value == anno && m.NMes.value == mes)
         .Gastos
         .value
-        .addAll(fijos);
+        .addAll(gastosIniciales);
+  }
+
+  bool DeleteValue(Gasto gasto, int anno, String mes, ShowingGastos tipo) {
+    switch (tipo) {
+      case ShowingGastos.deuda:
+        return deudas.value.remove(gasto);
+      case ShowingGastos.fijo:
+        return fijos.value.remove(gasto);
+      case ShowingGastos.extras:
+        return Meses.value
+            .firstWhere((g) => g.Anno.value == anno && g.NMes.value == mes)
+            .Extras
+            .value
+            .remove(gasto);
+      case ShowingGastos.gastos:
+      case ShowingGastos.ingresos:
+        return Meses.value
+            .firstWhere((g) => g.Anno.value == anno && g.NMes.value == mes)
+            .Gastos
+            .value
+            .remove(gasto);
+    }
   }
 }

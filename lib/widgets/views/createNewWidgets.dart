@@ -1,4 +1,4 @@
-import 'package:cuentas_android/utils.dart';
+import 'package:cuentas_android/utils/utils.dart';
 import 'package:cuentas_android/values.dart';
 import 'package:cuentas_android/widgets/ItemView.dart';
 import 'package:flutter/material.dart';
@@ -14,14 +14,14 @@ AppBar CreateNewAppBar() => AppBar(
       ),
     );
 
-Widget TopPart() => Center(
-      child: AspectRatio(
-        aspectRatio: 2,
-        child: Image.asset(
-          getImageUri(ImageUris.nuevo),
-        ),
+Widget TopPart() => Obx(() => Padding(
+      padding: const EdgeInsets.only(top: 10.0),
+      child: Text(
+        Values().editing.value ? "Editar existente" : "Crear nuevo",
+        style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 30),
+        textAlign: TextAlign.center,
       ),
-    );
+    ));
 
 Widget typePart(BuildContext context) {
   return Obx(() => Values().editing.value == false
@@ -32,7 +32,7 @@ Widget typePart(BuildContext context) {
               CardButton(
                   onPressed: () =>
                       Values().showing.value = ShowingGastos.gastos,
-                  child: Text('Gasto'),
+                  child: const Text('Gasto'),
                   context: context,
                   padding:
                       Values().showing.value == ShowingGastos.gastos ? 10 : 8,
@@ -43,7 +43,7 @@ Widget typePart(BuildContext context) {
               CardButton(
                   onPressed: () =>
                       Values().showing.value = ShowingGastos.extras,
-                  child: Text('Extra'),
+                  child: const Text('Extra'),
                   context: context,
                   padding:
                       Values().showing.value == ShowingGastos.extras ? 10 : 8,
@@ -53,7 +53,7 @@ Widget typePart(BuildContext context) {
                       : GetColor(ColorTypes.secondary, context)),
               CardButton(
                   onPressed: () => Values().showing.value = ShowingGastos.fijo,
-                  child: Text('Periódico'),
+                  child: const Text('Periódico'),
                   context: context,
                   padding:
                       Values().showing.value == ShowingGastos.fijo ? 10 : 8,
@@ -64,7 +64,7 @@ Widget typePart(BuildContext context) {
               CardButton(
                   onPressed: () =>
                       Values().showing.value = ShowingGastos.ingresos,
-                  child: Text('Ingreso'),
+                  child: const Text('Ingreso'),
                   context: context,
                   padding:
                       Values().showing.value == ShowingGastos.ingresos ? 10 : 8,
@@ -74,7 +74,7 @@ Widget typePart(BuildContext context) {
                       : GetColor(ColorTypes.secondary, context)),
               CardButton(
                   onPressed: () => Values().showing.value = ShowingGastos.deuda,
-                  child: Text('Deuda'),
+                  child: const Text('Deuda'),
                   context: context,
                   padding:
                       Values().showing.value == ShowingGastos.deuda ? 10 : 8,
@@ -97,63 +97,55 @@ Widget formPart(
     required TextEditingController valor,
     required bool isLandscape}) {
   return Obx(
-    () => SizedBox(
-      width: MediaQuery.of(context).size.width,
-      child: Card.filled(
-        margin: EdgeInsets.only(
-            left: isLandscape ? 150 : 10,
-            right: isLandscape ? 150 : 10,
-            top: 10,
-            bottom: 10),
-        color: GetColor(ColorTypes.primary, context).withOpacity(0.94),
-        child: Padding(
-          padding: const EdgeInsets.all(10.0),
-          child: SingleChildScrollView(
-            child: Column(
-              children: [
-                typePart(context),
-                Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: Values().editing.value == false
-                      ? TextField(
-                          controller: nombre,
-                          decoration:
-                              const InputDecoration(label: Text('Nombre')),
-                        )
-                      : Text(nombre.text),
+    () => Card.filled(
+      margin: const EdgeInsets.all(10),
+      color: GetColor(ColorTypes.primary, context).withOpacity(0.94),
+      child: Padding(
+        padding: const EdgeInsets.all(10.0),
+        child: SingleChildScrollView(
+          child: Column(
+            children: [
+              typePart(context),
+              Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: Values().editing.value == false
+                    ? TextField(
+                        controller: nombre,
+                        decoration:
+                            const InputDecoration(label: Text('Nombre')),
+                      )
+                    : Text(nombre.text),
+              ),
+              Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: TextField(
+                  keyboardType: TextInputType.number,
+                  controller: valor,
+                  decoration: InputDecoration(
+                      label: const Text('Valor'),
+                      suffix: Text(
+                        Values().moneda.value,
+                        style: const TextStyle(
+                            fontWeight: FontWeight.bold, fontSize: 15),
+                      )),
                 ),
-                Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: TextField(
-                    keyboardType: TextInputType.number,
-                    controller: valor,
-                    decoration: InputDecoration(
-                        label: const Text('Valor'),
-                        suffix: Text(
-                          Values().moneda.value,
-                          style: const TextStyle(
-                              fontWeight: FontWeight.bold, fontSize: 15),
-                        )),
-                  ),
-                ),
-                tagCreator(onCreateTag: () => onNewTag(), tags: tags),
-                Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: CardButton(
-                      onPressed:
-                          Values().editing.value == false ? onDate : () {},
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Icon(Icons.calendar_month_rounded),
-                          Text(
-                              '${_fechaNueva.value!.day}/${_fechaNueva.value!.month}/${_fechaNueva.value!.year}')
-                        ],
-                      ),
-                      context: context),
-                )
-              ],
-            ),
+              ),
+              tagCreator(onCreateTag: () => onNewTag(), tags: tags),
+              Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: CardButton(
+                    onPressed: Values().editing.value == false ? onDate : () {},
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        const Icon(Icons.calendar_month_rounded),
+                        Text(
+                            '${_fechaNueva.value!.day}/${_fechaNueva.value!.month}/${_fechaNueva.value!.year}')
+                      ],
+                    ),
+                    context: context),
+              )
+            ],
           ),
         ),
       ),
@@ -173,7 +165,7 @@ Widget buttonsPart(
         flex: 5,
         child: CardButton(
             onPressed: onCancel,
-            child: Text("Cancelar"),
+            child: const Text("Cancelar"),
             context: context,
             color: GetColor(ColorTypes.errorButton, context),
             padding: 15),
@@ -183,7 +175,7 @@ Widget buttonsPart(
         child: CardButton(
             onPressed: () => onSave(nombre.text, double.parse(valor.text),
                 tag.value, _fechaNueva.value!, Values().editing.value),
-            child: Text("Guardar"),
+            child: const Text("Guardar"),
             context: context,
             color: GetColor(ColorTypes.primary, context),
             padding: 15),
@@ -205,26 +197,22 @@ Widget createNewHasData(
   _fechaNueva.value = fecha;
   return Column(
     children: [
-      Expanded(flex: 3, child: TopPart()),
-      Expanded(
-        flex: 4,
-        child: formPart(
-            tags: tags,
-            context: context,
-            onDate: () => onDate(context),
-            onNewTag: onNewTag,
-            nombre: nombre,
-            valor: valor,
-            isLandscape: isLandscape),
-      ),
-      Expanded(
-          flex: 1,
-          child: buttonsPart(
-              onSave: onSave,
-              onCancel: onCancel,
-              context: context,
-              nombre: nombre,
-              valor: valor))
+      TopPart(),
+      formPart(
+          tags: tags,
+          context: context,
+          onDate: () => onDate(context),
+          onNewTag: onNewTag,
+          nombre: nombre,
+          valor: valor,
+          isLandscape: isLandscape),
+      const Spacer(),
+      buttonsPart(
+          onSave: onSave,
+          onCancel: onCancel,
+          context: context,
+          nombre: nombre,
+          valor: valor)
     ],
   );
 }
@@ -232,7 +220,7 @@ Widget createNewHasData(
 Widget tagCreator(
     {required void Function() onCreateTag, required List<String> tags}) {
   return Padding(
-    padding: EdgeInsets.all(10),
+    padding: const EdgeInsets.all(10),
     child: Column(
       children: [
         tags.isNotEmpty

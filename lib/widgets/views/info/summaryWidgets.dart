@@ -3,7 +3,7 @@ import 'dart:math';
 import 'package:cuentas_android/models/ChartValues.dart';
 import 'package:cuentas_android/models/Gasto.dart';
 import 'package:cuentas_android/models/Mes.dart';
-import 'package:cuentas_android/utils.dart';
+import 'package:cuentas_android/utils/utils.dart';
 import 'package:cuentas_android/values.dart';
 import 'package:cuentas_android/widgets/ItemView.dart';
 import 'package:cuentas_android/widgets/indicator.dart';
@@ -13,6 +13,21 @@ import 'package:get/get.dart';
 
 Widget summaryHasData(BuildContext context, {bool isLandscape = false}) {
   Values().summaryMes.value = Values().nombresMes[DateTime.now().month - 1];
+
+  if (Values()
+      .cuentaRet
+      .value!
+      .Meses
+      .where((m) =>
+          m.Anno.value == Values().summaryAnno.value &&
+          m.NMes.value == Values().summaryMes.value)
+      .isEmpty) {
+    Values()
+        .cuentaRet
+        .value!
+        .NewMes(Values().summaryAnno.value, Values().summaryMes.value);
+  }
+
   return Obx(
     () => Padding(
       padding: const EdgeInsets.only(top: 60.0),
@@ -49,7 +64,7 @@ Widget DatePart(BuildContext context) {
 
   return Card(
     color: GetColor(ColorTypes.secondary, context),
-    margin: EdgeInsets.all(15),
+    margin: const EdgeInsets.all(15),
     child: Padding(
       padding: const EdgeInsets.all(25.0),
       child: Row(
@@ -122,7 +137,7 @@ Widget infoPart(Mes mes, BuildContext context, bool isLandscape) {
     child: Column(
       children: [
         Card(
-          margin: EdgeInsets.all(15),
+          margin: const EdgeInsets.all(15),
           color: GetColor(ColorTypes.secondary, context),
           child: Padding(
             padding: const EdgeInsets.all(10.0),
@@ -131,7 +146,7 @@ Widget infoPart(Mes mes, BuildContext context, bool isLandscape) {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceAround,
                   children: [
-                    Text("Total"),
+                    const Text("Total"),
                     Text(
                         '${mes.GetTotal().toStringAsFixed(2)}${Values().moneda.value}'),
                   ],
@@ -139,7 +154,7 @@ Widget infoPart(Mes mes, BuildContext context, bool isLandscape) {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceAround,
                   children: [
-                    Text("Ingreso base"),
+                    const Text("Ingreso base"),
                     Text(
                         '${mes.Ingreso.toStringAsFixed(2)}${Values().moneda.value}'),
                   ],
@@ -194,7 +209,7 @@ Widget showValues(List<Gasto> gastos, String nombre) {
                   ))
               .toList(),
         ),
-        Divider()
+        const Divider()
       ],
     ),
   );

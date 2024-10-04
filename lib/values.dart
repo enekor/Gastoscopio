@@ -1,7 +1,8 @@
 import 'dart:math';
 
 import 'package:cuentas_android/dao/cuentaDao.dart';
-import 'package:cuentas_android/utils.dart';
+import 'package:cuentas_android/utils/utils.dart';
+import 'package:flutter/foundation.dart';
 
 import 'models/Cuenta.dart';
 import 'package:get/get.dart';
@@ -43,21 +44,22 @@ class Values {
   RxBool summaryShowChart = false.obs;
   RxInt summaryAnno = DateTime.now().year.obs;
   RxString summaryMes = "".obs;
-  RxInt selectedScreen = 0.obs;
+  int selectedScreen = 0;
+  Rx<OrderByTypes> orderBy = OrderByTypes.dateDesc.obs;
 //metodos
   int GetMesNumber(String mes) => nombresMes.indexOf(mes) + 1;
 
-  Future init() async {
+  Future init(bool isWeb) async {
     moneda.value = await readSharedPreferences(SharedPreferencesKeys.moneda);
     // figuraAbajo.value =
     //     await readSharedPreferences(SharedPreferencesKeys.figuraAbajo);
-    mes.value = nombresMes[DateTime.now().month - 1];
-    int _cuenta = await readSharedPreferences(SharedPreferencesKeys.cuenta);
-    if (_cuenta != -1) {
-      cuentas.value = await cuentaDao().getDatos();
+    mes.value = kIsWeb ? nombresMes[8] : nombresMes[DateTime.now().month - 1];
+    int cuenta = await readSharedPreferences(SharedPreferencesKeys.cuenta);
+    if (cuenta != -1) {
+      cuentas.value = await cuentaDao().getDatos(isWeb);
 
       if (cuentas.value.isNotEmpty) {
-        cuentaRet.value = cuentas.value[_cuenta];
+        cuentaRet.value = cuentas.value[cuenta];
       }
     }
 

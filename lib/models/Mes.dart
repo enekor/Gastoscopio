@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 
 import 'package:cuentas_android/models/ChartValues.dart';
 import 'package:cuentas_android/models/Gasto.dart';
-import 'package:cuentas_android/utils.dart';
+import 'package:cuentas_android/utils/utils.dart';
 import 'package:get/get_rx/src/rx_types/rx_types.dart';
 
 class Mes {
@@ -14,7 +14,7 @@ class Mes {
   RxString NMes;
   RxInt Anno;
 
-  Mes(this.NMes, this.Anno) {}
+  Mes(this.NMes, this.Anno);
   Mes.complete(
       {required this.Gastos,
       required this.Extras,

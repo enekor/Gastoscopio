@@ -13,7 +13,7 @@ class AppColorsD implements ITheme {
   @override
   Color textColor = Colors.white;
   @override
-  Color errorButtonColor = Color.fromARGB(255, 255, 128, 128);
+  Color errorButtonColor = const Color.fromARGB(255, 255, 128, 128);
   @override
   Color tertiary = HSVColor.fromColor(HexColor('#ceeca8'))
       .withSaturation(0.1)
@@ -22,15 +22,14 @@ class AppColorsD implements ITheme {
 }
 
 ThemeData MyDarkTheme = ThemeData(
-  primaryColor: const Color.fromARGB(255, 137, 201, 184),
-  useMaterial3: true,
-  brightness: Brightness.dark,
-  textTheme:  TextTheme(
-    bodyMedium: GoogleFonts.mukta(fontSize: 15, color: Colors.white),
-    bodyLarge: GoogleFonts.mukta(fontSize: 20, color: Colors.white),
-    bodySmall: GoogleFonts.mukta(fontSize: 12, color: Colors.white),
-    displayMedium: GoogleFonts.mukta(fontSize: 15, color: Colors.black),
-    displayLarge: GoogleFonts.mukta(fontSize: 20, color: Colors.black),
-    displaySmall: GoogleFonts.mukta(fontSize: 12, color: Colors.black),
-  ),
-);
+    primaryColor: const Color.fromARGB(255, 137, 201, 184),
+    useMaterial3: true,
+    brightness: Brightness.dark,
+    textTheme: TextTheme(
+      bodyMedium: GoogleFonts.mukta(fontSize: 15, color: Colors.white),
+      bodyLarge: GoogleFonts.mukta(fontSize: 20, color: Colors.white),
+      bodySmall: GoogleFonts.mukta(fontSize: 12, color: Colors.white),
+      displayMedium: GoogleFonts.mukta(fontSize: 15, color: Colors.black),
+      displayLarge: GoogleFonts.mukta(fontSize: 20, color: Colors.black),
+      displaySmall: GoogleFonts.mukta(fontSize: 12, color: Colors.black),
+    ));

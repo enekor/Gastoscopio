@@ -1,5 +1,5 @@
 import 'package:cuentas_android/themes/hexColor.dart';
-import 'package:cuentas_android/utils.dart';
+import 'package:cuentas_android/utils/utils.dart';
 import 'package:cuentas_android/values.dart';
 import 'package:cuentas_android/widgets/ItemView.dart';
 import 'package:cuentas_android/widgets/views/info/IngresosGastosWidgets.dart';
@@ -35,7 +35,7 @@ Widget InfoHasDataLand(
     required Function(int) onChartTouched,
     required BuildContext context}) {
   return Padding(
-    padding: EdgeInsets.only(top: 25),
+    padding: const EdgeInsets.only(top: 25),
     child: SingleChildScrollView(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.center,
@@ -64,30 +64,33 @@ Widget InfoHasDataLand(
 }
 
 Widget GreetingsPart() {
-  return Row(
-    children: [
-      Expanded(
-          flex: 4,
-          child: SvgPicture.asset(
-            height: 200,
-            getImageUri(ImageUris.logosvg),
-            color: HexColor(Values().cuentaRet.value!.color.value),
-          )),
-      Expanded(
-        flex: 6,
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Text(
-              GetGreeting(),
-              style: TextStyle(fontSize: 25),
-            ),
-            Text('${Values().cuentaRet.value!.Nombre}!',
-                style: TextStyle(fontSize: 25))
-          ],
-        ),
-      )
-    ],
+  return Padding(
+    padding: const EdgeInsets.only(top: 30.0),
+    child: Row(
+      children: [
+        Expanded(
+            flex: 4,
+            child: SvgPicture.asset(
+              height: 200,
+              getImageUri(ImageUris.logosvg),
+              color: HexColor(Values().cuentaRet.value!.color.value),
+            )),
+        Expanded(
+          flex: 6,
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Text(
+                GetGreeting(),
+                style: const TextStyle(fontSize: 25),
+              ),
+              Text('${Values().cuentaRet.value!.Nombre}!',
+                  style: const TextStyle(fontSize: 25))
+            ],
+          ),
+        )
+      ],
+    ),
   );
 }
 
@@ -100,7 +103,7 @@ Widget DatePart(
 
   return Card(
     color: GetColor(ColorTypes.secondary, context),
-    margin: EdgeInsets.all(15),
+    margin: const EdgeInsets.only(left: 15, right: 15, bottom: 15),
     child: Padding(
       padding: const EdgeInsets.all(25.0),
       child: Column(
@@ -125,7 +128,7 @@ Widget DatePart(
           ),
           Row(
             children: [
-              Expanded(
+              const Expanded(
                 flex: 3,
                 child: Text("Mes"),
               ),
@@ -209,7 +212,7 @@ List<PieChartSectionData> showingSections(BuildContext context) {
       value: ingresos,
       title: '${ingresos.toStringAsFixed(2)}${Values().moneda.value}',
       titlePositionPercentageOffset: 1.5,
-      badgeWidget: Text("Ingresos"),
+      badgeWidget: const Text("Ingresos"),
       radius: 60,
       titleStyle: const TextStyle(
         fontWeight: FontWeight.bold,
@@ -221,7 +224,7 @@ List<PieChartSectionData> showingSections(BuildContext context) {
       title: '${gastos.toStringAsFixed(2)}${Values().moneda.value}',
       titlePositionPercentageOffset: 1.5,
       radius: 60,
-      badgeWidget: Text("Gastos"),
+      badgeWidget: const Text("Gastos"),
       titleStyle: const TextStyle(
         fontWeight: FontWeight.bold,
       ),
@@ -232,6 +235,7 @@ List<PieChartSectionData> showingSections(BuildContext context) {
 AppBar InfoAppBar(
     {required void Function() onSettings,
     required void Function() onBack,
+    required void Function() onComparar,
     required BuildContext context}) {
   return AppBar(
     backgroundColor: Colors.transparent,
@@ -243,7 +247,9 @@ AppBar InfoAppBar(
     ),
     title: Text(style: GoogleFonts.pacifico(), 'Gastoscopio'),
     actions: [
-      IconButton(onPressed: onSettings, icon: const Icon(Icons.settings))
+      IconButton(onPressed: onSettings, icon: const Icon(Icons.settings)),
+      IconButton(
+          onPressed: onComparar, icon: const Icon(Icons.shopping_bag_rounded))
     ],
   );
 }
@@ -274,7 +280,7 @@ Widget InfoBottomNavigationBar(
         icon: FloatingActionButton(
           backgroundColor: GetColor(ColorTypes.secondary, context),
           onPressed: () => onNew(),
-          child: Icon(Icons.add),
+          child: const Icon(Icons.add),
         ),
       ),
       const NavigationDestination(

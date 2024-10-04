@@ -1,17 +1,19 @@
 import 'package:cuentas_android/dao/cuentaDao.dart';
-import 'package:cuentas_android/utils.dart';
+import 'package:cuentas_android/utils/scrapper.dart';
+import 'package:cuentas_android/utils/utils.dart';
 import 'package:cuentas_android/values.dart';
 import 'package:cuentas_android/widgets/ItemView.dart';
 import 'package:cuentas_android/widgets/dialog.dart';
 import 'package:cuentas_android/widgets/toast.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:cuentas_android/dao/userDao.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:get/get.dart';
 
 class LoginPage extends StatefulWidget {
-  LoginPage({Key? key}) : super(key: key);
+  const LoginPage({Key? key}) : super(key: key);
 
   @override
   _LoginPageState createState() => _LoginPageState();
@@ -38,7 +40,9 @@ class _LoginPageState extends State<LoginPage> {
       });
     }
 
-    cuentaDao().getDatos().then((value) => Values().cuentas.value = value);
+    cuentaDao()
+        .getDatos(kIsWeb)
+        .then((value) => Values().cuentas.value = value);
   }
 
   Future rememberPassword(String email) async {
@@ -91,14 +95,14 @@ class _LoginPageState extends State<LoginPage> {
   }
 
   void showEmailResetDialog() {
-    TextEditingController _email = TextEditingController();
+    TextEditingController email = TextEditingController();
     showDialog(
         context: context,
         builder: (context) => AlertDialog(
               title: const Text("He olvidado mi contraseña"),
               content: Expanded(
                 child: TextField(
-                  controller: _email,
+                  controller: email,
                   autofocus: true,
                   decoration:
                       const InputDecoration(labelText: "Email del usuario"),
@@ -109,7 +113,7 @@ class _LoginPageState extends State<LoginPage> {
                     onPressed: () => Navigator.pop(context),
                     child: const Text("Cancelar")),
                 TextButton(
-                    onPressed: () => rememberPassword(_email.text),
+                    onPressed: () => rememberPassword(email.text),
                     child: const Text("Enviar"))
               ],
             ));
@@ -265,7 +269,7 @@ class _LoginPageState extends State<LoginPage> {
   @override
   Widget build(BuildContext context) {
     // Auth().signInEmailPassword(
-    //     email: "fotosenekokarolanne@gmail.com", password: "240422");
+    //     email: "eneko12rebollo@gmail.com", password: "test12345");
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       home: Scaffold(

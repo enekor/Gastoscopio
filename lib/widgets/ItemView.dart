@@ -1,27 +1,33 @@
 import 'package:cuentas_android/models/Gasto.dart';
-import 'package:cuentas_android/utils.dart';
+import 'package:cuentas_android/utils/utils.dart';
 import 'package:cuentas_android/values.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_colorpicker/flutter_colorpicker.dart';
 import 'package:get/get.dart';
 
 Widget CardButton(
-        {required Function onPressed,
-        void Function(dynamic)? onHold,
-        dynamic? item,
-        required Widget child,
-        double? topRight,
-        double? topLeft,
-        double? bottomRight,
-        double? bottomLeft,
-        double padding = 20,
-        double margin = 10,
-        Color? color,
-        required BuildContext context}) =>
-    GestureDetector(
-      onTap: () => onPressed(),
-      onLongPress: onHold != null ? () => onHold(item) : () {},
-      child: Card(
+    {required Function onPressed,
+    void Function(dynamic)? onHold,
+    dynamic item,
+    required Widget child,
+    double? topRight,
+    double? topLeft,
+    double? bottomRight,
+    double? bottomLeft,
+    double padding = 20,
+    double margin = 10,
+    Color? color,
+    required BuildContext context,
+    Widget? childHold,
+    Function()? onPressOnHold}) {
+  RxBool longPress = false.obs;
+
+  return GestureDetector(
+    onTap: () => onPressed(),
+    onLongPressUp: onPressOnHold,
+    onLongPress: onHold != null ? () => onHold(item) : () {},
+    child: Obx(
+      () => Card(
         margin: EdgeInsets.all(margin),
         color: color ?? GetColor(ColorTypes.secondary, context),
         shape: RoundedRectangleBorder(
@@ -35,24 +41,36 @@ Widget CardButton(
         child: Padding(
           padding: EdgeInsets.all(padding),
           child: Center(
-            child: child,
-          ),
+              child: longPress.value
+                  ? childHold != null
+                      ? Column(
+                          children: [
+                            childHold,
+                            ElevatedButton(
+                                onPressed: () => longPress.value = false,
+                                child: const Text("Cancelar"))
+                          ],
+                        )
+                      : child
+                  : child),
         ),
       ),
-    );
+    ),
+  );
+}
 
 Widget ActionChipButton(
     {required Widget text,
     Function? onPressed,
     required Color color,
-    Icon? icon}) {
+    Widget? icon}) {
   return Padding(
     padding: const EdgeInsets.only(right: 2.0, left: 2),
     child: ActionChip(
         label: text,
         onPressed: onPressed != null ? () => onPressed() : () {},
         backgroundColor: color,
-        padding: EdgeInsets.all(5),
+        padding: const EdgeInsets.all(5),
         avatar: icon),
   );
 }
@@ -74,11 +92,11 @@ Widget selectableSettingView<T>(
             ),
             items: values
                 .map((value) => DropdownMenuItem(
-                      child: Text(value.toString()),
                       value: value,
+                      child: Text(value.toString()),
                     ))
                 .toList(),
-            onChanged: (value) => onSelected(value!),
+            onChanged: (value) => onSelected(value as T),
             value: values.first,
           ))
     ],
@@ -112,7 +130,8 @@ Widget redirectSettingView(
     onPressed: () => onTap(),
     child: Text(
       text,
-      style: textColor != null ? TextStyle(color: textColor) : TextStyle(),
+      style:
+          textColor != null ? TextStyle(color: textColor) : const TextStyle(),
     ),
   );
 }
@@ -162,7 +181,7 @@ Widget colorPickerView(
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          title: Text('Seleccionar nuevo color'),
+          title: const Text('Seleccionar nuevo color'),
           content: ColorPicker(
               pickerColor: initialColor,
               onColorChanged: (color) => nuevo.value = color),
@@ -171,14 +190,14 @@ Widget colorPickerView(
               onPressed: () {
                 Navigator.of(context).pop();
               },
-              child: Text('Cancelar'),
+              child: const Text('Cancelar'),
             ),
             TextButton(
               onPressed: () {
                 onColorChanged();
                 Navigator.of(context).pop();
               },
-              child: Text('Aceptar'),
+              child: const Text('Aceptar'),
             ),
           ],
         );
@@ -223,11 +242,11 @@ Widget gastoView(
     {required Gasto gasto,
     required void Function(Gasto) onTapEdit,
     required BuildContext context}) {
-  RxBool _tapped = false.obs;
+  RxBool tapped = false.obs;
 
   return Obx(
     () => Padding(
-      padding: EdgeInsets.only(right: 15, left: 15, bottom: 5),
+      padding: const EdgeInsets.only(right: 15, left: 15, bottom: 5),
       child: Column(
         children: [
           Row(
@@ -246,8 +265,8 @@ Widget gastoView(
               Expanded(
                 flex: 1,
                 child: IconButton(
-                  icon: AnimatedArrow(_tapped.value),
-                  onPressed: () => _tapped.value = !_tapped.value,
+                  icon: AnimatedArrow(tapped.value),
+                  onPressed: () => tapped.value = !tapped.value,
                 ),
               )
             ],
@@ -255,8 +274,8 @@ Widget gastoView(
           AnimatedContainer(
               duration: const Duration(milliseconds: 150),
               curve: Curves.easeInOut,
-              height: _tapped.value ? 60 : 0,
-              width: _tapped.value ? MediaQuery.of(context).size.width : 0,
+              height: tapped.value ? 60 : 0,
+              width: tapped.value ? MediaQuery.of(context).size.width : 0,
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
@@ -289,7 +308,7 @@ Widget gastoView(
                       icon: const Icon(Icons.edit_rounded))
                 ],
               )),
-          Divider()
+          const Divider()
         ],
       ),
     ),

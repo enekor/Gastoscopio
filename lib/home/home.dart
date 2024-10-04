@@ -2,9 +2,10 @@ import 'dart:collection';
 import 'package:cuentas_android/dao/cuentaDao.dart';
 import 'package:cuentas_android/dao/userDao.dart';
 import 'package:cuentas_android/models/Cuenta.dart';
-import 'package:cuentas_android/utils.dart';
+import 'package:cuentas_android/utils/utils.dart';
 import 'package:cuentas_android/values.dart';
 import 'package:cuentas_android/widgets/views/homeWidgets.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:cuentas_android/widgets/views/homeWidgets.dart' as hw;
 import 'package:get/get.dart';
@@ -12,9 +13,8 @@ import '../pantallas/settings.dart';
 
 class Home extends StatelessWidget {
   Home({Key? key}) : super(key: key);
-  RxInt _insertar = 2.obs;
-  Rx<Cuenta> _cuenta = Cuenta.empty().obs;
 
+  final Rx<Cuenta?> _insertarC = Cuenta.empty().obs;
   Future _logout() async {
     await Auth().signOut();
   }
@@ -32,14 +32,47 @@ class Home extends StatelessWidget {
         .push(MaterialPageRoute(builder: (context) => Settings()))
         .then((value) {
       if (value != null) {
-        _insertar.value = value["insertar"];
-        _cuenta.value = value["obj"];
+        int insertar = value["insertar"];
+        Cuenta cuenta = value["obj"];
+        _insertarC.value = cuenta;
+
+        if (insertar == 1) {
+          cuentaDao().almacenarDatos(cuenta, kIsWeb);
+        }
       }
     });
   }
 
-  void _deleteCuenta(Cuenta cuenta) async {
-    await cuentaDao().deleteCuenta(cuenta);
+  void onDelete(Cuenta cuenta, BuildContext context) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Row(
+          children: [
+            Text('Desea borrar el perfil ${cuenta.Nombre.value}'),
+            IconButton(
+                onPressed: () {
+                  Values().cuentaRet.value = null;
+                  Values().cuentas.value.remove(cuenta);
+
+                  cuentaDao().deleteCuenta(cuenta, kIsWeb);
+                  ScaffoldMessenger.of(context).hideCurrentSnackBar();
+                },
+                icon: Icon(
+                  Icons.delete_forever,
+                  color: GetColor(ColorTypes.text, context),
+                )),
+            IconButton(
+                onPressed: () {
+                  ScaffoldMessenger.of(context).hideCurrentSnackBar();
+                },
+                icon: Icon(
+                  Icons.cancel_rounded,
+                  color: GetColor(ColorTypes.errorButton, context),
+                ))
+          ],
+        ),
+      ),
+    );
   }
 
   List<int> GetAnnosDisponibles() {
@@ -62,34 +95,43 @@ class Home extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     if (Values().cuentas.value.isEmpty) {
-      cuentaDao().getDatos().then((value) => Values().cuentas.value = value);
+      if (kIsWeb) {
+        cuentaDao().getDatosJson().then((v) => Values().cuentas.value = v);
+      } else {
+        cuentaDao()
+            .getDatos(kIsWeb)
+            .then((value) => Values().cuentas.value = value);
+      }
     }
     return OrientationBuilder(
-        builder: (context, orientation) => Obx(() => Scaffold(
-              resizeToAvoidBottomInset: true,
-              extendBodyBehindAppBar: true,
-              extendBody: orientation == Orientation.landscape,
-              appBar: orientation == Orientation.portrait
-                  ? appBar(
-                      context: context,
-                      onSettings: () => _navigateSettings(context))
-                  : null,
-              body: Container(
-                decoration: BoxDecoration(
-                    image: DecorationImage(
-                        image: AssetImage(Values().fondo.value),
-                        fit: BoxFit.cover)),
-                child: Padding(
-                  padding: const EdgeInsets.only(top: 25.0),
-                  child: hw.hasData(
-                    orientation:orientation,
-                          context: context,
-                          height: MediaQuery.of(context).size.height,
-                          width: MediaQuery.of(context).size.width,
-                          navigateInfo: (cuenta) =>
-                              _navigateInfo(context, cuenta),
-                          insertar: _insertar.value,
-                          obj: _cuenta.value)),
+        builder: (context, orientation) => Obx(
+              () => Scaffold(
+                resizeToAvoidBottomInset: true,
+                extendBodyBehindAppBar: true,
+                extendBody: orientation == Orientation.landscape,
+                appBar: orientation == Orientation.portrait
+                    ? appBar(
+                        context: context,
+                        onSettings: () => _navigateSettings(context))
+                    : null,
+                body: Container(
+                  decoration: BoxDecoration(
+                      image: DecorationImage(
+                          image: AssetImage(Values().fondo.value),
+                          fit: BoxFit.cover)),
+                  child: Obx(
+                    () => Padding(
+                        padding: const EdgeInsets.only(top: 25.0),
+                        child: hw.hasData(
+                            orientation: orientation,
+                            context: context,
+                            height: MediaQuery.of(context).size.height,
+                            width: MediaQuery.of(context).size.width,
+                            navigateInfo: (cuenta) =>
+                                _navigateInfo(context, cuenta),
+                            onDelete: (c) => onDelete(c, context),
+                            cuentas: Values().cuentas.value)),
+                  ),
                 ),
               ),
             ));

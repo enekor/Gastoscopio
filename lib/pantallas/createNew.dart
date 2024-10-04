@@ -1,16 +1,18 @@
+import 'package:cuentas_android/dao/cuentaDao.dart';
 import 'package:cuentas_android/models/Gasto.dart';
 import 'package:cuentas_android/values.dart';
 import 'package:cuentas_android/widgets/dialog.dart';
 import 'package:cuentas_android/widgets/views/createNewWidgets.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get_rx/src/rx_types/rx_types.dart';
 import 'package:get/get_state_manager/src/rx_flutter/rx_obx_widget.dart';
 
 class createNew extends StatelessWidget {
-  Rx<Gasto> _editingGasto = Gasto.empty().obs;
-  TextEditingController _nombre = TextEditingController();
-  TextEditingController _valor = TextEditingController();
-  Rx<DateTime> _fecha = DateTime.now().obs;
+  final Rx<Gasto> _editingGasto = Gasto.empty().obs;
+  final TextEditingController _nombre = TextEditingController();
+  final TextEditingController _valor = TextEditingController();
+  final Rx<DateTime> _fecha = DateTime.now().obs;
   createNew({super.key, Gasto? gasto}) {
     if (gasto != null) {
       _editingGasto.value = gasto;
@@ -23,8 +25,8 @@ class createNew extends StatelessWidget {
       Values().editing.value = true;
     } else {
       _editingGasto.value = Gasto.empty();
-      _nombre.value = TextEditingValue();
-      _valor.value = TextEditingValue();
+      _nombre.value = const TextEditingValue();
+      _valor.value = const TextEditingValue();
       _fecha.value = DateTime.now();
       tag.value = "";
       Values().editing.value = false;
@@ -35,7 +37,7 @@ class createNew extends StatelessWidget {
   Widget build(BuildContext context) {
     RxList<String> tags = Values().cuentaRet.value!.tags;
 
-    void _onSave(
+    void onSave(
         String nombre, double valor, String tag, DateTime fecha, bool editing) {
       Gasto g =
           Gasto(nombre: nombre.obs, valor: valor.obs, fecha: fecha, tag: tag);
@@ -46,10 +48,11 @@ class createNew extends StatelessWidget {
 
       Values().cuentaRet.value!.addUpdateValues(Values().showing.value, g,
           editing, Values().anno.value, Values().mes.value);
+      cuentaDao().almacenarDatos(Values().cuentaRet.value!, kIsWeb);
       Navigator.of(context).pop();
     }
 
-    void _onNewTag() {
+    void onNewTag() {
       TextEditingController controller = TextEditingController();
       showYesNoDialog(
           title: 'Nuevo tag',
@@ -65,7 +68,7 @@ class createNew extends StatelessWidget {
             child: TextField(
               autofocus: true,
               controller: controller,
-              decoration: InputDecoration(label: Text("Nuevo tag")),
+              decoration: const InputDecoration(label: Text("Nuevo tag")),
             ),
           ));
     }
@@ -82,11 +85,11 @@ class createNew extends StatelessWidget {
                     fit: BoxFit.cover)),
             child: OrientationBuilder(
               builder: (context, orientation) => createNewHasData(
-                  onSave: _onSave,
+                  onSave: onSave,
                   onCancel: () => Navigator.pop(context),
                   context: context,
                   tags: tags.value,
-                  onNewTag: () => _onNewTag(),
+                  onNewTag: () => onNewTag(),
                   nombre: _nombre,
                   valor: _valor,
                   fecha: _fecha.value,

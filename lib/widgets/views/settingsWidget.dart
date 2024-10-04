@@ -1,6 +1,6 @@
 import 'package:cuentas_android/models/Cuenta.dart';
 import 'package:cuentas_android/themes/hexColor.dart';
-import 'package:cuentas_android/utils.dart';
+import 'package:cuentas_android/utils/utils.dart';
 import 'package:cuentas_android/values.dart';
 import 'package:cuentas_android/widgets/ItemView.dart';
 import 'package:flutter/foundation.dart';
@@ -17,7 +17,6 @@ Widget settingsBody(
     required Function(String) onChangeCurrency,
     required Function(String) onProfileColorChange,
     required Function() onNuevoPerfil,
-    required Function() onDeleteProfile,
     required Function() onLogOut,
     required bool isLandscape}) {
   return Obx(
@@ -71,11 +70,6 @@ Widget settingsBody(
                               initialColor: HexColor(
                                   Values().cuentaRet.value!.color.value),
                               context: context),
-                          const Divider(),
-                          buttonSettingView(
-                              icono: Icons.person_remove_rounded,
-                              text: "Borrar perfil",
-                              onTap: onDeleteProfile)
                         ],
                       )
                     : Container(),
