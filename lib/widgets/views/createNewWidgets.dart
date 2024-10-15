@@ -7,11 +7,12 @@ import 'package:get/get.dart';
 RxString tag = "".obs;
 Rx<DateTime?> _fechaNueva = DateTime.now().obs;
 
-AppBar CreateNewAppBar() => AppBar(
+AppBar CreateNewAppBar({required Function() onCamera}) => AppBar(
       backgroundColor: Colors.transparent,
-      title: const Center(
-        child: Text("Nuevo gasto"),
-      ),
+      title: const Text(''),
+      actions: [
+        IconButton(onPressed: onCamera, icon: Icon(Icons.camera_rounded))
+      ],
     );
 
 Widget TopPart() => Obx(() => Padding(

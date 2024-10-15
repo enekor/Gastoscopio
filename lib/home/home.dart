@@ -98,42 +98,33 @@ class Home extends StatelessWidget {
       if (kIsWeb) {
         cuentaDao().getDatosJson().then((v) => Values().cuentas.value = v);
       } else {
-        cuentaDao()
-            .getDatos(kIsWeb)
-            .then((value) => Values().cuentas.value = value);
+        cuentaDao().getDatos(kIsWeb);
       }
     }
     return OrientationBuilder(
-        builder: (context, orientation) => Obx(
-              () => Scaffold(
-                resizeToAvoidBottomInset: true,
-                extendBodyBehindAppBar: true,
-                extendBody: orientation == Orientation.landscape,
-                appBar: orientation == Orientation.portrait
-                    ? appBar(
-                        context: context,
-                        onSettings: () => _navigateSettings(context))
-                    : null,
-                body: Container(
-                  decoration: BoxDecoration(
-                      image: DecorationImage(
-                          image: AssetImage(Values().fondo.value),
-                          fit: BoxFit.cover)),
-                  child: Obx(
-                    () => Padding(
-                        padding: const EdgeInsets.only(top: 25.0),
-                        child: hw.hasData(
-                            orientation: orientation,
-                            context: context,
-                            height: MediaQuery.of(context).size.height,
-                            width: MediaQuery.of(context).size.width,
-                            navigateInfo: (cuenta) =>
-                                _navigateInfo(context, cuenta),
-                            onDelete: (c) => onDelete(c, context),
-                            cuentas: Values().cuentas.value)),
-                  ),
-                ),
-              ),
-            ));
+      builder: (context, orientation) => Scaffold(
+        resizeToAvoidBottomInset: true,
+        extendBodyBehindAppBar: true,
+        extendBody: orientation == Orientation.landscape,
+        appBar: orientation == Orientation.portrait
+            ? appBar(
+                context: context, onSettings: () => _navigateSettings(context))
+            : null,
+        body: Container(
+          decoration: BoxDecoration(
+              image: DecorationImage(
+                  image: AssetImage(Values().fondo.value), fit: BoxFit.cover)),
+          child: Padding(
+              padding: const EdgeInsets.only(top: 25.0),
+              child: hw.hasData(
+                  orientation: orientation,
+                  context: context,
+                  height: MediaQuery.of(context).size.height,
+                  width: MediaQuery.of(context).size.width,
+                  navigateInfo: (cuenta) => _navigateInfo(context, cuenta),
+                  onDelete: (c) => onDelete(c, context))),
+        ),
+      ),
+    );
   }
 }

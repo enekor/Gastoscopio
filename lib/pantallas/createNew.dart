@@ -1,3 +1,7 @@
+import 'dart:io';
+
+import 'package:cuentas_android/pantallas/gastosFromImage.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:cuentas_android/dao/cuentaDao.dart';
 import 'package:cuentas_android/models/Gasto.dart';
 import 'package:cuentas_android/values.dart';
@@ -33,9 +37,76 @@ class createNew extends StatelessWidget {
     }
   }
 
+  Rx<File?> _imagen = Rx<File?>(null);
   @override
   Widget build(BuildContext context) {
     RxList<String> tags = Values().cuentaRet.value!.tags;
+
+    void sacarFoto() async {
+      final ImagePicker _picker = ImagePicker();
+      final XFile? image = await _picker.pickImage(source: ImageSource.gallery);
+
+      if (image != null) {
+        _imagen.value = File(image.path);
+      }
+    }
+
+    void procesarFoto() {
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+            builder: (context) => GastosfromImage(image: _imagen.value!)),
+      ).then((value) {
+        (value as List<Gasto>).forEach((gasto) {
+          gasto.nombre.value = gasto.nombre.value.endsWith(" ")
+              ? gasto.nombre.value.substring(0, gasto.nombre.value.length - 1)
+              : gasto.nombre.value;
+
+          Values().cuentaRet.value!.addUpdateValues(Values().showing.value,
+              gasto, false, Values().anno.value, Values().mes.value);
+          cuentaDao().almacenarDatos(Values().cuentaRet.value!, kIsWeb);
+        });
+      });
+    }
+
+    void onCamera() {
+      showModalBottomSheet(
+          context: context,
+          builder: (context) => Obx(
+                () => Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    const Text('Seleccionar una foto'),
+                    const SizedBox(
+                      height: 10,
+                    ),
+                    _imagen.value != null
+                        ? kIsWeb
+                            ? Text('Imagen seleccionada')
+                            : AspectRatio(
+                                aspectRatio: 1.5,
+                                child: Image.file(_imagen.value!),
+                              )
+                        : Container(),
+                    const SizedBox(
+                      height: 10,
+                    ),
+                    Wrap(
+                      alignment: WrapAlignment.center,
+                      children: [
+                        ElevatedButton(
+                            onPressed: sacarFoto, child: Text('seleccionar')),
+                        _imagen.value != null
+                            ? ElevatedButton(
+                                onPressed: procesarFoto,
+                                child: Text('Procesar'))
+                            : Container()
+                      ],
+                    )
+                  ],
+                ),
+              ));
+    }
 
     void onSave(
         String nombre, double valor, String tag, DateTime fecha, bool editing) {
@@ -75,29 +146,34 @@ class createNew extends StatelessWidget {
 
     return PopScope(
       child: Scaffold(
+          extendBodyBehindAppBar: true,
+          appBar: CreateNewAppBar(onCamera: onCamera),
           body: Obx(
-        () => SizedBox(
-          height: double.infinity,
-          child: Container(
-            decoration: BoxDecoration(
-                image: DecorationImage(
-                    image: AssetImage(Values().fondo.value),
-                    fit: BoxFit.cover)),
-            child: OrientationBuilder(
-              builder: (context, orientation) => createNewHasData(
-                  onSave: onSave,
-                  onCancel: () => Navigator.pop(context),
-                  context: context,
-                  tags: tags.value,
-                  onNewTag: () => onNewTag(),
-                  nombre: _nombre,
-                  valor: _valor,
-                  fecha: _fecha.value,
-                  isLandscape: orientation == Orientation.landscape),
+            () => SizedBox(
+              height: double.infinity,
+              child: Container(
+                decoration: BoxDecoration(
+                    image: DecorationImage(
+                        image: AssetImage(Values().fondo.value),
+                        fit: BoxFit.cover)),
+                child: Padding(
+                  padding: const EdgeInsets.only(top: 8.0),
+                  child: OrientationBuilder(
+                    builder: (context, orientation) => createNewHasData(
+                        onSave: onSave,
+                        onCancel: () => Navigator.pop(context),
+                        context: context,
+                        tags: tags.value,
+                        onNewTag: () => onNewTag(),
+                        nombre: _nombre,
+                        valor: _valor,
+                        fecha: _fecha.value,
+                        isLandscape: orientation == Orientation.landscape),
+                  ),
+                ),
+              ),
             ),
-          ),
-        ),
-      )),
+          )),
     );
   }
 }

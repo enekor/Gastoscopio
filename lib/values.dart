@@ -56,7 +56,7 @@ class Values {
     mes.value = kIsWeb ? nombresMes[8] : nombresMes[DateTime.now().month - 1];
     int cuenta = await readSharedPreferences(SharedPreferencesKeys.cuenta);
     if (cuenta != -1) {
-      cuentas.value = await cuentaDao().getDatos(isWeb);
+      await cuentaDao().getDatos(isWeb);
 
       if (cuentas.value.isNotEmpty) {
         cuentaRet.value = cuentas.value[cuenta];

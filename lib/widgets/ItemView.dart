@@ -315,6 +315,131 @@ Widget gastoView(
   );
 }
 
+Widget MiniGastoView(
+    {required double valor,
+    required List<String> nombres,
+    required Function(Gasto) onSave,
+    required Function(Gasto) onDelete}) {
+  RxBool _editing = false.obs;
+  TextEditingController nombre = TextEditingController();
+  RxBool _seleccionado = false.obs;
+  RxBool _customName = true.obs;
+  String _ddValue = nombres[0];
+
+  Gasto createGasto() {
+    _seleccionado.value = !_seleccionado.value;
+    return Gasto(nombre: nombre.text.obs, valor: valor.obs);
+  }
+
+  return Obx(() => Card(
+        color: _seleccionado.value ? Colors.green.shade500 : Colors.grey,
+        child: Padding(
+          padding: const EdgeInsets.all(15.0),
+          child: Column(
+            children: [
+              Row(
+                children: _editing.value
+                    ? [
+                        Expanded(
+                            flex: 3,
+                            child: _customName.value
+                                ? TextField(
+                                    controller: nombre,
+                                    decoration: const InputDecoration(
+                                        label: Text('Nombre')),
+                                    onChanged: (value) {
+                                      nombre.text = value;
+                                    },
+                                    textAlign: TextAlign.center)
+                                : DropdownButtonFormField<String>(
+                                    decoration: const InputDecoration(
+                                      border: InputBorder.none,
+                                    ),
+                                    items: nombres.toSet().map((String value) {
+                                      return DropdownMenuItem<String>(
+                                        value: value.replaceAll('\n', ''),
+                                        alignment: Alignment.center,
+                                        child: Text(
+                                          value.replaceAll('\n', ''),
+                                          textAlign: TextAlign.center,
+                                        ),
+                                      );
+                                    }).toList(),
+                                    onChanged: (value) {
+                                      nombre.text =
+                                          value?.replaceAll('\n', '') ?? "";
+                                      _ddValue = value!;
+                                    },
+                                    value: _ddValue,
+                                  )),
+                        Expanded(
+                          flex: 3,
+                          child: TextFormField(
+                            decoration:
+                                const InputDecoration(label: Text('Valor')),
+                            textAlign: TextAlign.center,
+                            initialValue: valor.toString(),
+                            keyboardType: TextInputType.number,
+                            onChanged: (value) {
+                              valor = double.parse(value == '' ? '0' : value);
+                            },
+                          ),
+                        ),
+                        IconButton(
+                            onPressed: () => _editing.value = false,
+                            icon: Icon(Icons.save))
+                      ]
+                    : [
+                        Expanded(
+                            flex: 3,
+                            child: Text(
+                              nombre.text,
+                              textAlign: TextAlign.center,
+                            )),
+                        Expanded(
+                          flex: 3,
+                          child: Text(
+                            valor.toStringAsFixed(2),
+                            textAlign: TextAlign.center,
+                          ),
+                        ),
+                        IconButton(
+                            onPressed: () => _editing.value = true,
+                            icon: Icon(Icons.edit)),
+                        _seleccionado.value
+                            ? IconButton(
+                                icon: const Icon(Icons.cancel),
+                                onPressed: () => onDelete(createGasto()),
+                              )
+                            : IconButton(
+                                icon: const Icon(Icons.check),
+                                onPressed: () => onSave(createGasto()),
+                              )
+                      ],
+              ),
+              _editing.value
+                  ? Container()
+                  : Padding(
+                      padding: const EdgeInsets.all(8.0),
+                      child: Row(
+                        children: [
+                          Expanded(flex: 5, child: Text('Texto de la imagen')),
+                          Expanded(
+                            flex: 5,
+                            child: Switch(
+                              value: _customName.value,
+                              onChanged: (value) => _customName.value = value,
+                            ),
+                          ),
+                        ],
+                      ),
+                    )
+            ],
+          ),
+        ),
+      ));
+}
+
 Widget AnimatedArrow(bool abajo) {
   return AnimatedRotation(
     duration: const Duration(milliseconds: 150),

@@ -6,6 +6,7 @@ import 'package:cuentas_android/dao/userDao.dart';
 import 'package:cuentas_android/models/Cuenta.dart';
 import 'package:cuentas_android/models/Gasto.dart';
 import 'package:cuentas_android/models/Mes.dart';
+import 'package:cuentas_android/values.dart';
 import 'package:cuentas_android/widgets/toast.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/services.dart';
@@ -24,9 +25,9 @@ class cuentaDao {
     return [cuentaWeb];
   }
 
-  Future<List<Cuenta>> getDatos(bool isWeb) async {
+  Future getDatos(bool isWeb) async {
     if (isWeb) {
-      return await getDatosJson();
+      Values().cuentas.value = await getDatosJson();
     }
 
     final snapshot = await ref.where('id', isEqualTo: user!.uid).get();
@@ -34,10 +35,11 @@ class cuentaDao {
         .map((doc) => Cuenta.fromJson(doc.data() as Map<String, dynamic>))
         .toList();
     count = ret.length;
-    return ret;
+
+    Values().cuentas.value = ret;
   }
 
-  Future<Cuenta> crearNuevaCuenta(
+  void crearNuevaCuenta(
       String nombre, int posicion, String? color, bool isWeb) async {
     String documento = "${user!.uid}-$posicion";
     Cuenta c = Cuenta(
@@ -50,11 +52,12 @@ class cuentaDao {
         fijos: RxList<Gasto>(),
         tags: RxList<String>());
 
-    if (isWeb) {
+    Values().cuentaRet.value = c;
+    Values().cuentas.add(c);
+
+    if (!isWeb) {
       await ref.doc(documento).set(c.toJson());
     }
-
-    return c;
   }
 
   Future almacenarDatos(Cuenta c, bool isWeb) async {

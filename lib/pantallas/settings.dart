@@ -48,7 +48,8 @@ class Settings extends StatelessWidget {
       File json = File(result.files.single.path!);
       String jsonString = await json.readAsString();
       jsonMap = jsonDecode(jsonString);
-      Cuenta c = await cuentaDao().importFromJson(jsonMap, cuentas.length,kIsWeb);
+      Cuenta c =
+          await cuentaDao().importFromJson(jsonMap, cuentas.length, kIsWeb);
       showToast(text: "Importado correctamente ${c.Nombre}");
     } else {
       // El usuario canceló la selección de archivos.
@@ -85,7 +86,7 @@ class Settings extends StatelessWidget {
 
   void _onProfileColorChange(String newColor) {
     Values().cuentaRet.value!.color.value = newColor;
-    cuentaDao().almacenarDatos(Values().cuentaRet.value!,kIsWeb);
+    cuentaDao().almacenarDatos(Values().cuentaRet.value!, kIsWeb);
   }
 
   void _onNuevoPerfil(BuildContext context) {
@@ -121,11 +122,10 @@ class Settings extends StatelessWidget {
             ),
             TextButton(
               onPressed: () async {
-                Cuenta nuevo = await cuentaDao()
-                    .crearNuevaCuenta(nombre.text, cuentaDao.count + 1, color,kIsWeb);
-                Values().cuentaRet.value = nuevo;
                 Navigator.of(context).pop();
-                Navigator.of(context).pop({"insertar": 1, "obj": nuevo});
+                Navigator.of(context).pop();
+                cuentaDao().crearNuevaCuenta(
+                    nombre.text, cuentaDao.count + 1, color, kIsWeb);
               },
               child: const Text('Aceptar'),
             ),

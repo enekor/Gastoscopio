@@ -40,9 +40,7 @@ class _LoginPageState extends State<LoginPage> {
       });
     }
 
-    cuentaDao()
-        .getDatos(kIsWeb)
-        .then((value) => Values().cuentas.value = value);
+    cuentaDao().getDatos(kIsWeb);
   }
 
   Future rememberPassword(String email) async {
