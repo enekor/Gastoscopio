@@ -122,6 +122,8 @@ class Mes {
       case ShowingGastos.extras:
         ret = Extras;
         break;
+      default:
+        {}
     }
     return ret;
   }

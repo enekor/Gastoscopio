@@ -1,27 +1,23 @@
 import 'package:cuentas_android/utils/utils.dart';
 import 'package:cuentas_android/values.dart';
-import 'package:cuentas_android/widgets/ItemView.dart';
+import 'package:cuentas_android/widgets/widgetsBasicos.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
 RxString tag = "".obs;
 Rx<DateTime?> _fechaNueva = DateTime.now().obs;
 
-AppBar CreateNewAppBar({required Function() onCamera}) => AppBar(
+AppBar CreateNewAppBar() => AppBar(
+      centerTitle: true,
       backgroundColor: Colors.transparent,
-      title: const Text(''),
-      actions: [
-        IconButton(onPressed: onCamera, icon: Icon(Icons.camera_rounded))
-      ],
+      title: TopPart(),
+      toolbarHeight: kToolbarHeight / 1.6,
     );
 
-Widget TopPart() => Obx(() => Padding(
-      padding: const EdgeInsets.only(top: 10.0),
-      child: Text(
-        Values().editing.value ? "Editar existente" : "Crear nuevo",
-        style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 30),
-        textAlign: TextAlign.center,
-      ),
+Widget TopPart() => Obx(() => Text(
+      Values().editing.value ? "Editar existente" : "Crear nuevo",
+      style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 30),
+      textAlign: TextAlign.center,
     ));
 
 Widget typePart(BuildContext context) {
@@ -92,7 +88,7 @@ Widget typePart(BuildContext context) {
 Widget formPart(
     {required List<String> tags,
     required BuildContext context,
-    required void Function() onNewTag,
+    required void Function(Function(String)) onNewTag,
     required void Function() onDate,
     required TextEditingController nombre,
     required TextEditingController valor,
@@ -131,7 +127,11 @@ Widget formPart(
                       )),
                 ),
               ),
-              tagCreator(onCreateTag: () => onNewTag(), tags: tags),
+              tagCreator(
+                  onCreateTag: () => onNewTag((t) {
+                        tag.value = t;
+                      }),
+                  tags: tags),
               Padding(
                 padding: const EdgeInsets.all(8.0),
                 child: CardButton(
@@ -160,28 +160,31 @@ Widget buttonsPart(
     required BuildContext context,
     required TextEditingController nombre,
     required TextEditingController valor}) {
-  return Row(
-    children: [
-      Expanded(
-        flex: 5,
-        child: CardButton(
-            onPressed: onCancel,
-            child: const Text("Cancelar"),
-            context: context,
-            color: GetColor(ColorTypes.errorButton, context),
-            padding: 15),
-      ),
-      Expanded(
-        flex: 5,
-        child: CardButton(
-            onPressed: () => onSave(nombre.text, double.parse(valor.text),
-                tag.value, _fechaNueva.value!, Values().editing.value),
-            child: const Text("Guardar"),
-            context: context,
-            color: GetColor(ColorTypes.primary, context),
-            padding: 15),
-      ),
-    ],
+  return Container(
+    color:Colors.transparent,
+    child: Row(
+      children: [
+        Expanded(
+          flex: 5,
+          child: CardButton(
+              onPressed: onCancel,
+              child: const Text("Cancelar"),
+              context: context,
+              color: GetColor(ColorTypes.errorButton, context),
+              padding: 15),
+        ),
+        Expanded(
+          flex: 5,
+          child: CardButton(
+              onPressed: () => onSave(nombre.text, double.parse(valor.text),
+                  tag.value, _fechaNueva.value!, Values().editing.value),
+              child: const Text("Guardar"),
+              context: context,
+              color: GetColor(ColorTypes.primary, context),
+              padding: 15),
+        ),
+      ],
+    ),
   );
 }
 
@@ -189,7 +192,7 @@ Widget createNewHasData(
     {required Function(String, double, String, DateTime, bool) onSave,
     required Function onCancel,
     required BuildContext context,
-    required void Function() onNewTag,
+    required void Function(Function(String)) onNewTag,
     required List<String> tags,
     required TextEditingController nombre,
     required TextEditingController valor,
@@ -197,8 +200,9 @@ Widget createNewHasData(
     required bool isLandscape}) {
   _fechaNueva.value = fecha;
   return Column(
+    mainAxisAlignment: MainAxisAlignment.center,
     children: [
-      TopPart(),
+      // TopPart(),
       formPart(
           tags: tags,
           context: context,
@@ -207,13 +211,13 @@ Widget createNewHasData(
           nombre: nombre,
           valor: valor,
           isLandscape: isLandscape),
-      const Spacer(),
-      buttonsPart(
-          onSave: onSave,
-          onCancel: onCancel,
-          context: context,
-          nombre: nombre,
-          valor: valor)
+      // const Spacer(),
+      // buttonsPart(
+      //     onSave: onSave,
+      //     onCancel: onCancel,
+      //     context: context,
+      //     nombre: nombre,
+      //     valor: valor)
     ],
   );
 }

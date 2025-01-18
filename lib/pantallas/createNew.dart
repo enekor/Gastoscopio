@@ -1,6 +1,5 @@
 import 'dart:io';
 
-import 'package:cuentas_android/pantallas/gastosFromImage.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:cuentas_android/dao/cuentaDao.dart';
 import 'package:cuentas_android/models/Gasto.dart';
@@ -37,75 +36,18 @@ class createNew extends StatelessWidget {
     }
   }
 
-  Rx<File?> _imagen = Rx<File?>(null);
+  final Rx<File?> _imagen = Rx<File?>(null);
   @override
   Widget build(BuildContext context) {
     RxList<String> tags = Values().cuentaRet.value!.tags;
 
     void sacarFoto() async {
-      final ImagePicker _picker = ImagePicker();
-      final XFile? image = await _picker.pickImage(source: ImageSource.gallery);
+      final ImagePicker picker = ImagePicker();
+      final XFile? image = await picker.pickImage(source: ImageSource.gallery);
 
       if (image != null) {
         _imagen.value = File(image.path);
       }
-    }
-
-    void procesarFoto() {
-      Navigator.push(
-        context,
-        MaterialPageRoute(
-            builder: (context) => GastosfromImage(image: _imagen.value!)),
-      ).then((value) {
-        (value as List<Gasto>).forEach((gasto) {
-          gasto.nombre.value = gasto.nombre.value.endsWith(" ")
-              ? gasto.nombre.value.substring(0, gasto.nombre.value.length - 1)
-              : gasto.nombre.value;
-
-          Values().cuentaRet.value!.addUpdateValues(Values().showing.value,
-              gasto, false, Values().anno.value, Values().mes.value);
-          cuentaDao().almacenarDatos(Values().cuentaRet.value!, kIsWeb);
-        });
-      });
-    }
-
-    void onCamera() {
-      showModalBottomSheet(
-          context: context,
-          builder: (context) => Obx(
-                () => Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    const Text('Seleccionar una foto'),
-                    const SizedBox(
-                      height: 10,
-                    ),
-                    _imagen.value != null
-                        ? kIsWeb
-                            ? Text('Imagen seleccionada')
-                            : AspectRatio(
-                                aspectRatio: 1.5,
-                                child: Image.file(_imagen.value!),
-                              )
-                        : Container(),
-                    const SizedBox(
-                      height: 10,
-                    ),
-                    Wrap(
-                      alignment: WrapAlignment.center,
-                      children: [
-                        ElevatedButton(
-                            onPressed: sacarFoto, child: Text('seleccionar')),
-                        _imagen.value != null
-                            ? ElevatedButton(
-                                onPressed: procesarFoto,
-                                child: Text('Procesar'))
-                            : Container()
-                      ],
-                    )
-                  ],
-                ),
-              ));
     }
 
     void onSave(
@@ -117,13 +59,14 @@ class createNew extends StatelessWidget {
           ? nombre.substring(0, nombre.length - 1)
           : nombre;
 
+      print("guardando");
       Values().cuentaRet.value!.addUpdateValues(Values().showing.value, g,
-          editing, Values().anno.value, Values().mes.value);
+          editing, Values().nombresMes[g.mes.value - 1]);
       cuentaDao().almacenarDatos(Values().cuentaRet.value!, kIsWeb);
       Navigator.of(context).pop();
     }
 
-    void onNewTag() {
+    void onNewTag(Function(String) onAdd) {
       TextEditingController controller = TextEditingController();
       showYesNoDialog(
           title: 'Nuevo tag',
@@ -132,6 +75,8 @@ class createNew extends StatelessWidget {
             if (tags.value.isNotEmpty && !tags.value.contains("")) {
               tags.value.add("");
             }
+
+            onAdd(controller.text);
           },
           context: context,
           body: SizedBox(
@@ -147,29 +92,44 @@ class createNew extends StatelessWidget {
     return PopScope(
       child: Scaffold(
           extendBodyBehindAppBar: true,
-          appBar: CreateNewAppBar(onCamera: onCamera),
+          appBar: CreateNewAppBar(),
+          extendBody: true,
+          bottomNavigationBar: Container(
+            color: Colors.transparent,
+            child: SizedBox(
+              height: 80,
+              child: buttonsPart(
+                  onSave: onSave,
+                  onCancel: () => Navigator.pop(context),
+                  context: context,
+                  nombre: _nombre,
+                  valor: _valor),
+            ),
+          ),
           body: Obx(
             () => SizedBox(
-              height: double.infinity,
+              height: MediaQuery.of(context).size.height,
               child: Container(
-                decoration: BoxDecoration(
-                    image: DecorationImage(
-                        image: AssetImage(Values().fondo.value),
-                        fit: BoxFit.cover)),
-                child: Padding(
-                  padding: const EdgeInsets.only(top: 8.0),
-                  child: OrientationBuilder(
-                    builder: (context, orientation) => createNewHasData(
-                        onSave: onSave,
-                        onCancel: () => Navigator.pop(context),
-                        context: context,
-                        tags: tags.value,
-                        onNewTag: () => onNewTag(),
-                        nombre: _nombre,
-                        valor: _valor,
-                        fecha: _fecha.value,
-                        isLandscape: orientation == Orientation.landscape),
-                  ),
+                decoration: Values().mostrarFondoDinamico.value
+                    ? BoxDecoration(
+                        image: DecorationImage(
+                            colorFilter: ColorFilter.mode(
+                                Colors.black.withOpacity(0.3),
+                                BlendMode.darken),
+                            image: AssetImage(Values().fondo.value),
+                            fit: BoxFit.cover))
+                    : null,
+                child: OrientationBuilder(
+                  builder: (context, orientation) => createNewHasData(
+                      onSave: onSave,
+                      onCancel: () => Navigator.pop(context),
+                      context: context,
+                      tags: tags.value,
+                      onNewTag: (func) => onNewTag(func),
+                      nombre: _nombre,
+                      valor: _valor,
+                      fecha: _fecha.value,
+                      isLandscape: orientation == Orientation.landscape),
                 ),
               ),
             ),

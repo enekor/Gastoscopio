@@ -64,7 +64,7 @@ Widget CompararPreciosHomeHasData(Function(Product) onCart, String orderBy,
                     _buscar(order);
                   });
                 },
-                icon: Icon(Icons.sort)),
+                icon: const Icon(Icons.sort)),
             Expanded(
                 child: TextField(
               controller: controller,
@@ -80,7 +80,7 @@ Widget CompararPreciosHomeHasData(Function(Product) onCart, String orderBy,
         ),
         _busqueda.value != ""
             ? Expanded(child: busquedaHasData(onCart, orderBy, isInCart))
-            : Expanded(
+            : const Expanded(
                 child: SizedBox(
                     child: Center(child: Text("Especifique un producto"))),
               )

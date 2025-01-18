@@ -1,7 +1,7 @@
 import 'package:cuentas_android/dao/cuentaDao.dart';
 import 'package:cuentas_android/dao/userDao.dart';
+import 'package:cuentas_android/pantallas/userSelection.dart';
 import 'package:cuentas_android/home/home.dart';
-import 'package:cuentas_android/pantallas/info.dart';
 import 'package:cuentas_android/pantallas/login/loginPage.dart';
 import 'package:cuentas_android/values.dart';
 import 'package:flutter/foundation.dart';
@@ -9,7 +9,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
 class Tree extends StatefulWidget {
-  const Tree({Key? key}) : super(key: key);
+  const Tree({super.key});
 
   @override
   _TreeState createState() => _TreeState();
@@ -25,9 +25,11 @@ class _TreeState extends State<Tree> {
           if (kIsWeb) {
             cuentaDao().getDatosJson().then((v) => Values().cuentas.value = v);
           }
-          return Obx(() => Values().cuentaRet.value != null ? Info() : Home());
+          return Obx(() => Values().cuentaRet.value != null
+              ? const Home()
+              : UserSelection());
         } else {
-          return LoginPage();
+          return const LoginPage();
         }
       },
     );

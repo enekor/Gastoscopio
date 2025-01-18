@@ -6,7 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
 class ShoppingCart extends StatelessWidget {
-  ShoppingCart(List<Product> cart, {Key? key}) : super(key: key) {
+  ShoppingCart(List<Product> cart, {super.key}) {
     products = cart.obs;
   }
 
@@ -27,10 +27,15 @@ class ShoppingCart extends StatelessWidget {
             return true;
           },
           child: Obx(() => Container(
-                decoration: BoxDecoration(
-                    image: DecorationImage(
-                        image: AssetImage(Values().fondo.value),
-                        fit: BoxFit.cover)),
+                decoration: Values().mostrarFondoDinamico.value
+                    ? BoxDecoration(
+                        image: DecorationImage(
+                            colorFilter: ColorFilter.mode(
+                                Colors.black.withOpacity(0.3),
+                                BlendMode.darken),
+                            image: AssetImage(Values().fondo.value),
+                            fit: BoxFit.cover))
+                    : null,
                 child: SizedBox(
                   height: MediaQuery.of(context).size.height,
                   width: double.infinity,

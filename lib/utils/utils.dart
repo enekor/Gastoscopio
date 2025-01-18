@@ -5,12 +5,11 @@ import 'package:cuentas_android/themes/DarkTheme.dart';
 import 'package:cuentas_android/themes/ITheme.dart';
 import 'package:cuentas_android/themes/LightTheme.dart';
 import 'package:flutter/material.dart';
-import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 Future<bool> writeToDownloadPath(Cuenta cuenta) async {
   const downloadPath = "/storage/emulated/0/Download/gastoscopioBackup";
-  final jsonFile;
+  final File jsonFile;
 
   try {
     jsonFile = File("$downloadPath/${cuenta.Nombre}Data.json");
@@ -63,10 +62,6 @@ Future<T> readSharedPreferences<T>(SharedPreferencesKeys key) async {
       return (prefs.getDouble(
               key.toString().replaceAll("SharedPreferencesKeys.", "")) ??
           double.nan) as T;
-    case List<String>:
-      return (prefs.getStringList(
-              key.toString().replaceAll("SharedPreferencesKeys.", "")) ??
-          []) as T;
     case bool:
       return (prefs.getBool(
               key.toString().replaceAll("SharedPreferencesKeys.", "")) ??
@@ -89,7 +84,7 @@ String getImageUri(ImageUris image) {
   }
 }
 
-enum SharedPreferencesKeys { fondoSimple, moneda, figuraAbajo, cuenta }
+enum SharedPreferencesKeys { fondoSimple, moneda, figuraAbajo, cuenta, minimalista }
 
 enum ImageUris { logo, logosvg, nuevo, loading }
 

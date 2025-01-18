@@ -2,18 +2,17 @@ import 'package:cuentas_android/models/product.dart';
 import 'package:cuentas_android/pantallas/compararPrecios/ShoppingCart.dart';
 import 'package:cuentas_android/utils/utils.dart';
 import 'package:cuentas_android/values.dart';
-import 'package:cuentas_android/widgets/ItemView.dart';
+import 'package:cuentas_android/widgets/widgetsBasicos.dart';
 import 'package:cuentas_android/widgets/views/compararPrecios/compararPreciosHome.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:get/get_rx/src/rx_types/rx_types.dart';
 
 class CompararPrecios extends StatelessWidget {
-  CompararPrecios({Key? key}) : super(key: key);
+  CompararPrecios({super.key});
 
   final List<Product> _cart = [];
   RxString ret = "".obs;
-  RxString _orderBy = "".obs;
+  final RxString _orderBy = "".obs;
 
   bool _isInCart(Product p) {
     return _cart.contains(p);
@@ -47,7 +46,7 @@ class CompararPrecios extends StatelessWidget {
                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                 children: [
                   ActionChipButton(
-                    text: Text('Más barato'),
+                    text: const Text('Más barato'),
                     onPressed: () {
                       _orderBy.value = '&sort=value%3Aasc';
                     },
@@ -56,7 +55,7 @@ class CompararPrecios extends StatelessWidget {
                         : GetColor(ColorTypes.secondary, context),
                   ),
                   ActionChipButton(
-                    text: Text('Más caro'),
+                    text: const Text('Más caro'),
                     onPressed: () {
                       _orderBy.value = '&sort=value%3Adesc';
                     },
@@ -69,7 +68,7 @@ class CompararPrecios extends StatelessWidget {
             ),
             Obx(
               () => ActionChipButton(
-                text: Text('Más populares'),
+                text: const Text('Más populares'),
                 onPressed: () {
                   _orderBy.value = '&sort=popularity%3Adesc';
                 },
@@ -80,7 +79,7 @@ class CompararPrecios extends StatelessWidget {
             ),
             Center(
               child: IconButton(
-                icon: Icon(Icons.search_rounded),
+                icon: const Icon(Icons.search_rounded),
                 onPressed: () {
                   onSelectSort(_orderBy.value);
                   Navigator.pop(context);
@@ -106,10 +105,14 @@ class CompararPrecios extends StatelessWidget {
         width: double.infinity,
         child: Obx(
           () => Container(
-            decoration: BoxDecoration(
-                image: DecorationImage(
-                    image: AssetImage(Values().fondo.value),
-                    fit: BoxFit.cover)),
+            decoration: Values().mostrarFondoDinamico.value
+                ? BoxDecoration(
+                    image: DecorationImage(
+                        colorFilter: ColorFilter.mode(
+                            Colors.black.withOpacity(0.3), BlendMode.darken),
+                        image: AssetImage(Values().fondo.value),
+                        fit: BoxFit.cover))
+                : null,
             child: Padding(
               padding: const EdgeInsets.only(top: 80.0),
               child: CompararPreciosHomeHasData(_onCart, _orderBy.value,

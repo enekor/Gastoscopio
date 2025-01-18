@@ -1,6 +1,8 @@
 import 'package:cuentas_android/models/Gasto.dart';
 import 'package:cuentas_android/models/Mes.dart';
+import 'package:cuentas_android/models/presupuesto.dart';
 import 'package:cuentas_android/utils/utils.dart';
+import 'package:flutter/foundation.dart';
 import 'package:get/get_rx/src/rx_types/rx_types.dart';
 
 class Cuenta {
@@ -12,6 +14,7 @@ class Cuenta {
   RxList<Gasto> deudas = RxList<Gasto>();
   RxString color;
   RxList<String> tags = RxList<String>();
+  RxList<Presupuesto> presupuestos = RxList<Presupuesto>();
 
   Cuenta(
       {required this.id,
@@ -21,7 +24,8 @@ class Cuenta {
       required this.fijos,
       required this.deudas,
       required this.color,
-      required this.tags});
+      required this.tags,
+      required this.presupuestos});
 
   factory Cuenta.empty() => Cuenta(
       id: ''.obs,
@@ -31,7 +35,15 @@ class Cuenta {
       deudas: RxList<Gasto>(),
       fijos: RxList<Gasto>(),
       posicion: RxInt(-1),
-      tags: RxList<String>());
+      tags: RxList<String>(),
+      presupuestos: [
+        Presupuesto(
+            description: 'Ahorro', percentage: 15, amount: null, tags: []),
+        Presupuesto(
+            description: 'Compras', percentage: 20, amount: null, tags: []),
+        Presupuesto(
+            description: 'Salidas', percentage: 15, amount: null, tags: [])
+      ].obs);
 
   factory Cuenta.fromJson(Map<String, dynamic> json) => Cuenta(
       id: json["id"].toString().obs,
@@ -48,7 +60,27 @@ class Cuenta {
           json["color"] != null ? json["color"].toString().obs : "#000000".obs,
       tags: json["tags"] != null
           ? List<String>.from(json["tags"].map((x) => x.toString())).obs
-          : RxList<String>());
+          : RxList<String>(),
+      presupuestos: json["presupuestos"] != null
+          ? List<Presupuesto>.from(
+              json["presupuestos"].map((x) => Presupuesto.fromJson(x))).obs
+          : [
+              Presupuesto(
+                  description: 'Ahorro',
+                  percentage: 15,
+                  amount: null,
+                  tags: []),
+              Presupuesto(
+                  description: 'Compras',
+                  percentage: 20,
+                  amount: null,
+                  tags: []),
+              Presupuesto(
+                  description: 'Salidas',
+                  percentage: 15,
+                  amount: null,
+                  tags: [])
+            ].obs);
 
   Map<String, dynamic> toJson() => {
         "id": id.value,
@@ -59,6 +91,8 @@ class Cuenta {
         "deudas": List<dynamic>.from(deudas.value.map((e) => e.toJson())),
         "color": color.value,
         "tags": tags.value,
+        "presupuestos":
+            List<dynamic>.from(presupuestos.value.map((e) => e.toJson()))
       };
 
 /* Metodos de acceso a datos */
@@ -87,7 +121,7 @@ class Cuenta {
   }
 
   void addUpdateValues(
-      ShowingGastos tipo, Gasto gasto, bool editing, int anno, String mes) {
+      ShowingGastos tipo, Gasto gasto, bool editing, String mes) {
     switch (tipo) {
       case ShowingGastos.deuda:
         if (editing) {
@@ -139,7 +173,7 @@ class Cuenta {
         gasto.valor.value = -1 * gasto.valor.value;
 
         if (editing) {
-          Meses.firstWhere((m) => m.Anno.value == anno && m.NMes.value == mes)
+          Meses.firstWhere((m) => m.Anno.value == gasto.anno.value && m.NMes.value == mes)
               .Gastos
               .value
               .firstWhere((d) =>
@@ -149,7 +183,7 @@ class Cuenta {
                   d.dia.value == gasto.dia.value)
               .tag
               .value = gasto.tag.value;
-          Meses.firstWhere((m) => m.Anno.value == anno && m.NMes.value == mes)
+          Meses.firstWhere((m) => m.Anno.value == gasto.anno.value && m.NMes.value == mes)
               .Gastos
               .value
               .firstWhere((d) =>
@@ -160,7 +194,7 @@ class Cuenta {
               .valor
               .value = gasto.valor.value;
         } else {
-          Meses.firstWhere((m) => m.Anno.value == anno && m.NMes.value == mes)
+          Meses.firstWhere((m) => m.Anno.value == gasto.anno.value && m.NMes.value == mes)
               .Gastos
               .add(gasto);
         }
@@ -168,7 +202,7 @@ class Cuenta {
         break;
       case ShowingGastos.gastos:
         if (editing) {
-          Meses.firstWhere((m) => m.Anno.value == anno && m.NMes.value == mes)
+          Meses.firstWhere((m) => m.Anno.value == gasto.anno.value && m.NMes.value == mes)
               .Gastos
               .value
               .firstWhere((d) =>
@@ -178,7 +212,7 @@ class Cuenta {
                   d.dia.value == gasto.dia.value)
               .tag
               .value = gasto.tag.value;
-          Meses.firstWhere((m) => m.Anno.value == anno && m.NMes.value == mes)
+          Meses.firstWhere((m) => m.Anno.value == gasto.anno.value && m.NMes.value == mes)
               .Gastos
               .value
               .firstWhere((d) =>
@@ -189,7 +223,7 @@ class Cuenta {
               .valor
               .value = gasto.valor.value;
         } else {
-          Meses.firstWhere((m) => m.Anno.value == anno && m.NMes.value == mes)
+          Meses.firstWhere((m) => m.Anno.value == gasto.anno.value && m.NMes.value == mes)
               .Gastos
               .add(gasto);
         }
@@ -198,7 +232,7 @@ class Cuenta {
 
       case ShowingGastos.extras:
         if (editing) {
-          Meses.firstWhere((m) => m.Anno.value == anno && m.NMes.value == mes)
+          Meses.firstWhere((m) => m.Anno.value == gasto.anno.value && m.NMes.value == mes)
               .Extras
               .value
               .firstWhere((d) =>
@@ -208,7 +242,7 @@ class Cuenta {
                   d.dia.value == gasto.dia.value)
               .tag
               .value = gasto.tag.value;
-          Meses.firstWhere((m) => m.Anno.value == anno && m.NMes.value == mes)
+          Meses.firstWhere((m) => m.Anno.value == gasto.anno.value && m.NMes.value == mes)
               .Extras
               .value
               .firstWhere((d) =>
@@ -219,7 +253,7 @@ class Cuenta {
               .valor
               .value = gasto.valor.value;
         } else {
-          Meses.firstWhere((m) => m.Anno.value == anno && m.NMes.value == mes)
+          Meses.firstWhere((m) => m.Anno.value == gasto.anno.value && m.NMes.value == mes)
               .Extras
               .add(gasto);
         }
@@ -390,5 +424,144 @@ class Cuenta {
             .value
             .remove(gasto);
     }
+  }
+
+  List<Gasto> GetLastInteractions() {
+    Mes ultimoMes = Meses.value.last;
+    List<Gasto> lastInteraction = [];
+    List<Gasto> allFromMes = ultimoMes.Gastos.value + ultimoMes.Extras.value;
+    allFromMes.sort((a, b) => DateTime(a.anno.value, a.mes.value, a.dia.value)
+        .compareTo(DateTime(b.anno.value, b.mes.value, b.dia.value)));
+    allFromMes = allFromMes.reversed.toList();
+
+    if (allFromMes.length >= 5) {
+      for (int i = 0; i <= 5; i++) {
+        lastInteraction.add(allFromMes[i]);
+      }
+    } else {
+      lastInteraction = allFromMes;
+    }
+
+    return lastInteraction;
+  }
+
+  double CalcularTotalPorTagFecha(List<String> tags, String month, int year) {
+    Mes mes = Meses.firstWhere(
+        (expense) => expense.NMes.value == month && expense.Anno.value == year);
+
+    List<Gasto> datos = mes.Gastos.value
+            .where((gasto) => tags.contains(gasto.tag.value))
+            .toList() +
+        mes.Extras.value
+            .where((extra) => tags.contains(extra.tag.value))
+            .toList();
+    var ret = datos
+        .map((gasto) => gasto.valor.value)
+        .fold(0.0, (sum, expense) => sum + expense);
+
+    return ret;
+  }
+
+  double GetLastIngreso() {
+    double ret =
+        kIsWeb ? Meses[0].Ingreso.value : Meses[Meses.length - 1].Ingreso.value;
+
+    return ret;
+  }
+
+  /* para charts */
+  Map<String, double> GetIngresosGastosChart(
+      int anno, String mes, bool isGasto) {
+    List<String> tags = [];
+    Mes mes0 = Meses.value
+        .firstWhere((v) => v.Anno.value == anno && v.NMes.value == mes);
+
+    List<Gasto> values = [];
+    Map<String, double> ret = {};
+
+    if (isGasto) {
+      values =
+          mes0.Gastos.where((v) => v.valor > 0).toList() + mes0.Extras.toList();
+    } else {
+      values = mes0.Gastos.where((v) => v.valor < 0).toList();
+    }
+
+    tags = values.map((v) => v.tag.value).toSet().toList();
+
+    for (String tag in tags) {
+      ret[tag == "" ? 'sin tag' : tag] = values
+          .where((v) => v.tag.value == tag)
+          .map((v) => v.valor.value)
+          .toList()
+          .reduce((a, b) => a + b);
+
+      if (ret[tag == "" ? 'sin tag' : tag]! < 0) {
+        print('inicio de cambio');
+        ret[tag == "" ? 'sin tag' : tag] =
+            ret[tag == "" ? 'sin tag' : tag]! * -1;
+        print('fin de cambio');
+      }
+
+      print(ret.toString());
+    }
+
+    print(ret);
+    return ret;
+  }
+
+  Map<String, double> GetTotalChart(int anno, String mes) {
+    Map<String, double> ret = {};
+
+    ret['Ingresos'] = Meses.value
+        .firstWhere((v) => v.Anno.value == anno && v.NMes.value == mes)
+        .GetAhorros();
+
+    ret['Gastos'] = Meses.value
+        .firstWhere((v) => v.Anno.value == anno && v.NMes.value == mes)
+        .GetGastos();
+
+    return ret;
+  }
+
+  List<String> GetMeses(int anno) {
+    List<String> meses = Meses.value
+        .where((v) => v.Anno.value == anno)
+        .map((v) => v.NMes.value)
+        .toSet()
+        .toList();
+
+    return meses;
+  }
+
+  List<double> GetIngresosTotalesChart(int anno) {
+    List<String> meses = GetMeses(anno);
+    List<double> ret = [];
+
+    for (String mes in meses) {
+      double total = Meses.value
+          .where((v) => v.Anno.value == anno && v.NMes.value == mes)
+          .map((v) => v.GetAhorros())
+          .reduce((a, b) => a + b);
+
+      ret.add(total);
+    }
+
+    return ret;
+  }
+
+  List<double> GetGastosTotalesChart(int anno) {
+    List<String> meses = GetMeses(anno);
+    List<double> ret = [];
+
+    for (String mes in meses) {
+      double total = Meses.value
+          .where((v) => v.Anno.value == anno && v.NMes.value == mes)
+          .map((v) => v.GetGastos())
+          .reduce((a, b) => a + b);
+
+      ret.add(total);
+    }
+
+    return ret;
   }
 }

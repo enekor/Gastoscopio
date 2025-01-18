@@ -1,15 +1,14 @@
 import 'dart:convert';
-import 'dart:io';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:cuentas_android/dao/userDao.dart';
 import 'package:cuentas_android/models/Cuenta.dart';
 import 'package:cuentas_android/models/Gasto.dart';
 import 'package:cuentas_android/models/Mes.dart';
+import 'package:cuentas_android/models/presupuesto.dart';
 import 'package:cuentas_android/values.dart';
 import 'package:cuentas_android/widgets/toast.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:flutter/services.dart';
 import 'package:get/get_rx/src/rx_types/rx_types.dart';
 
 class cuentaDao {
@@ -29,14 +28,16 @@ class cuentaDao {
     if (isWeb) {
       Values().cuentas.value = await getDatosJson();
     }
+    else{
+      final snapshot = await ref.where('id', isEqualTo: user!.uid).get();
+      List<Cuenta> ret = snapshot.docs
+          .map((doc) => Cuenta.fromJson(doc.data() as Map<String, dynamic>))
+          .toList();
+      count = ret.length;
 
-    final snapshot = await ref.where('id', isEqualTo: user!.uid).get();
-    List<Cuenta> ret = snapshot.docs
-        .map((doc) => Cuenta.fromJson(doc.data() as Map<String, dynamic>))
-        .toList();
-    count = ret.length;
+      Values().cuentas.value = ret;
+    }
 
-    Values().cuentas.value = ret;
   }
 
   void crearNuevaCuenta(
@@ -50,7 +51,12 @@ class cuentaDao {
         color: (color ?? "#000000").obs,
         deudas: RxList<Gasto>(),
         fijos: RxList<Gasto>(),
-        tags: RxList<String>());
+        tags: RxList<String>(),
+        presupuestos: [
+          Presupuesto(description: 'Ahorro', percentage: 15, amount: null, tags: []),
+          Presupuesto(description: 'Compras', percentage: 20, amount: null, tags: []),
+          Presupuesto(description: 'Salidas', percentage: 15, amount: null, tags: [])
+        ].obs);
 
     Values().cuentaRet.value = c;
     Values().cuentas.add(c);

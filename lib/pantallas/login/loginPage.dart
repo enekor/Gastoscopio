@@ -1,8 +1,7 @@
 import 'package:cuentas_android/dao/cuentaDao.dart';
-import 'package:cuentas_android/utils/scrapper.dart';
 import 'package:cuentas_android/utils/utils.dart';
 import 'package:cuentas_android/values.dart';
-import 'package:cuentas_android/widgets/ItemView.dart';
+import 'package:cuentas_android/widgets/widgetsBasicos.dart';
 import 'package:cuentas_android/widgets/dialog.dart';
 import 'package:cuentas_android/widgets/toast.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -13,7 +12,7 @@ import 'package:fluttertoast/fluttertoast.dart';
 import 'package:get/get.dart';
 
 class LoginPage extends StatefulWidget {
-  const LoginPage({Key? key}) : super(key: key);
+  const LoginPage({super.key});
 
   @override
   _LoginPageState createState() => _LoginPageState();
@@ -165,6 +164,7 @@ class _LoginPageState extends State<LoginPage> {
                           height: 10,
                         ),
                         TextField(
+                          obscureText: true,
                           controller: _passwordCOntroller,
                           decoration: InputDecoration(
                               labelStyle: const TextStyle(
@@ -275,10 +275,15 @@ class _LoginPageState extends State<LoginPage> {
           resizeToAvoidBottomInset: true,
           body: Obx(
             () => Container(
-                decoration: BoxDecoration(
-                    image: DecorationImage(
-                        image: AssetImage(Values().fondo.value),
-                        fit: BoxFit.cover)),
+                decoration: Values().mostrarFondoDinamico.value
+                    ? BoxDecoration(
+                        image: DecorationImage(
+                            colorFilter: ColorFilter.mode(
+                                Colors.black.withOpacity(0.3),
+                                BlendMode.darken),
+                            image: AssetImage(Values().fondo.value),
+                            fit: BoxFit.cover))
+                    : null,
                 child: loginRegister()),
           )),
     );
