@@ -1,13 +1,12 @@
 import 'package:cuentas_android/dao/cuentaDao.dart';
+import 'package:cuentas_android/dao/userDao.dart';
 import 'package:cuentas_android/utils/utils.dart';
-import 'package:cuentas_android/values.dart';
-import 'package:cuentas_android/widgets/widgetsBasicos.dart';
 import 'package:cuentas_android/widgets/dialog.dart';
 import 'package:cuentas_android/widgets/toast.dart';
+import 'package:cuentas_android/widgets/widgetsBasicos.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:cuentas_android/dao/userDao.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:get/get.dart';
 
@@ -273,19 +272,7 @@ class _LoginPageState extends State<LoginPage> {
       home: Scaffold(
           backgroundColor: GetColor(ColorTypes.background, context),
           resizeToAvoidBottomInset: true,
-          body: Obx(
-            () => Container(
-                decoration: Values().mostrarFondoDinamico.value
-                    ? BoxDecoration(
-                        image: DecorationImage(
-                            colorFilter: ColorFilter.mode(
-                                Colors.black.withOpacity(0.3),
-                                BlendMode.darken),
-                            image: AssetImage(Values().fondo.value),
-                            fit: BoxFit.cover))
-                    : null,
-                child: loginRegister()),
-          )),
+          body: loginRegister()),
     );
   }
 }

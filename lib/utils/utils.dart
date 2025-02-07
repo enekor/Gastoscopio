@@ -84,7 +84,7 @@ String getImageUri(ImageUris image) {
   }
 }
 
-enum SharedPreferencesKeys { fondoSimple, moneda, figuraAbajo, cuenta, minimalista }
+enum SharedPreferencesKeys { fondoSimple, moneda, figuraAbajo, cuenta }
 
 enum ImageUris { logo, logosvg, nuevo, loading }
 

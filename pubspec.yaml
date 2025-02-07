@@ -3,7 +3,7 @@ description: "Aplicacion de gestion de gastos"
 
 publish_to: "none" # Remove this line if you wish to publish to pub.dev
 
-version: 4.0.1
+version: 5.0.0
 environment:
   sdk: ">=3.0.0 <4.0.0"
 
@@ -46,11 +46,10 @@ flutter:
     - lib/assets/images/logo.svg
     - lib/assets/images/nuevo.png
     - lib/assets/images/loading.gif
-    - lib/assets/images/background/oscuro1.jpg
-    - lib/assets/images/background/oscuro2.jpg
-    - lib/assets/images/background/oscuro3.jpg
-    - lib/assets/images/background/oscuro4.jpg
-    - lib/assets/images/background/claro1.jpg
-    - lib/assets/images/background/claro2.jpg
-    - lib/assets/images/background/claro3.jpg
-    - lib/assets/images/background/claro4.jpg
+    - lib/assets/images/background/
+    - lib/assets/images/background/dia1.jpeg
+    - lib/assets/images/background/dia2.jpeg
+    - lib/assets/images/background/tarde1.jpeg
+    - lib/assets/images/background/tarde2.jpeg
+    - lib/assets/images/background/noche1.jpeg
+    - lib/assets/images/background/noche2.jpeg

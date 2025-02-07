@@ -2,7 +2,7 @@ import 'package:cuentas_android/models/Cuenta.dart';
 import 'package:cuentas_android/themes/hexColor.dart';
 import 'package:cuentas_android/utils/utils.dart';
 import 'package:cuentas_android/values.dart';
-import 'package:cuentas_android/widgets/ItemView.dart';
+import 'package:cuentas_android/widgets/widgetsBasicos.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:get/get.dart';

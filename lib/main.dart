@@ -13,17 +13,16 @@ void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
   // 2. Initialize Firebase
-
-  //no se por que, pero con android ahora da error de instancia duplicada
-  if (kIsWeb) {
-    await Firebase.initializeApp(options: DefaultFirebaseOptions.web);
-  } else {
+  if(kIsWeb){
     await Firebase.initializeApp(
-
-    //windows
-        options: DefaultFirebaseOptions.currentPlatform
-        );
+      options: DefaultFirebaseOptions.web
+    );
   }
+  else{
+    await Firebase.initializeApp();
+  }
+
+  Values().init(kIsWeb);
 
   // 4. Run the app
   runApp(const MyApp());
@@ -34,7 +33,6 @@ class MyApp extends StatelessWidget {
   // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
-     Values().init(kIsWeb,context);
     return MaterialApp(
       scrollBehavior: ScrollConfiguration.of(context).copyWith(dragDevices: {
         PointerDeviceKind.touch,

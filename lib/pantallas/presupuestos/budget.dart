@@ -76,143 +76,137 @@ class _BudgetPageState extends State<BudgetPage> {
 
   @override
   Widget build(BuildContext context) {
-    return SizedBox(
-      height: MediaQuery.of(context).size.height,
-      child: Padding(
-          padding: const EdgeInsets.only(
-              top: 10,
-              left: 16.0,
-              right: 16,
-              bottom: kBottomNavigationBarHeight * 1.5),
-          child: Form(
-            key: _formKey,
-            child: Column(
-              children: <Widget>[
-                HeadBox(),
-                TextFormField(
-                  initialValue: totalBudget.toStringAsFixed(2),
-                  decoration: const InputDecoration(
-                    labelText: 'Total Budget',
-                    border: OutlineInputBorder(),
-                  ),
-                  keyboardType: TextInputType.number,
-                  validator: (value) {
-                    if (value == null || value.isEmpty) {
-                      return 'Please enter a total budget';
-                    }
-                    final parsedValue = double.tryParse(value);
-                    if (parsedValue == null || parsedValue <= 0) {
-                      return 'Please enter a valid positive number';
-                    }
-                    return null;
-                  },
-                  onSaved: (newValue) {
-                    setState(() {
-                      totalBudget = double.parse(newValue!);
-                    });
-                  },
+    return Scaffold(
+      backgroundColor: GetColor(ColorTypes.background, context),
+      body: Padding(
+        padding: const EdgeInsets.only(
+            top: kToolbarHeight, left: 16.0, right: 16, bottom: 16),
+        child: Form(
+          key: _formKey,
+          child: Column(
+            children: <Widget>[
+              HeadBox(),
+              TextFormField(
+                initialValue: totalBudget.toStringAsFixed(2),
+                decoration: const InputDecoration(
+                  labelText: 'Total Budget',
+                  border: OutlineInputBorder(),
                 ),
-                Expanded(
-                  child: SingleChildScrollView(
-                    child: Column(
-                      children: [
-                        Wrap(
-                          alignment: WrapAlignment.center,
-                          crossAxisAlignment: WrapCrossAlignment.center,
-                          children:
-                          List.generate(budgetItems.length, (index) {
-                            return SizedBox(
-                              width: 150,
-                              child: CardButton(
-                                onPressed: () =>
-                                    showEditDelete(context, index),
-                                color:
-                                GetColor(ColorTypes.secondary, context),
-                                context: context,
-                                margin: 2,
-                                child: Column(
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  children: [
-                                    Text(
-                                      budgetItems[index].description,
-                                      style: const TextStyle(fontSize: 20),
-                                    ),
+                keyboardType: TextInputType.number,
+                validator: (value) {
+                  if (value == null || value.isEmpty) {
+                    return 'Please enter a total budget';
+                  }
+                  final parsedValue = double.tryParse(value);
+                  if (parsedValue == null || parsedValue <= 0) {
+                    return 'Please enter a valid positive number';
+                  }
+                  return null;
+                },
+                onSaved: (newValue) {
+                  setState(() {
+                    totalBudget = double.parse(newValue!);
+                  });
+                },
+              ),
+              const SizedBox(height: 50),
+              Expanded(
+                child: SingleChildScrollView(
+                  child: Column(
+                    children: [
+                      Wrap(
+                        alignment: WrapAlignment.center,
+                        crossAxisAlignment: WrapCrossAlignment.center,
+                        children: List.generate(budgetItems.length, (index) {
+                          return SizedBox(
+                            width: 150,
+                            child: CardButton(
+                              onPressed: () => showEditDelete(context, index),
+                              color: GetColor(ColorTypes.secondary, context),
+                              context: context,
+                              margin: 2,
+                              child: Column(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  Text(
+                                    budgetItems[index].description,
+                                    style: const TextStyle(fontSize: 20),
+                                  ),
+                                  Row(
+                                    children: [
+                                      const Expanded(
+                                          flex: 6,
+                                          child: Text(
+                                            'Deseado:',
+                                            style: TextStyle(
+                                                fontWeight: FontWeight.bold),
+                                          )),
+                                      Expanded(
+                                          flex: 4,
+                                          child: Text(
+                                              '${budgetItems[index].percentage}%')),
+                                    ],
+                                  ),
+                                  if (budgetItems[index].amount != null)
                                     Row(
                                       children: [
                                         const Expanded(
-                                            flex: 6,
-                                            child: Text(
-                                              'Deseado:',
-                                              style: TextStyle(
-                                                  fontWeight:
-                                                  FontWeight.bold),
-                                            )),
+                                            flex: 5,
+                                            child: Text('Total',
+                                                style: TextStyle(
+                                                    fontWeight:
+                                                        FontWeight.bold))),
                                         Expanded(
-                                            flex: 4,
+                                            flex: 5,
                                             child: Text(
-                                                '${budgetItems[index].percentage}%')),
+                                                '${budgetItems[index].amount!.toStringAsFixed(2)}${Values().moneda.value}')),
                                       ],
                                     ),
-                                    if (budgetItems[index].amount != null)
-                                      Row(
-                                        children: [
-                                          const Expanded(
-                                              flex: 5,
-                                              child: Text('Total',
-                                                  style: TextStyle(
-                                                      fontWeight:
-                                                      FontWeight.bold))),
-                                          Expanded(
-                                              flex: 5,
-                                              child: Text(
-                                                  '${budgetItems[index].amount!.toStringAsFixed(2)}${Values().moneda.value}')),
-                                        ],
-                                      ),
-                                  ],
-                                ),
+                                ],
                               ),
-                            );
-                          }),
-                        ),
-                        const SizedBox(height: 50),
-                        SizedBox(
-                            height: 200,
-                            width: 200,
-                            child: BudgetPieChart(budgetItems: budgetItems)),
-                      ],
-                    ),
+                            ),
+                          );
+                        }),
+                      ),
+                      const SizedBox(height: 50),
+                      SizedBox(
+                          height: 200,
+                          width: 200,
+                          child: BudgetPieChart(budgetItems: budgetItems)),
+                    ],
                   ),
                 ),
-                Wrap(
-                  spacing: 16,
-                  runSpacing: 8,
-                  alignment: WrapAlignment.center,
-                  children: [
+              ),
+              Wrap(
+                spacing: 16,
+                runSpacing: 8,
+                alignment: WrapAlignment.center,
+                children: [
+                  ActionChipButton(
+                    onPressed: _submitForm,
+                    color: GetColor(ColorTypes.secondary, context),
+                    text: const Text('Calcular'),
+                  ),
+                  if (budgetItems.last.amount != null)
                     ActionChipButton(
-                      onPressed: _submitForm,
+                      onPressed: () => Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) =>
+                                SummaryView(budgetItems: budgetItems),
+                          )),
                       color: GetColor(ColorTypes.secondary, context),
-                      text: const Text('Calcular'),
+                      text: const Text('Analisis mensual'),
                     ),
-                    if (budgetItems.last.amount != null)
-                      ActionChipButton(
-                        onPressed: () => Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) =>
-                                  SummaryView(budgetItems: budgetItems),
-                            )),
-                        color: GetColor(ColorTypes.secondary, context),
-                        text: const Text('Analisis mensual'),
-                      ),
-                    ActionChipButton(
-                        color: GetColor(ColorTypes.secondary, context),
-                        onPressed: _addItem,
-                        text: const Icon(Icons.add))
-                  ],
-                ),
-              ],
-            ),
+                  ActionChipButton(
+                      color: GetColor(ColorTypes.secondary, context),
+                      onPressed: _addItem,
+                      text: const Icon(Icons.add))
+                ],
+              ),
+            ],
           ),
+        ),
       ),
     );
   }

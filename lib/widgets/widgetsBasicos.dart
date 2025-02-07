@@ -81,8 +81,7 @@ Widget selectableSettingView<T>(
     required List<T> values,
     required Function(T) onSelected,
     required double width,
-    T? initialValue,
-    String textIfNull = ""}) {
+    T? initialValue}) {
   return Row(
     mainAxisAlignment: MainAxisAlignment.spaceBetween,
     children: [
@@ -96,7 +95,7 @@ Widget selectableSettingView<T>(
             items: values
                 .map((value) => DropdownMenuItem(
                       value: value,
-                      child: Text(value?.toString() ?? textIfNull),
+                      child: Text(value.toString()),
                     ))
                 .toList(),
             onChanged: (value) => onSelected(value as T),
@@ -120,13 +119,10 @@ Widget buttonSettingView(
 Widget switchSettingView(
     {required Function(bool) onChange,
     required String text,
-    required RxBool inicial}) {
+    required bool inicial}) {
   return Row(
     mainAxisAlignment: MainAxisAlignment.spaceBetween,
-    children: [
-      Text(text),
-      Obx(() => Switch(value: inicial.value, onChanged: onChange))
-    ],
+    children: [Text(text), Switch(value: inicial, onChanged: onChange)],
   );
 }
 

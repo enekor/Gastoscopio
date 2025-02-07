@@ -21,134 +21,115 @@ class SummaryView extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(
         title: const Text("Resumen de gastos"),
-        backgroundColor: Colors.transparent,
       ),
-      extendBodyBehindAppBar: true,
       body: SizedBox(
         width: MediaQuery.of(context).size.width,
-        child: Container(
-          decoration: Values().mostrarFondoDinamico.value
-              ? BoxDecoration(
-                  image: DecorationImage(
-                      colorFilter: ColorFilter.mode(
-                          Colors.black.withOpacity(0.3), BlendMode.darken),
-                      image: AssetImage(Values().fondo.value),
-                      fit: BoxFit.cover))
-              : null,
-          child: Padding(
-            padding: const EdgeInsets.only(top: kToolbarHeight),
-            child: Column(
+        child: Column(
+          children: [
+            // Selector de mes y año
+            Wrap(
+              alignment: WrapAlignment.center,
+              spacing: 15,
               children: [
-                // Selector de mes y año
-                Wrap(
-                  alignment: WrapAlignment.center,
-                  spacing: 15,
-                  children: [
-                    Expanded(
-                      flex: 5,
-                      child: DropdownButton<String>(
-                        value: selectedMonth,
-                        items: Values()
-                            .nombresMes
-                            .map((month) => DropdownMenuItem(
-                                  value: month,
-                                  child: Text('Mes $month'),
-                                ))
-                            .toList(),
-                        onChanged: (value) {
-                          if (value != null) {
-                            selectedMonth = value;
-                          }
-                        },
-                      ),
-                    ),
-                    Expanded(
-                      flex: 5,
-                      child: DropdownButton<int>(
-                        value: selectedYear,
-                        items: List.generate(
-                                5, (index) => DateTime.now().year - index)
+                Expanded(
+                  flex: 5,
+                  child: DropdownButton<String>(
+                    value: selectedMonth,
+                    items: Values()
+                        .nombresMes
+                        .map((month) => DropdownMenuItem(
+                              value: month,
+                              child: Text('Mes $month'),
+                            ))
+                        .toList(),
+                    onChanged: (value) {
+                      if (value != null) {
+                        selectedMonth = value;
+                      }
+                    },
+                  ),
+                ),
+                Expanded(
+                  flex: 5,
+                  child: DropdownButton<int>(
+                    value: selectedYear,
+                    items:
+                        List.generate(5, (index) => DateTime.now().year - index)
                             .map((year) => DropdownMenuItem(
                                   value: year,
                                   child: Text('Año $year'),
                                 ))
                             .toList(),
-                        onChanged: (value) {
-                          if (value != null) {
-                            selectedYear = value;
-                          }
-                        },
-                      ),
-                    ),
-                  ],
-                ),
-                // Resumen de gastos por tags
-                Expanded(
-                  child: ListView.builder(
-                    itemCount: budgetItems.length,
-                    itemBuilder: (context, index) {
-                      double totalSpent =
-                          Values().cuentaRet.value!.CalcularTotalPorTagFecha(
-                                budgetItems[index].tags ?? [],
-                                selectedMonth,
-                                selectedYear,
-                              );
-
-                      double budgetAmount = budgetItems[index].amount ?? -1;
-                      String statusMessage =
-                          getBudgetStatus(totalSpent, budgetAmount);
-                      Color statusColor =
-                          getBudgetStatusColor(totalSpent, budgetAmount);
-
-                      return Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 16.0),
-                        child: Card(
-                          color: statusColor.withOpacity(0.7),
-                          elevation: 2,
-                          margin: const EdgeInsets.symmetric(vertical: 8),
-                          child: ListTile(
-                            title: Text(budgetItems[index].description),
-                            subtitle: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Row(
-                                  children: [
-                                    const Text(
-                                      'Presupuesto: ',
-                                      style: TextStyle(
-                                          fontWeight: FontWeight.bold),
-                                    ),
-                                    Text(
-                                        '${budgetAmount.toStringAsFixed(2)} ${Values().moneda.value}')
-                                  ],
-                                ),
-                                Row(
-                                  children: [
-                                    const Text(
-                                      'Gastado: ',
-                                      style: TextStyle(
-                                          fontWeight: FontWeight.bold),
-                                    ),
-                                    Text(
-                                        '${totalSpent.toStringAsFixed(2)} ${Values().moneda.value}')
-                                  ],
-                                ),
-                                Text(
-                                  statusMessage,
-                                  style: TextStyle(color: statusColor),
-                                  textAlign: TextAlign.center,
-                                ),
-                              ],
-                            ),
-                          ),
-                        ),
-                      );
+                    onChanged: (value) {
+                      if (value != null) {
+                        selectedYear = value;
+                      }
                     },
                   ),
                 ),
               ],
             ),
-          ),
+            // Resumen de gastos por tags
+            Expanded(
+              child: ListView.builder(
+                itemCount: budgetItems.length,
+                itemBuilder: (context, index) {
+                  double totalSpent =
+                      Values().cuentaRet.value!.CalcularTotalPorTagFecha(
+                            budgetItems[index].tags ?? [],
+                            selectedMonth,
+                            selectedYear,
+                          );
+
+                  double budgetAmount = budgetItems[index].amount ?? -1;
+                  String statusMessage =
+                      getBudgetStatus(totalSpent, budgetAmount);
+                  Color statusColor =
+                      getBudgetStatusColor(totalSpent, budgetAmount);
+
+                  return Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                    child: Card(
+                      color: statusColor.withAlpha(50),
+                      elevation: 2,
+                      margin: const EdgeInsets.symmetric(vertical: 8),
+                      child: ListTile(
+                        title: Text(budgetItems[index].description),
+                        subtitle: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Row(
+                              children: [
+                                const Text(
+                                  'Presupuesto: ',
+                                  style: TextStyle(fontWeight: FontWeight.bold),
+                                ),
+                                Text('${budgetAmount.toStringAsFixed(2)} ${Values().moneda.value}')
+                              ],
+                            ),
+                            Row(
+                              children: [
+                                const Text(
+                                  'Gastado: ',
+                                  style: TextStyle(fontWeight: FontWeight.bold),
+                                ),
+                                Text('${totalSpent.toStringAsFixed(2)} ${Values().moneda.value}')
+                              ],
+                            ),
+                            Text(
+                              statusMessage,
+                              style: TextStyle(color: statusColor),
+                              textAlign: TextAlign.center,
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  );
+                },
+              ),
+            ),
+          ],
         ),
       ),
     );

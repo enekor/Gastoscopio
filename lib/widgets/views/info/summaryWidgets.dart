@@ -5,15 +5,12 @@ import 'package:cuentas_android/models/Gasto.dart';
 import 'package:cuentas_android/models/Mes.dart';
 import 'package:cuentas_android/utils/utils.dart';
 import 'package:cuentas_android/values.dart';
-import 'package:cuentas_android/widgets/ItemView.dart';
-import 'package:cuentas_android/widgets/indicator.dart';
+import 'package:cuentas_android/widgets/widgetsBasicos.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
 Widget summaryHasData(BuildContext context, {bool isLandscape = false}) {
-  Values().summaryMes.value = Values().nombresMes[DateTime.now().month - 1];
-
   if (Values()
       .cuentaRet
       .value!
@@ -30,25 +27,20 @@ Widget summaryHasData(BuildContext context, {bool isLandscape = false}) {
 
   return Obx(
     () => Padding(
-      padding: const EdgeInsets.only(top: 60.0),
+      padding: const EdgeInsets.only(top: kToolbarHeight * 2),
       child: SingleChildScrollView(
         child: Column(
           children: [
             DatePart(context),
-            pagePart(context),
-            Values().summaryShowChart.value
-                ? ChartPart(
-                    Values().cuentaRet.value!.Meses.firstWhere((m) =>
-                        m.Anno.value == Values().summaryAnno.value &&
-                        m.NMes.value == Values().summaryMes.value),
-                    context,
-                    isLandscape)
-                : infoPart(
-                    Values().cuentaRet.value!.Meses.firstWhere((m) =>
-                        m.Anno.value == Values().summaryAnno.value &&
-                        m.NMes.value == Values().summaryMes.value),
-                    context,
-                    isLandscape),
+            Values().cuentaRet.value!.Meses.firstWhereOrNull((v) =>
+                        v.Anno.value == Values().summaryAnno.value &&
+                        v.NMes.value == Values().summaryMes.value) !=
+                    null
+                ? PagePart(context, isLandscape)
+                : Center(
+                    child: Text(
+                        'No hay datos para ${Values().summaryMes.value} de ${Values().summaryAnno.value}'),
+                  ),
           ],
         ),
       ),
@@ -93,36 +85,33 @@ Widget DatePart(BuildContext context) {
   );
 }
 
-Widget pagePart(BuildContext context) {
+Widget PagePart(BuildContext context, bool isLandscape) {
   return Obx(() {
-    return Row(
-      children: [
-        Expanded(
-          flex: 5,
-          child: CardButton(
-              onPressed: () => Values().summaryShowChart.value = false,
-              child: const Row(
-                children: [Icon(Icons.summarize_rounded), Text('General')],
-              ),
-              context: context,
-              color: Values().summaryShowChart.value
-                  ? GetColor(ColorTypes.background, context)
-                  : GetColor(ColorTypes.secondary, context)),
-        ),
-        Expanded(
-          flex: 5,
-          child: CardButton(
-              onPressed: () => Values().summaryShowChart.value = true,
-              child: const Row(
-                children: [Icon(Icons.pie_chart_rounded), Text('Gráfico')],
-              ),
-              context: context,
-              color: Values().summaryShowChart.value
-                  ? GetColor(ColorTypes.secondary, context)
-                  : GetColor(ColorTypes.background, context)),
-        ),
-      ],
-    );
+    PageController pController = PageController();
+    Rx<Mes> mes = Values()
+        .cuentaRet
+        .value!
+        .Meses
+        .firstWhere((m) =>
+            m.Anno.value == Values().summaryAnno.value &&
+            m.NMes.value == Values().summaryMes.value)
+        .obs;
+    RxList<Chartvalues> chartValues = mes.value.GetForChart().obs;
+
+    return SizedBox(
+        height: MediaQuery.of(context).size.height * 0.6,
+        width: MediaQuery.of(context).size.width,
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 8.0),
+          child: PageView(
+            controller: pController,
+            children: [
+              infoPart(mes.value, context, isLandscape),
+              PieChartPart(chartValues.value),
+              ColumnChartPart(chartValues.value),
+            ],
+          ),
+        ));
   });
 }
 
@@ -201,8 +190,7 @@ Widget showValues(List<Gasto> gastos, String nombre) {
                         flex: 5,
                         child: Padding(
                           padding: const EdgeInsets.only(left: 20.0),
-                          child: Text(
-                              '${valor.valor.value < 0 ? (-1 * valor.valor.value).toStringAsFixed(2) : valor.valor.value.toStringAsFixed(2)}${Values().moneda.value}'),
+                          child: Text(valor.nombre.value),
                         ),
                       )
                     ],
@@ -215,110 +203,149 @@ Widget showValues(List<Gasto> gastos, String nombre) {
   );
 }
 
-Widget ChartPart(Mes mes, BuildContext context, bool isLandscape) {
-  return Obx(
-    () {
-      List<Chartvalues> valores = Values()
-          .cuentaRet
-          .value!
-          .Meses
-          .firstWhere((m) =>
-              m.Anno.value == Values().summaryAnno.value &&
-              m.NMes.value == Values().summaryMes.value)
-          .GetForChart();
-      return isLandscape
-          ? Row(
-              children: [
-                Expanded(
-                  flex: 5,
-                  child: Padding(
-                    padding: const EdgeInsets.only(top: 15, bottom: 15),
-                    child: AspectRatio(
-                      aspectRatio: 1.5,
-                      child: PieChart(PieChartData(
-                          sectionsSpace: 0,
-                          centerSpaceRadius: 40,
-                          sections: createPieChartSections(valores, context))),
+Widget PieChartPart(List<Chartvalues> chartValues) {
+  return Center(
+    child: Column(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        AspectRatio(
+          aspectRatio: 1.5,
+          child: _PieChart(chartValues
+              .where((v) => v.nombre.startsWith("Gastos:"))
+              .toList()),
+        ),
+        const SizedBox(height: 20),
+        AnimatedCard(
+            text: "Datos de la gráfica",
+            icon: const Icon(Icons.pie_chart_rounded),
+            children: chartValues.map((item) {
+              return Row(
+                children: [
+                  Container(
+                    width: 10,
+                    height: 10,
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      color: item.color,
                     ),
                   ),
-                ),
-                Expanded(
-                  flex: 5,
-                  child: Card(
-                    color: GetColor(ColorTypes.primary, context),
-                    child: Padding(
-                      padding: const EdgeInsets.all(15.0),
-                      child: Column(
-                          mainAxisAlignment: MainAxisAlignment.end,
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: GetIndicators(valores)),
-                    ),
-                  ),
-                ),
-              ],
-            )
-          : Column(
-              children: [
-                Padding(
-                  padding: const EdgeInsets.only(top: 15, bottom: 15),
-                  child: AspectRatio(
-                    aspectRatio: 1.5,
-                    child: PieChart(PieChartData(
-                        sectionsSpace: 0,
-                        centerSpaceRadius: 40,
-                        sections: createPieChartSections(valores, context))),
-                  ),
-                ),
-                Card(
-                  color: GetColor(ColorTypes.primary, context),
-                  child: Padding(
-                    padding: const EdgeInsets.all(15.0),
-                    child: Column(
-                        mainAxisAlignment: MainAxisAlignment.end,
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: GetIndicators(valores)),
-                  ),
-                ),
-              ],
-            );
-    },
+                  const SizedBox(width: 8),
+                  Text(item.nombre),
+                  const SizedBox(width: 8),
+                  Text(
+                      '${item.valor.toStringAsFixed(2)} ${Values().moneda.value}'),
+                ],
+              );
+            }).toList())
+      ],
+    ),
   );
 }
 
-List<PieChartSectionData> createPieChartSections(
-    List<Chartvalues> data, BuildContext context) {
-  return data.map((entry) {
-    double valor = entry.valor;
-    return PieChartSectionData(
-        color: entry.color,
-        value: valor,
-        title: '${valor.toStringAsFixed(2)}${Values().moneda.value}',
-        titlePositionPercentageOffset: 0.5,
-        radius: 60,
-        showTitle: false,
-        badgePositionPercentageOffset: 1.5);
-  }).toList();
+Widget _PieChart(List<Chartvalues> chartValues) {
+  return PieChart(
+    PieChartData(
+      sectionsSpace: 0,
+      centerSpaceRadius: 40,
+      sections: chartValues.map((item) {
+        return PieChartSectionData(
+          color: item.color,
+          value: item.valor.abs(),
+          title: '',
+          radius: 50,
+          titleStyle: const TextStyle(
+            fontSize: 16,
+            fontWeight: FontWeight.bold,
+            color: Colors.white,
+          ),
+        );
+      }).toList(),
+    ),
+  );
 }
 
-Color RandColor() {
-  return Color.fromARGB(
-      255, Random().nextInt(255), Random().nextInt(255), Random().nextInt(255));
+Widget ColumnChartPart(List<Chartvalues> chartValues) {
+  double totalGastos = chartValues
+      .where((v) => v.nombre.startsWith("Gastos:"))
+      .fold(0, (sum, item) => sum + item.valor);
+  double totalIngresos = chartValues
+      .where((v) => !v.nombre.startsWith("Gastos:"))
+      .fold(0, (sum, item) => sum + item.valor);
+  return AspectRatio(
+    aspectRatio: 1.5,
+    child: _ColumnChart(totalGastos, totalIngresos),
+  );
 }
 
-List<Widget> GetIndicators(List<Chartvalues> data) {
-  return data
-      .map((v) => Column(
-            children: [
-              Indicator(
-                  color: v.color,
-                  nombre: v.nombre,
-                  valor:
-                      '${v.valor.toStringAsFixed(2)}${Values().moneda.value}',
-                  isSquare: true),
-              const SizedBox(
-                height: 4,
+Widget _ColumnChart(double totalGastos, double totalIngresos) {
+  return BarChart(
+    BarChartData(
+      alignment: BarChartAlignment.center,
+      maxY: max(totalGastos, totalIngresos),
+      titlesData: FlTitlesData(
+        show: true,
+        bottomTitles: AxisTitles(
+          sideTitles: SideTitles(
+            showTitles: true,
+            getTitlesWidget: (value, meta) {
+              switch (value.toInt()) {
+                case 0:
+                  return const Text('Gastos');
+                case 1:
+                  return const Text('Ingresos');
+                default:
+                  return const Text('');
+              }
+            },
+          ),
+        ),
+        leftTitles: AxisTitles(
+          sideTitles: SideTitles(
+            showTitles: true,
+            reservedSize: 40,
+            getTitlesWidget: (value, meta) {
+              return Text(
+                  '${value.toStringAsFixed(0)} ${Values().moneda.value}');
+            },
+          ),
+        ),
+        rightTitles:
+            const AxisTitles(sideTitles: SideTitles(showTitles: false)),
+        topTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
+      ),
+      gridData: const FlGridData(show: false),
+      borderData: FlBorderData(show: false),
+      groupsSpace: 45,
+      barGroups: [
+        BarChartGroupData(
+          x: 0,
+          barRods: [
+            BarChartRodData(
+              toY: totalGastos,
+              color: Colors.red,
+              width: 30,
+              borderRadius: const BorderRadius.only(
+                topLeft: Radius.circular(6),
+                topRight: Radius.circular(6),
               ),
-            ],
-          ))
-      .toList();
+            ),
+          ],
+        ),
+        BarChartGroupData(
+          x: 1,
+          barRods: [
+            BarChartRodData(
+              toY: totalIngresos,
+              color: Colors.green,
+              width: 30,
+              borderRadius: const BorderRadius.only(
+                topLeft: Radius.circular(6),
+                topRight: Radius.circular(6),
+              ),
+            ),
+          ],
+        ),
+      ],
+    ),
+  );
 }

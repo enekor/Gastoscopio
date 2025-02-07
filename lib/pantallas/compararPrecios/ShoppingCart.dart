@@ -1,6 +1,5 @@
 import 'package:cuentas_android/models/product.dart';
 import 'package:cuentas_android/utils/utils.dart';
-import 'package:cuentas_android/values.dart';
 import 'package:cuentas_android/widgets/views/compararPrecios/ShoppingCartWidgets.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -26,23 +25,12 @@ class ShoppingCart extends StatelessWidget {
             Navigator.pop(context, products);
             return true;
           },
-          child: Obx(() => Container(
-                decoration: Values().mostrarFondoDinamico.value
-                    ? BoxDecoration(
-                        image: DecorationImage(
-                            colorFilter: ColorFilter.mode(
-                                Colors.black.withOpacity(0.3),
-                                BlendMode.darken),
-                            image: AssetImage(Values().fondo.value),
-                            fit: BoxFit.cover))
-                    : null,
-                child: SizedBox(
-                  height: MediaQuery.of(context).size.height,
-                  width: double.infinity,
-                  child: products.value.isNotEmpty
-                      ? ShoppingCartView(products.value, _onUnCart)
-                      : ShoppingCartHasNotData(),
-                ),
+          child: Obx(() => SizedBox(
+                height: MediaQuery.of(context).size.height,
+                width: double.infinity,
+                child: products.value.isNotEmpty
+                    ? ShoppingCartView(products.value, _onUnCart)
+                    : ShoppingCartHasNotData(),
               )),
         ));
   }

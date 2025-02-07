@@ -1,14 +1,14 @@
+import 'dart:math';
+
 import 'package:cuentas_android/models/presupuesto.dart';
 import 'package:cuentas_android/utils/utils.dart';
 import 'package:cuentas_android/values.dart';
-import 'package:flutter/material.dart';
 import 'package:fl_chart/fl_chart.dart';
-import 'dart:math';
-
+import 'package:flutter/material.dart';
 
 List<Color> colors = const [
-  Color(0xffe63946), // Rojo
   Color(0xffa8dadc), // Azul claro
+  Color(0xffe63946), // Rojo
   Color(0xff457b9d), // Azul
   Color(0xff1d3557), // Azul oscuro
   Color(0xff2a9d8f), // Verde
@@ -254,9 +254,15 @@ class PieChart2State extends State<PieChartGenerator> {
       final fontSize = isTouched ? 16.0 : 9.0;
       final radius = isTouched ? 60.0 : 50.0;
       var value = dataMap.values.elementAt(i);
+      if (value < 0) {
+        value *= -1;
+      }
       var key = dataMap.keys.elementAt(i);
+
+      print('Value for $key: $value');
+
       return PieChartSectionData(
-          color: colors[i % colors.length],
+          color: colors[i >= colors.length ? colors.length - i : i],
           value: value,
           title: '$key \n ${value.toStringAsFixed(2)}${Values().moneda.value}',
           radius: radius,

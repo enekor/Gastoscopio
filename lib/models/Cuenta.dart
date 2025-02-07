@@ -1,7 +1,10 @@
+import 'package:cuentas_android/dao/cuentaDao.dart';
 import 'package:cuentas_android/models/Gasto.dart';
 import 'package:cuentas_android/models/Mes.dart';
 import 'package:cuentas_android/models/presupuesto.dart';
 import 'package:cuentas_android/utils/utils.dart';
+import 'package:cuentas_android/widgets/toast.dart';
+import 'package:cuentas_android/values.dart';
 import 'package:flutter/foundation.dart';
 import 'package:get/get_rx/src/rx_types/rx_types.dart';
 
@@ -121,7 +124,7 @@ class Cuenta {
   }
 
   void addUpdateValues(
-      ShowingGastos tipo, Gasto gasto, bool editing, String mes) {
+      ShowingGastos tipo, Gasto gasto, bool editing, int anno, String mes) {
     switch (tipo) {
       case ShowingGastos.deuda:
         if (editing) {
@@ -173,7 +176,7 @@ class Cuenta {
         gasto.valor.value = -1 * gasto.valor.value;
 
         if (editing) {
-          Meses.firstWhere((m) => m.Anno.value == gasto.anno.value && m.NMes.value == mes)
+          Meses.firstWhere((m) => m.Anno.value == anno && m.NMes.value == mes)
               .Gastos
               .value
               .firstWhere((d) =>
@@ -183,7 +186,7 @@ class Cuenta {
                   d.dia.value == gasto.dia.value)
               .tag
               .value = gasto.tag.value;
-          Meses.firstWhere((m) => m.Anno.value == gasto.anno.value && m.NMes.value == mes)
+          Meses.firstWhere((m) => m.Anno.value == anno && m.NMes.value == mes)
               .Gastos
               .value
               .firstWhere((d) =>
@@ -194,7 +197,7 @@ class Cuenta {
               .valor
               .value = gasto.valor.value;
         } else {
-          Meses.firstWhere((m) => m.Anno.value == gasto.anno.value && m.NMes.value == mes)
+          Meses.firstWhere((m) => m.Anno.value == anno && m.NMes.value == mes)
               .Gastos
               .add(gasto);
         }
@@ -202,7 +205,7 @@ class Cuenta {
         break;
       case ShowingGastos.gastos:
         if (editing) {
-          Meses.firstWhere((m) => m.Anno.value == gasto.anno.value && m.NMes.value == mes)
+          Meses.firstWhere((m) => m.Anno.value == anno && m.NMes.value == mes)
               .Gastos
               .value
               .firstWhere((d) =>
@@ -212,7 +215,7 @@ class Cuenta {
                   d.dia.value == gasto.dia.value)
               .tag
               .value = gasto.tag.value;
-          Meses.firstWhere((m) => m.Anno.value == gasto.anno.value && m.NMes.value == mes)
+          Meses.firstWhere((m) => m.Anno.value == anno && m.NMes.value == mes)
               .Gastos
               .value
               .firstWhere((d) =>
@@ -223,7 +226,7 @@ class Cuenta {
               .valor
               .value = gasto.valor.value;
         } else {
-          Meses.firstWhere((m) => m.Anno.value == gasto.anno.value && m.NMes.value == mes)
+          Meses.firstWhere((m) => m.Anno.value == anno && m.NMes.value == mes)
               .Gastos
               .add(gasto);
         }
@@ -232,7 +235,7 @@ class Cuenta {
 
       case ShowingGastos.extras:
         if (editing) {
-          Meses.firstWhere((m) => m.Anno.value == gasto.anno.value && m.NMes.value == mes)
+          Meses.firstWhere((m) => m.Anno.value == anno && m.NMes.value == mes)
               .Extras
               .value
               .firstWhere((d) =>
@@ -242,7 +245,7 @@ class Cuenta {
                   d.dia.value == gasto.dia.value)
               .tag
               .value = gasto.tag.value;
-          Meses.firstWhere((m) => m.Anno.value == gasto.anno.value && m.NMes.value == mes)
+          Meses.firstWhere((m) => m.Anno.value == anno && m.NMes.value == mes)
               .Extras
               .value
               .firstWhere((d) =>
@@ -253,7 +256,7 @@ class Cuenta {
               .valor
               .value = gasto.valor.value;
         } else {
-          Meses.firstWhere((m) => m.Anno.value == gasto.anno.value && m.NMes.value == mes)
+          Meses.firstWhere((m) => m.Anno.value == anno && m.NMes.value == mes)
               .Extras
               .add(gasto);
         }
@@ -274,7 +277,7 @@ class Cuenta {
       return Meses.firstWhere(
           (m) => m.Anno.value == anno && m.NMes.value == mes).GetTotal();
     } else {
-      NewMes(anno, mes);
+      //NewMes(anno, mes);
       return 0;
     }
   }
@@ -284,6 +287,9 @@ class Cuenta {
     if (Meses.where((m) => m.Anno.value == anno && m.NMes.value == mes)
         .isEmpty) {
       NewMes(anno, mes);
+      cuentaDao().almacenarDatos(this, kIsWeb);
+
+      showToast(text: 'Se ha creado el mes $mes para el año $anno');
     }
     List<Gasto> datos = [];
 
@@ -354,7 +360,7 @@ class Cuenta {
   double GetGastos(int anno, String mes) {
     if (Meses.where((m) => m.Anno.value == anno && m.NMes.value == mes)
         .isEmpty) {
-      NewMes(anno, mes);
+      //NewMes(anno, mes);
     }
     var dato =
         Meses.firstWhere((m) => m.Anno.value == anno && m.NMes.value == mes)
@@ -397,11 +403,9 @@ class Cuenta {
       gastosIniciales.add(element);
     }
 
-    Meses.add(Mes(mes.obs, anno.obs));
-    Meses.firstWhere((m) => m.Anno.value == anno && m.NMes.value == mes)
-        .Gastos
-        .value
-        .addAll(gastosIniciales);
+    Mes toInsert = Mes(RxString(mes), RxInt(anno));
+    toInsert.Gastos.value = gastosIniciales;
+    Meses.add(toInsert);
   }
 
   bool DeleteValue(Gasto gasto, int anno, String mes, ShowingGastos tipo) {
@@ -427,22 +431,17 @@ class Cuenta {
   }
 
   List<Gasto> GetLastInteractions() {
-    Mes ultimoMes = Meses.value.last;
-    List<Gasto> lastInteraction = [];
-    List<Gasto> allFromMes = ultimoMes.Gastos.value + ultimoMes.Extras.value;
-    allFromMes.sort((a, b) => DateTime(a.anno.value, a.mes.value, a.dia.value)
-        .compareTo(DateTime(b.anno.value, b.mes.value, b.dia.value)));
-    allFromMes = allFromMes.reversed.toList();
+    DateTime now = DateTime.now();
+    Mes ultimoMes = Meses.value
+        .where((m) =>
+            m.Anno.value == now.year &&
+            m.NMes.value == Values().nombresMes[now.month - 1])
+        .first;
+    List<Gasto> ret = ultimoMes.Gastos.where((v) => v.dia.value == now.day)
+            .toList() +
+        ultimoMes.Extras.value.where((v) => v.dia.value == now.day).toList();
 
-    if (allFromMes.length >= 5) {
-      for (int i = 0; i <= 5; i++) {
-        lastInteraction.add(allFromMes[i]);
-      }
-    } else {
-      lastInteraction = allFromMes;
-    }
-
-    return lastInteraction;
+    return ret;
   }
 
   double CalcularTotalPorTagFecha(List<String> tags, String month, int year) {

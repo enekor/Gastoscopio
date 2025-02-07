@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'dart:io';
+
 import 'package:cuentas_android/dao/cuentaDao.dart';
 import 'package:cuentas_android/dao/userDao.dart';
 import 'package:cuentas_android/models/Cuenta.dart';
@@ -8,10 +9,9 @@ import 'package:cuentas_android/utils/utils.dart';
 import 'package:cuentas_android/values.dart';
 import 'package:cuentas_android/widgets/toast.dart';
 import 'package:cuentas_android/widgets/views/settingsWidget.dart';
-import 'package:cuentas_android/widgets/widgetsBasicos.dart';
+import 'package:file_picker/file_picker.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:file_picker/file_picker.dart';
 import 'package:flutter_colorpicker/flutter_colorpicker.dart';
 import 'package:get/get.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -58,17 +58,6 @@ class Settings extends StatelessWidget {
     }
   }
 
-  void _setFondoSimple() {
-    Values().mostrarFondoDinamico.value = !Values().mostrarFondoDinamico.value;
-    writeSharedPreferences(
-        SharedPreferencesKeys.fondoSimple, Values().mostrarFondoDinamico.value);
-
-    showToast(
-        text: Values().mostrarFondoDinamico.value
-            ? "Se muestra un bonito paisaje de fondo"
-            : "No hay mas que soledad");
-  }
-
   void _onAboutUs() async {
     Uri url = Uri.parse('https://www.youtube.com/watch?v=xvFZjo5PgG0');
     if (await canLaunchUrl(url)) {
@@ -76,9 +65,9 @@ class Settings extends StatelessWidget {
     }
   }
 
-  void _onChangeCurrency(String? currency) {
+  void _onChangeCurrency(String currency) {
     writeSharedPreferences(SharedPreferencesKeys.moneda, currency);
-    Values().moneda.value = currency ?? 'SM';
+    Values().moneda.value = currency;
     showToast(text: "Ahora tu moneda es ${Values().moneda.value}");
   }
 
@@ -133,113 +122,6 @@ class Settings extends StatelessWidget {
     );
   }
 
-  void _onAdministrarTags(BuildContext context) {
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        final formKey = GlobalKey<FormState>();
-        final tagController = TextEditingController();
-        return AlertDialog(
-          title: const Text('Manage Tags'),
-          content: StatefulBuilder(
-            builder: (BuildContext context, StateSetter setState) {
-              return Form(
-                key: formKey,
-                child: SizedBox(
-                  width: 300,
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      TextFormField(
-                        controller: tagController,
-                        decoration: const InputDecoration(
-                          labelText: 'New Tag',
-                        ),
-                        validator: (value) {
-                          if (value == null || value.isEmpty) {
-                            return 'Please enter a tag';
-                          }
-                          return null;
-                        },
-                      ),
-                      ElevatedButton(
-                        onPressed: () {
-                          if (formKey.currentState!.validate()) {
-                            setState(() {
-                              Values()
-                                  .cuentaRet
-                                  .value!
-                                  .tags
-                                  .value
-                                  .add(tagController.text);
-                            });
-                            tagController.clear();
-                          }
-                        },
-                        child: const Text('Add Tag'),
-                      ),
-                      const SizedBox(height: 10),
-                      SizedBox(
-                        height: 200,
-                        child: ListView.builder(
-                          shrinkWrap: true,
-                          itemCount:
-                              Values().cuentaRet.value!.tags.value.length,
-                          itemBuilder: (context, index) {
-                            final tag =
-                                Values().cuentaRet.value!.tags.value[index];
-                            return ListTile(
-                              title: Text(tag != "" ? tag : "Sin tag"),
-                              trailing: tag != ""
-                                  ? IconButton(
-                                      icon: const Icon(Icons.delete),
-                                      onPressed: () {
-                                        setState(() {
-                                          Values()
-                                              .cuentaRet
-                                              .value!
-                                              .tags
-                                              .value
-                                              .removeAt(index);
-                                        });
-                                      },
-                                    )
-                                  : null,
-                            );
-                          },
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              );
-            },
-          ),
-          actions: [
-            TextButton(
-              onPressed: () {
-                Navigator.of(context).pop();
-                cuentaDao().almacenarDatos(Values().cuentaRet.value!, kIsWeb);
-              },
-              child: const Text('Done'),
-            ),
-          ],
-        );
-      },
-    );
-  }
-
-  void _onInicioMinimalista() {
-    Values().inicioMinimalista.value = !Values().inicioMinimalista.value;
-    writeSharedPreferences(
-        SharedPreferencesKeys.minimalista, Values().inicioMinimalista.value);
-
-    showToast(
-        text: Values().inicioMinimalista.value
-            ? "El home ahora es minimalista"
-            : "El home da más información");
-  }
-
   @override
   Widget build(BuildContext context) {
     return PopScope(
@@ -256,31 +138,18 @@ class Settings extends StatelessWidget {
           resizeToAvoidBottomInset: true,
           body: SizedBox(
             height: MediaQuery.of(context).size.height,
-            child: Container(
-              decoration: Values().mostrarFondoDinamico.value
-                  ? BoxDecoration(
-                      image: DecorationImage(
-                          colorFilter: ColorFilter.mode(
-                              Colors.black.withOpacity(0.3), BlendMode.darken),
-                          image: AssetImage(Values().fondo.value),
-                          fit: BoxFit.cover))
-                  : null,
-              child: Center(
-                child: settingsBody(
-                    isLandscape: orientation == Orientation.landscape,
-                    cuentas: cuentas,
-                    saveToJson: saveToJson,
-                    importFromJson: importFromJson,
-                    context: context,
-                    onChangeTheme: _setFondoSimple,
-                    onAboutUs: _onAboutUs,
-                    onChangeCurrency: _onChangeCurrency,
-                    onProfileColorChange: _onProfileColorChange,
-                    onNuevoPerfil: () => _onNuevoPerfil(context),
-                    onLogOut: _logout,
-                    onAdminTags: () => _onAdministrarTags(context),
-                    onMinimalista: _onInicioMinimalista),
-              ),
+            child: Center(
+              child: settingsBody(
+                  isLandscape: orientation == Orientation.landscape,
+                  cuentas: cuentas,
+                  saveToJson: saveToJson,
+                  importFromJson: importFromJson,
+                  context: context,
+                  onAboutUs: _onAboutUs,
+                  onChangeCurrency: _onChangeCurrency,
+                  onProfileColorChange: _onProfileColorChange,
+                  onNuevoPerfil: () => _onNuevoPerfil(context),
+                  onLogOut: _logout),
             ),
           ),
         ),

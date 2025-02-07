@@ -1,7 +1,7 @@
 import 'package:cuentas_android/dao/cuentaDao.dart';
 import 'package:cuentas_android/dao/userDao.dart';
-import 'package:cuentas_android/pantallas/userSelection.dart';
 import 'package:cuentas_android/home/home.dart';
+import 'package:cuentas_android/pantallas/info.dart';
 import 'package:cuentas_android/pantallas/login/loginPage.dart';
 import 'package:cuentas_android/values.dart';
 import 'package:flutter/foundation.dart';
@@ -25,9 +25,8 @@ class _TreeState extends State<Tree> {
           if (kIsWeb) {
             cuentaDao().getDatosJson().then((v) => Values().cuentas.value = v);
           }
-          return Obx(() => Values().cuentaRet.value != null
-              ? const Home()
-              : UserSelection());
+          return Obx(
+              () => Values().cuentaRet.value != null ? const Info() : Home());
         } else {
           return const LoginPage();
         }

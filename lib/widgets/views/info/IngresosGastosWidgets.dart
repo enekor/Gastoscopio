@@ -3,7 +3,7 @@ import 'package:cuentas_android/models/Gasto.dart';
 import 'package:cuentas_android/pantallas/createNew.dart';
 import 'package:cuentas_android/utils/utils.dart';
 import 'package:cuentas_android/values.dart';
-import 'package:cuentas_android/widgets/ItemView.dart';
+import 'package:cuentas_android/widgets/widgetsBasicos.dart';
 import 'package:cuentas_android/widgets/dialog.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -210,16 +210,19 @@ Future<bool> _onDelete(Gasto gasto, BuildContext context) async {
 /*widgets*/
 Widget IngresosGastosHasData(BuildContext context, {bool isLandscape = false}) {
   changeGastos();
-  return Column(
-    children: [
-      topPart(context),
-      editIngreso(),
-      Expanded(
-          child: valuesPart(
-              context, (g) => _onEdit(context, g), (g) => _onDelete(g, context),
-              isLandscape: isLandscape)),
-      totalPart()
-    ],
+  return Padding(
+    padding: const EdgeInsets.only(top: kToolbarHeight),
+    child: Column(
+      children: [
+        topPart(context),
+        editIngreso(context),
+        Expanded(
+            child: valuesPart(context, (g) => _onEdit(context, g),
+                (g) => _onDelete(g, context),
+                isLandscape: isLandscape)),
+        totalPart()
+      ],
+    ),
   );
 }
 
@@ -250,7 +253,7 @@ Widget topPart(BuildContext context) {
         children: [
           topCardFilters(context),
           SizedBox(
-              width: double.infinity, height: 30, child: topTagsCards(context)),
+              width: double.infinity, height: 80, child: topTagsCards(context)),
           AnimatedContainer(
             height: _showMoreFilters.value ? 50 : 0,
             duration: const Duration(milliseconds: 150),
@@ -408,14 +411,19 @@ Widget topTagsCards(BuildContext context) {
                           m.Anno.value == Values().anno.value &&
                           m.NMes.value == Values().mes.value)
                       .GetTags()
-                      .map((tag) => ActionChipButton(
-                            color: _tagSelected.value == tag
-                                ? GetColor(ColorTypes.background, context)
-                                : GetColor(ColorTypes.secondary, context),
-                            onPressed: () => _onTag(tag),
-                            text: Text(
-                              tag.isEmpty ? 'Todos' : tag,
-                              style: const TextStyle(fontSize: 12),
+                      .where((tag) =>
+                          Values().cuentaRet.value!.tags.value.contains(tag))
+                      .map((tag) => GestureDetector(
+                            onLongPress: () => onDeleteTag(tag, context),
+                            child: ActionChipButton(
+                              color: _tagSelected.value == tag
+                                  ? GetColor(ColorTypes.background, context)
+                                  : GetColor(ColorTypes.secondary, context),
+                              onPressed: () => _onTag(tag),
+                              text: Text(
+                                tag.isEmpty ? 'Todos' : tag,
+                                style: const TextStyle(fontSize: 12),
+                              ),
                             ),
                           ))
                       .toList(),
@@ -484,20 +492,34 @@ Widget topSearchBar(BuildContext context) {
   );
 }
 
-Widget editIngreso() {
-  return Obx(() => Values().showing.value == ShowingGastos.ingresos
-      ? Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            const Expanded(flex: 6, child: Center(child: Text("Ingreso base"))),
-            Expanded(
-              flex: 4,
-              child: Padding(
-                padding: const EdgeInsets.only(right: 50.0),
-                child: TextFormField(
-                  textAlign: TextAlign.center,
-                  keyboardType: TextInputType.number,
-                  onChanged: (value) => Values()
+Widget editIngreso(BuildContext context) {
+  return Obx(() {
+    void editValue(String value) {
+      Values()
+          .cuentaRet
+          .value!
+          .Meses
+          .firstWhere((v) =>
+              v.Anno.value == Values().anno.value &&
+              v.NMes.value == Values().mes.value)
+          .Ingreso
+          .value = double.parse(value);
+
+      cuentaDao().almacenarDatos(Values().cuentaRet.value!, kIsWeb);
+    }
+
+    return Values().showing.value == ShowingGastos.ingresos
+        ? Padding(
+            padding:
+                const EdgeInsets.only(left: 15, right: 14, top: 8, bottom: 3),
+            child: CardButton(
+              margin: 0,
+              padding: 10,
+              context: context,
+              onPressed: () => editIngresoPopup(
+                  context,
+                  editValue,
+                  Values()
                       .cuentaRet
                       .value!
                       .Meses
@@ -505,24 +527,40 @@ Widget editIngreso() {
                           v.Anno.value == Values().anno.value &&
                           v.NMes.value == Values().mes.value)
                       .Ingreso
-                      .value = double.parse(value),
-                  initialValue: Values()
-                      .cuentaRet
-                      .value!
-                      .Meses
-                      .firstWhere((v) =>
-                          v.Anno.value == Values().anno.value &&
-                          v.NMes.value == Values().mes.value)
-                      .Ingreso
-                      .toString(),
-                  decoration:
-                      InputDecoration(suffix: Text(Values().moneda.value)),
-                ),
-              ),
-            )
-          ],
-        )
-      : Container());
+                      .toStringAsFixed(2)),
+              child: Text(
+                  'Ingreso base de ${Values().mes.value}     ${Values().cuentaRet.value!.Meses.firstWhere((v) => v.Anno.value == Values().anno.value && v.NMes.value == Values().mes.value).Ingreso.toStringAsFixed(2)}${Values().moneda.value}'),
+            ),
+          )
+        : Container();
+  });
+}
+
+void editIngresoPopup(
+    BuildContext context, Function(String) onEdit, String initialValue) {
+  showDialog(
+    context: context,
+    builder: (BuildContext context) {
+      TextEditingController controller =
+          TextEditingController(text: initialValue);
+      return AlertDialog(
+        title: const Text('Editar Valor'),
+        content: TextField(
+          controller: controller,
+          keyboardType: TextInputType.number,
+        ),
+        actions: <Widget>[
+          TextButton(
+            child: const Text('Terminar'),
+            onPressed: () {
+              onEdit(controller.text);
+              Navigator.of(context).pop();
+            },
+          ),
+        ],
+      );
+    },
+  );
 }
 
 Widget valuesPart(
@@ -605,14 +643,12 @@ void showCalendarDialog(BuildContext context) async {
     firstDate: DateTime(2000),
     lastDate: DateTime.now(),
   );
-  if (picked != null) {
-    _dateFiltered.value = true;
-    _yearFilter.value = picked.year;
-    _monthFilter.value = picked.month;
-    _dayFilter.value = picked.day;
+  _dateFiltered.value = true;
+  _yearFilter.value = picked!.year;
+  _monthFilter.value = picked.month;
+  _dayFilter.value = picked.day;
 
-    changeGastos();
-  }
+  changeGastos();
 }
 
 void showOrderByDialog(BuildContext context) async {

@@ -1,9 +1,8 @@
 import 'package:cuentas_android/models/product.dart';
 import 'package:cuentas_android/pantallas/compararPrecios/ShoppingCart.dart';
 import 'package:cuentas_android/utils/utils.dart';
-import 'package:cuentas_android/values.dart';
-import 'package:cuentas_android/widgets/widgetsBasicos.dart';
 import 'package:cuentas_android/widgets/views/compararPrecios/compararPreciosHome.dart';
+import 'package:cuentas_android/widgets/widgetsBasicos.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
@@ -38,11 +37,11 @@ class CompararPrecios extends StatelessWidget {
       context: context,
       builder: (context) => Padding(
         padding: const EdgeInsets.all(15.0),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-          children: [
-            Obx(
-              () => Row(
+        child: Obx(
+          () => Column(
+            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+            children: [
+              Row(
                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                 children: [
                   ActionChipButton(
@@ -65,9 +64,7 @@ class CompararPrecios extends StatelessWidget {
                   ),
                 ],
               ),
-            ),
-            Obx(
-              () => ActionChipButton(
+              ActionChipButton(
                 text: const Text('Más populares'),
                 onPressed: () {
                   _orderBy.value = '&sort=popularity%3Adesc';
@@ -76,17 +73,17 @@ class CompararPrecios extends StatelessWidget {
                     ? GetColor(ColorTypes.tertiary, context)
                     : GetColor(ColorTypes.secondary, context),
               ),
-            ),
-            Center(
-              child: IconButton(
-                icon: const Icon(Icons.search_rounded),
-                onPressed: () {
-                  onSelectSort(_orderBy.value);
-                  Navigator.pop(context);
-                },
-              ),
-            )
-          ],
+              Center(
+                child: IconButton(
+                  icon: const Icon(Icons.search_rounded),
+                  onPressed: () {
+                    onSelectSort(_orderBy.value);
+                    Navigator.pop(context);
+                  },
+                ),
+              )
+            ],
+          ),
         ),
       ),
     );
@@ -104,20 +101,10 @@ class CompararPrecios extends StatelessWidget {
         height: MediaQuery.of(context).size.height,
         width: double.infinity,
         child: Obx(
-          () => Container(
-            decoration: Values().mostrarFondoDinamico.value
-                ? BoxDecoration(
-                    image: DecorationImage(
-                        colorFilter: ColorFilter.mode(
-                            Colors.black.withOpacity(0.3), BlendMode.darken),
-                        image: AssetImage(Values().fondo.value),
-                        fit: BoxFit.cover))
-                : null,
-            child: Padding(
-              padding: const EdgeInsets.only(top: 80.0),
-              child: CompararPreciosHomeHasData(_onCart, _orderBy.value,
-                  (onSort) => _showSort(context, onSort), _isInCart),
-            ),
+          () => Padding(
+            padding: const EdgeInsets.only(top: 80.0),
+            child: CompararPreciosHomeHasData(_onCart, _orderBy.value,
+                (onSort) => _showSort(context, onSort), _isInCart),
           ),
         ), // Your content here
       ),
