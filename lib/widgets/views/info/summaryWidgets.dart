@@ -11,6 +11,9 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
 Widget summaryHasData(BuildContext context, {bool isLandscape = false}) {
+  Values().summaryMes.value = Values().nombresMes[DateTime.now().month - 1];
+  Values().summaryAnno.value = DateTime.now().year;
+
   if (Values()
       .cuentaRet
       .value!
@@ -123,45 +126,47 @@ Widget infoPart(Mes mes, BuildContext context, bool isLandscape) {
         top: 10,
         bottom: 10),
     color: GetColor(ColorTypes.primary, context),
-    child: Column(
-      children: [
-        Card(
-          margin: const EdgeInsets.all(15),
-          color: GetColor(ColorTypes.secondary, context),
-          child: Padding(
-            padding: const EdgeInsets.all(10.0),
-            child: Column(
-              children: [
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceAround,
-                  children: [
-                    const Text("Total"),
-                    Text(
-                        '${mes.GetTotal().toStringAsFixed(2)}${Values().moneda.value}'),
-                  ],
-                ),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceAround,
-                  children: [
-                    const Text("Ingreso base"),
-                    Text(
-                        '${mes.Ingreso.toStringAsFixed(2)}${Values().moneda.value}'),
-                  ],
-                ),
-              ],
+    child: SingleChildScrollView(
+      child: Column(
+        children: [
+          Card(
+            margin: const EdgeInsets.all(15),
+            color: GetColor(ColorTypes.secondary, context),
+            child: Padding(
+              padding: const EdgeInsets.all(10.0),
+              child: Column(
+                children: [
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceAround,
+                    children: [
+                      const Text("Total"),
+                      Text(
+                          '${mes.GetTotal().toStringAsFixed(2)}${Values().moneda.value}'),
+                    ],
+                  ),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceAround,
+                    children: [
+                      const Text("Ingreso base"),
+                      Text(
+                          '${mes.Ingreso.toStringAsFixed(2)}${Values().moneda.value}'),
+                    ],
+                  ),
+                ],
+              ),
             ),
           ),
-        ),
-        showValues(
-          mes.Gastos.value.where((gasto) => gasto.valor.value < 0).toList(),
-          "Ingresos",
-        ),
-        showValues(
-          mes.Gastos.value.where((gasto) => gasto.valor.value > 0).toList(),
-          "Gastos",
-        ),
-        showValues(mes.Extras.value, "Gastos extra"),
-      ],
+          showValues(
+            mes.Gastos.value.where((gasto) => gasto.valor.value < 0).toList(),
+            "Ingresos",
+          ),
+          showValues(
+            mes.Gastos.value.where((gasto) => gasto.valor.value > 0).toList(),
+            "Gastos",
+          ),
+          showValues(mes.Extras.value, "Gastos extra"),
+        ],
+      ),
     ),
   );
 }
@@ -205,39 +210,41 @@ Widget showValues(List<Gasto> gastos, String nombre) {
 
 Widget PieChartPart(List<Chartvalues> chartValues) {
   return Center(
-    child: Column(
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: [
-        AspectRatio(
-          aspectRatio: 1.5,
-          child: _PieChart(chartValues
-              .where((v) => v.nombre.startsWith("Gastos:"))
-              .toList()),
-        ),
-        const SizedBox(height: 20),
-        AnimatedCard(
-            text: "Datos de la gráfica",
-            icon: const Icon(Icons.pie_chart_rounded),
-            children: chartValues.map((item) {
-              return Row(
-                children: [
-                  Container(
-                    width: 10,
-                    height: 10,
-                    decoration: BoxDecoration(
-                      shape: BoxShape.circle,
-                      color: item.color,
+    child: SingleChildScrollView(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          AspectRatio(
+            aspectRatio: 1.5,
+            child: _PieChart(chartValues
+                .where((v) => v.nombre.startsWith("Gastos:"))
+                .toList()),
+          ),
+          const SizedBox(height: 20),
+          AnimatedCard(
+              text: "Datos de la gráfica",
+              icon: const Icon(Icons.pie_chart_rounded),
+              children: chartValues.map((item) {
+                return Row(
+                  children: [
+                    Container(
+                      width: 10,
+                      height: 10,
+                      decoration: BoxDecoration(
+                        shape: BoxShape.circle,
+                        color: item.color,
+                      ),
                     ),
-                  ),
-                  const SizedBox(width: 8),
-                  Text(item.nombre),
-                  const SizedBox(width: 8),
-                  Text(
-                      '${item.valor.toStringAsFixed(2)} ${Values().moneda.value}'),
-                ],
-              );
-            }).toList())
-      ],
+                    const SizedBox(width: 8),
+                    Text(item.nombre),
+                    const SizedBox(width: 8),
+                    Text(
+                        '${item.valor.toStringAsFixed(2)} ${Values().moneda.value}'),
+                  ],
+                );
+              }).toList())
+        ],
+      ),
     ),
   );
 }

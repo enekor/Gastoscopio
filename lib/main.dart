@@ -13,13 +13,10 @@ void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
   // 2. Initialize Firebase
-  if(kIsWeb){
-    await Firebase.initializeApp(
-      options: DefaultFirebaseOptions.web
-    );
-  }
-  else{
-    await Firebase.initializeApp();
+  if (kIsWeb) {
+    await Firebase.initializeApp(options: DefaultFirebaseOptions.web);
+  } else {
+    await Firebase.initializeApp(/*options: DefaultFirebaseOptions.windows*/);
   }
 
   Values().init(kIsWeb);
