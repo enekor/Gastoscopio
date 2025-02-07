@@ -195,7 +195,8 @@ Widget showValues(List<Gasto> gastos, String nombre) {
                         flex: 5,
                         child: Padding(
                           padding: const EdgeInsets.only(left: 20.0),
-                          child: Text(valor.nombre.value),
+                          child: Text(valor.valor.value.toStringAsFixed(2) +
+                              Values().moneda.value),
                         ),
                       )
                     ],
