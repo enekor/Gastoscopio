@@ -152,7 +152,6 @@ Future<bool> _onDelete(Gasto gasto, BuildContext context) async {
           flex: 6,
           child: Text(
             "¿Desea borrar ${gasto.nombre.value}?",
-            style: TextStyle(color: GetColor(ColorTypes.primary, context)),
           ),
         ),
         Expanded(
@@ -170,14 +169,12 @@ Future<bool> _onDelete(Gasto gasto, BuildContext context) async {
                   //mostrar mensaje de no borrado
                   ScaffoldMessenger.of(context).showSnackBar(SnackBar(
                     content: Container(
-                      color: GetColor(ColorTypes.errorButton, context),
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                         children: [
                           Text("No se ha podido borrar ${gasto.nombre.value}"),
-                          Icon(
+                          const Icon(
                             Icons.cancel_rounded,
-                            color: GetColor(ColorTypes.text, context),
                           )
                         ],
                       ),
@@ -185,8 +182,9 @@ Future<bool> _onDelete(Gasto gasto, BuildContext context) async {
                   ));
                 }
               },
-              icon: Icon(Icons.check_circle,
-                  color: GetColor(ColorTypes.errorButton, context))),
+              icon: const Icon(
+                Icons.check_circle,
+              )),
         ),
         Expanded(
           flex: 2,
@@ -194,8 +192,9 @@ Future<bool> _onDelete(Gasto gasto, BuildContext context) async {
               onPressed: () {
                 ScaffoldMessenger.of(context).hideCurrentSnackBar();
               },
-              icon: Icon(Icons.cancel_rounded,
-                  color: GetColor(ColorTypes.primary, context))),
+              icon: const Icon(
+                Icons.cancel_rounded,
+              )),
         ),
       ],
     ),
@@ -228,6 +227,7 @@ Widget IngresosGastosHasData(BuildContext context, {bool isLandscape = false}) {
 
 Widget totalPart() => Obx(() {
       return Card(
+        color: Theme.of(Get.context!).colorScheme.secondary.withAlpha(20),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
           children: [
@@ -278,8 +278,8 @@ Widget topCardFilters(BuildContext context) {
             flex: 1,
             child: CardButton(
                 color: Values().showing.value == ShowingGastos.gastos
-                    ? GetColor(ColorTypes.background, context)
-                    : GetColor(ColorTypes.secondary, context),
+                    ? Theme.of(context).colorScheme.primary.withAlpha(20)
+                    : null,
                 onPressed: onGastosTap,
                 child: Column(
                   children: [
@@ -296,8 +296,8 @@ Widget topCardFilters(BuildContext context) {
             flex: 1,
             child: CardButton(
                 color: Values().showing.value == ShowingGastos.ingresos
-                    ? GetColor(ColorTypes.background, context)
-                    : GetColor(ColorTypes.secondary, context),
+                    ? Theme.of(context).colorScheme.primary.withAlpha(20)
+                    : null,
                 onPressed: onIngresosTap,
                 child: Column(
                   children: [
@@ -315,8 +315,8 @@ Widget topCardFilters(BuildContext context) {
             flex: 1,
             child: CardButton(
                 color: Values().showing.value == ShowingGastos.extras
-                    ? GetColor(ColorTypes.background, context)
-                    : GetColor(ColorTypes.secondary, context),
+                    ? Theme.of(context).colorScheme.primary.withAlpha(20)
+                    : null,
                 onPressed: onExtrasTap,
                 child: Column(
                   children: [
@@ -352,8 +352,7 @@ Widget topTagsCards(BuildContext context) {
             flex: 1,
             child: GestureDetector(
               onTap: () => onNewTag(context),
-              child: Icon(Icons.add_circle_rounded,
-                  color: GetColor(ColorTypes.tertiary, context), size: 25),
+              child: const Icon(Icons.add_circle_rounded, size: 25),
             ),
           ),
           Expanded(
@@ -362,45 +361,19 @@ Widget topTagsCards(BuildContext context) {
               scrollDirection: Axis.horizontal,
               children: [
                 ActionChipButton(
-                  color: Values().showing.value == ShowingGastos.fijo
-                      ? GetColor(ColorTypes.background, context)
-                      : GetColor(ColorTypes.tertiary, context),
-                  onPressed: () {
-                    Values().showing.value = ShowingGastos.fijo;
-                    changeGastos();
-                  },
-                  text: Text(
-                    'Fijos',
-                    style: TextStyle(
-                      fontSize: 12,
-                      color: Values().showing.value == ShowingGastos.fijo
-                          ? Theme.of(context).brightness == Brightness.dark
-                              ? Colors.white
-                              : Colors.black
-                          : Colors.black,
-                    ),
-                  ),
-                ),
+                    selected: Values().showing.value == ShowingGastos.fijo,
+                    onPressed: () {
+                      Values().showing.value = ShowingGastos.fijo;
+                      changeGastos();
+                    },
+                    text: 'Fijos'),
                 ActionChipButton(
-                  color: Values().showing.value == ShowingGastos.deuda
-                      ? GetColor(ColorTypes.background, context)
-                      : GetColor(ColorTypes.tertiary, context),
-                  onPressed: () {
-                    Values().showing.value = ShowingGastos.deuda;
-                    changeGastos();
-                  },
-                  text: Text(
-                    'Deudas',
-                    style: TextStyle(
-                      fontSize: 12,
-                      color: Values().showing.value == ShowingGastos.deuda
-                          ? Theme.of(context).brightness == Brightness.dark
-                              ? Colors.white
-                              : Colors.black
-                          : Colors.black,
-                    ),
-                  ),
-                ),
+                    selected: Values().showing.value == ShowingGastos.deuda,
+                    onPressed: () {
+                      Values().showing.value = ShowingGastos.deuda;
+                      changeGastos();
+                    },
+                    text: 'Deudas'),
                 Row(
                   children: Values()
                       .cuentaRet
@@ -416,14 +389,9 @@ Widget topTagsCards(BuildContext context) {
                       .map((tag) => GestureDetector(
                             onLongPress: () => onDeleteTag(tag, context),
                             child: ActionChipButton(
-                              color: _tagSelected.value == tag
-                                  ? GetColor(ColorTypes.background, context)
-                                  : GetColor(ColorTypes.secondary, context),
+                              selected: _tagSelected.value == tag,
                               onPressed: () => _onTag(tag),
-                              text: Text(
-                                tag.isEmpty ? 'Todos' : tag,
-                                style: const TextStyle(fontSize: 12),
-                              ),
+                              text: tag.isEmpty ? 'Todos' : tag,
                             ),
                           ))
                       .toList(),
@@ -446,17 +414,15 @@ Widget topSearchBar(BuildContext context) {
           child: Row(
             children: [
               ActionChipButton(
-                  text: Text('Ordenar por: ${_showOrderBy.value}'),
-                  color: GetColor(ColorTypes.secondary, context),
+                  selected: _showOrderBy.value != '',
+                  text: 'Ordenar por: ${_showOrderBy.value}',
                   icon: const Icon(Icons.sort_rounded),
                   onPressed: () => showOrderByDialog(context)),
               ActionChipButton(
-                  text: Text(_dateFiltered.value
+                  selected: _dateFiltered.value,
+                  text: _dateFiltered.value
                       ? '${_yearFilter.value}/${_monthFilter.value}/${_dayFilter.value}'
-                      : "Filtrar"),
-                  color: _dateFiltered.value
-                      ? GetColor(ColorTypes.background, context)
-                      : GetColor(ColorTypes.secondary, context),
+                      : "Filtrar",
                   icon: const Icon(Icons.calendar_month_rounded),
                   onPressed: () => showCalendarDialog(context)),
               _dateFiltered.value
@@ -471,8 +437,8 @@ Widget topSearchBar(BuildContext context) {
                       padding: 5)
                   : Container(),
               ActionChipButton(
-                  text: Text(_filterWord.value),
-                  color: GetColor(ColorTypes.secondary, context),
+                  selected: _filterWord.value != '',
+                  text: _filterWord.value,
                   onPressed: () => showSearchDialog(context),
                   icon: const Icon(Icons.search_rounded)),
               _filterWord.value != ''
@@ -568,12 +534,17 @@ Widget valuesPart(
     {bool isLandscape = false}) {
   return Obx(
     () => Card(
+      shape: RoundedRectangleBorder(
+          side: BorderSide(
+            color: Theme.of(context).colorScheme.primary.withAlpha(20),
+            width: 2,
+          ),
+          borderRadius: BorderRadius.circular(12.0)),
       margin: EdgeInsets.only(
           left: isLandscape ? 150 : 10,
           right: isLandscape ? 150 : 10,
           top: 10,
           bottom: 10),
-      color: GetColor(ColorTypes.primary, context).withOpacity(0.84),
       child: ListView.builder(
           itemCount: _gastos.value.length,
           itemBuilder: (c, i) {
@@ -620,10 +591,9 @@ void showSearchDialog(BuildContext context) {
               padding: const EdgeInsets.all(8.0),
               child: TextField(
                 autofocus: true,
-                decoration: InputDecoration(
+                decoration: const InputDecoration(
                     suffixIcon: Icon(
                       Icons.search,
-                      color: GetColor(ColorTypes.text, context),
                       size: 25,
                     ),
                     labelText: "Filtrar"),
@@ -665,18 +635,14 @@ void showOrderByDialog(BuildContext context) async {
                   MainAxisAlignment.spaceAround, // Distribuye espacio
               children: [
                 ActionChipButton(
-                    text: const Text('Fecha ascendente'),
-                    color: Values().orderBy.value == OrderByTypes.dateAsc
-                        ? GetColor(ColorTypes.background, context)
-                        : GetColor(ColorTypes.secondary, context),
+                    selected: _showOrderBy.value == 'Fecha ascendente',
+                    text: 'Fecha ascendente',
                     icon: const Icon(Icons.calendar_month),
                     onPressed: () =>
                         orderBySelected(OrderByTypes.dateAsc, context)),
                 ActionChipButton(
-                    text: const Text('Fecha descendente'),
-                    color: Values().orderBy.value == OrderByTypes.dateDesc
-                        ? GetColor(ColorTypes.background, context)
-                        : GetColor(ColorTypes.secondary, context),
+                    selected: _showOrderBy.value == 'Fecha descendente',
+                    text: 'Fecha descendente',
                     icon: const Icon(Icons.calendar_month),
                     onPressed: () =>
                         orderBySelected(OrderByTypes.dateDesc, context)),
@@ -686,18 +652,14 @@ void showOrderByDialog(BuildContext context) async {
               mainAxisAlignment: MainAxisAlignment.spaceAround,
               children: [
                 ActionChipButton(
-                    text: const Text('Nombre'),
-                    color: Values().orderBy.value == OrderByTypes.name
-                        ? GetColor(ColorTypes.background, context)
-                        : GetColor(ColorTypes.secondary, context),
+                    selected: _showOrderBy.value == 'Nombre',
+                    text: 'Nombre',
                     icon: const Icon(Icons.abc),
                     onPressed: () =>
                         orderBySelected(OrderByTypes.name, context)),
                 ActionChipButton(
-                    text: const Text('Valor'),
-                    color: Values().orderBy.value == OrderByTypes.value
-                        ? GetColor(ColorTypes.background, context)
-                        : GetColor(ColorTypes.secondary, context),
+                    selected: _showOrderBy.value == 'Valor',
+                    text: 'Valor',
                     icon: const Icon(Icons.numbers),
                     onPressed: () =>
                         orderBySelected(OrderByTypes.value, context)),

@@ -3,12 +3,11 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:url_launcher/url_launcher.dart';
 
-Widget ProductView(Product p, Function() onFav, Color color,{bool fav = false}) {
+Widget ProductView(Product p, Function() onFav, {bool fav = false}) {
   RxBool favorito = fav.obs;
 
   return Obx(
     () => Card(
-      color: color,
       child: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 15.0, vertical: 5),
         child: Center(

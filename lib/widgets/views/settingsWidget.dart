@@ -50,9 +50,8 @@ Widget _backupPart(
     required List<Cuenta> cuentas}) {
   return AnimatedCard(
     text: "Copia de seguridad",
-    icon: Icon(
+    icon: const Icon(
       Icons.backup,
-      color: GetColor(ColorTypes.text, context),
     ),
     children: [
       !kIsWeb
@@ -82,9 +81,8 @@ Widget _accountPart(
     required BuildContext context}) {
   return AnimatedCard(
       text: 'Cuenta',
-      icon: Icon(
+      icon: const Icon(
         Icons.person,
-        color: GetColor(ColorTypes.text, context),
       ),
       children: [
         Values().cuentaRet.value != null
@@ -121,9 +119,8 @@ Widget _generalPart(
     required BuildContext context}) {
   return AnimatedCard(
       text: 'General',
-      icon: Icon(
+      icon: const Icon(
         Icons.home,
-        color: GetColor(ColorTypes.text, context),
       ),
       children: [
         selectableSettingView(

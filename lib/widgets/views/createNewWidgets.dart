@@ -18,8 +18,14 @@ Widget newEditBodyVertical(
     required ShowingGastos actualType,
     required BuildContext context}) {
   return Card(
+    color: Theme.of(context).colorScheme.surface,
+    shape: RoundedRectangleBorder(
+        side: BorderSide(
+          color: Theme.of(context).colorScheme.primary.withAlpha(20),
+          width: 2,
+        ),
+        borderRadius: BorderRadius.circular(15)),
     margin: const EdgeInsets.all(15),
-    color: GetColor(ColorTypes.primary, context),
     child: Padding(
       padding: const EdgeInsets.all(15.0),
       child: SingleChildScrollView(
@@ -58,10 +64,8 @@ Widget _type(BuildContext context, Function(ShowingGastos) onChangeType) {
 Widget _showingGastoToElem(BuildContext context, ShowingGastos tipo) {
   return Obx(
     () => ActionChipButton(
-        text: Text(tipo.toString().replaceAll("ShowingGastos.", '')),
-        color: Values().showing.value == tipo
-            ? GetColor(ColorTypes.background, context)
-            : GetColor(ColorTypes.secondary, context),
+        selected: Values().showing.value == tipo,
+        text: tipo.toString().replaceAll("ShowingGastos.", ''),
         onPressed: () => Values().showing.value = tipo),
   );
 }
@@ -206,26 +210,21 @@ Widget gastoBottomNavigationBar(
         onPressed: () => onSave(),
         style: ButtonStyle(
             backgroundColor: WidgetStateProperty.all(
-                Theme.of(context).brightness == Brightness.light
-                    ? Colors.lightGreenAccent
-                    : Colors.greenAccent),
+                Theme.of(context).colorScheme.secondary.withAlpha(20)),
             surfaceTintColor: WidgetStateProperty.all(Colors.black)),
-        child: Text(
+        child: const Text(
           'Guardar',
-          style: TextStyle(color: GetColor(ColorTypes.text, context)),
         ),
       ),
       ElevatedButton(
           onPressed: () => onCancel(),
           style: ButtonStyle(
               backgroundColor: WidgetStateProperty.all(
-                  Theme.of(context).brightness == Brightness.light
-                      ? const Color.fromARGB(255, 247, 133, 133)
-                      : const Color.fromARGB(255, 197, 49, 46)),
+                  Theme.of(context).colorScheme.error.withAlpha(50)),
               surfaceTintColor: WidgetStateProperty.all(Colors.black)),
-          child: Text(
+          child: const Text(
             'Cancel',
-            style: TextStyle(color: GetColor(ColorTypes.text, context)),
+            style: TextStyle(),
           ))
     ]),
   );

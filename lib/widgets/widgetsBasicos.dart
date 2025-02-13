@@ -22,58 +22,60 @@ Widget CardButton(
     Function()? onPressOnHold}) {
   RxBool longPress = false.obs;
 
-  return GestureDetector(
-    onTap: () => onPressed(),
-    onLongPressUp: onPressOnHold,
-    onLongPress: onHold != null ? () => onHold(item) : () {},
-    child: Obx(
-      () => Card(
-        margin: EdgeInsets.all(margin),
-        color: color ?? GetColor(ColorTypes.secondary, context),
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.only(
-            topLeft: Radius.circular(topLeft ?? 10),
-            topRight: Radius.circular(topRight ?? 10),
-            bottomLeft: Radius.circular(bottomLeft ?? 10),
-            bottomRight: Radius.circular(bottomRight ?? 10),
+  return Builder(builder: (context) {
+    return GestureDetector(
+      onTap: () => onPressed(),
+      onLongPressUp: onPressOnHold,
+      onLongPress: onHold != null ? () => onHold(item) : () {},
+      child: Obx(
+        () => Card(
+          margin: EdgeInsets.all(margin),
+          color: color ?? Theme.of(context).colorScheme.surface,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.only(
+              topLeft: Radius.circular(topLeft ?? 10),
+              topRight: Radius.circular(topRight ?? 10),
+              bottomLeft: Radius.circular(bottomLeft ?? 10),
+              bottomRight: Radius.circular(bottomRight ?? 10),
+            ),
+          ),
+          child: Padding(
+            padding: EdgeInsets.all(padding),
+            child: Center(
+                child: longPress.value
+                    ? childHold != null
+                        ? Column(
+                            children: [
+                              childHold,
+                              ElevatedButton(
+                                  onPressed: () => longPress.value = false,
+                                  child: const Text("Cancelar"))
+                            ],
+                          )
+                        : child
+                    : child),
           ),
         ),
-        child: Padding(
-          padding: EdgeInsets.all(padding),
-          child: Center(
-              child: longPress.value
-                  ? childHold != null
-                      ? Column(
-                          children: [
-                            childHold,
-                            ElevatedButton(
-                                onPressed: () => longPress.value = false,
-                                child: const Text("Cancelar"))
-                          ],
-                        )
-                      : child
-                  : child),
-        ),
       ),
-    ),
-  );
+    );
+  });
 }
 
 Widget ActionChipButton(
-    {required Widget text,
-    Function? onPressed,
-    required Color color,
-    Widget? icon}) {
-  return Padding(
-    padding: const EdgeInsets.only(right: 2.0, left: 2),
-    child: ActionChip(
-      label: text,
-      onPressed: onPressed != null ? () => onPressed() : () {},
-      backgroundColor: color,
-      padding: const EdgeInsets.all(5),
+    {required String text,
+    required Function() onPressed,
+    required bool selected,
+    Icon? icon}) {
+  return Builder(builder: (context) {
+    return ActionChip(
       avatar: icon,
-    ),
-  );
+      label: Text(text),
+      onPressed: onPressed,
+      backgroundColor: selected
+          ? Theme.of(context).colorScheme.primary.withOpacity(0.2)
+          : null, // null usará el color por defecto del tema
+    );
+  });
 }
 
 Widget selectableSettingView<T>(
@@ -282,7 +284,6 @@ Widget gastoView(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   Card(
-                    color: GetColor(ColorTypes.secondary, context),
                     child: Padding(
                       padding: const EdgeInsets.all(10.0),
                       child: Row(
@@ -306,11 +307,8 @@ Widget gastoView(
                                 .contains(gasto.tag.value)
                         ? gasto.tag.value
                         : "Sin tag asignado",
-                    style: TextStyle(
-                        color: GetColor(ColorTypes.secondary, context)),
                   ),
                   IconButton(
-                      color: GetColor(ColorTypes.secondary, context),
                       onPressed: () => onTapEdit(gasto),
                       icon: const Icon(Icons.edit_rounded))
                 ],
@@ -476,17 +474,9 @@ Widget ChangingPill(
     mainAxisAlignment: MainAxisAlignment.center,
     children: [
       ActionChipButton(
-          text: Text(text1),
-          color: selected == 0
-              ? GetColor(ColorTypes.secondary, context)
-              : GetColor(ColorTypes.background, context),
-          onPressed: onClick),
+          text: text1, onPressed: () => onClick(), selected: selected == 0),
       ActionChipButton(
-          text: Text(text2),
-          color: selected == 1
-              ? GetColor(ColorTypes.secondary, context)
-              : GetColor(ColorTypes.background, context),
-          onPressed: onClick)
+          text: text2, onPressed: () => onClick(), selected: selected == 1)
     ],
   );
 }
@@ -554,7 +544,12 @@ class _AnimatedCardState extends State<AnimatedCard>
     return GestureDetector(
       onTap: _toggleCard,
       child: Card(
-        color: GetColor(ColorTypes.secondary, context).withOpacity(0.94),
+        shape: RoundedRectangleBorder(
+            side: BorderSide(
+              color: Theme.of(context).colorScheme.primary.withAlpha(20),
+              width: 2,
+            ),
+            borderRadius: BorderRadius.circular(15)),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
@@ -566,7 +561,7 @@ class _AnimatedCardState extends State<AnimatedCard>
                   const SizedBox(width: 8),
                   Text(
                     text,
-                    style: TextStyle(color: GetColor(ColorTypes.text, context)),
+                    style: const TextStyle(),
                   ),
                   const Spacer(),
                   RotationTransition(

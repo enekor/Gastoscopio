@@ -45,34 +45,25 @@ class CompararPrecios extends StatelessWidget {
                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                 children: [
                   ActionChipButton(
-                    text: const Text('Más barato'),
-                    onPressed: () {
-                      _orderBy.value = '&sort=value%3Aasc';
-                    },
-                    color: _orderBy.value == '&sort=value%3Aasc'
-                        ? GetColor(ColorTypes.tertiary, context)
-                        : GetColor(ColorTypes.secondary, context),
-                  ),
+                      selected: _orderBy.value == '&sort=value%3Aasc',
+                      text: 'Más barato',
+                      onPressed: () {
+                        _orderBy.value = '&sort=value%3Aasc';
+                      }),
                   ActionChipButton(
-                    text: const Text('Más caro'),
-                    onPressed: () {
-                      _orderBy.value = '&sort=value%3Adesc';
-                    },
-                    color: _orderBy.value == '&sort=value%3Adesc'
-                        ? GetColor(ColorTypes.tertiary, context)
-                        : GetColor(ColorTypes.secondary, context),
-                  ),
+                      selected: _orderBy.value == '&sort=value%3Adesc',
+                      text: 'Más caro',
+                      onPressed: () {
+                        _orderBy.value = '&sort=value%3Adesc';
+                      }),
                 ],
               ),
               ActionChipButton(
-                text: const Text('Más populares'),
-                onPressed: () {
-                  _orderBy.value = '&sort=popularity%3Adesc';
-                },
-                color: _orderBy.value == '&sort=popularity%3Adesc'
-                    ? GetColor(ColorTypes.tertiary, context)
-                    : GetColor(ColorTypes.secondary, context),
-              ),
+                  selected: _orderBy.value == '&sort=popularity%3Adesc',
+                  text: 'Más populares',
+                  onPressed: () {
+                    _orderBy.value = '&sort=popularity%3Adesc';
+                  }),
               Center(
                 child: IconButton(
                   icon: const Icon(Icons.search_rounded),
@@ -92,7 +83,6 @@ class CompararPrecios extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: GetColor(ColorTypes.background, context),
       resizeToAvoidBottomInset: true,
       extendBodyBehindAppBar: true,
       appBar: CompararPreciosAppBar(

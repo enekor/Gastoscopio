@@ -126,18 +126,14 @@ class _LoginPageState extends State<LoginPage> {
                   maxWidth: MediaQuery.of(context).size.width * 0.8,
                   maxHeight: MediaQuery.of(context).size.height * 0.8),
               child: Card(
-                color:
-                    GetColor(ColorTypes.secondary, context).withOpacity(0.94),
                 child: Padding(
                   padding: const EdgeInsets.all(50.0),
                   child: SingleChildScrollView(
                     child: Column(
                       children: [
                         Text(
-                            style: TextStyle(
-                                color: GetColor(ColorTypes.text, context),
-                                fontSize: 20,
-                                fontWeight: FontWeight.bold),
+                            style: const TextStyle(
+                                fontSize: 20, fontWeight: FontWeight.bold),
                             isLogin ? '¡Hola de nuevo!' : '¡Encantado!'),
                         const SizedBox(
                           height: 10,
@@ -147,17 +143,11 @@ class _LoginPageState extends State<LoginPage> {
                         ),
                         TextField(
                           controller: _emailCOntroller,
-                          decoration: InputDecoration(
-                              labelStyle: const TextStyle(
+                          decoration: const InputDecoration(
+                              labelStyle: TextStyle(
                                   fontWeight: FontWeight.bold, fontSize: 10),
-                              label: Text(
-                                  style: TextStyle(
-                                      color:
-                                          GetColor(ColorTypes.text, context)),
-                                  'Email'),
-                              prefixIcon: Icon(
-                                  color: GetColor(ColorTypes.text, context),
-                                  Icons.email_rounded)),
+                              label: Text('Email'),
+                              prefixIcon: Icon(Icons.email_rounded)),
                         ),
                         const SizedBox(
                           height: 10,
@@ -165,17 +155,11 @@ class _LoginPageState extends State<LoginPage> {
                         TextField(
                           obscureText: true,
                           controller: _passwordCOntroller,
-                          decoration: InputDecoration(
-                              labelStyle: const TextStyle(
+                          decoration: const InputDecoration(
+                              labelStyle: TextStyle(
                                   fontWeight: FontWeight.bold, fontSize: 10),
-                              label: Text(
-                                  style: TextStyle(
-                                      color:
-                                          GetColor(ColorTypes.text, context)),
-                                  'Contraseña'),
-                              prefixIcon: Icon(
-                                  color: GetColor(ColorTypes.text, context),
-                                  Icons.password_rounded)),
+                              label: Text('Contraseña'),
+                              prefixIcon: Icon(Icons.password_rounded)),
                         ),
                         !isLogin
                             ? const SizedBox(
@@ -185,19 +169,12 @@ class _LoginPageState extends State<LoginPage> {
                         !isLogin
                             ? TextField(
                                 controller: _repPasswordCOntroller,
-                                decoration: InputDecoration(
-                                    labelStyle: const TextStyle(
+                                decoration: const InputDecoration(
+                                    labelStyle: TextStyle(
                                         fontWeight: FontWeight.bold,
                                         fontSize: 10),
-                                    label: Text(
-                                        style: TextStyle(
-                                            color: GetColor(
-                                                ColorTypes.text, context)),
-                                        'Repetir contraseña'),
-                                    prefixIcon: Icon(
-                                        color:
-                                            GetColor(ColorTypes.text, context),
-                                        Icons.password_rounded)),
+                                    label: Text('Repetir contraseña'),
+                                    prefixIcon: Icon(Icons.password_rounded)),
                               )
                             : Container(),
                         !isLogin
@@ -209,10 +186,8 @@ class _LoginPageState extends State<LoginPage> {
                             ? Center(
                                 child: TextButton(
                                   onPressed: showEmailResetDialog,
-                                  child: Text(
+                                  child: const Text(
                                       style: TextStyle(
-                                          color: GetColor(
-                                              ColorTypes.text, context),
                                           decoration: TextDecoration.underline),
                                       'No recuerdo mi contraseña'),
                                 ),
@@ -230,22 +205,19 @@ class _LoginPageState extends State<LoginPage> {
               Expanded(
                 flex: 5,
                 child: CardButton(
-                    color: GetColor(ColorTypes.primary, context),
                     onPressed: isLogin
                         ? () => signIn()
                         : () => setState(() {
                               isLogin = true;
                             }),
                     child: Text(
-                        style: TextStyle(
-                            color: GetColor(ColorTypes.text, context)),
+                        style: const TextStyle(),
                         isLogin ? 'Iniciar sesion' : 'Ya tengo cuenta'),
                     context: context),
               ),
               Expanded(
                 flex: 5,
                 child: CardButton(
-                    color: GetColor(ColorTypes.primary, context),
                     onPressed: !isLogin
                         ? () => registerUser()
                         : () => setState(() {
@@ -253,8 +225,7 @@ class _LoginPageState extends State<LoginPage> {
                             }),
                     //child: Obx(()=> Text(Values().fondo.value)),
                     child: Text(
-                        style: TextStyle(
-                            color: GetColor(ColorTypes.text, context)),
+                        style: const TextStyle(),
                         isLogin ? 'Crear cuenta' : 'Registrarme'),
                     context: context),
               ),
@@ -269,10 +240,7 @@ class _LoginPageState extends State<LoginPage> {
     //     email: "eneko12rebollo@gmail.com", password: "test12345");
     return MaterialApp(
       debugShowCheckedModeBanner: false,
-      home: Scaffold(
-          backgroundColor: GetColor(ColorTypes.background, context),
-          resizeToAvoidBottomInset: true,
-          body: loginRegister()),
+      home: Scaffold(resizeToAvoidBottomInset: true, body: loginRegister()),
     );
   }
 }

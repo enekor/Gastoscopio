@@ -23,7 +23,7 @@ Widget ShoppingCartView(List<Product> products, Function(Product) onUnCart) {
             return Container(
               child: ProductView(products[index], () {
                 onUnCart(products[index]);
-              }, GetColor(ColorTypes.secondary, context), fav: true),
+              }, fav: true),
             );
           },
         )),

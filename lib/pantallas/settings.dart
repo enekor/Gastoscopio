@@ -128,7 +128,6 @@ class Settings extends StatelessWidget {
         child: OrientationBuilder(
       builder: (context, orientation) => Obx(
         () => Scaffold(
-          backgroundColor: GetColor(ColorTypes.background, context),
           extendBodyBehindAppBar: true,
           appBar: AppBar(
             title: const Text("Ajustes"),

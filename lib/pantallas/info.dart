@@ -50,15 +50,13 @@ class _InfoState extends State<Info> {
                   Navigator.pop(context);
                 });
               },
-              icon: Icon(
+              icon: const Icon(
                 Icons.check_circle,
-                color: GetColor(ColorTypes.primary, context),
               )),
           IconButton(
               onPressed: () => Navigator.pop(context),
-              icon: Icon(
+              icon: const Icon(
                 Icons.cancel_rounded,
-                color: GetColor(ColorTypes.errorButton, context),
               ))
         ],
       ),
@@ -142,7 +140,6 @@ class _InfoState extends State<Info> {
 
     return PopScope(
       child: Scaffold(
-        backgroundColor: GetColor(ColorTypes.background, context),
         appBar: Values().selectedScreen != 1
             ? InfoAppBar(
                 onBack: onBack,

@@ -7,6 +7,8 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:get/get.dart';
+import 'package:dynamic_color/dynamic_color.dart';
 
 void main() async {
   // 1. Initialize WidgetsFlutterBinding
@@ -22,7 +24,32 @@ void main() async {
   Values().init(kIsWeb);
 
   // 4. Run the app
-  runApp(const MyApp());
+  runApp(DynamicColorBuilder(
+    builder: (ColorScheme? lightDynamic, ColorScheme? darkDynamic) {
+      return GetMaterialApp(
+        title: 'Gastoscopio',
+        theme: ThemeData(
+          useMaterial3: true,
+          colorScheme: lightDynamic ??
+              ColorScheme.fromSeed(
+                seedColor: Colors.purpleAccent,
+                brightness: Brightness.light,
+              ),
+        ),
+        darkTheme: ThemeData(
+          useMaterial3: true,
+          colorScheme: darkDynamic ??
+              ColorScheme.fromSeed(
+                seedColor: Colors.deepPurple,
+                brightness: Brightness.dark,
+              ),
+        ),
+        themeMode: ThemeMode.system,
+        home: const Tree(),
+        debugShowCheckedModeBanner: false,
+      );
+    },
+  ));
 }
 
 class MyApp extends StatelessWidget {

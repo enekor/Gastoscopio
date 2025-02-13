@@ -1,0 +1,2 @@
+D:/repos/cuentas/android/app/.cxx/RelWithDebInfo/2rw163q5/x86/CMakeFiles/edit_cache.dir
+D:/repos/cuentas/android/app/.cxx/RelWithDebInfo/2rw163q5/x86/CMakeFiles/rebuild_cache.dir

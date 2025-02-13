@@ -77,7 +77,6 @@ class _BudgetPageState extends State<BudgetPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: GetColor(ColorTypes.background, context),
       body: Padding(
         padding: const EdgeInsets.only(
             top: kToolbarHeight, left: 16.0, right: 16, bottom: 16),
@@ -122,7 +121,6 @@ class _BudgetPageState extends State<BudgetPage> {
                             width: 150,
                             child: CardButton(
                               onPressed: () => showEditDelete(context, index),
-                              color: GetColor(ColorTypes.secondary, context),
                               context: context,
                               margin: 2,
                               child: Column(
@@ -183,25 +181,26 @@ class _BudgetPageState extends State<BudgetPage> {
                 alignment: WrapAlignment.center,
                 children: [
                   ActionChipButton(
+                    selected: true,
                     onPressed: _submitForm,
-                    color: GetColor(ColorTypes.secondary, context),
-                    text: const Text('Calcular'),
+                    text: 'Calcular',
                   ),
                   if (budgetItems.last.amount != null)
                     ActionChipButton(
+                      selected: true,
                       onPressed: () => Navigator.push(
                           context,
                           MaterialPageRoute(
                             builder: (context) =>
                                 SummaryView(budgetItems: budgetItems),
                           )),
-                      color: GetColor(ColorTypes.secondary, context),
-                      text: const Text('Analisis mensual'),
+                      text: 'Analisis mensual',
                     ),
                   ActionChipButton(
-                      color: GetColor(ColorTypes.secondary, context),
+                      selected: true,
                       onPressed: _addItem,
-                      text: const Icon(Icons.add))
+                      text: 'Agregar',
+                      icon: const Icon(Icons.add))
                 ],
               ),
             ],
@@ -261,10 +260,8 @@ class _BudgetPageState extends State<BudgetPage> {
                         selectedTags.value.remove(value.toString());
                       },
                     ),
-                    itemsTextStyle:
-                        TextStyle(color: GetColor(ColorTypes.text, context)),
-                    selectedItemsTextStyle:
-                        TextStyle(color: GetColor(ColorTypes.text, context)),
+                    itemsTextStyle: const TextStyle(),
+                    selectedItemsTextStyle: const TextStyle(),
                   )),
             ],
           ),

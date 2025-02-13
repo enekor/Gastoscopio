@@ -187,8 +187,7 @@ Widget productPlaceholder(
                   return Container(
                     child: ProductView(_products.value[pagina]![index], () {
                       onCart(_products.value[pagina]![index]);
-                    }, GetColor(ColorTypes.secondary, context),
-                        fav: isIncart(_products.value[pagina]![index])),
+                    }, fav: isIncart(_products.value[pagina]![index])),
                   );
                 },
               )

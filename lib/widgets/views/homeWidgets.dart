@@ -64,10 +64,8 @@ Widget hasData(
                       ],
                     ),
                     childHold: Container(
-                      color: GetColor(ColorTypes.errorButton, context),
-                      child: Icon(
+                      child: const Icon(
                         Icons.delete_rounded,
-                        color: GetColor(ColorTypes.text, context),
                       ),
                     ),
                     onPressOnHold: () =>

@@ -18,7 +18,6 @@ class ShoppingCart extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        backgroundColor: GetColor(ColorTypes.background, context),
         resizeToAvoidBottomInset: true,
         body: WillPopScope(
           onWillPop: () async {

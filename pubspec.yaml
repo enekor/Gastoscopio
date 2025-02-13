@@ -10,6 +10,7 @@ environment:
 dependencies:
   cloud_firestore: ^5.4.0
   dart_format: ^1.1.17
+  dynamic_color: ^1.7.0
   file_picker: ^8.1.5
   firebase_auth: ^5.2.0
   firebase_core: ^3.4.0
@@ -19,7 +20,7 @@ dependencies:
   flutter_colorpicker: ^1.1.0
   flutter_launcher_icons: ^0.14.1
   flutter_svg: ^2.0.10+1
-  fluttertoast: ^8.2.4
+  fluttertoast: ^8.2.12
   font_awesome_flutter: ^10.7.0
   get: ^4.6.6
   google_fonts: ^6.2.1
@@ -53,3 +54,10 @@ flutter:
     - lib/assets/images/background/tarde2.jpeg
     - lib/assets/images/background/noche1.jpeg
     - lib/assets/images/background/noche2.jpeg
+
+flutter_icons:
+  android: true
+  ios: true
+  image_path: "assets/icon/icon.png"
+  adaptive_icon_background: "#FFFFFF"
+  adaptive_icon_foreground: "assets/icon/logo.svg"

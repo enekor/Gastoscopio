@@ -58,7 +58,12 @@ Widget DatePart(BuildContext context) {
   annos = annos.isEmpty ? [DateTime.now().year.toString()] : annos;
 
   return Card(
-    color: GetColor(ColorTypes.secondary, context),
+    shape: RoundedRectangleBorder(
+        side: BorderSide(
+          color: Theme.of(context).colorScheme.primary.withAlpha(20),
+          width: 2,
+        ),
+        borderRadius: BorderRadius.circular(15)),
     margin: const EdgeInsets.all(15),
     child: Padding(
       padding: const EdgeInsets.all(25.0),
@@ -120,18 +125,22 @@ Widget PagePart(BuildContext context, bool isLandscape) {
 
 Widget infoPart(Mes mes, BuildContext context, bool isLandscape) {
   return Card(
+    shape: RoundedRectangleBorder(
+        side: BorderSide(
+          color: Theme.of(context).colorScheme.primary.withAlpha(20),
+          width: 2,
+        ),
+        borderRadius: BorderRadius.circular(15)),
     margin: EdgeInsets.only(
         left: isLandscape ? 150 : 10,
         right: isLandscape ? 150 : 10,
         top: 10,
         bottom: 10),
-    color: GetColor(ColorTypes.primary, context),
     child: SingleChildScrollView(
       child: Column(
         children: [
           Card(
             margin: const EdgeInsets.all(15),
-            color: GetColor(ColorTypes.secondary, context),
             child: Padding(
               padding: const EdgeInsets.all(10.0),
               child: Column(
@@ -195,8 +204,7 @@ Widget showValues(List<Gasto> gastos, String nombre) {
                         flex: 5,
                         child: Padding(
                           padding: const EdgeInsets.only(left: 20.0),
-                          child: Text(valor.valor.value.toStringAsFixed(2) +
-                              Values().moneda.value),
+                          child: Text(valor.nombre.value),
                         ),
                       )
                     ],
@@ -286,74 +294,79 @@ Widget ColumnChartPart(List<Chartvalues> chartValues) {
 }
 
 Widget _ColumnChart(double totalGastos, double totalIngresos) {
-  return BarChart(
-    BarChartData(
-      alignment: BarChartAlignment.center,
-      maxY: max(totalGastos, totalIngresos),
-      titlesData: FlTitlesData(
-        show: true,
-        bottomTitles: AxisTitles(
-          sideTitles: SideTitles(
-            showTitles: true,
-            getTitlesWidget: (value, meta) {
-              switch (value.toInt()) {
-                case 0:
-                  return const Text('Gastos');
-                case 1:
-                  return const Text('Ingresos');
-                default:
-                  return const Text('');
-              }
-            },
+  return Builder(builder: (context) {
+    final colorScheme = Theme.of(context).colorScheme;
+
+    return BarChart(
+      BarChartData(
+        alignment: BarChartAlignment.center,
+        maxY: max(totalGastos, totalIngresos),
+        titlesData: FlTitlesData(
+          show: true,
+          bottomTitles: AxisTitles(
+            sideTitles: SideTitles(
+              showTitles: true,
+              getTitlesWidget: (value, meta) {
+                switch (value.toInt()) {
+                  case 0:
+                    return const Text('Gastos');
+                  case 1:
+                    return const Text('Ingresos');
+                  default:
+                    return const Text('');
+                }
+              },
+            ),
           ),
-        ),
-        leftTitles: AxisTitles(
-          sideTitles: SideTitles(
-            showTitles: true,
-            reservedSize: 40,
-            getTitlesWidget: (value, meta) {
-              return Text(
-                  '${value.toStringAsFixed(0)} ${Values().moneda.value}');
-            },
+          leftTitles: AxisTitles(
+            sideTitles: SideTitles(
+              showTitles: true,
+              reservedSize: 40,
+              getTitlesWidget: (value, meta) {
+                return Text(
+                    '${value.toStringAsFixed(0)} ${Values().moneda.value}');
+              },
+            ),
           ),
+          rightTitles:
+              const AxisTitles(sideTitles: SideTitles(showTitles: false)),
+          topTitles:
+              const AxisTitles(sideTitles: SideTitles(showTitles: false)),
         ),
-        rightTitles:
-            const AxisTitles(sideTitles: SideTitles(showTitles: false)),
-        topTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
+        gridData: const FlGridData(show: false),
+        borderData: FlBorderData(show: false),
+        groupsSpace: 45,
+        barGroups: [
+          BarChartGroupData(
+            x: 0,
+            barRods: [
+              BarChartRodData(
+                toY: totalGastos,
+                color: colorScheme.error,
+                width: 30,
+                borderRadius: const BorderRadius.only(
+                  topLeft: Radius.circular(6),
+                  topRight: Radius.circular(6),
+                ),
+              ),
+            ],
+          ),
+          BarChartGroupData(
+            x: 1,
+            barRods: [
+              BarChartRodData(
+                toY: totalIngresos,
+                color: colorScheme.primary,
+                width: 30,
+                borderRadius: const BorderRadius.only(
+                  topLeft: Radius.circular(6),
+                  topRight: Radius.circular(6),
+                ),
+              ),
+            ],
+          ),
+        ],
       ),
-      gridData: const FlGridData(show: false),
-      borderData: FlBorderData(show: false),
-      groupsSpace: 45,
-      barGroups: [
-        BarChartGroupData(
-          x: 0,
-          barRods: [
-            BarChartRodData(
-              toY: totalGastos,
-              color: Colors.red,
-              width: 30,
-              borderRadius: const BorderRadius.only(
-                topLeft: Radius.circular(6),
-                topRight: Radius.circular(6),
-              ),
-            ),
-          ],
-        ),
-        BarChartGroupData(
-          x: 1,
-          barRods: [
-            BarChartRodData(
-              toY: totalIngresos,
-              color: Colors.green,
-              width: 30,
-              borderRadius: const BorderRadius.only(
-                topLeft: Radius.circular(6),
-                topRight: Radius.circular(6),
-              ),
-            ),
-          ],
-        ),
-      ],
-    ),
-  );
+    );
+  });
 }

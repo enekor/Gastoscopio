@@ -120,11 +120,10 @@ Widget LastInteractionsPart({required BuildContext context}) {
       Values().cuentaRet.value!.GetLastInteractions();
 
   return Card(
-      color: GetColor(ColorTypes.background, context).withOpacity(0.5),
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(8.0),
         side: BorderSide(
-          color: GetColor(ColorTypes.primary, context), // Borde rojo
+          color: Theme.of(context).colorScheme.primary,
           width: 2.0,
         ),
       ),
@@ -165,7 +164,13 @@ Widget DatePart(
   annos = annos.isEmpty ? [DateTime.now().year.toString()] : annos;
 
   return Card(
-    color: GetColor(ColorTypes.secondary, context),
+    shape: RoundedRectangleBorder(
+      side: BorderSide(
+        color: Theme.of(context).colorScheme.primary.withAlpha(20),
+        width: 2,
+      ),
+      borderRadius: BorderRadius.circular(8.0),
+    ),
     margin: const EdgeInsets.only(left: 15, right: 15, bottom: 15),
     child: Padding(
       padding: const EdgeInsets.all(25.0),
@@ -351,7 +356,6 @@ Widget InfoBottomNavigationBar(
     elevation: 3,
     selectedIndex: selected,
     onDestinationSelected: onChange,
-    backgroundColor: GetColor(ColorTypes.background, context),
     destinations: [
       const NavigationDestination(
           label: 'Home',
@@ -365,7 +369,6 @@ Widget InfoBottomNavigationBar(
       NavigationDestination(
         label: '',
         icon: FloatingActionButton(
-          backgroundColor: GetColor(ColorTypes.secondary, context),
           onPressed: () => onNew(),
           child: const Icon(Icons.add),
         ),

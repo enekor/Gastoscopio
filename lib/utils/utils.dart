@@ -93,23 +93,3 @@ enum ShowingGastos { ingresos, gastos, extras, deuda, fijo }
 enum ColorTypes { background, primary, secondary, tertiary, errorButton, text }
 
 enum OrderByTypes { dateAsc, dateDesc, name, value }
-
-Color GetColor(ColorTypes type, BuildContext context) {
-  ITheme tema = Theme.of(context).brightness == Brightness.light
-      ? AppColorsL()
-      : AppColorsD();
-  switch (type) {
-    case ColorTypes.primary:
-      return tema.primaryColor;
-    case ColorTypes.secondary:
-      return tema.secondaryColor;
-    case ColorTypes.errorButton:
-      return tema.errorButtonColor;
-    case ColorTypes.background:
-      return tema.backgroundColor;
-    case ColorTypes.text:
-      return tema.textColor;
-    case ColorTypes.tertiary:
-      return tema.tertiary;
-  }
-}

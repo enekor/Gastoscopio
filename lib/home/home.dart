@@ -59,17 +59,13 @@ class Home extends StatelessWidget {
                   cuentaDao().deleteCuenta(cuenta, kIsWeb);
                   ScaffoldMessenger.of(context).hideCurrentSnackBar();
                 },
-                icon: Icon(
-                  Icons.delete_forever,
-                  color: GetColor(ColorTypes.text, context),
-                )),
+                icon: const Icon(Icons.delete_forever)),
             IconButton(
                 onPressed: () {
                   ScaffoldMessenger.of(context).hideCurrentSnackBar();
                 },
-                icon: Icon(
+                icon: const Icon(
                   Icons.cancel_rounded,
-                  color: GetColor(ColorTypes.errorButton, context),
                 ))
           ],
         ),

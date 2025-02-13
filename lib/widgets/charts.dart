@@ -171,8 +171,7 @@ class _LineChartGeneratorState extends State<LineChartGenerator> {
   }
 
   Widget leftTitleWidgets(double value, TitleMeta meta) {
-    TextStyle style = TextStyle(
-      color: GetColor(ColorTypes.text, context),
+    TextStyle style = const TextStyle(
       fontWeight: FontWeight.bold,
       fontSize: 9,
     );
@@ -182,8 +181,7 @@ class _LineChartGeneratorState extends State<LineChartGenerator> {
   }
 
   Widget bottomTitleWidgets(double value, TitleMeta meta) {
-    TextStyle style = TextStyle(
-      color: GetColor(ColorTypes.text, context),
+    TextStyle style = const TextStyle(
       fontWeight: FontWeight.bold,
       fontSize: 9,
     );
@@ -269,7 +267,6 @@ class PieChart2State extends State<PieChartGenerator> {
           titleStyle: TextStyle(
             fontSize: fontSize,
             fontWeight: FontWeight.bold,
-            color: GetColor(ColorTypes.text, context),
           ),
           titlePositionPercentageOffset: 1.5);
     });
@@ -293,10 +290,9 @@ class BudgetPieChart extends StatelessWidget {
             value: item.percentage.toDouble(),
             title: item.description,
             radius: 50,
-            titleStyle: TextStyle(
+            titleStyle: const TextStyle(
               fontSize: 16,
               fontWeight: FontWeight.bold,
-              color: GetColor(ColorTypes.text, context),
             ),
           );
         }).toList(),
