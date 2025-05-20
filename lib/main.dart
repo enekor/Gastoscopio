@@ -1,4 +1,5 @@
 import 'package:cashly/data/services/sqlite_service.dart';
+import 'package:cashly/onboarding/screens/login.dart';
 import 'package:flutter/material.dart';
 import 'package:cashly/app.dart';
 
@@ -18,7 +19,7 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
       ),
-      home: const App(),
+      home: GoogleLoginScreen(),
     );
   }
 }
