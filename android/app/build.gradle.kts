@@ -6,7 +6,7 @@ plugins {
 }
 
 android {
-    namespace = "com.example.companion_tools"
+    namespace = "com.N3k0chan.cashly"
     compileSdk = flutter.compileSdkVersion
     ndkVersion = flutter.ndkVersion
 

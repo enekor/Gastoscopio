@@ -1,6 +1,6 @@
-import 'package:companion_tools/data/services/shared_preferences_service.dart';
-import 'package:companion_tools/modules/main_screen.dart';
-import 'package:companion_tools/onboarding/screens/first_startup.dart';
+import 'package:cashly/data/services/shared_preferences_service.dart';
+import 'package:cashly/modules/main_screen.dart';
+import 'package:cashly/onboarding/screens/first_startup.dart';
 import 'package:flutter/material.dart';
 
 class App extends StatelessWidget {
