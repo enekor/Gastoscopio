@@ -1,6 +1,6 @@
 {
-    "name": "companion_tools",
-    "short_name": "companion_tools",
+    "name": "cashly",
+    "short_name": "cashly",
     "start_url": ".",
     "display": "standalone",
     "background_color": "#0175C2",
