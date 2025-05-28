@@ -100,7 +100,7 @@ class _$AppDatabase extends AppDatabase {
         await database.execute(
             'CREATE TABLE IF NOT EXISTS `Month` (`id` INTEGER NOT NULL, `month` INTEGER NOT NULL, `year` INTEGER NOT NULL, PRIMARY KEY (`id`))');
         await database.execute(
-            'CREATE TABLE IF NOT EXISTS `MovementValue` (`id` INTEGER NOT NULL, `monthId` INTEGER NOT NULL, `description` TEXT NOT NULL, `amount` REAL NOT NULL, PRIMARY KEY (`id`))');
+            'CREATE TABLE IF NOT EXISTS `MovementValue` (`id` INTEGER NOT NULL, `monthId` INTEGER NOT NULL, `description` TEXT NOT NULL, `amount` REAL NOT NULL, `isExpense` INTEGER NOT NULL, `day` INTEGER NOT NULL, `category` TEXT, PRIMARY KEY (`id`))');
 
         await callback?.onCreate?.call(database, version);
       },
@@ -185,6 +185,20 @@ class _$MonthDao extends MonthDao {
   }
 
   @override
+  Stream<Month?> findMonthByMonthAndYear(
+    int month,
+    int year,
+  ) {
+    return _queryAdapter.queryStream(
+        'SELECT * FROM Month WHERE month = ?1 AND year = ?2',
+        mapper: (Map<String, Object?> row) =>
+            Month(row['id'] as int, row['month'] as int, row['year'] as int),
+        arguments: [month, year],
+        queryableName: 'Month',
+        isView: false);
+  }
+
+  @override
   Future<void> insertMonth(Month month) async {
     await _monthInsertionAdapter.insert(month, OnConflictStrategy.abort);
   }
@@ -212,7 +226,10 @@ class _$MovementValueDao extends MovementValueDao {
                   'id': item.id,
                   'monthId': item.monthId,
                   'description': item.description,
-                  'amount': item.amount
+                  'amount': item.amount,
+                  'isExpense': item.isExpense ? 1 : 0,
+                  'day': item.day,
+                  'category': item.category
                 }),
         _movementValueUpdateAdapter = UpdateAdapter(
             database,
@@ -222,7 +239,10 @@ class _$MovementValueDao extends MovementValueDao {
                   'id': item.id,
                   'monthId': item.monthId,
                   'description': item.description,
-                  'amount': item.amount
+                  'amount': item.amount,
+                  'isExpense': item.isExpense ? 1 : 0,
+                  'day': item.day,
+                  'category': item.category
                 }),
         _movementValueDeletionAdapter = DeletionAdapter(
             database,
@@ -232,7 +252,10 @@ class _$MovementValueDao extends MovementValueDao {
                   'id': item.id,
                   'monthId': item.monthId,
                   'description': item.description,
-                  'amount': item.amount
+                  'amount': item.amount,
+                  'isExpense': item.isExpense ? 1 : 0,
+                  'day': item.day,
+                  'category': item.category
                 });
 
   final sqflite.DatabaseExecutor database;
@@ -255,8 +278,40 @@ class _$MovementValueDao extends MovementValueDao {
             row['id'] as int,
             row['monthId'] as int,
             row['description'] as String,
-            row['amount'] as double),
+            row['amount'] as double,
+            (row['isExpense'] as int) != 0,
+            row['day'] as int,
+            row['category'] as String?),
         arguments: [monthId]);
+  }
+
+  @override
+  Future<List<MovementValue>> findMovementValuesByMonthIdAndType(
+    int monthId,
+    bool isExpense,
+  ) async {
+    return _queryAdapter.queryList(
+        'SELECT * FROM MovementValue WHERE monthId = ?1 AND isExpense = ?2',
+        mapper: (Map<String, Object?> row) => MovementValue(
+            row['id'] as int,
+            row['monthId'] as int,
+            row['description'] as String,
+            row['amount'] as double,
+            (row['isExpense'] as int) != 0,
+            row['day'] as int,
+            row['category'] as String?),
+        arguments: [monthId, isExpense ? 1 : 0]);
+  }
+
+  @override
+  Future<double?> sumMovementValuesByMonthIdAndType(
+    int monthId,
+    bool isExpense,
+  ) async {
+    return _queryAdapter.query(
+        'SELECT SUM(amount) FROM MovementValue WHERE monthId = ?1 AND isExpense = ?2',
+        mapper: (Map<String, Object?> row) => row.values.first as double,
+        arguments: [monthId, isExpense ? 1 : 0]);
   }
 
   @override

@@ -9,6 +9,9 @@ abstract class MonthDao {
   @Query('SELECT * FROM Month WHERE id = :id')
   Stream<Month?> findMonthById(int id);
 
+  @Query('SELECT * FROM Month WHERE month = :month AND year = :year')
+  Stream<Month?> findMonthByMonthAndYear(int month, int year);
+
   @insert
   Future<void> insertMonth(Month month);
 

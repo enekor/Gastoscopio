@@ -7,6 +7,17 @@ class MovementValue {
   final int monthId; // Foreign key referencing Month
   final String description;
   final double amount;
+  final bool isExpense;
+  final int day;
+  final String? category;
 
-  MovementValue(this.id, this.monthId, this.description, this.amount);
+  MovementValue(
+    this.id,
+    this.monthId,
+    this.description,
+    this.amount,
+    this.isExpense,
+    this.day,
+    this.category,
+  );
 }
