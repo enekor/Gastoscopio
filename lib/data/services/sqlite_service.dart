@@ -1,9 +1,9 @@
 import 'dart:async';
+import 'dart:io';
 
 import 'package:cashly/data/dao/movement_value_dao.dart';
 import 'package:cashly/data/models/movement_value.dart';
 import 'package:floor/floor.dart';
-import 'package:path_provider/path_provider.dart';
 import 'package:sqflite/sqflite.dart' as sqflite;
 import 'package:cashly/data/dao/month_dao.dart';
 import 'package:cashly/data/models/month.dart';
@@ -21,6 +21,8 @@ class SqliteService {
   static final SqliteService _instance = SqliteService._internal();
   static late AppDatabase database;
 
+  AppDatabase get db => database;
+
   // Private constructor
   SqliteService._internal();
 
@@ -29,19 +31,60 @@ class SqliteService {
     return _instance;
   }
 
-  Future<void> initializeDatabase() async {
-    final directory = await getApplicationDocumentsDirectory();
-    final dbPath = p.join(directory.path, 'cashly_database.db');
+  Future<void> initializeDatabase({bool forceRecreate = false}) async {
+    try {
+      // Usar getDatabasesPath() de sqflite
+      final dbPath = await sqflite.getDatabasesPath();
+      final path = p.join(dbPath, 'cashly_database.db');
 
-    /*
-    Para crear nueva version
-    
-    final migration1to2 = Migration(1, 2, (database) async {
-      await database.execute('ALTER TABLE Expense ADD COLUMN category TEXT');
-    });
+      // Asegurarse de que el directorio existe
+      final directory = Directory(p.dirname(path));
+      if (!directory.existsSync()) {
+        directory.createSync(recursive: true);
+      }
+      print('Inicializando base de datos en: $path');
+      // Borrar la base de datos si se solicita recreación
+      if (forceRecreate && File(path).existsSync()) {
+        await File(path).delete();
+        print('Base de datos eliminada para recreación');
+      }
 
-    añadir .addMigrations([migration1to2]) antes del build()
-    */
-    database = await $FloorAppDatabase.databaseBuilder(dbPath).build();
+      final callback = Callback(
+        onConfigure: (database) async {
+          await database.execute('PRAGMA foreign_keys = ON');
+        },
+        onCreate: (database, version) async {
+          await database.execute('''
+            CREATE TABLE IF NOT EXISTS Month (
+              id INTEGER PRIMARY KEY AUTOINCREMENT,
+              month INTEGER NOT NULL,
+              year INTEGER NOT NULL
+            )
+          ''');
+
+          await database.execute('''
+            CREATE TABLE IF NOT EXISTS MovementValue (
+              id INTEGER PRIMARY KEY AUTOINCREMENT,
+              monthId INTEGER NOT NULL,
+              description TEXT NOT NULL,
+              amount REAL NOT NULL,
+              isExpense INTEGER NOT NULL,
+              day INTEGER NOT NULL,
+              category TEXT,
+              FOREIGN KEY (monthId) REFERENCES Month (id) ON DELETE CASCADE
+            )
+          ''');
+        },
+      );
+
+      database =
+          await $FloorAppDatabase
+              .databaseBuilder(path)
+              .addCallback(callback)
+              .build();
+    } catch (e) {
+      print('Error al inicializar la base de datos: $e');
+      rethrow;
+    }
   }
 }

@@ -98,7 +98,7 @@ class _$AppDatabase extends AppDatabase {
       },
       onCreate: (database, version) async {
         await database.execute(
-            'CREATE TABLE IF NOT EXISTS `Month` (`id` INTEGER NOT NULL, `month` INTEGER NOT NULL, `year` INTEGER NOT NULL, PRIMARY KEY (`id`))');
+            'CREATE TABLE IF NOT EXISTS `Month` (`id` INTEGER PRIMARY KEY AUTOINCREMENT, `month` INTEGER NOT NULL, `year` INTEGER NOT NULL)');
         await database.execute(
             'CREATE TABLE IF NOT EXISTS `MovementValue` (`id` INTEGER NOT NULL, `monthId` INTEGER NOT NULL, `description` TEXT NOT NULL, `amount` REAL NOT NULL, `isExpense` INTEGER NOT NULL, `day` INTEGER NOT NULL, `category` TEXT, PRIMARY KEY (`id`))');
 
@@ -170,15 +170,17 @@ class _$MonthDao extends MonthDao {
   @override
   Future<List<Month>> findAllMonths() async {
     return _queryAdapter.queryList('SELECT * FROM Month',
-        mapper: (Map<String, Object?> row) =>
-            Month(row['id'] as int, row['month'] as int, row['year'] as int));
+        mapper: (Map<String, Object?> row) => Month(
+            row['month'] as int, row['year'] as int,
+            id: row['id'] as int?));
   }
 
   @override
   Stream<Month?> findMonthById(int id) {
     return _queryAdapter.queryStream('SELECT * FROM Month WHERE id = ?1',
-        mapper: (Map<String, Object?> row) =>
-            Month(row['id'] as int, row['month'] as int, row['year'] as int),
+        mapper: (Map<String, Object?> row) => Month(
+            row['month'] as int, row['year'] as int,
+            id: row['id'] as int?),
         arguments: [id],
         queryableName: 'Month',
         isView: false);
@@ -191,8 +193,9 @@ class _$MonthDao extends MonthDao {
   ) {
     return _queryAdapter.queryStream(
         'SELECT * FROM Month WHERE month = ?1 AND year = ?2',
-        mapper: (Map<String, Object?> row) =>
-            Month(row['id'] as int, row['month'] as int, row['year'] as int),
+        mapper: (Map<String, Object?> row) => Month(
+            row['month'] as int, row['year'] as int,
+            id: row['id'] as int?),
         arguments: [month, year],
         queryableName: 'Month',
         isView: false);
@@ -200,7 +203,7 @@ class _$MonthDao extends MonthDao {
 
   @override
   Future<void> insertMonth(Month month) async {
-    await _monthInsertionAdapter.insert(month, OnConflictStrategy.abort);
+    await _monthInsertionAdapter.insert(month, OnConflictStrategy.replace);
   }
 
   @override

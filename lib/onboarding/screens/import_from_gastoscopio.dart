@@ -2,6 +2,11 @@ import 'package:cashly/data/services/json_import_service.dart';
 import 'package:flutter/material.dart';
 
 class ImportFromGastoscopioScreen extends StatefulWidget {
+  final Function(JsonImportResult) onImportSuccess;
+
+  const ImportFromGastoscopioScreen({Key? key, required this.onImportSuccess})
+    : super(key: key);
+
   @override
   _ImportFromGastoscopioScreenState createState() =>
       _ImportFromGastoscopioScreenState();
@@ -217,6 +222,14 @@ class _ImportFromGastoscopioScreenState
                     ),
                   );
                 }).toList(),
+          ),
+        ),
+
+        ElevatedButton(
+          onPressed: () => widget.onImportSuccess(result),
+          child: Text(
+            'Importar Datos',
+            style: TextStyle(color: Theme.of(context).colorScheme.onPrimary),
           ),
         ),
       ],

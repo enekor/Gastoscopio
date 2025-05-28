@@ -11,8 +11,7 @@ abstract class MonthDao {
 
   @Query('SELECT * FROM Month WHERE month = :month AND year = :year')
   Stream<Month?> findMonthByMonthAndYear(int month, int year);
-
-  @insert
+  @Insert(onConflict: OnConflictStrategy.replace)
   Future<void> insertMonth(Month month);
 
   @update

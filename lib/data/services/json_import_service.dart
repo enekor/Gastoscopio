@@ -85,7 +85,7 @@ class JsonImportService {
         int numeroMes = _monthNames[nombreMes] ?? 1;
         int anno = mesData['Anno'] ?? DateTime.now().year;
 
-        Month month = Month(i + 1, numeroMes, anno);
+        Month month = Month(numeroMes, anno);
         months.add(month);
 
         // Procesar movimientos para este mes

@@ -1,6 +1,13 @@
+import 'package:cashly/data/models/month.dart';
+import 'package:cashly/data/models/movement_value.dart';
+import 'package:cashly/data/services/json_import_service.dart';
 import 'package:cashly/data/services/login_service.dart';
+import 'package:cashly/data/services/sqlite_service.dart';
+import 'package:cashly/onboarding/screens/data_test.dart';
 import 'package:cashly/onboarding/screens/first_startup.dart';
+import 'package:cashly/onboarding/screens/import_from_gastoscopio.dart';
 import 'package:cashly/onboarding/screens/login.dart';
+import 'package:floor/floor.dart';
 import 'package:flutter/material.dart';
 
 class OnboardingScreen extends StatefulWidget {
@@ -37,11 +44,38 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
     _handleNext();
   }
 
+  void _saveUserFromFile(JsonImportResult result) async {
+    await SqliteService().initializeDatabase(forceRecreate: true);
+
+    AppDatabase db = SqliteService().db;
+
+    for (Month month in result.months) {
+      await db.monthDao.insertMonth(month);
+    }
+
+    for (MovementValue movement in result.movements) {
+      await db.movementValueDao.insertMovementValue(movement);
+    }
+
+    await LoginService().uploadDatabase();
+
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(
+        content: Text('Los datos se han guardado correctamente'),
+        duration: Duration(seconds: 2),
+      ),
+    );
+
+    _handleNext();
+  }
+
   @override
   void initState() {
     _pages = [
       FirstStartupScreen(onTermsAccepted: _handleNext),
       GoogleLoginScreen(onLoginOk: _checkExistingBackup),
+      ImportFromGastoscopioScreen(onImportSuccess: _saveUserFromFile),
+      DataTestPage(),
     ];
 
     super.initState();
