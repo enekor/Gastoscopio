@@ -36,15 +36,15 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
     }
   }
 
-  void _onTermsAccepted() {
+  void _onTermsAccepted() async {
     _pages = [
       GoogleLoginScreen(onLoginOk: _checkExistingBackup),
       ImportFromGastoscopioScreen(onImportSuccess: _saveUserFromFile),
       //DataTestPage(),
     ];
 
-    SharedPreferencesService().setBool(
-      SharedPrefsKeys.isFirstStartup.name,
+    await SharedPreferencesService.setBoolValue(
+      SharedPreferencesKeys.isFirstStartup,
       false,
     );
 

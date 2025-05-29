@@ -5,7 +5,13 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 class GastoscopioHomeScreen extends StatefulWidget {
-  const GastoscopioHomeScreen({Key? key}) : super(key: key);
+  const GastoscopioHomeScreen({
+    Key? key,
+    required this.year,
+    required this.month,
+  }) : super(key: key);
+  final int year;
+  final int month;
 
   @override
   State<GastoscopioHomeScreen> createState() => _GastoscopioHomeScreenState();
@@ -14,10 +20,6 @@ class GastoscopioHomeScreen extends StatefulWidget {
 class _GastoscopioHomeScreenState extends State<GastoscopioHomeScreen> {
   late FinanceService _financeService;
   String _greeting = '';
-  int _selectedYear = DateTime.now().year;
-  int _selectedMonth = DateTime.now().month;
-  List<int> _availableYears = [];
-  List<int> _availableMonths = [];
 
   @override
   void initState() {
@@ -35,36 +37,11 @@ class _GastoscopioHomeScreenState extends State<GastoscopioHomeScreen> {
   Future<void> _loadInitialData() async {
     try {
       // Obtener años disponibles
-      final years = await _financeService.getAvailableYears();
-      setState(() {
-        _availableYears = years;
-        _selectedYear =
-            years.contains(DateTime.now().year)
-                ? DateTime.now().year
-                : years.last;
-      });
-
-      // Obtener meses disponibles para el año seleccionado
-      final months = await _financeService.getAvailableMonths(_selectedYear);
-      setState(() {
-        _availableMonths = months;
-        _selectedMonth =
-            months.contains(DateTime.now().month)
-                ? DateTime.now().month
-                : months.last;
-      });
 
       // Establecer el mes actual
-      await _financeService.setCurrentMonth(_selectedMonth, _selectedYear);
     } catch (e) {
       debugPrint('Error al cargar datos iniciales: $e');
       // Establecer valores por defecto
-      setState(() {
-        _selectedYear = DateTime.now().year;
-        _selectedMonth = DateTime.now().month;
-        _availableYears = [_selectedYear];
-        _availableMonths = [_selectedMonth];
-      });
     }
   }
 
@@ -94,8 +71,6 @@ class _GastoscopioHomeScreenState extends State<GastoscopioHomeScreen> {
               _buildGreetingsPart(),
               const SizedBox(height: 24),
               _buildLastInteractionsPart(),
-              const SizedBox(height: 16),
-              _buildDatePart(),
               const SizedBox(height: 16),
               _buildTotalPart(),
               const SizedBox(width: 16),
@@ -178,62 +153,6 @@ class _GastoscopioHomeScreenState extends State<GastoscopioHomeScreen> {
           ),
         );
       },
-    );
-  }
-
-  Widget _buildDatePart() {
-    return Card(
-      child: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text('Período', style: Theme.of(context).textTheme.titleLarge),
-            const SizedBox(height: 16),
-            MonthYearSelector(
-              selectedYear: _selectedYear,
-              selectedMonth: _selectedMonth,
-              availableYears: _availableYears,
-              availableMonths: _availableMonths,
-              onYearChanged: (year) async {
-                setState(() => _selectedYear = year);
-                final months = await _financeService.getAvailableMonths(year);
-                setState(() {
-                  _availableMonths = months;
-                  _selectedMonth =
-                      months.contains(DateTime.now().month)
-                          ? DateTime.now().month
-                          : months.last;
-                });
-                await _financeService.setCurrentMonth(
-                  _selectedMonth,
-                  _selectedYear,
-                );
-              },
-              onMonthChanged: (month) async {
-                final selectedMonth = await _financeService
-                    .handleMonthSelection(month, _selectedYear, context);
-                if (selectedMonth != null) {
-                  // Actualizar el mes seleccionado
-                  setState(() => _selectedMonth = selectedMonth);
-                  // Actualizar los meses disponibles
-                  final months = await _financeService.getAvailableMonths(
-                    _selectedYear,
-                  );
-                  setState(() {
-                    _availableMonths = months;
-                  });
-                  // Actualizar el mes actual en el servicio
-                  await _financeService.setCurrentMonth(
-                    _selectedMonth,
-                    _selectedYear,
-                  );
-                }
-              },
-            ),
-          ],
-        ),
-      ),
     );
   }
 

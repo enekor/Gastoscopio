@@ -51,6 +51,7 @@ class MonthYearSelector extends StatelessWidget {
                   );
                 }).toList(),
             onChanged: (value) => onYearChanged(value!),
+            underline: const SizedBox(),
             buttonStyleData: ButtonStyleData(
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(8),
@@ -74,6 +75,7 @@ class MonthYearSelector extends StatelessWidget {
                   );
                 }).toList(),
             onChanged: (value) => onMonthChanged(value!),
+            underline: const SizedBox(),
             buttonStyleData: ButtonStyleData(
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(8),

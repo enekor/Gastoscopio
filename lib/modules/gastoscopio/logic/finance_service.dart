@@ -129,7 +129,10 @@ class FinanceService extends ChangeNotifier {
     int year,
     BuildContext context,
   ) async {
-    if (await monthExists(month, year)) return month;
+    if (await monthExists(month, year)) {
+      await setCurrentMonth(month, year);
+      return month;
+    }
 
     final shouldCreate =
         await showDialog<bool>(
@@ -181,7 +184,7 @@ class FinanceService extends ChangeNotifier {
                         .map(
                           (m) => ListTile(
                             title: Text(_getMonthName(m)),
-                            onTap: () => Navigator.pop(context, m),
+                            onTap: () async => await setCurrentMonth(m, year),
                           ),
                         )
                         .toList(),
@@ -246,5 +249,16 @@ class FinanceService extends ChangeNotifier {
     }
 
     return dailyTotals.entries.toList()..sort((a, b) => a.key.compareTo(b.key));
+  }
+
+  /// Actualiza la fecha seleccionada y carga los datos correspondientes
+  Future<void> updateSelectedDate(int month, int year) async {
+    await setCurrentMonth(month, year);
+    // setCurrentMonth ya hace notifyListeners() internamente
+  }
+
+  Future<List<MovementValue>> getCurrentMonthMovements() async {
+    if (_currentMonth == null) return [];
+    return _movementValueDao.findMovementValuesByMonthId(_currentMonth!.id!);
   }
 }
