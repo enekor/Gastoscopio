@@ -1,17 +1,19 @@
 import 'package:cashly/data/services/shared_preferences_service.dart';
 import 'package:cashly/modules/main_screen.dart';
 import 'package:cashly/onboarding/onboarding.dart';
-import 'package:cashly/onboarding/screens/first_startup.dart';
 import 'package:flutter/material.dart';
 
 class App extends StatelessWidget {
   const App({super.key});
 
   Future<bool> init() async {
-    return SharedPreferencesService().getBool(
+    bool a =
+        SharedPreferencesService().getBool(
           SharedPrefsKeys.isFirstStartup.name,
         ) ??
         true;
+
+    return a;
   }
 
   @override

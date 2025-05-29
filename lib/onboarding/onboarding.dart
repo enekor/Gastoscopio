@@ -2,12 +2,12 @@ import 'package:cashly/data/models/month.dart';
 import 'package:cashly/data/models/movement_value.dart';
 import 'package:cashly/data/services/json_import_service.dart';
 import 'package:cashly/data/services/login_service.dart';
+import 'package:cashly/data/services/shared_preferences_service.dart';
 import 'package:cashly/data/services/sqlite_service.dart';
-import 'package:cashly/onboarding/screens/data_test.dart';
+import 'package:cashly/modules/main_screen.dart';
 import 'package:cashly/onboarding/screens/first_startup.dart';
 import 'package:cashly/onboarding/screens/import_from_gastoscopio.dart';
 import 'package:cashly/onboarding/screens/login.dart';
-import 'package:floor/floor.dart';
 import 'package:flutter/material.dart';
 
 class OnboardingScreen extends StatefulWidget {
@@ -34,6 +34,21 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
         _currentPage++;
       });
     }
+  }
+
+  void _onTermsAccepted() {
+    _pages = [
+      GoogleLoginScreen(onLoginOk: _checkExistingBackup),
+      ImportFromGastoscopioScreen(onImportSuccess: _saveUserFromFile),
+      //DataTestPage(),
+    ];
+
+    SharedPreferencesService().setBool(
+      SharedPrefsKeys.isFirstStartup.name,
+      false,
+    );
+
+    setState(() {});
   }
 
   void _checkExistingBackup() async {
@@ -66,17 +81,15 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
       ),
     );
 
-    _handleNext();
+    Navigator.pushReplacement(
+      context,
+      MaterialPageRoute(builder: (context) => const MainScreen()),
+    );
   }
 
   @override
   void initState() {
-    _pages = [
-      FirstStartupScreen(onTermsAccepted: _handleNext),
-      GoogleLoginScreen(onLoginOk: _checkExistingBackup),
-      ImportFromGastoscopioScreen(onImportSuccess: _saveUserFromFile),
-      DataTestPage(),
-    ];
+    _pages = [FirstStartupScreen(onTermsAccepted: _onTermsAccepted)];
 
     super.initState();
   }

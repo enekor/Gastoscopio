@@ -19,7 +19,8 @@ abstract class AppDatabase extends FloorDatabase {
 
 class SqliteService {
   static final SqliteService _instance = SqliteService._internal();
-  static late AppDatabase database;
+  late AppDatabase database;
+  bool isInitialized = false;
 
   AppDatabase get db => database;
 
@@ -32,6 +33,8 @@ class SqliteService {
   }
 
   Future<void> initializeDatabase({bool forceRecreate = false}) async {
+    if (isInitialized) return;
+
     try {
       // Usar getDatabasesPath() de sqflite
       final dbPath = await sqflite.getDatabasesPath();
@@ -82,6 +85,8 @@ class SqliteService {
               .databaseBuilder(path)
               .addCallback(callback)
               .build();
+
+      isInitialized = true;
     } catch (e) {
       print('Error al inicializar la base de datos: $e');
       rethrow;
