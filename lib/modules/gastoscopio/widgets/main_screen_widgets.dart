@@ -3,7 +3,9 @@ import 'package:flutter/material.dart';
 Widget AnimatedCard(
   BuildContext context, {
   required Widget hiddenWidget,
+  Widget? leadingWidget,
   required bool isExpanded,
+  Color? color,
 }) {
   return StatefulBuilder(
     builder: (context, setState) {
@@ -17,12 +19,13 @@ Widget AnimatedCard(
           duration: const Duration(milliseconds: 300),
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(16),
-            color: Theme.of(context).colorScheme.surface.withOpacity(0.7),
+            color:
+                color ?? Theme.of(context).colorScheme.surface.withOpacity(0.7),
           ),
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              Container(),
+              leadingWidget ?? Container(),
               AnimatedCrossFade(
                 duration: const Duration(milliseconds: 300),
                 firstChild: Container(),

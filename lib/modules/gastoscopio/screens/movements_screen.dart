@@ -1,6 +1,9 @@
+import 'package:cashly/modules/gastoscopio/screens/movement_form_screen_new.dart';
+import 'package:cashly/modules/gastoscopio/widgets/main_screen_widgets.dart';
 import 'package:flutter/material.dart';
 import 'package:cashly/data/models/movement_value.dart';
 import 'package:cashly/modules/gastoscopio/logic/finance_service.dart';
+import 'package:cashly/modules/gastoscopio/screens/movement_form_screen.dart';
 import 'package:provider/provider.dart';
 
 class MovementsScreen extends StatefulWidget {
@@ -56,6 +59,17 @@ class _MovementsScreenState extends State<MovementsScreen> {
   Widget _buildContent(List<MovementValue> movements) {
     return Scaffold(
       appBar: _buildAppBar(),
+      floatingActionButton: FloatingActionButton.extended(
+        onPressed: () {
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (context) => const MovementFormScreen()),
+          );
+        },
+        icon: const Icon(Icons.add),
+        label: const Text('Nuevo'),
+        heroTag: 'movements_fab',
+      ),
       body: Column(
         children: [
           _buildFilters(),
@@ -86,13 +100,25 @@ class _MovementsScreenState extends State<MovementsScreen> {
   Widget _buildFilters() {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16),
-      child: Card(
-        child: Padding(
-          padding: const EdgeInsets.all(16),
+      child: AnimatedCard(
+        context,
+        isExpanded: false,
+        color: Theme.of(context).colorScheme.secondary.withAlpha(45),
+        leadingWidget: Padding(
+          padding: const EdgeInsets.symmetric(vertical: 15.0, horizontal: 20),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text('Filtros', style: Theme.of(context).textTheme.titleLarge),
+              Icon(Icons.filter_list),
+            ],
+          ),
+        ),
+        hiddenWidget: Padding(
+          padding: const EdgeInsets.only(left: 16, right: 16, bottom: 16),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text('Filtros', style: Theme.of(context).textTheme.titleMedium),
               const SizedBox(height: 16),
               Row(
                 children: [
@@ -151,75 +177,67 @@ class _MovementsScreenState extends State<MovementsScreen> {
         final movement = movements[index];
         final isExpanded = _expandedItems[movement.id] ?? false;
 
-        return Card(
-          margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
-          child: Column(
-            children: [
-              ListTile(
-                title: Text(movement.description),
-                trailing: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Text(
-                      '\$${movement.amount.toStringAsFixed(2)}',
-                      style: TextStyle(
-                        color:
-                            movement.isExpense
-                                ? Theme.of(context).colorScheme.error
-                                : Theme.of(context).colorScheme.primary,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                    IconButton(
-                      icon: Icon(
-                        isExpanded ? Icons.expand_less : Icons.expand_more,
-                      ),
-                      onPressed: () {
-                        setState(() {
-                          _expandedItems[movement.id] = !isExpanded;
-                        });
-                      },
-                    ),
-                  ],
-                ),
-              ),
-              AnimatedContainer(
-                duration: const Duration(milliseconds: 200),
-                height: isExpanded ? 80 : 0,
-                child: SingleChildScrollView(
-                  physics: const NeverScrollableScrollPhysics(),
-                  child: Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 16),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        const Divider(),
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(
-                                  'Fecha: ${movement.day}/${widget.month}/${widget.year}',
-                                  style: Theme.of(context).textTheme.bodyMedium,
-                                ),
-                                if (movement.category != null)
-                                  Text(
-                                    'Categoría: ${movement.category}',
-                                    style:
-                                        Theme.of(context).textTheme.bodyMedium,
-                                  ),
-                              ],
-                            ),
-                          ],
+        return Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+          child: AnimatedCard(
+            context,
+            isExpanded: isExpanded,
+            leadingWidget: Column(
+              children: [
+                ListTile(
+                  title: Text(movement.description),
+                  trailing: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Text(
+                        '\$${movement.amount.toStringAsFixed(2)}',
+                        style: TextStyle(
+                          color:
+                              movement.isExpense
+                                  ? Theme.of(context).colorScheme.error
+                                  : Theme.of(context).colorScheme.primary,
+                          fontWeight: FontWeight.bold,
                         ),
-                      ],
-                    ),
+                      ),
+                      IconButton(
+                        icon: Icon(
+                          isExpanded ? Icons.expand_less : Icons.expand_more,
+                        ),
+                        onPressed: () {
+                          setState(() {
+                            _expandedItems[movement.id] = !isExpanded;
+                          });
+                        },
+                      ),
+                    ],
                   ),
                 ),
+              ],
+            ),
+            hiddenWidget: SingleChildScrollView(
+              scrollDirection: Axis.horizontal,
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  ElevatedButton.icon(
+                    onPressed: () {},
+                    label: Text(
+                      'Fecha: ${movement.day}/${widget.month}/${widget.year}',
+                      style: Theme.of(context).textTheme.bodyMedium,
+                    ),
+                    icon: Icon(Icons.calendar_month),
+                  ),
+                  ElevatedButton.icon(
+                    onPressed: () {},
+                    label: Text(
+                      'Categoría: ${movement.category ?? 'Sin categoría'}',
+                      style: Theme.of(context).textTheme.bodyMedium,
+                    ),
+                    icon: Icon(Icons.category),
+                  ),
+                ],
               ),
-            ],
+            ),
           ),
         );
       },

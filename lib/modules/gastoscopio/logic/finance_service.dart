@@ -161,9 +161,7 @@ class FinanceService extends ChangeNotifier {
       final newMonth = Month(month, year);
       await _monthDao.insertMonth(newMonth);
       return month;
-    }
-
-    // Si el usuario no quiere crear el mes, mostrar diálogo con meses existentes
+    } // Si el usuario no quiere crear el mes, seleccionar el último mes existente
     final existingMonths = await _monthDao.findAllMonths();
     final availableMonths =
         existingMonths.where((m) => m.year == year).map((m) => m.month).toList()
@@ -171,27 +169,9 @@ class FinanceService extends ChangeNotifier {
 
     if (availableMonths.isEmpty) return null;
 
-    return await showDialog<int>(
-      context: context,
-      builder:
-          (context) => AlertDialog(
-            title: const Text('Seleccionar mes existente'),
-            content: SingleChildScrollView(
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children:
-                    availableMonths
-                        .map(
-                          (m) => ListTile(
-                            title: Text(_getMonthName(m)),
-                            onTap: () async => await setCurrentMonth(m, year),
-                          ),
-                        )
-                        .toList(),
-              ),
-            ),
-          ),
-    );
+    final lastMonth = availableMonths.last;
+    await setCurrentMonth(lastMonth, year);
+    return lastMonth;
   }
 
   String _getMonthName(int month) {

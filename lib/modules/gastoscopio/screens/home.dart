@@ -1,5 +1,7 @@
 import 'package:cashly/data/services/sqlite_service.dart';
 import 'package:cashly/modules/gastoscopio/logic/finance_service.dart';
+import 'package:cashly/modules/gastoscopio/screens/movement_form_screen.dart';
+import 'package:cashly/modules/gastoscopio/screens/movement_form_screen_new.dart';
 import 'package:cashly/modules/gastoscopio/widgets/finance_widgets.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -18,30 +20,30 @@ class GastoscopioHomeScreen extends StatefulWidget {
 }
 
 class _GastoscopioHomeScreenState extends State<GastoscopioHomeScreen> {
-  late FinanceService _financeService;
   String _greeting = '';
 
   @override
   void initState() {
     super.initState();
     _updateGreeting();
-    _initializeFinanceService();
+    _loadInitialData();
   }
 
-  void _initializeFinanceService() {
-    final db = SqliteService().db;
-    _financeService = FinanceService(db.monthDao, db.movementValueDao);
-    _loadInitialData();
+  @override
+  void didUpdateWidget(GastoscopioHomeScreen oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.year != widget.year || oldWidget.month != widget.month) {
+      _loadInitialData();
+    }
   }
 
   Future<void> _loadInitialData() async {
     try {
-      // Obtener años disponibles
-
-      // Establecer el mes actual
+      // Establecer el mes actual y cargar sus datos
+      final service = Provider.of<FinanceService>(context, listen: false);
+      await service.updateSelectedDate(widget.month, widget.year);
     } catch (e) {
       debugPrint('Error al cargar datos iniciales: $e');
-      // Establecer valores por defecto
     }
   }
 
@@ -60,9 +62,19 @@ class _GastoscopioHomeScreenState extends State<GastoscopioHomeScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return ChangeNotifierProvider.value(
-      value: _financeService,
-      child: Padding(
+    return Scaffold(
+      floatingActionButton: FloatingActionButton.extended(
+        onPressed: () {
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (context) => const MovementFormScreen()),
+          );
+        },
+        icon: const Icon(Icons.add),
+        label: const Text('Nuevo'),
+        heroTag: 'home_fab',
+      ),
+      body: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 25),
         child: SingleChildScrollView(
           child: Column(
@@ -109,6 +121,13 @@ class _GastoscopioHomeScreenState extends State<GastoscopioHomeScreen> {
         final movements = service.todayMovements;
 
         return Card(
+          color: Theme.of(context).colorScheme.surface,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(16),
+            side: BorderSide(
+              color: Theme.of(context).colorScheme.primary.withAlpha(90),
+            ),
+          ),
           child: Padding(
             padding: const EdgeInsets.all(16),
             child: Column(
