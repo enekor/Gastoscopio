@@ -241,4 +241,85 @@ class FinanceService extends ChangeNotifier {
     if (_currentMonth == null) return [];
     return _movementValueDao.findMovementValuesByMonthId(_currentMonth!.id!);
   }
+
+  Future<void> deleteMovement(MovementValue movement) async {
+    await _movementValueDao.deleteMovementValue(movement);
+    await _updateMonthData(); // Actualizar datos después de eliminar
+    notifyListeners();
+  }
+
+  Future<void> showEditMovementDialog(
+    BuildContext context,
+    MovementValue movement,
+  ) async {
+    final formKey = GlobalKey<FormState>();
+    final nameController = TextEditingController(text: movement.description);
+    final amountController = TextEditingController(
+      text: movement.amount.toStringAsFixed(2),
+    );
+
+    await showDialog(
+      context: context,
+      builder:
+          (context) => AlertDialog(
+            title: const Text('Editar movimiento'),
+            content: Form(
+              key: formKey,
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  TextFormField(
+                    controller: nameController,
+                    decoration: const InputDecoration(labelText: 'Nombre'),
+                    validator:
+                        (value) =>
+                            value?.isEmpty == true
+                                ? 'El nombre es requerido'
+                                : null,
+                  ),
+                  TextFormField(
+                    controller: amountController,
+                    decoration: const InputDecoration(labelText: 'Monto'),
+                    keyboardType: TextInputType.number,
+                    validator: (value) {
+                      if (value?.isEmpty == true)
+                        return 'El monto es requerido';
+                      if (double.tryParse(value!) == null)
+                        return 'Monto inválido';
+                      return null;
+                    },
+                  ),
+                ],
+              ),
+            ),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.pop(context),
+                child: const Text('Cancelar'),
+              ),
+              FilledButton(
+                onPressed: () async {
+                  if (formKey.currentState?.validate() == true) {
+                    final updatedMovement = MovementValue(
+                      movement.id,
+                      movement.monthId,
+                      nameController.text,
+                      double.parse(amountController.text),
+                      movement.isExpense,
+                      movement.day,
+                      movement.category,
+                    );
+                    await _movementValueDao.updateMovementValue(
+                      updatedMovement,
+                    );
+                    await _updateMonthData();
+                    Navigator.pop(context);
+                  }
+                },
+                child: const Text('Guardar'),
+              ),
+            ],
+          ),
+    );
+  }
 }

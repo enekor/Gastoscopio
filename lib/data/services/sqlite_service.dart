@@ -32,13 +32,18 @@ class SqliteService {
     return _instance;
   }
 
+  Future<String> getDatabasePath() async {
+    // Usar getDatabasesPath() de sqflite
+    final dbPath = await sqflite.getDatabasesPath();
+    return p.join(dbPath, 'cashly_database.db');
+  }
+
   Future<void> initializeDatabase({bool forceRecreate = false}) async {
     if (isInitialized) return;
 
     try {
       // Usar getDatabasesPath() de sqflite
-      final dbPath = await sqflite.getDatabasesPath();
-      final path = p.join(dbPath, 'cashly_database.db');
+      final path = await getDatabasePath();
 
       // Asegurarse de que el directorio existe
       final directory = Directory(p.dirname(path));

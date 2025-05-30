@@ -216,24 +216,67 @@ class _MovementsScreenState extends State<MovementsScreen> {
             ),
             hiddenWidget: SingleChildScrollView(
               scrollDirection: Axis.horizontal,
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              child: Column(
                 children: [
-                  ElevatedButton.icon(
-                    onPressed: () {},
-                    label: Text(
-                      'Fecha: ${movement.day}/${widget.month}/${widget.year}',
-                      style: Theme.of(context).textTheme.bodyMedium,
-                    ),
-                    icon: Icon(Icons.calendar_month),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      ElevatedButton.icon(
+                        onPressed: () {},
+                        label: Text(
+                          'Fecha: ${movement.day}/${widget.month}/${widget.year}',
+                          style: Theme.of(context).textTheme.bodyMedium,
+                        ),
+                        icon: Icon(Icons.calendar_month),
+                      ),
+                      ElevatedButton.icon(
+                        onPressed: () {},
+                        label: Text(
+                          'Categoría: ${movement.category ?? 'Sin categoría'}',
+                          style: Theme.of(context).textTheme.bodyMedium,
+                        ),
+                        icon: Icon(Icons.category),
+                      ),
+                    ],
                   ),
-                  ElevatedButton.icon(
-                    onPressed: () {},
-                    label: Text(
-                      'Categoría: ${movement.category ?? 'Sin categoría'}',
-                      style: Theme.of(context).textTheme.bodyMedium,
-                    ),
-                    icon: Icon(Icons.category),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.start,
+                    children: [
+                      TextButton.icon(
+                        onPressed: () {
+                          context.read<FinanceService>().showEditMovementDialog(
+                            context,
+                            movement,
+                          );
+                        },
+                        label: Text(
+                          'Editar',
+                          style: Theme.of(context).textTheme.bodyMedium,
+                        ),
+                        icon: Icon(Icons.edit),
+                      ),
+                      TextButton.icon(
+                        onPressed: () {
+                          context
+                              .read<FinanceService>()
+                              .deleteMovement(movement)
+                              .then((_) => setState(() {}));
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(
+                              content: Text(
+                                '${movement.description} eliminado',
+                                style: Theme.of(context).textTheme.bodyMedium,
+                              ),
+                            ),
+                          );
+                        },
+                        label: Text(
+                          'Eliminar',
+                          style: Theme.of(context).textTheme.bodyMedium,
+                        ),
+                        icon: Icon(Icons.remove),
+                      ),
+                    ],
                   ),
                 ],
               ),

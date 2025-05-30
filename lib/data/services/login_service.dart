@@ -5,8 +5,7 @@ import 'package:google_sign_in/google_sign_in.dart';
 import 'package:googleapis/drive/v3.dart' as drive;
 import 'package:googleapis_auth/auth_io.dart';
 import 'package:http/http.dart' as http;
-import 'package:path/path.dart' as path;
-import 'package:path_provider/path_provider.dart';
+import 'package:cashly/data/services/sqlite_service.dart';
 
 // Cliente HTTP para autenticación
 class GoogleAuthClient extends http.BaseClient {
@@ -60,7 +59,6 @@ class LoginService extends ChangeNotifier {
   LoginService._internal() {
     _initialize();
   }
-
   final GoogleSignIn _googleSignIn = GoogleSignIn(
     scopes: [
       'https://www.googleapis.com/auth/drive.file',
@@ -150,6 +148,8 @@ class LoginService extends ChangeNotifier {
 
   // Método principal para verificar y descargar backup existente
   Future<String> checkExistingBackup() async {
+    await silentSignIn();
+    // Asegurarse de que el usuario esté autenticado
     if (!_isSignedIn) {
       _setStatusMessage('No hay sesión iniciada');
       return "No hay sesión iniciada";
@@ -202,6 +202,7 @@ class LoginService extends ChangeNotifier {
 
   // Método para subir la base de datos a Google Drive
   Future<bool> uploadDatabase() async {
+    await silentSignIn(); // Asegurarse de que el usuario esté autenticado
     if (!_isSignedIn) {
       _setStatusMessage('No hay sesión iniciada');
       return false;
@@ -291,8 +292,8 @@ class LoginService extends ChangeNotifier {
 
   // Obtener la ruta local del archivo de base de datos
   Future<String> _getLocalDatabasePath() async {
-    final directory = await getApplicationDocumentsDirectory();
-    return path.join(directory.path, 'cashly_database.db');
+    // Usar el path real de la base de datos desde SqliteService
+    return await SqliteService().getDatabasePath();
   }
 
   // Descargar archivo de base de datos desde Google Drive

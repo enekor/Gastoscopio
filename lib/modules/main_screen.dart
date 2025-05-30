@@ -1,3 +1,4 @@
+import 'package:cashly/data/services/login_service.dart';
 import 'package:cashly/modules/gastoscopio/logic/finance_service.dart';
 import 'package:cashly/modules/gastoscopio/screens/home.dart';
 import 'package:cashly/modules/gastoscopio/screens/movements_screen.dart';
@@ -97,6 +98,10 @@ class _MainScreenState extends State<MainScreen> {
                   _isSelectingDate = !_isSelectingDate;
                 }),
             icon: const Icon(Icons.calendar_today),
+          ),
+          IconButton(
+            onPressed: () async => await LoginService().uploadDatabase(),
+            icon: const Icon(Icons.cloud_upload),
           ),
         ],
       ),
