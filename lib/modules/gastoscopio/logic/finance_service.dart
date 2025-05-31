@@ -322,4 +322,35 @@ class FinanceService extends ChangeNotifier {
           ),
     );
   }
+
+  /// Obtiene los totales mensuales de ingresos y gastos para un año específico
+  Future<List<Map<String, double>>> getYearlyData(int year) async {
+    final months = await _monthDao.findAllMonths();
+    List<Map<String, double>> yearlyData = List.generate(
+      12,
+      (index) => {'expenses': 0.0, 'incomes': 0.0},
+    );
+
+    for (var month in months) {
+      if (month.year != year) continue;
+
+      final expenses =
+          await _movementValueDao.sumMovementValuesByMonthIdAndType(
+            month.id!,
+            true,
+          ) ??
+          0.0;
+
+      final incomes =
+          await _movementValueDao.sumMovementValuesByMonthIdAndType(
+            month.id!,
+            false,
+          ) ??
+          0.0;
+
+      yearlyData[month.month - 1] = {'expenses': expenses, 'incomes': incomes};
+    }
+
+    return yearlyData;
+  }
 }

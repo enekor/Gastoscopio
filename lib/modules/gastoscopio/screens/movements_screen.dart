@@ -1,3 +1,4 @@
+import 'package:cashly/data/services/shared_preferences_service.dart';
 import 'package:cashly/modules/gastoscopio/screens/movement_form_screen_new.dart';
 import 'package:cashly/modules/gastoscopio/widgets/main_screen_widgets.dart';
 import 'package:flutter/material.dart';
@@ -23,6 +24,19 @@ class _MovementsScreenState extends State<MovementsScreen> {
   String? _selectedCategory;
   String _searchQuery = '';
   final Map<int, bool> _expandedItems = {};
+  late String _moneda;
+
+  @override
+  void initState() {
+    super.initState();
+    SharedPreferencesService()
+        .getStringValue(SharedPreferencesKeys.currency)
+        .then(
+          (currency) => setState(() {
+            _moneda = currency ?? '€'; // Valor por defecto si no se encuentra
+          }),
+        );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -42,7 +56,7 @@ class _MovementsScreenState extends State<MovementsScreen> {
             final allMovements = snapshot.data!;
             final filteredMovements = _filterMovements(allMovements);
 
-            return _buildContent(filteredMovements);
+            return _buildContent(filteredMovements, _moneda);
           },
         );
       },
@@ -56,7 +70,7 @@ class _MovementsScreenState extends State<MovementsScreen> {
     );
   }
 
-  Widget _buildContent(List<MovementValue> movements) {
+  Widget _buildContent(List<MovementValue> movements, String moneda) {
     return Scaffold(
       appBar: _buildAppBar(),
       floatingActionButton: FloatingActionButton.extended(
@@ -74,7 +88,7 @@ class _MovementsScreenState extends State<MovementsScreen> {
         children: [
           _buildFilters(),
           const SizedBox(height: 16),
-          Expanded(child: _buildList(movements)),
+          Expanded(child: _buildList(movements, moneda)),
         ],
       ),
     );
@@ -170,7 +184,7 @@ class _MovementsScreenState extends State<MovementsScreen> {
     );
   }
 
-  Widget _buildList(List<MovementValue> movements) {
+  Widget _buildList(List<MovementValue> movements, String moneda) {
     return ListView.builder(
       itemCount: movements.length,
       itemBuilder: (context, index) {
@@ -190,7 +204,7 @@ class _MovementsScreenState extends State<MovementsScreen> {
                     mainAxisSize: MainAxisSize.min,
                     children: [
                       Text(
-                        '\$${movement.amount.toStringAsFixed(2)}',
+                        '${movement.amount.toStringAsFixed(2)}${moneda}',
                         style: TextStyle(
                           color:
                               movement.isExpense

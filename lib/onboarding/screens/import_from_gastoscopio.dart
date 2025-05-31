@@ -1,4 +1,5 @@
 import 'package:cashly/data/services/json_import_service.dart';
+import 'package:cashly/data/services/shared_preferences_service.dart';
 import 'package:flutter/material.dart';
 
 class ImportFromGastoscopioScreen extends StatefulWidget {
@@ -16,6 +17,19 @@ class _ImportFromGastoscopioScreenState
     extends State<ImportFromGastoscopioScreen> {
   bool _isLoading = false;
   JsonImportResult? _importResult;
+  late String _moneda;
+
+  @override
+  void initState() {
+    super.initState();
+    SharedPreferencesService()
+        .getStringValue(SharedPreferencesKeys.currency)
+        .then(
+          (currency) => setState(() {
+            _moneda = currency ?? '€'; // Valor por defecto si no se encuentra
+          }),
+        );
+  }
 
   Future<void> _handleFileSelection() async {
     setState(() {
@@ -203,7 +217,7 @@ class _ImportFromGastoscopioScreenState
                       crossAxisAlignment: CrossAxisAlignment.end,
                       children: [
                         Text(
-                          '€${movement.amount.toStringAsFixed(2)}',
+                          '${movement.amount.toStringAsFixed(2)}${_moneda}',
                           style: TextStyle(
                             fontWeight: FontWeight.bold,
                             color:

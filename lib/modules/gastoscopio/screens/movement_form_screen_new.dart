@@ -1,3 +1,4 @@
+import 'package:cashly/data/services/shared_preferences_service.dart';
 import 'package:cashly/data/services/sqlite_service.dart';
 import 'package:cashly/data/models/month.dart';
 import 'package:cashly/data/models/movement_value.dart';
@@ -18,6 +19,20 @@ class _MovementFormScreenState extends State<MovementFormScreen> {
   final _descriptionController = TextEditingController();
   final _amountController = TextEditingController();
   DateTime _selectedDate = DateTime.now();
+  late String _moneda = 'loading...';
+
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    SharedPreferencesService()
+        .getStringValue(SharedPreferencesKeys.currency)
+        .then(
+          (currency) => setState(() {
+            _moneda = currency ?? '€'; // Valor por defecto si no se encuentra
+          }),
+        );
+  }
 
   @override
   void dispose() {
@@ -197,10 +212,10 @@ class _MovementFormScreenState extends State<MovementFormScreen> {
               // Campo de monto
               TextFormField(
                 controller: _amountController,
-                decoration: const InputDecoration(
+                decoration: InputDecoration(
                   labelText: 'Monto',
                   border: OutlineInputBorder(),
-                  prefixText: '\$',
+                  suffixText: _moneda,
                 ),
                 keyboardType: const TextInputType.numberWithOptions(
                   decimal: true,

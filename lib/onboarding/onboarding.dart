@@ -42,8 +42,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
       ImportFromGastoscopioScreen(onImportSuccess: _saveUserFromFile),
       //DataTestPage(),
     ];
-
-    await SharedPreferencesService.setBoolValue(
+    await SharedPreferencesService().setBoolValue(
       SharedPreferencesKeys.isFirstStartup,
       false,
     );

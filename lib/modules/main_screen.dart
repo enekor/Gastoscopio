@@ -4,6 +4,7 @@ import 'package:cashly/modules/gastoscopio/screens/home.dart';
 import 'package:cashly/modules/gastoscopio/screens/movements_screen.dart';
 import 'package:cashly/modules/gastoscopio/widgets/finance_widgets.dart';
 import 'package:cashly/modules/gastoscopio/widgets/main_screen_widgets.dart';
+import 'package:cashly/modules/settings.dart/settings.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -87,8 +88,9 @@ class _MainScreenState extends State<MainScreen> {
           IconButton(
             icon: const Icon(Icons.settings),
             onPressed: () {
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(content: Text('Ajustes - En construcción')),
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => const SettingsScreen()),
               );
             },
           ),
@@ -99,10 +101,6 @@ class _MainScreenState extends State<MainScreen> {
                 }),
             icon: const Icon(Icons.calendar_today),
           ),
-          IconButton(
-            onPressed: () async => await LoginService().uploadDatabase(),
-            icon: const Icon(Icons.cloud_upload),
-          ),
         ],
       ),
       body: Column(
@@ -111,7 +109,7 @@ class _MainScreenState extends State<MainScreen> {
             duration: const Duration(milliseconds: 500),
             child: AnimatedCard(
               context,
-              isExpanded: _isSelectingDate,
+              isExpanded: _selectedIndex == 0 ? true : _isSelectingDate,
               hiddenWidget: MonthYearSelector(
                 availableMonths: _availableMonths,
                 availableYears: _availableYears,

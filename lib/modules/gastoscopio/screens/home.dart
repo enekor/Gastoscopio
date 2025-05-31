@@ -1,3 +1,4 @@
+import 'package:cashly/data/services/shared_preferences_service.dart';
 import 'package:cashly/data/services/sqlite_service.dart';
 import 'package:cashly/modules/gastoscopio/logic/finance_service.dart';
 import 'package:cashly/modules/gastoscopio/screens/movement_form_screen.dart';
@@ -21,12 +22,20 @@ class GastoscopioHomeScreen extends StatefulWidget {
 
 class _GastoscopioHomeScreenState extends State<GastoscopioHomeScreen> {
   String _greeting = '';
+  late String _moneda = 'loading...';
 
   @override
   void initState() {
     super.initState();
     _updateGreeting();
     _loadInitialData();
+    SharedPreferencesService()
+        .getStringValue(SharedPreferencesKeys.currency)
+        .then(
+          (currency) => setState(() {
+            _moneda = currency ?? '€'; // Valor por defecto si no se encuentra
+          }),
+        );
   }
 
   @override
@@ -86,7 +95,7 @@ class _GastoscopioHomeScreenState extends State<GastoscopioHomeScreen> {
               const SizedBox(height: 16),
               _buildTotalPart(),
               const SizedBox(width: 16),
-              const _ChartPart(),
+              _ChartPart(_moneda),
             ],
           ),
         ),
@@ -162,6 +171,7 @@ class _GastoscopioHomeScreenState extends State<GastoscopioHomeScreen> {
                           amount: movement.amount,
                           isExpense: movement.isExpense,
                           category: movement.category,
+                          moneda: _moneda,
                         ),
                       );
                     },
@@ -194,7 +204,7 @@ class _GastoscopioHomeScreenState extends State<GastoscopioHomeScreen> {
                 const SizedBox(height: 16),
                 Center(
                   child: Text(
-                    '\$${total.abs().toStringAsFixed(2)}',
+                    '${total < 0 ? '-' : ''}${total.abs().toStringAsFixed(2)}${_moneda}',
                     style: Theme.of(context).textTheme.headlineMedium?.copyWith(
                       color:
                           isPositive
@@ -214,55 +224,15 @@ class _GastoscopioHomeScreenState extends State<GastoscopioHomeScreen> {
 }
 
 class _ChartPart extends StatelessWidget {
-  const _ChartPart();
+  _ChartPart(this.moneda);
+  String moneda;
 
   @override
   Widget build(BuildContext context) {
     return Consumer<FinanceService>(
       builder: (context, service, _) {
-        return FutureBuilder(
-          future: Future.wait([
-            service.getCategoryTotals(),
-            service.getDailyTotals(),
-          ]),
-          builder: (context, AsyncSnapshot<List<dynamic>> snapshot) {
-            if (!snapshot.hasData) {
-              return const Center(child: CircularProgressIndicator());
-            }
-
-            final categoryTotals = snapshot.data![0] as Map<String, double>;
-            final dailyTotals =
-                snapshot.data![1] as List<MapEntry<DateTime, double>>;
-
-            return Card(
-              child: Padding(
-                padding: const EdgeInsets.all(16),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      'Análisis',
-                      style: Theme.of(context).textTheme.titleLarge,
-                    ),
-                    if (categoryTotals.isNotEmpty) ...[
-                      const SizedBox(height: 24),
-                      Center(child: CategoryPieChart(data: categoryTotals)),
-                      const SizedBox(height: 24),
-                    ],
-                    if (dailyTotals.isNotEmpty) ...[
-                      Text(
-                        'Evolución diaria',
-                        style: Theme.of(context).textTheme.titleMedium,
-                      ),
-                      const SizedBox(height: 16),
-                      DailyTotalChart(data: dailyTotals),
-                    ],
-                  ],
-                ),
-              ),
-            );
-          },
-        );
+        if (service.currentMonth == null) return const SizedBox.shrink();
+        return YearlyChart(year: service.currentMonth!.year, moneda: moneda);
       },
     );
   }

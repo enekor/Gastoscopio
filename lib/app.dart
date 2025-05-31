@@ -10,7 +10,7 @@ class App extends StatelessWidget {
   const App({super.key});
 
   Future<bool> init() async {
-    bool a = await SharedPreferencesService.getBoolValue(
+    bool a = await SharedPreferencesService().getBoolValue(
       SharedPreferencesKeys.isFirstStartup,
     );
 

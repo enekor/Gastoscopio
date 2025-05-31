@@ -1,5 +1,6 @@
 import 'package:cashly/data/models/month.dart';
 import 'package:cashly/data/models/movement_value.dart';
+import 'package:cashly/data/services/shared_preferences_service.dart';
 import 'package:cashly/data/services/sqlite_service.dart';
 import 'package:flutter/material.dart';
 
@@ -16,11 +17,19 @@ class _DataTestPageState extends State<DataTestPage> {
   List<MovementValue> _movements = [];
   Month? _selectedMonth;
   bool? _showExpenses;
+  late String _moneda;
 
   @override
   void initState() {
     super.initState();
     _loadMonths();
+    SharedPreferencesService()
+        .getStringValue(SharedPreferencesKeys.currency)
+        .then(
+          (currency) => setState(() {
+            _moneda = currency ?? '€'; // Valor por defecto si no se encuentra
+          }),
+        );
   }
 
   Future<void> _loadMonths() async {
@@ -89,7 +98,7 @@ class _DataTestPageState extends State<DataTestPage> {
             title: Text(movement.description),
             subtitle: Text('Día ${movement.day}'),
             trailing: Text(
-              '${movement.isExpense ? "-" : "+"}\$${movement.amount.toStringAsFixed(2)}',
+              '${movement.isExpense ? "-" : "+"}${movement.amount.toStringAsFixed(2)}${_moneda}',
               style: TextStyle(
                 color: movement.isExpense ? Colors.red : Colors.green,
                 fontWeight: FontWeight.bold,
