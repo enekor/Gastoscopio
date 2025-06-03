@@ -77,7 +77,13 @@ class _MovementsScreenState extends State<MovementsScreen> {
         onPressed: () {
           Navigator.push(
             context,
-            MaterialPageRoute(builder: (context) => const MovementFormScreen()),
+            MaterialPageRoute(
+              builder:
+                  (context) => Theme(
+                    data: Theme.of(context),
+                    child: const MovementFormScreen(),
+                  ),
+            ),
           );
         },
         icon: const Icon(Icons.add),

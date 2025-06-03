@@ -87,24 +87,16 @@ class App extends StatelessWidget {
               ),
         ),
       ],
-      child: MaterialApp(
-        title: 'Companion Tools',
-        theme: ThemeData(
-          colorScheme: ColorScheme.fromSeed(seedColor: Colors.blue),
-          useMaterial3: true,
-        ),
-        builder:
-            (context, widget) => FutureBuilder<bool>(
-              future: init(context),
-              builder: (context, snapshot) {
-                if (snapshot.connectionState == ConnectionState.done) {
-                  return snapshot.data == false
-                      ? const MainScreen()
-                      : const OnboardingScreen();
-                }
-                return const Center(child: CircularProgressIndicator());
-              },
-            ),
+      child: FutureBuilder<bool>(
+        future: init(context),
+        builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.done) {
+            return snapshot.data == false
+                ? const MainScreen()
+                : const OnboardingScreen();
+          }
+          return const Center(child: CircularProgressIndicator());
+        },
       ),
     );
   }
