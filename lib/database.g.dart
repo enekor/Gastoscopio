@@ -82,7 +82,7 @@ class _$AppDatabase extends AppDatabase {
     Callback? callback,
   ]) async {
     final databaseOptions = sqflite.OpenDatabaseOptions(
-      version: 1,
+      version: 2,
       onConfigure: (database) async {
         await database.execute('PRAGMA foreign_keys = ON');
         await callback?.onConfigure?.call(database);
@@ -124,7 +124,7 @@ class _$MonthDao extends MonthDao {
   _$MonthDao(
     this.database,
     this.changeListener,
-  )   : _queryAdapter = QueryAdapter(database, changeListener),
+  )   : _queryAdapter = QueryAdapter(database),
         _monthInsertionAdapter = InsertionAdapter(
             database,
             'Month',
@@ -132,8 +132,7 @@ class _$MonthDao extends MonthDao {
                   'id': item.id,
                   'month': item.month,
                   'year': item.year
-                },
-            changeListener),
+                }),
         _monthUpdateAdapter = UpdateAdapter(
             database,
             'Month',
@@ -142,8 +141,7 @@ class _$MonthDao extends MonthDao {
                   'id': item.id,
                   'month': item.month,
                   'year': item.year
-                },
-            changeListener),
+                }),
         _monthDeletionAdapter = DeletionAdapter(
             database,
             'Month',
@@ -152,8 +150,7 @@ class _$MonthDao extends MonthDao {
                   'id': item.id,
                   'month': item.month,
                   'year': item.year
-                },
-            changeListener);
+                });
 
   final sqflite.DatabaseExecutor database;
 
@@ -176,29 +173,25 @@ class _$MonthDao extends MonthDao {
   }
 
   @override
-  Stream<Month?> findMonthById(int id) {
-    return _queryAdapter.queryStream('SELECT * FROM Month WHERE id = ?1',
+  Future<Month?> findMonthById(int id) async {
+    return _queryAdapter.query('SELECT * FROM Month WHERE id = ?1',
         mapper: (Map<String, Object?> row) => Month(
             row['month'] as int, row['year'] as int,
             id: row['id'] as int?),
-        arguments: [id],
-        queryableName: 'Month',
-        isView: false);
+        arguments: [id]);
   }
 
   @override
-  Stream<Month?> findMonthByMonthAndYear(
+  Future<Month?> findMonthByMonthAndYear(
     int month,
     int year,
-  ) {
-    return _queryAdapter.queryStream(
-        'SELECT * FROM Month WHERE month = ?1 AND year = ?2',
+  ) async {
+    return _queryAdapter.query(
+        'SELECT * FROM Month WHERE month = ?1 AND year = ?2 LIMIT 1',
         mapper: (Map<String, Object?> row) => Month(
             row['month'] as int, row['year'] as int,
             id: row['id'] as int?),
-        arguments: [month, year],
-        queryableName: 'Month',
-        isView: false);
+        arguments: [month, year]);
   }
 
   @override

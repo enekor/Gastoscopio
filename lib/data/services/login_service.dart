@@ -183,7 +183,7 @@ class LoginService extends ChangeNotifier {
 
         if (success) {
           _setStatusMessage('Backup restaurado correctamente');
-          return "Backup restaurado correctamente en $localPath";
+          return "Backup restaurado correctamente";
         } else {
           _setStatusMessage('Error al descargar el backup');
           return "Error al descargar el backup";

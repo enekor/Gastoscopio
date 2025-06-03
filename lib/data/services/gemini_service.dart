@@ -1,4 +1,6 @@
+import 'package:cashly/common/tag_list.dart';
 import 'package:cashly/data/services/shared_preferences_service.dart';
+import 'package:cashly/modules/settings.dart/settings.dart';
 import 'package:flutter/material.dart';
 import 'package:google_generative_ai/google_generative_ai.dart';
 
@@ -13,17 +15,22 @@ class GeminiService {
 
   GeminiService._internal();
 
+  bool get hasApiKey => _apiKey != null && _apiKey!.isNotEmpty;
+
   Future<String> _generateContent(String prompt, String apiKey) async {
     try {
       final content = [Content.text(prompt)];
       final response = await model.generateContent(content);
       return response.text ?? 'No se pudo generar una respuesta';
     } catch (e) {
-      return 'Error: $e';
+      return '';
     }
   }
 
-  Future<String> generateContent(String prompt, BuildContext context) async {
+  Future<String> _initGenerateContent(
+    String prompt,
+    BuildContext context,
+  ) async {
     if (_apiKey == null || _apiKey == "" || _apiKey!.isEmpty) {
       await showDialog(
         context: context,
@@ -40,9 +47,21 @@ class GeminiService {
             ),
             actions: [
               TextButton.icon(
+                onPressed: () => Navigator.pop(context),
+                label: const Text('Más tarde'),
+                icon: const Icon(Icons.close),
+              ),
+              TextButton.icon(
                 onPressed: () {
                   Navigator.pop(context);
-                  //ir a settings
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) {
+                        return const SettingsScreen();
+                      },
+                    ),
+                  );
                 },
                 label: const Text('Vamos allá'),
                 icon: const Icon(Icons.settings),
@@ -51,8 +70,7 @@ class GeminiService {
           );
         },
       );
-
-      throw NoApiKeyException();
+      return '';
     } else {
       return await _generateContent(prompt, _apiKey!);
     }
@@ -69,6 +87,15 @@ class GeminiService {
       this._apiKey = _apiKey;
       model = GenerativeModel(apiKey: _apiKey, model: 'gemini-2.0-flash');
     }
+  }
+
+  Future<String> generateCategory(String name, BuildContext context) async {
+    String prompt =
+        'dime la mejor categoria para el siguiente movimiento (solo dime la categoria, nada mas): "$name". '
+        'Elige una de las siguientes categorías: ${TagList.join(', ')}. '
+        'Si no encuentras una categoría adecuada, responde con la ultima categoria.';
+
+    return await _initGenerateContent(prompt, context);
   }
 }
 

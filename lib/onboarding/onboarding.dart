@@ -5,6 +5,7 @@ import 'package:cashly/data/services/login_service.dart';
 import 'package:cashly/data/services/shared_preferences_service.dart';
 import 'package:cashly/data/services/sqlite_service.dart';
 import 'package:cashly/modules/main_screen.dart';
+import 'package:cashly/onboarding/screens/apikey_setup.dart';
 import 'package:cashly/onboarding/screens/first_startup.dart';
 import 'package:cashly/onboarding/screens/import_from_gastoscopio.dart';
 import 'package:cashly/onboarding/screens/login.dart';
@@ -36,13 +37,13 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
     }
   }
 
-  void _onTermsAccepted() async {
+  void _onTermsAccepted() {
     _pages = [
+      ApiKeySetupScreen(onApiKeySet: _saveUserFromFile),
       GoogleLoginScreen(onLoginOk: _checkExistingBackup),
-      ImportFromGastoscopioScreen(onImportSuccess: _saveUserFromFile),
-      //DataTestPage(),
+      ImportFromGastoscopioScreen(onImportSuccess: _handleImportSuccess),
     ];
-    await SharedPreferencesService().setBoolValue(
+    SharedPreferencesService().setBoolValue(
       SharedPreferencesKeys.isFirstStartup,
       false,
     );
@@ -58,16 +59,26 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
     _handleNext();
   }
 
-  void _saveUserFromFile(JsonImportResult result) async {
+  void _handleImportSuccess(JsonImportResult result) async {
+    // Store the result temporarily
+    _importResult = result;
+    _handleNext();
+  }
+
+  JsonImportResult? _importResult; // Add this field to store the import result
+
+  Future<void> _saveUserFromFile() async {
+    if (_importResult == null) return;
+
     await SqliteService().initializeDatabase(forceRecreate: true);
 
     AppDatabase db = SqliteService().db;
 
-    for (Month month in result.months) {
+    for (Month month in _importResult!.months) {
       await db.monthDao.insertMonth(month);
     }
 
-    for (MovementValue movement in result.movements) {
+    for (MovementValue movement in _importResult!.movements) {
       await db.movementValueDao.insertMovementValue(movement);
     }
 

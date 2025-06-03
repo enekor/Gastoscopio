@@ -9,7 +9,7 @@ class MovementValue {
   final double amount;
   final bool isExpense;
   final int day;
-  final String? category;
+  String? category;
 
   MovementValue(
     this.id,
@@ -20,4 +20,24 @@ class MovementValue {
     this.day,
     this.category,
   );
+
+  MovementValue copyWith({
+    int? id,
+    int? monthId,
+    String? description,
+    double? amount,
+    bool? isExpense,
+    int? day,
+    String? category,
+  }) {
+    return MovementValue(
+      id ?? this.id,
+      monthId ?? this.monthId,
+      description ?? this.description,
+      amount ?? this.amount,
+      isExpense ?? this.isExpense,
+      day ?? this.day,
+      category ?? this.category,
+    );
+  }
 }

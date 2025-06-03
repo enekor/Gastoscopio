@@ -2,7 +2,7 @@ import 'package:cashly/data/services/shared_preferences_service.dart';
 import 'package:cashly/data/services/sqlite_service.dart';
 import 'package:cashly/modules/gastoscopio/logic/finance_service.dart';
 import 'package:cashly/modules/gastoscopio/screens/movement_form_screen.dart';
-import 'package:cashly/modules/gastoscopio/screens/movement_form_screen_new.dart';
+import 'package:cashly/modules/gastoscopio/screens/movement_form_screen.dart';
 import 'package:cashly/modules/gastoscopio/widgets/finance_widgets.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';

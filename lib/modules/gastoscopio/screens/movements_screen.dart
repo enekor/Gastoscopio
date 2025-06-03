@@ -1,10 +1,10 @@
 import 'package:cashly/data/services/shared_preferences_service.dart';
-import 'package:cashly/modules/gastoscopio/screens/movement_form_screen_new.dart';
+import 'package:cashly/modules/gastoscopio/screens/movement_form_screen.dart';
 import 'package:cashly/modules/gastoscopio/widgets/main_screen_widgets.dart';
+import 'package:cashly/common/tag_list.dart';
 import 'package:flutter/material.dart';
 import 'package:cashly/data/models/movement_value.dart';
 import 'package:cashly/modules/gastoscopio/logic/finance_service.dart';
-import 'package:cashly/modules/gastoscopio/screens/movement_form_screen.dart';
 import 'package:provider/provider.dart';
 
 class MovementsScreen extends StatefulWidget {
@@ -200,6 +200,15 @@ class _MovementsScreenState extends State<MovementsScreen> {
               children: [
                 ListTile(
                   title: Text(movement.description),
+                  subtitle:
+                      movement.category != null
+                          ? Text(
+                            movement.category!,
+                            style: TextStyle(
+                              color: Theme.of(context).colorScheme.secondary,
+                            ),
+                          )
+                          : null,
                   trailing: Row(
                     mainAxisSize: MainAxisSize.min,
                     children: [
@@ -244,7 +253,7 @@ class _MovementsScreenState extends State<MovementsScreen> {
                         icon: Icon(Icons.calendar_month),
                       ),
                       ElevatedButton.icon(
-                        onPressed: () {},
+                        onPressed: () => _showTagSelection(context, movement),
                         label: Text(
                           'Categoría: ${movement.category ?? 'Sin categoría'}',
                           style: Theme.of(context).textTheme.bodyMedium,
@@ -269,6 +278,7 @@ class _MovementsScreenState extends State<MovementsScreen> {
                         ),
                         icon: Icon(Icons.edit),
                       ),
+
                       TextButton.icon(
                         onPressed: () {
                           context
@@ -344,6 +354,62 @@ class _MovementsScreenState extends State<MovementsScreen> {
               ],
             ),
           ),
+        );
+      },
+    );
+  }
+
+  void _showTagSelection(BuildContext parentContext, MovementValue movement) {
+    // Get the FinanceService before opening the modal
+    final financeService = parentContext.read<FinanceService>();
+
+    showModalBottomSheet(
+      context: parentContext,
+      isScrollControlled: true,
+      showDragHandle: true,
+      builder: (BuildContext context) {
+        return DraggableScrollableSheet(
+          initialChildSize: 0.6,
+          minChildSize: 0.3,
+          maxChildSize: 0.9,
+          expand: false,
+          builder: (context, scrollController) {
+            return Column(
+              children: [
+                Padding(
+                  padding: const EdgeInsets.all(16.0),
+                  child: Text(
+                    'Seleccionar categoría',
+                    style: Theme.of(context).textTheme.titleLarge,
+                  ),
+                ),
+                Expanded(
+                  child: ListView.builder(
+                    controller: scrollController,
+                    itemCount: TagList.length,
+                    itemBuilder: (context, index) {
+                      final category = TagList[index];
+                      final isSelected = category == movement.category;
+
+                      return ListTile(
+                        title: Text(category),
+                        selected: isSelected,
+                        leading: isSelected ? Icon(Icons.check) : null,
+                        onTap: () async {
+                          final updatedMovement = movement.copyWith(
+                            category: category,
+                          );
+                          await financeService.updateMovement(updatedMovement);
+                          Navigator.pop(context);
+                          setState(() {}); // Refresh UI
+                        },
+                      );
+                    },
+                  ),
+                ),
+              ],
+            );
+          },
         );
       },
     );

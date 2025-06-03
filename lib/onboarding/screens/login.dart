@@ -30,9 +30,8 @@ class _GoogleLoginScreenState extends State<GoogleLoginScreen> {
   void changeLoginStatus() {
     if (_loginService.isSignedIn) {
       // Si hay un usuario activo, actualizar el estado
-      setState(() {
-        _currentUser = _loginService.currentUser;
-      });
+
+      _currentUser = _loginService.currentUser;
     } else {
       // Si no hay usuario activo, dejarlo como null
       _currentUser = null;

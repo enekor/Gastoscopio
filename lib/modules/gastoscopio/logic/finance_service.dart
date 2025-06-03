@@ -21,16 +21,14 @@ class FinanceService extends ChangeNotifier {
   double get monthTotal => _monthTotal;
 
   Future<void> setCurrentMonth(int month, int year) async {
-    final monthStream =
-        await _monthDao.findMonthByMonthAndYear(month, year).first;
-    if (monthStream == null) {
+    final monthData = await _monthDao.findMonthByMonthAndYear(month, year);
+    if (monthData == null) {
       // Crear nuevo mes si no existe
       final newMonth = Month(month, year);
       await _monthDao.insertMonth(newMonth);
-      _currentMonth =
-          await _monthDao.findMonthByMonthAndYear(month, year).first;
+      _currentMonth = await _monthDao.findMonthByMonthAndYear(month, year);
     } else {
-      _currentMonth = monthStream;
+      _currentMonth = monthData;
     }
     await _updateMonthData();
     notifyListeners();
@@ -70,7 +68,7 @@ class FinanceService extends ChangeNotifier {
     if (now.month == _currentMonth!.month && now.year == _currentMonth!.year) {
       _todayMovements =
           [...expenses, ...incomes].where((m) => m.day == now.day).toList()
-            ..sort((a, b) => b.id!.compareTo(a.id!));
+            ..sort((a, b) => b.id.compareTo(a.id));
     } else {
       _todayMovements = [];
     }
@@ -117,8 +115,7 @@ class FinanceService extends ChangeNotifier {
 
   /// Verifica si un mes existe en la base de datos
   Future<bool> monthExists(int month, int year) async {
-    final monthData =
-        await _monthDao.findMonthByMonthAndYear(month, year).first;
+    final monthData = await _monthDao.findMonthByMonthAndYear(month, year);
     return monthData != null;
   }
 
@@ -352,5 +349,12 @@ class FinanceService extends ChangeNotifier {
     }
 
     return yearlyData;
+  }
+
+  /// Updates a movement value in the database and refreshes the UI
+  Future<void> updateMovement(MovementValue movement) async {
+    await _movementValueDao.updateMovementValue(movement);
+    await _updateMonthData();
+    notifyListeners();
   }
 }

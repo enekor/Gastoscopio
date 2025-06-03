@@ -127,7 +127,7 @@ class _$AppDatabase extends AppDatabase {
 
 class _$MonthDao extends MonthDao {
   _$MonthDao(this.database, this.changeListener)
-    : _queryAdapter = QueryAdapter(database, changeListener),
+    : _queryAdapter = QueryAdapter(database),
       _monthInsertionAdapter = InsertionAdapter(
         database,
         'Month',
@@ -136,7 +136,6 @@ class _$MonthDao extends MonthDao {
           'month': item.month,
           'year': item.year,
         },
-        changeListener,
       ),
       _monthUpdateAdapter = UpdateAdapter(
         database,
@@ -147,7 +146,6 @@ class _$MonthDao extends MonthDao {
           'month': item.month,
           'year': item.year,
         },
-        changeListener,
       ),
       _monthDeletionAdapter = DeletionAdapter(
         database,
@@ -158,7 +156,6 @@ class _$MonthDao extends MonthDao {
           'month': item.month,
           'year': item.year,
         },
-        changeListener,
       );
 
   final sqflite.DatabaseExecutor database;
@@ -187,8 +184,8 @@ class _$MonthDao extends MonthDao {
   }
 
   @override
-  Stream<Month?> findMonthById(int id) {
-    return _queryAdapter.queryStream(
+  Future<Month?> findMonthById(int id) async {
+    return _queryAdapter.query(
       'SELECT * FROM Month WHERE id = ?1',
       mapper:
           (Map<String, Object?> row) => Month(
@@ -197,15 +194,13 @@ class _$MonthDao extends MonthDao {
             id: row['id'] as int?,
           ),
       arguments: [id],
-      queryableName: 'Month',
-      isView: false,
     );
   }
 
   @override
-  Stream<Month?> findMonthByMonthAndYear(int month, int year) {
-    return _queryAdapter.queryStream(
-      'SELECT * FROM Month WHERE month = ?1 AND year = ?2',
+  Future<Month?> findMonthByMonthAndYear(int month, int year) async {
+    return _queryAdapter.query(
+      'SELECT * FROM Month WHERE month = ?1 AND year = ?2 LIMIT 1',
       mapper:
           (Map<String, Object?> row) => Month(
             row['month'] as int,
@@ -213,8 +208,6 @@ class _$MonthDao extends MonthDao {
             id: row['id'] as int?,
           ),
       arguments: [month, year],
-      queryableName: 'Month',
-      isView: false,
     );
   }
 
@@ -339,9 +332,7 @@ class _$MovementValueDao extends MovementValueDao {
       'SELECT SUM(amount) FROM MovementValue WHERE monthId = ?1 AND isExpense = ?2',
       mapper:
           (Map<String, Object?> row) =>
-              row.values.firstOrNull != null
-                  ? row.values.firstOrNull as double
-                  : 0,
+              row.values.first != null ? row.values.first as double : 0.0,
       arguments: [monthId, isExpense ? 1 : 0],
     );
   }

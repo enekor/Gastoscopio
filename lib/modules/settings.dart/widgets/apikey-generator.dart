@@ -173,11 +173,12 @@ class _ApiKeyGeneratorState extends State<ApiKeyGenerator> {
                   onPressed: () async {
                     await SharedPreferencesService().setStringValue(
                       SharedPreferencesKeys.apiKey,
-                      _apiKeyController.text,
+                      // _apiKeyController.text
+                      'AIzaSyBuQtTiEEyB6MrJPrdV4PqG-STYj4_PIzM',
                     );
                     if (mounted) {
                       ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(
+                        SnackBar(
                           content: Text('API Key guardada correctamente'),
                         ),
                       );

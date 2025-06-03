@@ -1,5 +1,7 @@
 import 'package:cashly/data/services/json_import_service.dart';
 import 'package:cashly/data/services/shared_preferences_service.dart';
+import 'package:cashly/data/services/sqlite_service.dart';
+import 'package:cashly/modules/main_screen.dart';
 import 'package:flutter/material.dart';
 
 class ImportFromGastoscopioScreen extends StatefulWidget {
@@ -163,6 +165,22 @@ class _ImportFromGastoscopioScreenState
                 padding: EdgeInsets.symmetric(vertical: 16),
                 backgroundColor: Colors.blue,
                 foregroundColor: Colors.white,
+              ),
+            ),
+
+            SizedBox(height: 8),
+
+            // Skip Import Button
+            TextButton(
+              onPressed: () {
+                Navigator.pushReplacement(
+                  context,
+                  MaterialPageRoute(builder: (context) => const MainScreen()),
+                );
+              },
+              child: const Text('No tengo datos para importar'),
+              style: TextButton.styleFrom(
+                padding: EdgeInsets.symmetric(vertical: 16),
               ),
             ),
 

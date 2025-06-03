@@ -40,10 +40,10 @@ class SharedPreferencesService {
     await prefs.setBool(key.toString(), value);
   }
 
-  Future<bool> getBoolValue(SharedPreferencesKeys key) async {
+  Future<bool?> getBoolValue(SharedPreferencesKeys key) async {
     final prefs = await SharedPreferences.getInstance();
     var ret = prefs.getBool(key.toString());
-    return ret ?? false;
+    return ret;
   }
 }
 
