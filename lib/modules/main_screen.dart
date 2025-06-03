@@ -89,12 +89,10 @@ class _MainScreenState extends State<MainScreen> {
       year,
       context,
     );
-
     if (selectedMonth != null) {
       setState(() {
         _month = selectedMonth;
         _year = year;
-        _isSelectingDate = false;
       });
     }
   }

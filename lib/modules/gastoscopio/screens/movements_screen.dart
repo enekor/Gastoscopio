@@ -96,18 +96,39 @@ class _MovementsScreenState extends State<MovementsScreen> {
 
   AppBar _buildAppBar() {
     return AppBar(
-      title: Text(_showExpenses ? 'Gastos' : 'Ingresos'),
-      actions: [
-        ToggleButtons(
-          isSelected: [_showExpenses, !_showExpenses],
-          onPressed: (index) {
-            setState(() {
-              _showExpenses = index == 0;
-            });
-          },
-          children: const [Icon(Icons.money_off), Icon(Icons.money)],
-        ),
-      ],
+      title: ToggleButtons(
+        borderRadius: BorderRadius.circular(25),
+        borderColor: Theme.of(context).colorScheme.primary,
+        fillColor: Theme.of(context).colorScheme.primary.withAlpha(45),
+        selectedColor: Theme.of(context).colorScheme.onPrimary,
+        isSelected: [_showExpenses, !_showExpenses],
+        onPressed: (index) {
+          setState(() {
+            _showExpenses = index == 0;
+          });
+        },
+        children: [
+          TextButton.icon(
+            onPressed: () {
+              setState(() {
+                _showExpenses = true;
+              });
+            },
+            label: Text('Gastos'),
+            icon: Icon(Icons.money_off),
+          ),
+          TextButton.icon(
+            onPressed: () {
+              setState(() {
+                _showExpenses = false;
+              });
+            },
+            label: Text('Ingresos'),
+            icon: Icon(Icons.money),
+          ),
+        ],
+      ),
+      centerTitle: true,
     );
   }
 

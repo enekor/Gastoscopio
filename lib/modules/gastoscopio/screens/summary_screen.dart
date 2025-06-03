@@ -41,7 +41,6 @@ class _SummaryScreenState extends State<SummaryScreen> {
     setState(() {
       _month = month;
       _year = year;
-      _isSelectingDate = false;
     });
   }
 
