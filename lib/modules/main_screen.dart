@@ -3,6 +3,7 @@ import 'package:cashly/data/services/sqlite_service.dart';
 import 'package:cashly/modules/gastoscopio/logic/finance_service.dart';
 import 'package:cashly/modules/gastoscopio/screens/home.dart';
 import 'package:cashly/modules/gastoscopio/screens/movements_screen.dart';
+import 'package:cashly/modules/gastoscopio/screens/summary_screen.dart';
 import 'package:cashly/modules/gastoscopio/widgets/finance_widgets.dart';
 import 'package:cashly/modules/gastoscopio/widgets/main_screen_widgets.dart';
 import 'package:cashly/modules/settings.dart/settings.dart';
@@ -23,7 +24,6 @@ class _MainScreenState extends State<MainScreen> {
   int _year = DateTime.now().year;
   int _month = DateTime.now().month;
   late final FinanceService _financeService;
-
   final List<NavigationDestination> _destinations = const [
     NavigationDestination(
       icon: Icon(Icons.home_outlined),
@@ -34,6 +34,11 @@ class _MainScreenState extends State<MainScreen> {
       icon: Icon(Icons.list_outlined),
       selectedIcon: Icon(Icons.list),
       label: 'Movimientos',
+    ),
+    NavigationDestination(
+      icon: Icon(Icons.analytics_outlined),
+      selectedIcon: Icon(Icons.analytics),
+      label: 'Análisis',
     ),
   ];
 
@@ -97,6 +102,7 @@ class _MainScreenState extends State<MainScreen> {
   List<Widget> get _screens => [
     GastoscopioHomeScreen(year: _year, month: _month),
     MovementsScreen(year: _year, month: _month),
+    const SummaryScreen(),
   ];
   @override
   Widget build(BuildContext context) {
@@ -125,13 +131,14 @@ class _MainScreenState extends State<MainScreen> {
                     );
                   },
                 ),
-                IconButton(
-                  onPressed:
-                      () => setState(() {
-                        _isSelectingDate = !_isSelectingDate;
-                      }),
-                  icon: const Icon(Icons.calendar_today),
-                ),
+                if (_selectedIndex != 2)
+                  IconButton(
+                    onPressed:
+                        () => setState(() {
+                          _isSelectingDate = !_isSelectingDate;
+                        }),
+                    icon: const Icon(Icons.calendar_today),
+                  ),
               ],
             ),
             body: Column(

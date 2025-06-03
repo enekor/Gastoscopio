@@ -357,4 +357,11 @@ class FinanceService extends ChangeNotifier {
     await _updateMonthData();
     notifyListeners();
   }
+
+  /// Gets all movements for a specific month and year
+  Future<List<MovementValue>> getMovementsForMonth(int month, int year) async {
+    final monthData = await _monthDao.findMonthByMonthAndYear(month, year);
+    if (monthData == null) return [];
+    return _movementValueDao.findMovementValuesByMonthId(monthData.id!);
+  }
 }
