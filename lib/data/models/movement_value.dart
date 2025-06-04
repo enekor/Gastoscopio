@@ -40,4 +40,14 @@ class MovementValue {
       category ?? this.category,
     );
   }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'name': description,
+      'amount': amount,
+      'isExpense': isExpense,
+      'day': day,
+      'category': category,
+    };
+  }
 }

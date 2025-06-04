@@ -1,10 +1,13 @@
 import 'package:cashly/common/tag_list.dart';
 import 'package:cashly/data/models/movement_value.dart';
+import 'package:cashly/data/models/month.dart';
+import 'package:cashly/data/services/gemini_service.dart';
 import 'package:cashly/modules/gastoscopio/logic/finance_service.dart';
 import 'package:cashly/modules/gastoscopio/widgets/category_progress_chart.dart';
 import 'package:cashly/modules/gastoscopio/widgets/month_grid_selector.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_markdown/flutter_markdown.dart';
 import 'package:provider/provider.dart';
 
 class SummaryScreen extends StatefulWidget {
@@ -14,17 +17,28 @@ class SummaryScreen extends StatefulWidget {
   State<SummaryScreen> createState() => _SummaryScreenState();
 }
 
-class _SummaryScreenState extends State<SummaryScreen> {
+class _SummaryScreenState extends State<SummaryScreen>
+    with SingleTickerProviderStateMixin {
+  late TabController _tabController;
   late FinanceService _financeService;
   List<int> _availableYears = [];
   List<int> _availableMonths = [];
   int _year = DateTime.now().year;
   int _month = DateTime.now().month;
+  String _aiAnalysis = '';
+  bool _isLoadingAnalysis = false;
 
   @override
   void initState() {
     super.initState();
+    _tabController = TabController(length: 2, vsync: this);
     _loadInitialData();
+  }
+
+  @override
+  void dispose() {
+    _tabController.dispose();
+    super.dispose();
   }
 
   Future<void> _loadInitialData() async {
@@ -32,6 +46,22 @@ class _SummaryScreenState extends State<SummaryScreen> {
     _availableYears = await _financeService.getAvailableYears();
     _availableMonths = await _financeService.getAvailableMonths(_year);
     setState(() {}); // Update UI with loaded data
+  }
+
+  Future<void> _loadAiAnalysis() async {
+    setState(() => _isLoadingAnalysis = true);
+
+    final movements = await _financeService.getMovementsForMonth(_month, _year);
+    final analysis = await generateSummary(
+      movements,
+      Month(_month, _year),
+      context,
+    ).then((value) {
+      setState(() {
+        _aiAnalysis = value;
+        _isLoadingAnalysis = false;
+      });
+    });
   }
 
   Future<void> _setNewDate(int month, int year) async {
@@ -67,23 +97,19 @@ class _SummaryScreenState extends State<SummaryScreen> {
                             final months = await _financeService
                                 .getAvailableMonths(year);
 
-                            // Cerrar el diálogo actual
                             Navigator.pop(dialogContext);
 
-                            // Actualizar ambos estados de forma sincronizada
                             setState(() {
                               _availableMonths = months;
                               _year = year;
                             });
 
-                            // Manejar el cambio de mes si es necesario
                             if (!months.contains(_month)) {
                               await _setNewDate(months.last, year);
                             } else {
                               await _setNewDate(_month, year);
                             }
 
-                            // Mostrar el diálogo actualizado
                             _showMonthSelector();
                           },
                         ),
@@ -110,52 +136,118 @@ class _SummaryScreenState extends State<SummaryScreen> {
           ],
         ),
         centerTitle: true,
+        bottom: TabBar(
+          controller: _tabController,
+          tabs: const [
+            Tab(icon: Icon(Icons.analytics), text: 'Resumen'),
+            Tab(icon: Icon(Icons.auto_awesome), text: 'Análisis IA'),
+          ],
+        ),
       ),
-      body: Column(
+      body: TabBarView(
+        controller: _tabController,
         children: [
-          Expanded(
-            child: Consumer<FinanceService>(
-              builder: (context, financeService, _) {
-                return FutureBuilder<List<MovementValue>>(
-                  future: financeService.getMovementsForMonth(_month, _year),
-                  builder: (context, snapshot) {
-                    if (snapshot.connectionState == ConnectionState.waiting) {
-                      return const Center(child: CircularProgressIndicator());
-                    }
-
-                    if (!snapshot.hasData || snapshot.data!.isEmpty) {
-                      return _buildEmptyState();
-                    }
-
-                    final movements = snapshot.data!;
-                    final expenses =
-                        movements.where((m) => m.isExpense).toList();
-                    final categoryData = _calculateCategoryPercentages(
-                      expenses,
-                    );
-
-                    return SingleChildScrollView(
-                      padding: const EdgeInsets.all(16),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          _buildMonthlyOverview(movements),
-                          const SizedBox(height: 24),
-                          Text(
-                            'Distribución de Gastos por Categoría',
-                            style: Theme.of(context).textTheme.titleLarge,
-                          ),
-                          const SizedBox(height: 16),
-                          CategoryProgressChart(categoryData: categoryData),
-                          const SizedBox(height: 24),
-                          _buildDailySpendingChart(expenses),
-                        ],
+          // Primera pestaña - Resumen
+          SingleChildScrollView(
+            child: Column(
+              children: [
+                Consumer<FinanceService>(
+                  builder: (context, financeService, _) {
+                    return FutureBuilder<List<MovementValue>>(
+                      future: financeService.getMovementsForMonth(
+                        _month,
+                        _year,
                       ),
+                      builder: (context, snapshot) {
+                        if (snapshot.connectionState ==
+                            ConnectionState.waiting) {
+                          return const Center(
+                            child: CircularProgressIndicator(),
+                          );
+                        }
+
+                        if (!snapshot.hasData || snapshot.data!.isEmpty) {
+                          return _buildEmptyState();
+                        }
+
+                        final movements = snapshot.data!;
+                        final expenses =
+                            movements.where((m) => m.isExpense).toList();
+                        final categoryData = _calculateCategoryPercentages(
+                          expenses,
+                        );
+
+                        return Padding(
+                          padding: const EdgeInsets.all(16),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              _buildMonthlyOverview(movements),
+                              const SizedBox(height: 24),
+                              Text(
+                                'Distribución de Gastos por Categoría',
+                                style: Theme.of(context).textTheme.titleLarge,
+                              ),
+                              const SizedBox(height: 16),
+                              CategoryProgressChart(categoryData: categoryData),
+                              const SizedBox(height: 24),
+                              _buildDailySpendingChart(expenses),
+                            ],
+                          ),
+                        );
+                      },
                     );
                   },
-                );
-              },
+                ),
+              ],
             ),
+          ), // Segunda pestaña - Análisis IA
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Padding(
+                padding: const EdgeInsets.all(16),
+                child: Row(
+                  children: [
+                    Text(
+                      'Análisis de Gastos',
+                      style: Theme.of(context).textTheme.titleLarge,
+                    ),
+                    const SizedBox(width: 16),
+                    ElevatedButton.icon(
+                      onPressed: _loadAiAnalysis,
+                      icon: const Icon(Icons.auto_awesome),
+                      label: const Text('Generar'),
+                    ),
+                  ],
+                ),
+              ),
+              if (_isLoadingAnalysis)
+                const Center(child: CircularProgressIndicator())
+              else
+                Expanded(
+                  child: Card(
+                    margin: const EdgeInsets.all(16),
+                    child: LayoutBuilder(
+                      builder:
+                          (context, constraints) => SizedBox(
+                            width: constraints.maxWidth,
+                            child: Markdown(
+                              data:
+                                  _aiAnalysis.isEmpty
+                                      ? 'Pulsa el botón "Generar Análisis" para obtener un análisis detallado de tus gastos e ingresos de este mes.'
+                                      : _aiAnalysis,
+                              styleSheet: MarkdownStyleSheet(
+                                h1: Theme.of(context).textTheme.titleLarge,
+                                h2: Theme.of(context).textTheme.titleMedium,
+                                p: Theme.of(context).textTheme.bodyMedium,
+                              ),
+                            ),
+                          ),
+                    ),
+                  ),
+                ),
+            ],
           ),
         ],
       ),

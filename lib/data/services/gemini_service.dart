@@ -1,4 +1,6 @@
 import 'package:cashly/common/tag_list.dart';
+import 'package:cashly/data/models/month.dart';
+import 'package:cashly/data/models/movement_value.dart';
 import 'package:cashly/data/services/shared_preferences_service.dart';
 import 'package:cashly/modules/settings.dart/settings.dart';
 import 'package:flutter/material.dart';
@@ -97,6 +99,22 @@ class GeminiService {
 
     return await _initGenerateContent(prompt, context);
   }
+}
+
+Future<String> generateSummary(
+  List<MovementValue> movements,
+  Month month,
+  BuildContext context,
+) async {
+  String prompt =
+      'Quiero que me des un resumen de la contabilidad de mi usuario para el mes de ${month.month}/${month.year}. '
+      'Quieron que me des solo el resultado de tu analisis en formato markdown.'
+      'Para el analisis quiero que me digas en que me he gastado mas, en que menos, como podria mejorar, cuales han sido potencialmente gastos inutiles...todo tipo de información que me de información sobre como ha ido el mes financieramente.'
+      'Te paso en modo json los datos de los gastos e ingresos de mi usuario:'
+      '${movements.map((m) => m.toJson()).toList()}';
+
+  String response = await GeminiService()._initGenerateContent(prompt, context);
+  return response;
 }
 
 class NoApiKeyException implements Exception {
