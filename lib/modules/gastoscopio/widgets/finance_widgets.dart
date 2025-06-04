@@ -115,7 +115,7 @@ class MovementCard extends StatelessWidget {
       elevation: 2,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
       child: ListTile(
-        contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+        contentPadding: const EdgeInsets.only(right: 16, left: 16, top: 8),
         title: Text(
           description,
           style: const TextStyle(fontWeight: FontWeight.w500),

@@ -169,7 +169,7 @@ class _MainScreenState extends State<MainScreen> {
           value: _financeService,
           child: Scaffold(
             appBar: AppBar(
-              title: const Text('Companion Tools'),
+              title: const Text('Gastoscopio'),
               actions: [
                 IconButton(
                   icon: const Icon(Icons.settings),

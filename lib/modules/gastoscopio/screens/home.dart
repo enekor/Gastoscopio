@@ -216,15 +216,12 @@ class _GastoscopioHomeScreenState extends State<GastoscopioHomeScreen> {
                     itemCount: movements.length,
                     itemBuilder: (context, index) {
                       final movement = movements[index];
-                      return Padding(
-                        padding: const EdgeInsets.symmetric(vertical: 4),
-                        child: MovementCard(
-                          description: movement.description,
-                          amount: movement.amount,
-                          isExpense: movement.isExpense,
-                          category: movement.category,
-                          moneda: _moneda,
-                        ),
+                      return MovementCard(
+                        description: movement.description,
+                        amount: movement.amount,
+                        isExpense: movement.isExpense,
+                        category: movement.category,
+                        moneda: _moneda,
                       );
                     },
                   ),

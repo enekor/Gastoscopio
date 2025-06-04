@@ -107,22 +107,13 @@ class _MovementsScreenState extends State<MovementsScreen> {
         borderColor: Theme.of(context).colorScheme.primary,
         fillColor: Theme.of(context).colorScheme.primary.withAlpha(45),
         selectedColor: Theme.of(context).colorScheme.onPrimary,
-        isSelected: [_showExpenses, !_showExpenses],
+        isSelected: [!_showExpenses, _showExpenses],
         onPressed: (index) {
           setState(() {
-            _showExpenses = index == 0;
+            _showExpenses = index == 1;
           });
         },
         children: [
-          TextButton.icon(
-            onPressed: () {
-              setState(() {
-                _showExpenses = true;
-              });
-            },
-            label: Text('Gastos'),
-            icon: Icon(Icons.money_off),
-          ),
           TextButton.icon(
             onPressed: () {
               setState(() {
@@ -132,6 +123,15 @@ class _MovementsScreenState extends State<MovementsScreen> {
             label: Text('Ingresos'),
             icon: Icon(Icons.money),
           ),
+          TextButton.icon(
+            onPressed: () {
+              setState(() {
+                _showExpenses = true;
+              });
+            },
+            label: Text('Gastos'),
+            icon: Icon(Icons.money_off),
+          ),
         ],
       ),
       centerTitle: true,
@@ -140,13 +140,13 @@ class _MovementsScreenState extends State<MovementsScreen> {
 
   Widget _buildFilters() {
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16),
+      padding: const EdgeInsets.only(left: 16, right: 16, top: 16),
       child: AnimatedCard(
         context,
         isExpanded: false,
         color: Theme.of(context).colorScheme.secondary.withAlpha(45),
         leadingWidget: Padding(
-          padding: const EdgeInsets.symmetric(vertical: 15.0, horizontal: 20),
+          padding: const EdgeInsets.symmetric(vertical: 10.0, horizontal: 20),
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
@@ -160,7 +160,6 @@ class _MovementsScreenState extends State<MovementsScreen> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const SizedBox(height: 16),
               Row(
                 children: [
                   Expanded(
@@ -173,7 +172,7 @@ class _MovementsScreenState extends State<MovementsScreen> {
                       ),
                     ),
                   ),
-                  const SizedBox(width: 16),
+                  const SizedBox(width: 10),
                   Expanded(
                     child: FutureBuilder<List<MovementValue>>(
                       future:
@@ -188,7 +187,9 @@ class _MovementsScreenState extends State<MovementsScreen> {
                         return FilledButton.tonal(
                           onPressed: () => _selectCategory(context, categories),
                           child: Text(
-                            _selectedCategory ?? 'Seleccionar categoría',
+                            _selectedCategory ?? 'Categoría: Todas',
+                            overflow: TextOverflow.ellipsis,
+                            maxLines: 1,
                           ),
                         );
                       },
@@ -212,85 +213,102 @@ class _MovementsScreenState extends State<MovementsScreen> {
   }
 
   Widget _buildList(List<MovementValue> movements, String moneda) {
-    return ListView.builder(
-      itemCount: movements.length,
-      itemBuilder: (context, index) {
-        final movement = movements[index];
-        final isExpanded = _expandedItems[movement.id] ?? false;
+    if (movements.isEmpty) {
+      return Center(
+        child: Text(
+          _showExpenses ? 'No hay gastos' : 'No hay ingresos',
+          style: TextStyle(color: Theme.of(context).colorScheme.secondary),
+        ),
+      );
+    }
 
-        return Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
-          child: AnimatedCard(
-            context,
-            isExpanded: isExpanded,
-            leadingWidget: Column(
-              children: [
-                ListTile(
-                  title: Text(movement.description),
-                  subtitle:
-                      movement.category != null
-                          ? Text(
-                            movement.category!,
-                            style: TextStyle(
-                              color: Theme.of(context).colorScheme.secondary,
-                            ),
-                          )
-                          : null,
-                  trailing: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Text(
-                        '${movement.amount.toStringAsFixed(2)}${moneda}',
-                        style: TextStyle(
-                          color:
-                              movement.isExpense
-                                  ? Theme.of(context).colorScheme.error
-                                  : Theme.of(context).colorScheme.primary,
-                          fontWeight: FontWeight.bold,
+    return RefreshIndicator(
+      onRefresh: () async {
+        await context.read<FinanceService>().getCurrentMonthMovements();
+        setState(() {});
+      },
+      child: ListView.builder(
+        itemCount: movements.length,
+        itemBuilder: (context, index) {
+          final movement = movements[index];
+          final isExpanded = _expandedItems[movement.id] ?? false;
+
+          return Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+            child: AnimatedCard(
+              context,
+              isExpanded: isExpanded,
+              leadingWidget: Column(
+                children: [
+                  ListTile(
+                    title: Text(movement.description),
+                    subtitle:
+                        movement.category != null
+                            ? Text(
+                              movement.category!,
+                              style: TextStyle(
+                                color: Theme.of(context).colorScheme.secondary,
+                              ),
+                            )
+                            : null,
+                    trailing: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Text(
+                          '${movement.amount.toStringAsFixed(2)}${moneda}',
+                          style: TextStyle(
+                            color:
+                                movement.isExpense
+                                    ? Theme.of(context).colorScheme.error
+                                    : Theme.of(context).colorScheme.primary,
+                            fontWeight: FontWeight.bold,
+                          ),
                         ),
-                      ),
-                      IconButton(
-                        icon: Icon(
-                          isExpanded ? Icons.expand_less : Icons.expand_more,
-                        ),
-                        onPressed: () {
-                          setState(() {
-                            _expandedItems[movement.id] = !isExpanded;
-                          });
-                        },
-                      ),
-                    ],
+                      ],
+                    ),
                   ),
-                ),
-              ],
-            ),
-            hiddenWidget: SingleChildScrollView(
-              scrollDirection: Axis.horizontal,
-              child: Column(
+                ],
+              ),
+              hiddenWidget: Column(
                 children: [
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      ElevatedButton.icon(
-                        onPressed: () {},
-                        label: Text(
-                          'Fecha: ${movement.day}/${widget.month}/${widget.year}',
-                          style: Theme.of(context).textTheme.bodyMedium,
+                      Expanded(
+                        flex: 5,
+                        child: Padding(
+                          padding: const EdgeInsets.only(right: 8.0),
+                          child: ElevatedButton.icon(
+                            onPressed: () {},
+                            label: Text(
+                              '${movement.day}/${widget.month}/${widget.year}',
+                              style: Theme.of(context).textTheme.bodyMedium,
+                            ),
+                            icon: Icon(Icons.calendar_month),
+                          ),
                         ),
-                        icon: Icon(Icons.calendar_month),
                       ),
-                      ElevatedButton.icon(
-                        onPressed: () => _showTagSelection(context, movement),
-                        label: Text(
-                          'Categoría: ${movement.category ?? 'Sin categoría'}',
-                          style: Theme.of(context).textTheme.bodyMedium,
+                      Expanded(
+                        flex: 5,
+                        child: Padding(
+                          padding: const EdgeInsets.only(left: 8.0),
+                          child: ElevatedButton.icon(
+                            onPressed:
+                                () => _showTagSelection(context, movement),
+                            label: Text(
+                              movement.category ?? 'Sin categoría',
+                              style: Theme.of(context).textTheme.bodyMedium,
+                              overflow: TextOverflow.ellipsis,
+                              maxLines: 1,
+                            ),
+                            icon: Icon(Icons.discount_rounded),
+                          ),
                         ),
-                        icon: Icon(Icons.category),
                       ),
                     ],
                   ),
                   Row(
-                    mainAxisAlignment: MainAxisAlignment.start,
+                    mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       TextButton.icon(
                         onPressed: () {
@@ -305,7 +323,6 @@ class _MovementsScreenState extends State<MovementsScreen> {
                         ),
                         icon: Icon(Icons.edit),
                       ),
-
                       TextButton.icon(
                         onPressed: () {
                           context
@@ -325,16 +342,16 @@ class _MovementsScreenState extends State<MovementsScreen> {
                           'Eliminar',
                           style: Theme.of(context).textTheme.bodyMedium,
                         ),
-                        icon: Icon(Icons.remove),
+                        icon: Icon(Icons.delete),
                       ),
                     ],
                   ),
                 ],
               ),
             ),
-          ),
-        );
-      },
+          );
+        },
+      ),
     );
   }
 
@@ -351,36 +368,62 @@ class _MovementsScreenState extends State<MovementsScreen> {
   }
 
   void _selectCategory(BuildContext context, List<String> categories) {
-    showDialog(
+    showModalBottomSheet(
       context: context,
-      builder: (context) {
-        return AlertDialog(
-          title: const Text('Seleccionar categoría'),
-          content: SingleChildScrollView(
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
+      isScrollControlled: true,
+      showDragHandle: true,
+      builder: (BuildContext context) {
+        return DraggableScrollableSheet(
+          initialChildSize: 0.6,
+          minChildSize: 0.3,
+          maxChildSize: 0.9,
+          expand: false,
+          builder: (context, scrollController) {
+            return Column(
               children: [
-                ListTile(
-                  title: const Text('Todas'),
-                  selected: _selectedCategory == null,
-                  onTap: () {
-                    setState(() => _selectedCategory = null);
-                    Navigator.pop(context);
-                  },
+                Padding(
+                  padding: const EdgeInsets.all(16.0),
+                  child: Text(
+                    'Seleccionar categoría',
+                    style: Theme.of(context).textTheme.titleLarge,
+                  ),
                 ),
-                ...categories.map(
-                  (category) => ListTile(
-                    title: Text(category),
-                    selected: category == _selectedCategory,
-                    onTap: () {
-                      setState(() => _selectedCategory = category);
-                      Navigator.pop(context);
-                    },
+                Expanded(
+                  child: ListView(
+                    controller: scrollController,
+                    children: [
+                      ListTile(
+                        title: const Text('Todas'),
+                        selected: _selectedCategory == null,
+                        leading:
+                            _selectedCategory == null
+                                ? Icon(Icons.check)
+                                : null,
+                        onTap: () {
+                          setState(() => _selectedCategory = null);
+                          Navigator.pop(context);
+                        },
+                      ),
+                      ...TagList.map(
+                        (category) => ListTile(
+                          title: Text(category),
+                          selected: category == _selectedCategory,
+                          leading:
+                              category == _selectedCategory
+                                  ? Icon(Icons.check)
+                                  : null,
+                          onTap: () {
+                            setState(() => _selectedCategory = category);
+                            Navigator.pop(context);
+                          },
+                        ),
+                      ),
+                    ],
                   ),
                 ),
               ],
-            ),
-          ),
+            );
+          },
         );
       },
     );

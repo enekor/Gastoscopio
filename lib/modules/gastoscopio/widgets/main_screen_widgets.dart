@@ -30,7 +30,11 @@ Widget AnimatedCard(
                 duration: const Duration(milliseconds: 300),
                 firstChild: Container(),
                 secondChild: Padding(
-                  padding: const EdgeInsets.all(16.0),
+                  padding: const EdgeInsets.only(
+                    left: 16.0,
+                    right: 16.0,
+                    bottom: 5.0,
+                  ),
                   child: hiddenWidget,
                 ),
                 crossFadeState:
