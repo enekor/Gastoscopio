@@ -2,11 +2,10 @@ import 'package:cashly/common/tag_list.dart';
 import 'package:cashly/data/models/movement_value.dart';
 import 'package:cashly/modules/gastoscopio/logic/finance_service.dart';
 import 'package:cashly/modules/gastoscopio/widgets/category_progress_chart.dart';
-import 'package:cashly/modules/gastoscopio/widgets/finance_widgets.dart';
+import 'package:cashly/modules/gastoscopio/widgets/month_grid_selector.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:cashly/modules/gastoscopio/widgets/main_screen_widgets.dart';
 
 class SummaryScreen extends StatefulWidget {
   const SummaryScreen({super.key});
@@ -21,7 +20,6 @@ class _SummaryScreenState extends State<SummaryScreen> {
   List<int> _availableMonths = [];
   int _year = DateTime.now().year;
   int _month = DateTime.now().month;
-  bool _isSelectingDate = false;
 
   @override
   void initState() {
@@ -44,6 +42,59 @@ class _SummaryScreenState extends State<SummaryScreen> {
     });
   }
 
+  void _showMonthSelector() {
+    showDialog(
+      context: context,
+      builder:
+          (dialogContext) => StatefulBuilder(
+            builder:
+                (context, setDialogState) => Dialog(
+                  child: Padding(
+                    padding: const EdgeInsets.all(16),
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        MonthGridSelector(
+                          availableMonths: _availableMonths,
+                          availableYears: _availableYears,
+                          selectedMonth: _month,
+                          selectedYear: _year,
+                          onMonthChanged: (month) async {
+                            await _setNewDate(month, _year);
+                            Navigator.pop(dialogContext);
+                          },
+                          onYearChanged: (year) async {
+                            final months = await _financeService
+                                .getAvailableMonths(year);
+
+                            // Cerrar el diálogo actual
+                            Navigator.pop(dialogContext);
+
+                            // Actualizar ambos estados de forma sincronizada
+                            setState(() {
+                              _availableMonths = months;
+                              _year = year;
+                            });
+
+                            // Manejar el cambio de mes si es necesario
+                            if (!months.contains(_month)) {
+                              await _setNewDate(months.last, year);
+                            } else {
+                              await _setNewDate(_month, year);
+                            }
+
+                            // Mostrar el diálogo actualizado
+                            _showMonthSelector();
+                          },
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+          ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -51,13 +102,10 @@ class _SummaryScreenState extends State<SummaryScreen> {
         title: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Text(_getMonthName(_month)),
+            Text("${_getMonthName(_month)} $_year"),
             IconButton(
               icon: const Icon(Icons.calendar_month),
-              onPressed:
-                  () => setState(() {
-                    _isSelectingDate = !_isSelectingDate;
-                  }),
+              onPressed: _showMonthSelector,
             ),
           ],
         ),
@@ -65,34 +113,6 @@ class _SummaryScreenState extends State<SummaryScreen> {
       ),
       body: Column(
         children: [
-          AnimatedContainer(
-            duration: const Duration(milliseconds: 500),
-            child: AnimatedCard(
-              context,
-              isExpanded: _isSelectingDate,
-              hiddenWidget: MonthYearSelector(
-                availableMonths: _availableMonths,
-                availableYears: _availableYears,
-                selectedMonth: _month,
-                selectedYear: _year,
-                onMonthChanged: (month) async {
-                  await _setNewDate(month, _year);
-                },
-                onYearChanged: (year) async {
-                  final months = await _financeService.getAvailableMonths(year);
-                  setState(() {
-                    _availableMonths = months;
-                    _year = year;
-                  });
-                  if (!months.contains(_month)) {
-                    await _setNewDate(months.last, year);
-                  } else {
-                    await _setNewDate(_month, year);
-                  }
-                },
-              ),
-            ),
-          ),
           Expanded(
             child: Consumer<FinanceService>(
               builder: (context, financeService, _) {
@@ -255,52 +275,101 @@ class _SummaryScreenState extends State<SummaryScreen> {
       children: [
         Text('Gastos Diarios', style: Theme.of(context).textTheme.titleLarge),
         const SizedBox(height: 16),
-        SizedBox(
-          height: 200,
-          child: LineChart(
-            LineChartData(
-              gridData: FlGridData(show: false),
-              titlesData: FlTitlesData(
-                leftTitles: AxisTitles(
-                  sideTitles: SideTitles(showTitles: false),
-                ),
-                topTitles: AxisTitles(
-                  sideTitles: SideTitles(showTitles: false),
-                ),
-                rightTitles: AxisTitles(
-                  sideTitles: SideTitles(showTitles: false),
-                ),
-                bottomTitles: AxisTitles(
-                  sideTitles: SideTitles(
-                    showTitles: true,
-                    getTitlesWidget: (value, meta) {
-                      if (value % 5 != 0) return const Text('');
-                      return Text(value.toInt().toString());
+        Card(
+          child: Padding(
+            padding: const EdgeInsets.all(16),
+            child: SizedBox(
+              height: 300,
+              child: LineChart(
+                LineChartData(
+                  gridData: FlGridData(
+                    show: true,
+                    drawHorizontalLine: true,
+                    horizontalInterval: 100,
+                    getDrawingHorizontalLine: (value) {
+                      return FlLine(
+                        color: Theme.of(context).dividerColor.withOpacity(0.2),
+                        strokeWidth: 1,
+                      );
                     },
                   ),
-                ),
-              ),
-              borderData: FlBorderData(
-                show: true,
-                border: Border(
-                  bottom: BorderSide(color: Theme.of(context).dividerColor),
-                ),
-              ),
-              lineBarsData: [
-                LineChartBarData(
-                  spots: spots,
-                  isCurved: true,
-                  barWidth: 3,
-                  color: Theme.of(context).colorScheme.primary,
-                  dotData: FlDotData(show: false),
-                  belowBarData: BarAreaData(
-                    show: true,
-                    color: Theme.of(
-                      context,
-                    ).colorScheme.primary.withOpacity(0.1),
+                  titlesData: FlTitlesData(
+                    leftTitles: AxisTitles(
+                      sideTitles: SideTitles(
+                        showTitles: true,
+                        reservedSize: 60,
+                        getTitlesWidget: (value, meta) {
+                          return Text(
+                            '${value.toInt()}€', // TODO: Use moneda variable instead of hardcoded €
+                            style: TextStyle(
+                              color: Theme.of(
+                                context,
+                              ).colorScheme.onSurface.withOpacity(0.6),
+                              fontSize: 12,
+                            ),
+                          );
+                        },
+                      ),
+                    ),
+                    bottomTitles: AxisTitles(
+                      sideTitles: SideTitles(
+                        showTitles: true,
+                        reservedSize: 30,
+                        interval: 2, // Mostrar cada dos días
+                        getTitlesWidget: (value, meta) {
+                          if (value < 1 || value > 31) return const Text('');
+                          return Padding(
+                            padding: const EdgeInsets.only(top: 8),
+                            child: Text(
+                              value.toInt().toString(),
+                              style: TextStyle(
+                                color: Theme.of(
+                                  context,
+                                ).colorScheme.onSurface.withOpacity(0.6),
+                                fontSize: 12,
+                              ),
+                            ),
+                          );
+                        },
+                      ),
+                    ),
+                    rightTitles: AxisTitles(
+                      sideTitles: SideTitles(showTitles: false),
+                    ),
+                    topTitles: AxisTitles(
+                      sideTitles: SideTitles(showTitles: false),
+                    ),
                   ),
+                  borderData: FlBorderData(show: true),
+                  lineBarsData: [
+                    LineChartBarData(
+                      spots: spots,
+                      isCurved: true,
+                      barWidth: 2.5,
+                      color: Theme.of(context).colorScheme.error,
+                      dotData: FlDotData(
+                        show: true,
+                        getDotPainter:
+                            (spot, percent, barData, index) =>
+                                FlDotCirclePainter(
+                                  radius: 4,
+                                  color: Theme.of(context).colorScheme.error,
+                                  strokeWidth: 1,
+                                  strokeColor: Theme.of(
+                                    context,
+                                  ).colorScheme.error.withOpacity(0.5),
+                                ),
+                      ),
+                      belowBarData: BarAreaData(
+                        show: true,
+                        color: Theme.of(
+                          context,
+                        ).colorScheme.error.withOpacity(0.1),
+                      ),
+                    ),
+                  ],
                 ),
-              ],
+              ),
             ),
           ),
         ),

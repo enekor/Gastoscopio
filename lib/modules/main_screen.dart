@@ -6,6 +6,7 @@ import 'package:cashly/modules/gastoscopio/screens/movements_screen.dart';
 import 'package:cashly/modules/gastoscopio/screens/summary_screen.dart';
 import 'package:cashly/modules/gastoscopio/widgets/finance_widgets.dart';
 import 'package:cashly/modules/gastoscopio/widgets/main_screen_widgets.dart';
+import 'package:cashly/modules/gastoscopio/widgets/month_grid_selector.dart';
 import 'package:cashly/modules/settings.dart/settings.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -18,7 +19,6 @@ class MainScreen extends StatefulWidget {
 
 class _MainScreenState extends State<MainScreen> {
   int _selectedIndex = 0;
-  bool _isSelectingDate = false;
   List<int> _availableYears = [];
   List<int> _availableMonths = [];
   int _year = DateTime.now().year;
@@ -97,6 +97,59 @@ class _MainScreenState extends State<MainScreen> {
     }
   }
 
+  void _showMonthSelector() {
+    showDialog(
+      context: context,
+      builder:
+          (dialogContext) => StatefulBuilder(
+            builder:
+                (context, setDialogState) => Dialog(
+                  child: Padding(
+                    padding: const EdgeInsets.all(16),
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        MonthGridSelector(
+                          availableMonths: _availableMonths,
+                          availableYears: _availableYears,
+                          selectedMonth: _month,
+                          selectedYear: _year,
+                          onMonthChanged: (month) async {
+                            await _setNewDate(month, _year);
+                            Navigator.pop(dialogContext);
+                          },
+                          onYearChanged: (year) async {
+                            final months = await _financeService
+                                .getAvailableMonths(year);
+
+                            // Cerrar el diálogo actual
+                            Navigator.pop(dialogContext);
+
+                            // Actualizar ambos estados de forma sincronizada
+                            setState(() {
+                              _availableMonths = months;
+                              _year = year;
+                            });
+
+                            // Manejar el cambio de mes si es necesario
+                            if (!months.contains(_month)) {
+                              await _setNewDate(months.last, year);
+                            } else {
+                              await _setNewDate(_month, year);
+                            }
+
+                            // Mostrar el diálogo actualizado
+                            _showMonthSelector();
+                          },
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+          ),
+    );
+  }
+
   List<Widget> get _screens => [
     GastoscopioHomeScreen(year: _year, month: _month),
     MovementsScreen(year: _year, month: _month),
@@ -131,48 +184,43 @@ class _MainScreenState extends State<MainScreen> {
                 ),
                 if (_selectedIndex != 2)
                   IconButton(
-                    onPressed:
-                        () => setState(() {
-                          _isSelectingDate = !_isSelectingDate;
-                        }),
+                    onPressed: _showMonthSelector,
                     icon: const Icon(Icons.calendar_today),
                   ),
               ],
             ),
             body: Column(
               children: [
-                AnimatedContainer(
-                  duration: const Duration(milliseconds: 500),
-                  child: AnimatedCard(
-                    context,
-                    isExpanded: _selectedIndex == 0 ? true : _isSelectingDate,
-                    hiddenWidget: MonthYearSelector(
-                      availableMonths: _availableMonths,
-                      availableYears: _availableYears,
-                      selectedMonth: _month,
-                      selectedYear: _year,
-                      onMonthChanged: (month) async {
-                        await _setNewDate(month, _year);
-                      },
-                      onYearChanged: (year) async {
-                        final months = await _financeService.getAvailableMonths(
-                          year,
-                        );
-                        setState(() {
-                          _availableMonths = months;
-                          _year = year;
-                        });
-                        // Si el mes actual no está disponible en el nuevo año,
-                        // seleccionar el último mes disponible
-                        if (!months.contains(_month)) {
-                          await _setNewDate(months.last, year);
-                        } else {
-                          await _setNewDate(_month, year);
-                        }
-                      },
-                    ),
-                  ),
-                ),
+                // AnimatedContainer(
+                //   duration: const Duration(milliseconds: 500),
+                //   child: AnimatedCard(
+                //     context,
+                //     isExpanded: _selectedIndex == 0 ? true : _isSelectingDate,
+                //     hiddenWidget: MonthGridSelector(
+                //       availableMonths: _availableMonths,
+                //       availableYears: _availableYears,
+                //       selectedMonth: _month,
+                //       selectedYear: _year,
+                //       onMonthChanged: (month) async {
+                //         await _setNewDate(month, _year);
+                //       },
+                //       onYearChanged: (year) async {
+                //         final months = await _financeService.getAvailableMonths(
+                //           year,
+                //         );
+                //         setState(() {
+                //           _availableMonths = months;
+                //           _year = year;
+                //         });
+                //         if (!months.contains(_month)) {
+                //           await _setNewDate(months.last, year);
+                //         } else {
+                //           await _setNewDate(_month, year);
+                //         }
+                //       },
+                //     ),
+                //   ),
+                // ),
                 Expanded(
                   child: IndexedStack(
                     index: _selectedIndex,

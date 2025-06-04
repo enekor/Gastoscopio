@@ -4,6 +4,9 @@ import 'package:cashly/data/services/login_service.dart';
 import 'package:cashly/modules/gastoscopio/logic/finance_service.dart';
 import 'package:cashly/modules/gastoscopio/screens/movement_form_screen.dart';
 import 'package:cashly/modules/gastoscopio/widgets/finance_widgets.dart';
+import 'package:cashly/modules/gastoscopio/widgets/category_progress_chart.dart';
+import 'package:cashly/data/models/movement_value.dart';
+import 'package:cashly/common/tag_list.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:svg_flutter/svg.dart';
@@ -276,13 +279,143 @@ class _ChartPart extends StatelessWidget {
   const _ChartPart(this.moneda);
   final String moneda;
 
+  Map<String, double> _calculateCategoryPercentages(
+    List<MovementValue> expenses,
+  ) {
+    final categoryTotals = <String, double>{};
+    for (var tag in TagList) {
+      categoryTotals[tag] = 0;
+    }
+
+    // Calculate totals for each category
+    for (var movement in expenses) {
+      if (movement.category != null) {
+        categoryTotals[movement.category!] =
+            (categoryTotals[movement.category!] ?? 0) + movement.amount;
+      }
+    } // Ordenar por monto en lugar de porcentaje
+    final sortedEntries =
+        categoryTotals.entries.where((e) => e.value > 0).toList()
+          ..sort((a, b) => b.value.compareTo(a.value));
+
+    // Tomar solo las 3 primeras categorías
+    return Map.fromEntries(sortedEntries.take(3));
+  }
+
   @override
   Widget build(BuildContext context) {
     return Consumer<FinanceService>(
       builder: (context, service, _) {
         if (service.currentMonth == null) return const SizedBox.shrink();
-        return YearlyChart(year: service.currentMonth!.year, moneda: moneda);
+
+        return FutureBuilder<List<MovementValue>>(
+          future: service.getMovementsForMonth(
+            service.currentMonth!.month,
+            service.currentMonth!.year,
+          ),
+          builder: (context, snapshot) {
+            if (!snapshot.hasData || snapshot.data!.isEmpty)
+              return const SizedBox.shrink();
+
+            final movements = snapshot.data!;
+            final expenses = movements.where((m) => m.isExpense).toList();
+            final categoryData = _calculateCategoryPercentages(expenses);
+
+            return Card(
+              child: Padding(
+                padding: const EdgeInsets.all(16),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      'Gastos por Categoría',
+                      style: Theme.of(context).textTheme.titleLarge,
+                    ),
+                    const SizedBox(height: 16),
+                    HomeCategoryChart(
+                      categoryData: categoryData,
+                      moneda: moneda,
+                    ),
+                  ],
+                ),
+              ),
+            );
+          },
+        );
       },
+    );
+  }
+}
+
+class HomeCategoryChart extends StatelessWidget {
+  final Map<String, double> categoryData;
+  final String moneda;
+
+  const HomeCategoryChart({
+    super.key,
+    required this.categoryData,
+    required this.moneda,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    // Calcular el total para los porcentajes
+    final total = categoryData.values.fold<double>(
+      0,
+      (sum, value) => sum + value,
+    );
+
+    return Column(
+      children:
+          categoryData.entries.map((entry) {
+            final category = entry.key;
+            final amount = entry.value;
+            final percentage = total > 0 ? (amount / total) * 100 : 0;
+
+            return Padding(
+              padding: const EdgeInsets.only(bottom: 16.0),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text(category),
+                      Row(
+                        children: [
+                          Text(
+                            '${amount.toStringAsFixed(2)}$moneda',
+                            style: const TextStyle(fontWeight: FontWeight.bold),
+                          ),
+                          Text(
+                            ' (${percentage.toStringAsFixed(1)}%)',
+                            style: TextStyle(
+                              color: Theme.of(context).colorScheme.secondary,
+                              fontSize: 12,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 4),
+                  LinearProgressIndicator(
+                    value: percentage / 100,
+                    backgroundColor: Theme.of(
+                      context,
+                    ).colorScheme.primary.withOpacity(0.1),
+                    valueColor: AlwaysStoppedAnimation(
+                      HSLColor.fromColor(
+                        Theme.of(context).colorScheme.primary,
+                      ).withLightness(0.5).toColor(),
+                    ),
+                    minHeight: 8,
+                    borderRadius: BorderRadius.circular(4),
+                  ),
+                ],
+              ),
+            );
+          }).toList(),
     );
   }
 }
