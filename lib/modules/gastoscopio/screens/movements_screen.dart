@@ -321,25 +321,27 @@ class _MovementsScreenState extends State<MovementsScreen> {
                         icon: Icon(Icons.edit),
                       ),
                       TextButton.icon(
-                        onPressed: () {
-                          context
+                        onPressed: () async {
+                          final deleted = await context
                               .read<FinanceService>()
-                              .deleteMovement(movement)
-                              .then((_) => setState(() {}));
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            SnackBar(
-                              content: Text(
-                                '${movement.description} eliminado',
-                                style: Theme.of(context).textTheme.bodyMedium,
-                              ),
-                            ),
-                          );
+                              .deleteMovement(context, movement);
+
+                          if (deleted && mounted) {
+                            setState(() {
+                              _expandedItems[movement.id] = false;
+                            });
+                          }
                         },
                         label: Text(
                           'Eliminar',
-                          style: Theme.of(context).textTheme.bodyMedium,
+                          style: TextStyle(
+                            color: Theme.of(context).colorScheme.error,
+                          ),
                         ),
-                        icon: Icon(Icons.delete),
+                        icon: Icon(
+                          Icons.delete,
+                          color: Theme.of(context).colorScheme.error,
+                        ),
                       ),
                     ],
                   ),

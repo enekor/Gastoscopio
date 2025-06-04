@@ -87,6 +87,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
     ScaffoldMessenger.of(context).showSnackBar(
       const SnackBar(
         content: Text('Los datos se han guardado correctamente'),
+        behavior: SnackBarBehavior.floating,
         duration: Duration(seconds: 2),
       ),
     );

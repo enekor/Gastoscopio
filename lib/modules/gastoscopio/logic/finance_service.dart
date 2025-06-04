@@ -239,10 +239,78 @@ class FinanceService extends ChangeNotifier {
     return _movementValueDao.findMovementValuesByMonthId(_currentMonth!.id!);
   }
 
-  Future<void> deleteMovement(MovementValue movement) async {
-    await _movementValueDao.deleteMovementValue(movement);
-    await _updateMonthData(); // Actualizar datos después de eliminar
-    notifyListeners();
+  Future<bool> deleteMovement(
+    BuildContext context,
+    MovementValue movement,
+  ) async {
+    final shouldDelete =
+        await showDialog<bool>(
+          context: context,
+          builder:
+              (context) => AlertDialog(
+                title: const Text('Confirmar eliminación'),
+                content: Text(
+                  '¿Estás seguro de que quieres eliminar "${movement.description}"?',
+                ),
+                actions: [
+                  TextButton(
+                    onPressed: () => Navigator.of(context).pop(false),
+                    child: const Text('Cancelar'),
+                  ),
+                  FilledButton(
+                    onPressed: () => Navigator.of(context).pop(true),
+                    style: FilledButton.styleFrom(
+                      backgroundColor: Theme.of(context).colorScheme.error,
+                    ),
+                    child: const Text('Eliminar'),
+                  ),
+                ],
+              ),
+        ) ??
+        false;
+
+    if (!shouldDelete) return false;
+
+    try {
+      // Show loading indicator
+      if (!context.mounted) return false;
+      showDialog(
+        context: context,
+        barrierDismissible: false,
+        builder: (context) => const Center(child: CircularProgressIndicator()),
+      );
+
+      await _movementValueDao.deleteMovementValue(movement);
+      await _updateMonthData();
+      notifyListeners();
+
+      // Close loading dialog
+      if (!context.mounted) return true;
+      Navigator.of(context).pop();
+
+      // Show success message
+      if (!context.mounted) return true;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('${movement.description} eliminado con éxito'),
+          behavior: SnackBarBehavior.floating,
+        ),
+      );
+
+      return true;
+    } catch (e) {
+      // Close loading dialog
+      if (context.mounted) {
+        Navigator.of(context).pop();
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Error al eliminar ${movement.description}'),
+            behavior: SnackBarBehavior.floating,
+          ),
+        );
+      }
+      return false;
+    }
   }
 
   Future<void> showEditMovementDialog(

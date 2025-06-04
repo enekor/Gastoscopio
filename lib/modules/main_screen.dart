@@ -191,36 +191,6 @@ class _MainScreenState extends State<MainScreen> {
             ),
             body: Column(
               children: [
-                // AnimatedContainer(
-                //   duration: const Duration(milliseconds: 500),
-                //   child: AnimatedCard(
-                //     context,
-                //     isExpanded: _selectedIndex == 0 ? true : _isSelectingDate,
-                //     hiddenWidget: MonthGridSelector(
-                //       availableMonths: _availableMonths,
-                //       availableYears: _availableYears,
-                //       selectedMonth: _month,
-                //       selectedYear: _year,
-                //       onMonthChanged: (month) async {
-                //         await _setNewDate(month, _year);
-                //       },
-                //       onYearChanged: (year) async {
-                //         final months = await _financeService.getAvailableMonths(
-                //           year,
-                //         );
-                //         setState(() {
-                //           _availableMonths = months;
-                //           _year = year;
-                //         });
-                //         if (!months.contains(_month)) {
-                //           await _setNewDate(months.last, year);
-                //         } else {
-                //           await _setNewDate(_month, year);
-                //         }
-                //       },
-                //     ),
-                //   ),
-                // ),
                 Expanded(
                   child: IndexedStack(
                     index: _selectedIndex,

@@ -95,9 +95,12 @@ class _MovementFormScreenState extends State<MovementFormScreen> {
 
       if (!shouldCreate) {
         if (mounted) {
-          ScaffoldMessenger.of(
-            context,
-          ).showSnackBar(const SnackBar(content: Text('Operación cancelada')));
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('Operación cancelada'),
+              behavior: SnackBarBehavior.floating,
+            ),
+          );
         }
         return;
       }
@@ -117,7 +120,10 @@ class _MovementFormScreenState extends State<MovementFormScreen> {
     if (monthId == null) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Error al crear el movimiento')),
+          const SnackBar(
+            content: Text('Error al crear el movimiento'),
+            behavior: SnackBarBehavior.floating,
+          ),
         );
       }
       return;
@@ -137,6 +143,7 @@ class _MovementFormScreenState extends State<MovementFormScreen> {
             content: Text(
               'No se pudo generar la categoría, puedes asignarla manualmente en el visionado de gastos',
             ),
+            behavior: SnackBarBehavior.floating,
           ),
         );
       }
@@ -170,7 +177,10 @@ class _MovementFormScreenState extends State<MovementFormScreen> {
       }
 
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Movimiento guardado con éxito')),
+        const SnackBar(
+          content: Text('Movimiento guardado con éxito'),
+          behavior: SnackBarBehavior.floating,
+        ),
       );
       Navigator.pop(context);
     }

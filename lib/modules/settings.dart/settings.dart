@@ -66,7 +66,10 @@ class _SettingsScreenState extends State<SettingsScreen> {
         _currentCurrency = currency;
       });
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Moneda actualizada correctamente')),
+        const SnackBar(
+          content: Text('Moneda actualizada correctamente'),
+          behavior: SnackBarBehavior.floating,
+        ),
       );
     }
   }
@@ -78,7 +81,10 @@ class _SettingsScreenState extends State<SettingsScreen> {
     );
     if (mounted) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Logo actualizado correctamente')),
+        const SnackBar(
+          content: Text('Logo actualizado correctamente'),
+          behavior: SnackBarBehavior.floating,
+        ),
       );
     }
   }
@@ -92,6 +98,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
           content: Text('Color de avatar actualizado correctamente'),
+          behavior: SnackBarBehavior.floating,
         ),
       );
     }

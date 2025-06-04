@@ -44,7 +44,10 @@ class _ApiKeyGeneratorState extends State<ApiKeyGenerator> {
     )) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('No se pudo abrir el enlace')),
+          const SnackBar(
+            content: Text('No se pudo abrir el enlace'),
+            behavior: SnackBarBehavior.floating,
+          ),
         );
       }
     }
@@ -177,8 +180,9 @@ class _ApiKeyGeneratorState extends State<ApiKeyGenerator> {
                     );
                     if (mounted) {
                       ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(
+                        const SnackBar(
                           content: Text('API Key guardada correctamente'),
+                          behavior: SnackBarBehavior.floating,
                         ),
                       );
                     }
