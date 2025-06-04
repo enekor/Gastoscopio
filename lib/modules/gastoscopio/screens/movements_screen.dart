@@ -75,15 +75,12 @@ class _MovementsScreenState extends State<MovementsScreen> {
       appBar: _buildAppBar(),
       floatingActionButton: FloatingActionButton.extended(
         onPressed: () {
-          Navigator.push(
-            context,
-            MaterialPageRoute(
-              builder:
-                  (context) => Theme(
-                    data: Theme.of(context),
-                    child: const MovementFormScreen(),
-                  ),
-            ),
+          showModalBottomSheet(
+            context: context,
+            isScrollControlled: true,
+            showDragHandle: true,
+            useSafeArea: true,
+            builder: (BuildContext context) => const MovementFormScreen(),
           );
         },
         icon: const Icon(Icons.add),

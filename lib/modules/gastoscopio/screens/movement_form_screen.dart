@@ -178,93 +178,115 @@ class _MovementFormScreenState extends State<MovementFormScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(title: Text(_isExpense ? 'Nuevo Gasto' : 'Nuevo Ingreso')),
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Form(
-          key: _formKey,
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              // Selector de tipo de movimiento
-              SegmentedButton<bool>(
-                segments: const [
-                  ButtonSegment<bool>(
-                    value: true,
-                    label: Text('Gasto'),
-                    icon: Icon(Icons.remove_circle_outline),
+    return Material(
+      child: Padding(
+        padding: EdgeInsets.only(
+          bottom: MediaQuery.of(context).viewInsets.bottom,
+        ),
+        child: SingleChildScrollView(
+          child: Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: Form(
+              key: _formKey,
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text(
+                        _isExpense ? 'Nuevo Gasto' : 'Nuevo Ingreso',
+                        style: Theme.of(context).textTheme.titleLarge,
+                      ),
+                      IconButton(
+                        icon: const Icon(Icons.close),
+                        onPressed: () => Navigator.pop(context),
+                      ),
+                    ],
                   ),
-                  ButtonSegment<bool>(
-                    value: false,
-                    label: Text('Ingreso'),
-                    icon: Icon(Icons.add_circle_outline),
+                  const SizedBox(height: 16),
+                  // Selector de tipo de movimiento
+                  SegmentedButton<bool>(
+                    segments: const [
+                      ButtonSegment<bool>(
+                        value: true,
+                        label: Text('Gasto'),
+                        icon: Icon(Icons.remove_circle_outline),
+                      ),
+                      ButtonSegment<bool>(
+                        value: false,
+                        label: Text('Ingreso'),
+                        icon: Icon(Icons.add_circle_outline),
+                      ),
+                    ],
+                    selected: {_isExpense},
+                    onSelectionChanged: (Set<bool> selection) {
+                      setState(() {
+                        _isExpense = selection.first;
+                      });
+                    },
                   ),
+                  const SizedBox(height: 16),
+
+                  // Campo de descripción
+                  TextFormField(
+                    controller: _descriptionController,
+                    decoration: const InputDecoration(
+                      labelText: 'Descripción',
+                      border: OutlineInputBorder(),
+                    ),
+                    validator: (value) {
+                      if (value == null || value.isEmpty) {
+                        return 'Por favor ingrese una descripción';
+                      }
+                      return null;
+                    },
+                  ),
+                  const SizedBox(height: 16),
+
+                  // Campo de monto
+                  TextFormField(
+                    controller: _amountController,
+                    decoration: InputDecoration(
+                      labelText: 'Monto',
+                      border: const OutlineInputBorder(),
+                      suffixText: _moneda,
+                    ),
+                    keyboardType: const TextInputType.numberWithOptions(
+                      decimal: true,
+                    ),
+                    validator: (value) {
+                      if (value == null || value.isEmpty) {
+                        return 'Por favor ingrese un monto';
+                      }
+                      if (double.tryParse(value.replaceAll(',', '.')) == null) {
+                        return 'Por favor ingrese un monto válido';
+                      }
+                      return null;
+                    },
+                  ),
+                  const SizedBox(height: 16),
+
+                  // Selector de fecha
+                  OutlinedButton.icon(
+                    onPressed: () => _selectDate(context),
+                    icon: const Icon(Icons.calendar_today),
+                    label: Text(
+                      'Fecha: ${_selectedDate.day}/${_selectedDate.month}/${_selectedDate.year}',
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+
+                  // Botón de guardar
+                  FilledButton(
+                    onPressed: () => _saveMovement(context),
+                    child: const Text('Guardar'),
+                  ),
+                  const SizedBox(height: 8),
                 ],
-                selected: {_isExpense},
-                onSelectionChanged: (Set<bool> selection) {
-                  setState(() {
-                    _isExpense = selection.first;
-                  });
-                },
               ),
-              const SizedBox(height: 16),
-
-              // Campo de descripción
-              TextFormField(
-                controller: _descriptionController,
-                decoration: const InputDecoration(
-                  labelText: 'Descripción',
-                  border: OutlineInputBorder(),
-                ),
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return 'Por favor ingrese una descripción';
-                  }
-                  return null;
-                },
-              ),
-              const SizedBox(height: 16),
-
-              // Campo de monto
-              TextFormField(
-                controller: _amountController,
-                decoration: InputDecoration(
-                  labelText: 'Monto',
-                  border: OutlineInputBorder(),
-                  suffixText: _moneda,
-                ),
-                keyboardType: const TextInputType.numberWithOptions(
-                  decimal: true,
-                ),
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return 'Por favor ingrese un monto';
-                  }
-                  if (double.tryParse(value.replaceAll(',', '.')) == null) {
-                    return 'Por favor ingrese un monto válido';
-                  }
-                  return null;
-                },
-              ),
-              const SizedBox(height: 16),
-
-              // Selector de fecha
-              OutlinedButton.icon(
-                onPressed: () => _selectDate(context),
-                icon: const Icon(Icons.calendar_today),
-                label: Text(
-                  'Fecha: ${_selectedDate.day}/${_selectedDate.month}/${_selectedDate.year}',
-                ),
-              ),
-              const Spacer(),
-
-              // Botón de guardar
-              FilledButton(
-                onPressed: () => _saveMovement(context),
-                child: const Text('Guardar'),
-              ),
-            ],
+            ),
           ),
         ),
       ),
