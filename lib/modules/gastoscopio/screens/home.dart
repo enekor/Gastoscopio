@@ -1,11 +1,12 @@
 import 'package:cashly/data/services/shared_preferences_service.dart';
 import 'package:cashly/data/services/sqlite_service.dart';
+import 'package:cashly/data/services/login_service.dart';
 import 'package:cashly/modules/gastoscopio/logic/finance_service.dart';
-import 'package:cashly/modules/gastoscopio/screens/movement_form_screen.dart';
 import 'package:cashly/modules/gastoscopio/screens/movement_form_screen.dart';
 import 'package:cashly/modules/gastoscopio/widgets/finance_widgets.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:svg_flutter/svg.dart';
 
 class GastoscopioHomeScreen extends StatefulWidget {
   const GastoscopioHomeScreen({
@@ -22,6 +23,10 @@ class GastoscopioHomeScreen extends StatefulWidget {
 
 class _GastoscopioHomeScreenState extends State<GastoscopioHomeScreen> {
   String _greeting = '';
+  bool _isSvg = false;
+  int _r = 255;
+  int _g = 255;
+  int _b = 255;
   late String _moneda = 'loading...';
 
   @override
@@ -36,6 +41,24 @@ class _GastoscopioHomeScreenState extends State<GastoscopioHomeScreen> {
             _moneda = currency ?? '€'; // Valor por defecto si no se encuentra
           }),
         );
+    SharedPreferencesService()
+        .getBoolValue(SharedPreferencesKeys.isSvgAvatar)
+        .then((isSvg) {
+          setState(() {
+            _isSvg = isSvg ?? false;
+          });
+        });
+    SharedPreferencesService()
+        .getStringValue(SharedPreferencesKeys.avatarColor)
+        .then((value) {
+          setState(() {
+            _r =
+                int.tryParse(value?.split(",")[0] ?? "255") ??
+                255; // Valor por defecto si no se encuentra
+            _g = int.tryParse(value?.split(",")[1] ?? "255") ?? 255;
+            _b = int.tryParse(value?.split(",")[2] ?? "255") ?? 255;
+          });
+        });
   }
 
   @override
@@ -58,13 +81,20 @@ class _GastoscopioHomeScreenState extends State<GastoscopioHomeScreen> {
 
   void _updateGreeting() {
     final hour = DateTime.now().hour;
+    final userName =
+        LoginService().currentUser?.displayName?.split(' ')[0] ?? '';
+    final nameGreeting = userName.isNotEmpty ? ', $userName' : '';
+
     setState(() {
       if (hour < 12) {
-        _greeting = 'Bienvenido al nuevo día ✨';
+        _greeting =
+            '¡Buenos días$nameGreeting! ✨\nComienza el día con energía renovada';
       } else if (hour < 18) {
-        _greeting = 'El sol brilla en tu camino ☀️';
+        _greeting =
+            '¡Buenas tardes$nameGreeting! ☀️\nSigue construyendo tu futuro financiero';
       } else {
-        _greeting = 'Las estrellas te acompañan 🌟';
+        _greeting =
+            '¡Buenas noches$nameGreeting! 🌟\nMomento perfecto para revisar tus finanzas';
       }
     });
   }
@@ -97,10 +127,10 @@ class _GastoscopioHomeScreenState extends State<GastoscopioHomeScreen> {
             children: [
               _buildGreetingsPart(),
               const SizedBox(height: 24),
-              _buildLastInteractionsPart(),
-              const SizedBox(height: 16),
               _buildTotalPart(),
-              const SizedBox(width: 16),
+              const SizedBox(height: 8),
+              _buildLastInteractionsPart(),
+              const SizedBox(height: 8),
               _ChartPart(_moneda),
             ],
           ),
@@ -110,20 +140,33 @@ class _GastoscopioHomeScreenState extends State<GastoscopioHomeScreen> {
   }
 
   Widget _buildGreetingsPart() {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
+    return Row(
       children: [
-        Text(
-          _greeting,
-          style: Theme.of(
-            context,
-          ).textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.bold),
+        Expanded(
+          flex: 3,
+          child:
+              _isSvg
+                  ? SvgPicture.asset(
+                    height: 120,
+                    width: 120,
+                    'assets/logo.svg',
+                    color: Color.fromARGB(255, _r, _g, _b),
+                  )
+                  : Image.asset('assets/logo.png'),
         ),
-        const SizedBox(height: 8),
-        Text(
-          'Gestiona tus finanzas con tranquilidad',
-          style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-            color: Theme.of(context).colorScheme.secondary,
+        Expanded(
+          flex: 7,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              Text(
+                _greeting,
+                textAlign: TextAlign.center,
+                style: Theme.of(context).textTheme.headlineSmall?.copyWith(
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            ],
           ),
         ),
       ],
@@ -230,8 +273,8 @@ class _GastoscopioHomeScreenState extends State<GastoscopioHomeScreen> {
 }
 
 class _ChartPart extends StatelessWidget {
-  _ChartPart(this.moneda);
-  String moneda;
+  const _ChartPart(this.moneda);
+  final String moneda;
 
   @override
   Widget build(BuildContext context) {

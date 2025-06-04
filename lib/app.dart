@@ -28,7 +28,6 @@ class App extends StatelessWidget {
             ) ==
             null) {
       // Delay the dialog slightly to ensure the app is fully rendered
-      Future.microtask(() => _showApiKeyDialog(context));
     }
 
     // Initialize Gemini service and check API key
@@ -91,9 +90,11 @@ class App extends StatelessWidget {
         future: init(context),
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.done) {
-            return snapshot.data == false
-                ? const MainScreen()
-                : const OnboardingScreen();
+            // return snapshot.data == false
+            //     ? const MainScreen()
+            //     : const OnboardingScreen();
+
+            return MainScreen();
           }
           return const Center(child: CircularProgressIndicator());
         },

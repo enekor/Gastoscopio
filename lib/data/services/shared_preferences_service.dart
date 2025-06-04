@@ -47,4 +47,10 @@ class SharedPreferencesService {
   }
 }
 
-enum SharedPreferencesKeys { isFirstStartup, apiKey, currency }
+enum SharedPreferencesKeys {
+  isFirstStartup,
+  apiKey,
+  currency,
+  avatarColor,
+  isSvgAvatar,
+}
