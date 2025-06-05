@@ -90,11 +90,11 @@ class App extends StatelessWidget {
         future: init(context),
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.done) {
-            // return snapshot.data == false
-            //     ? const MainScreen()
-            //     : const OnboardingScreen();
+            return snapshot.data == false
+                ? const MainScreen()
+                : const OnboardingScreen();
 
-            return MainScreen();
+            // return MainScreen();
           }
           return const Center(child: CircularProgressIndicator());
         },

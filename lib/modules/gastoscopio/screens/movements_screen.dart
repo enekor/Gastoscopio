@@ -73,19 +73,29 @@ class _MovementsScreenState extends State<MovementsScreen> {
   Widget _buildContent(List<MovementValue> movements, String moneda) {
     return Scaffold(
       appBar: _buildAppBar(),
-      floatingActionButton: FloatingActionButton.extended(
-        onPressed: () {
-          showModalBottomSheet(
-            context: context,
-            isScrollControlled: true,
-            showDragHandle: true,
-            useSafeArea: true,
-            builder: (BuildContext context) => const MovementFormScreen(),
-          );
-        },
-        icon: const Icon(Icons.add),
-        label: const Text('Nuevo'),
-        heroTag: 'movements_fab',
+      floatingActionButton: Card(
+        elevation: 8,
+        shape: const CircleBorder(),
+        child: Container(
+          width: 45,
+          height: 45,
+          decoration: const BoxDecoration(shape: BoxShape.circle),
+          child: FloatingActionButton.small(
+            backgroundColor: Colors.transparent,
+            elevation: 0,
+            onPressed: () {
+              showModalBottomSheet(
+                context: context,
+                isScrollControlled: true,
+                showDragHandle: true,
+                useSafeArea: true,
+                builder: (BuildContext context) => const MovementFormScreen(),
+              );
+            },
+            child: const Icon(Icons.add),
+            heroTag: 'movements_fab',
+          ),
+        ),
       ),
       body: Column(
         children: [
@@ -99,6 +109,7 @@ class _MovementsScreenState extends State<MovementsScreen> {
 
   AppBar _buildAppBar() {
     return AppBar(
+      automaticallyImplyLeading: false,
       title: ToggleButtons(
         borderRadius: BorderRadius.circular(25),
         borderColor: Theme.of(context).colorScheme.primary,
@@ -328,7 +339,7 @@ class _MovementsScreenState extends State<MovementsScreen> {
 
                           if (deleted && mounted) {
                             setState(() {
-                              _expandedItems[movement.id] = false;
+                              _expandedItems[movement.id!] = false;
                             });
                           }
                         },

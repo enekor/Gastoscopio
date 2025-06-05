@@ -105,19 +105,29 @@ class _GastoscopioHomeScreenState extends State<GastoscopioHomeScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      floatingActionButton: FloatingActionButton.extended(
-        onPressed: () {
-          showModalBottomSheet(
-            context: context,
-            isScrollControlled: true,
-            showDragHandle: true,
-            useSafeArea: true,
-            builder: (BuildContext context) => const MovementFormScreen(),
-          );
-        },
-        icon: const Icon(Icons.add),
-        label: const Text('Nuevo'),
-        heroTag: 'home_fab',
+      floatingActionButton: Card(
+        elevation: 8,
+        shape: const CircleBorder(),
+        child: Container(
+          width: 45,
+          height: 45,
+          decoration: const BoxDecoration(shape: BoxShape.circle),
+          child: FloatingActionButton.small(
+            backgroundColor: Colors.transparent,
+            elevation: 0,
+            onPressed: () {
+              showModalBottomSheet(
+                context: context,
+                isScrollControlled: true,
+                showDragHandle: true,
+                useSafeArea: true,
+                builder: (BuildContext context) => const MovementFormScreen(),
+              );
+            },
+            child: const Icon(Icons.add),
+            heroTag: 'home_fab',
+          ),
+        ),
       ),
       body: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 25),

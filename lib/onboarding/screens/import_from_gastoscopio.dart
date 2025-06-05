@@ -122,10 +122,23 @@ class _ImportFromGastoscopioScreenState
                       style: Theme.of(context).textTheme.headlineSmall,
                     ),
                     SizedBox(height: 8),
-                    Text(
-                      'Selecciona un archivo JSON para importar tus datos de meses y movimientos',
-                      textAlign: TextAlign.center,
-                      style: Theme.of(context).textTheme.bodyMedium,
+                    Column(
+                      children: [
+                        Text(
+                          'Para importar datos desde Gastoscopio, sigue estos pasos:',
+                          textAlign: TextAlign.center,
+                          style: Theme.of(context).textTheme.bodyMedium
+                              ?.copyWith(fontWeight: FontWeight.bold),
+                        ),
+                        SizedBox(height: 8),
+                        Text(
+                          '1. En Gastoscopio, ve a Ajustes y usa la opción "Exportar datos"\n'
+                          '2. El archivo JSON se guardará en la carpeta Descargas\n'
+                          '3. Pulsa el botón "Buscar archivos JSON" abajo para importar',
+                          textAlign: TextAlign.left,
+                          style: Theme.of(context).textTheme.bodyMedium,
+                        ),
+                      ],
                     ),
                     SizedBox(height: 16),
                     if (_importResult != null)
@@ -159,7 +172,7 @@ class _ImportFromGastoscopioScreenState
                       )
                       : Icon(Icons.folder_open),
               label: Text(
-                _isLoading ? 'Procesando...' : 'Seleccionar Archivo JSON',
+                _isLoading ? 'Procesando...' : 'Seleccionar archivo JSON',
               ),
               style: ElevatedButton.styleFrom(
                 padding: EdgeInsets.symmetric(vertical: 16),
@@ -259,10 +272,7 @@ class _ImportFromGastoscopioScreenState
 
         ElevatedButton(
           onPressed: () => widget.onImportSuccess(result),
-          child: Text(
-            'Importar Datos',
-            style: TextStyle(color: Theme.of(context).colorScheme.onPrimary),
-          ),
+          child: Text('Importar Datos'),
         ),
       ],
     );

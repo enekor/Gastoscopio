@@ -39,7 +39,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
 
   void _onTermsAccepted() {
     _pages = [
-      ApiKeySetupScreen(onApiKeySet: _saveUserFromFile),
+      ApiKeySetupScreen(onApiKeySet: _handleNext),
       GoogleLoginScreen(onLoginOk: _checkExistingBackup),
       ImportFromGastoscopioScreen(onImportSuccess: _handleImportSuccess),
     ];
@@ -62,7 +62,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
   void _handleImportSuccess(JsonImportResult result) async {
     // Store the result temporarily
     _importResult = result;
-    _handleNext();
+    await _saveUserFromFile();
   }
 
   JsonImportResult? _importResult; // Add this field to store the import result
@@ -92,7 +92,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
       ),
     );
 
-    Navigator.pushReplacement(
+    Navigator.push(
       context,
       MaterialPageRoute(builder: (context) => const MainScreen()),
     );

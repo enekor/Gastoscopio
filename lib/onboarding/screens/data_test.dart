@@ -114,18 +114,12 @@ class _DataTestPageState extends State<DataTestPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
+        automaticallyImplyLeading: false,
         title: Text(
           _selectedMonth != null
               ? '${_selectedMonth!.month}/${_selectedMonth!.year} - ${_showExpenses! ? "Gastos" : "Ingresos"}'
               : 'Selecciona un mes',
         ),
-        leading:
-            _selectedMonth != null
-                ? IconButton(
-                  icon: const Icon(Icons.arrow_back),
-                  onPressed: _loadMonths,
-                )
-                : null,
         actions: [
           IconButton(
             icon: const Icon(Icons.refresh),

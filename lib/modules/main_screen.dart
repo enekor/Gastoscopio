@@ -28,17 +28,17 @@ class _MainScreenState extends State<MainScreen> {
     NavigationDestination(
       icon: Icon(Icons.home_outlined),
       selectedIcon: Icon(Icons.home),
-      label: 'Inicio',
+      label: '',
     ),
     NavigationDestination(
       icon: Icon(Icons.list_outlined),
       selectedIcon: Icon(Icons.list),
-      label: 'Movimientos',
+      label: '',
     ),
     NavigationDestination(
       icon: Icon(Icons.analytics_outlined),
       selectedIcon: Icon(Icons.analytics),
-      label: 'Análisis',
+      label: '',
     ),
   ];
 
@@ -168,6 +168,7 @@ class _MainScreenState extends State<MainScreen> {
         return ChangeNotifierProvider.value(
           value: _financeService,
           child: Scaffold(
+            extendBody: _selectedIndex != 2,
             appBar: AppBar(
               title: const Text('Gastoscopio'),
               actions: [
@@ -199,10 +200,28 @@ class _MainScreenState extends State<MainScreen> {
                 ),
               ],
             ),
-            bottomNavigationBar: NavigationBar(
-              selectedIndex: _selectedIndex,
-              onDestinationSelected: _onDestinationSelected,
-              destinations: _destinations,
+            bottomNavigationBar: Padding(
+              padding: EdgeInsets.only(
+                left: 24.0,
+                right: _selectedIndex != 2 ? 75.0 : 24.0,
+                bottom: 16.0,
+              ),
+              child: Card(
+                elevation: 8,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(24),
+                ),
+                child: NavigationBar(
+                  selectedIndex: _selectedIndex,
+                  onDestinationSelected: _onDestinationSelected,
+                  destinations: _destinations,
+                  backgroundColor: Colors.transparent,
+                  elevation: 0,
+                  height: 48,
+                  labelBehavior: NavigationDestinationLabelBehavior.alwaysHide,
+                  animationDuration: const Duration(milliseconds: 500),
+                ),
+              ),
             ),
           ),
         );

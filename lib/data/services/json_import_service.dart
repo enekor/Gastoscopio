@@ -3,6 +3,8 @@ import 'dart:io';
 import 'package:cashly/data/models/month.dart';
 import 'package:cashly/data/models/movement_value.dart';
 import 'package:file_picker/file_picker.dart';
+import 'package:path/path.dart' as p;
+import 'package:path_provider/path_provider.dart';
 
 class JsonImportResult {
   final List<Month> months;
@@ -36,7 +38,7 @@ class JsonImportService {
   /// Selecciona un archivo JSON y procesa su contenido
   static Future<JsonImportResult?> selectAndProcessJsonFile() async {
     try {
-      // Seleccionar archivo
+      // Seleccionar archivo usando file_picker
       FilePickerResult? result = await FilePicker.platform.pickFiles(
         type: FileType.custom,
         allowedExtensions: ['json'],
@@ -105,7 +107,6 @@ class JsonImportService {
     int monthId,
   ) {
     List<MovementValue> movements = [];
-    int movementIdCounter = 1;
 
     // Procesar Gastos
     List<dynamic> gastos = mesData['Gastos'] ?? [];
@@ -114,7 +115,7 @@ class JsonImportService {
       bool isExpense = valor > 0; // Gastos positivos son expenses
 
       MovementValue movement = MovementValue(
-        movementIdCounter++,
+        null, // Let SQLite handle the ID auto-increment
         monthId,
         gasto['nombre'] ?? '',
         valor.abs(), // Guardamos el valor absoluto
@@ -131,7 +132,7 @@ class JsonImportService {
       double valor = (extra['valor'] ?? 0.0).toDouble();
 
       MovementValue movement = MovementValue(
-        movementIdCounter++,
+        null, // Let SQLite handle the ID auto-increment
         monthId,
         extra['nombre'] ?? '',
         valor,
@@ -146,7 +147,7 @@ class JsonImportService {
     double ingreso = (mesData['Ingreso'] ?? 0.0).toDouble();
     if (ingreso > 0) {
       MovementValue ingresoMovement = MovementValue(
-        movementIdCounter++,
+        null, // Let SQLite handle the ID auto-increment
         monthId,
         'Ingreso',
         ingreso,
@@ -158,5 +159,54 @@ class JsonImportService {
     }
 
     return movements;
+  }
+
+  static Future<String> _getDownloadsDirectory() async {
+    if (Platform.isAndroid) {
+      final directory = Directory('/storage/emulated/0/Download');
+      if (await directory.exists()) {
+        return directory.path;
+      }
+      // Intentar alternativa
+      final externalDir = await getExternalStorageDirectory();
+      if (externalDir != null) {
+        final downloadDir = Directory('${externalDir.path}/Download');
+        if (!await downloadDir.exists()) {
+          await downloadDir.create(recursive: true);
+        }
+        return downloadDir.path;
+      }
+      throw Exception('No se pudo acceder al directorio de descargas');
+    }
+    throw Exception('Plataforma no soportada');
+  }
+
+  /// Obtiene una lista de archivos JSON en el directorio de importación
+  static Future<List<FileSystemEntity>> _listJsonFiles() async {
+    try {
+      final directory = Directory(await _getDownloadsDirectory());
+
+      final files =
+          directory
+              .listSync()
+              .where((entity) => entity.path.toLowerCase().endsWith('.json'))
+              .toList();
+
+      if (files.isEmpty) {
+        throw Exception(
+          'No se encontraron archivos JSON en la carpeta de descargas',
+        );
+      }
+
+      return files;
+    } catch (e) {
+      throw Exception('Error al listar archivos JSON: $e');
+    }
+  }
+
+  // Método para verificar si hay archivos JSON en el directorio
+  static Future<bool> hasJsonFiles() async {
+    final files = await _listJsonFiles();
+    return files.isNotEmpty;
   }
 }

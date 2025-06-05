@@ -100,7 +100,7 @@ class _$AppDatabase extends AppDatabase {
         await database.execute(
             'CREATE TABLE IF NOT EXISTS `Month` (`id` INTEGER PRIMARY KEY AUTOINCREMENT, `month` INTEGER NOT NULL, `year` INTEGER NOT NULL)');
         await database.execute(
-            'CREATE TABLE IF NOT EXISTS `MovementValue` (`id` INTEGER NOT NULL, `monthId` INTEGER NOT NULL, `description` TEXT NOT NULL, `amount` REAL NOT NULL, `isExpense` INTEGER NOT NULL, `day` INTEGER NOT NULL, `category` TEXT, PRIMARY KEY (`id`))');
+            'CREATE TABLE IF NOT EXISTS `MovementValue` (`id` INTEGER PRIMARY KEY AUTOINCREMENT, `monthId` INTEGER NOT NULL, `description` TEXT NOT NULL, `amount` REAL NOT NULL, `isExpense` INTEGER NOT NULL, `day` INTEGER NOT NULL, `category` TEXT)');
 
         await callback?.onCreate?.call(database, version);
       },
@@ -271,7 +271,7 @@ class _$MovementValueDao extends MovementValueDao {
     return _queryAdapter.queryList(
         'SELECT * FROM MovementValue WHERE monthId = ?1',
         mapper: (Map<String, Object?> row) => MovementValue(
-            row['id'] as int,
+            row['id'] as int?,
             row['monthId'] as int,
             row['description'] as String,
             row['amount'] as double,
@@ -289,7 +289,7 @@ class _$MovementValueDao extends MovementValueDao {
     return _queryAdapter.queryList(
         'SELECT * FROM MovementValue WHERE monthId = ?1 AND isExpense = ?2',
         mapper: (Map<String, Object?> row) => MovementValue(
-            row['id'] as int,
+            row['id'] as int?,
             row['monthId'] as int,
             row['description'] as String,
             row['amount'] as double,

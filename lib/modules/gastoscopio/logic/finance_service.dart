@@ -68,7 +68,7 @@ class FinanceService extends ChangeNotifier {
     if (now.month == _currentMonth!.month && now.year == _currentMonth!.year) {
       _todayMovements =
           [...expenses, ...incomes].where((m) => m.day == now.day).toList()
-            ..sort((a, b) => b.id.compareTo(a.id));
+            ..sort((a, b) => b.id!.compareTo(a.id!));
     } else {
       _todayMovements = [];
     }
