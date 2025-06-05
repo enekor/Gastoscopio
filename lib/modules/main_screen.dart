@@ -18,8 +18,10 @@ class MainScreen extends StatefulWidget {
   State<MainScreen> createState() => _MainScreenState();
 }
 
-class _MainScreenState extends State<MainScreen> {
+class _MainScreenState extends State<MainScreen>
+    with SingleTickerProviderStateMixin {
   int _selectedIndex = 0;
+  late final TabController _tabController;
   List<int> _availableYears = [];
   List<int> _availableMonths = [];
   int _year = DateTime.now().year;
@@ -42,16 +44,33 @@ class _MainScreenState extends State<MainScreen> {
       label: '',
     ),
   ];
-
   void _onDestinationSelected(int index) {
-    setState(() {
-      _selectedIndex = index;
-    });
+    print('Navigation bar tapped: $index'); // Para depuración
+    _tabController.animateTo(index);
+  }
+
+  @override
+  void dispose() {
+    _tabController.dispose();
+    super.dispose();
   }
 
   @override
   void initState() {
     super.initState();
+    _tabController = TabController(
+      length: 3,
+      vsync: this,
+      initialIndex: _selectedIndex,
+    );
+
+    _tabController.addListener(() {
+      if (!_tabController.indexIsChanging) {
+        setState(() {
+          _selectedIndex = _tabController.index;
+        });
+      }
+    });
   }
 
   Future<void> _loadInitialData() async {
@@ -153,9 +172,17 @@ class _MainScreenState extends State<MainScreen> {
   }
 
   List<Widget> get _screens => [
-    GastoscopioHomeScreen(year: _year, month: _month),
-    MovementsScreen(year: _year, month: _month),
-    const SummaryScreen(),
+    GastoscopioHomeScreen(
+      key: const ValueKey('home'),
+      year: _year,
+      month: _month,
+    ),
+    MovementsScreen(
+      key: const ValueKey('movements'),
+      year: _year,
+      month: _month,
+    ),
+    const SummaryScreen(key: ValueKey('summary')),
   ];
   @override
   Widget build(BuildContext context) {
@@ -204,15 +231,10 @@ class _MainScreenState extends State<MainScreen> {
                   ),
               ],
             ),
-            body: Column(
-              children: [
-                Expanded(
-                  child: IndexedStack(
-                    index: _selectedIndex,
-                    children: _screens,
-                  ),
-                ),
-              ],
+            body: TabBarView(
+              controller: _tabController,
+              physics: const ClampingScrollPhysics(),
+              children: _screens,
             ),
             bottomNavigationBar: Padding(
               padding: EdgeInsets.only(
@@ -226,7 +248,7 @@ class _MainScreenState extends State<MainScreen> {
                   borderRadius: BorderRadius.circular(24),
                 ),
                 child: NavigationBar(
-                  selectedIndex: _selectedIndex,
+                  selectedIndex: _tabController.index,
                   onDestinationSelected: _onDestinationSelected,
                   destinations: _destinations,
                   backgroundColor: Colors.transparent,
