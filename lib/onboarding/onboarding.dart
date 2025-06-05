@@ -89,6 +89,10 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                 CircularProgressIndicator(),
                 SizedBox(height: 16),
                 Text('Guardando ${result.movements.length} movimientos'),
+                ElevatedButton(
+                  onPressed: () => Navigator.pop(context),
+                  child: Text('Ok'),
+                ),
               ],
             ),
           );
@@ -169,7 +173,8 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
   }
 
   void _navigateToMainScreen() {
-    Navigator.pop(context); //close the popup
+    // Usamos push normal
+
     Navigator.push(
       context,
       MaterialPageRoute(builder: (context) => const MainScreen()),

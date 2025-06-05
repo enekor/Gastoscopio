@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:dropdown_button2/dropdown_button2.dart';
 import 'package:fl_chart/fl_chart.dart';
-import 'package:provider/provider.dart';
 import 'package:cashly/modules/gastoscopio/logic/finance_service.dart';
+import 'package:cashly/data/services/sqlite_service.dart';
 
 class MonthYearSelector extends StatelessWidget {
   final int selectedYear;
@@ -98,9 +98,9 @@ class MovementCard extends StatelessWidget {
   final double amount;
   final bool isExpense;
   final String? category;
-  String moneda;
+  final String moneda;
 
-  MovementCard({
+  const MovementCard({
     Key? key,
     required this.description,
     required this.amount,
@@ -150,9 +150,9 @@ class MovementCard extends StatelessWidget {
 
 class YearlyChart extends StatelessWidget {
   final int year;
-  String moneda;
+  final String moneda;
 
-  YearlyChart({Key? key, required this.year, required this.moneda})
+  const YearlyChart({Key? key, required this.year, required this.moneda})
     : super(key: key);
 
   @override
@@ -172,73 +172,64 @@ class YearlyChart extends StatelessWidget {
             const SizedBox(height: 16),
             SizedBox(
               height: 300,
-              child: Consumer<FinanceService>(
-                builder: (context, service, _) {
-                  return FutureBuilder<List<Map<String, double>>>(
-                    future: service.getYearlyData(year),
-                    builder: (context, snapshot) {
-                      if (!snapshot.hasData) {
-                        return const Center(child: CircularProgressIndicator());
-                      }
+              child: Builder(
+                builder: (context) {
+                  final service = FinanceService.getInstance(
+                    SqliteService().db.monthDao,
+                    SqliteService().db.movementValueDao,
+                    SqliteService().db.fixedMovementDao,
+                  );
+                  return AnimatedBuilder(
+                    animation: service,
+                    builder: (context, child) {
+                      return FutureBuilder<List<Map<String, double>>>(
+                        future: service.getYearlyData(year),
+                        builder: (context, snapshot) {
+                          if (!snapshot.hasData) {
+                            return const Center(
+                              child: CircularProgressIndicator(),
+                            );
+                          }
 
-                      final yearlyData = snapshot.data!;
-                      final monthNames = [
-                        'Ene',
-                        'Feb',
-                        'Mar',
-                        'Abr',
-                        'May',
-                        'Jun',
-                        'Jul',
-                        'Ago',
-                        'Sep',
-                        'Oct',
-                        'Nov',
-                        'Dic',
-                      ];
+                          final yearlyData = snapshot.data!;
+                          final monthNames = [
+                            'Ene',
+                            'Feb',
+                            'Mar',
+                            'Abr',
+                            'May',
+                            'Jun',
+                            'Jul',
+                            'Ago',
+                            'Sep',
+                            'Oct',
+                            'Nov',
+                            'Dic',
+                          ];
 
-                      return LineChart(
-                        LineChartData(
-                          gridData: FlGridData(
-                            show: true,
-                            drawHorizontalLine: true,
-                            horizontalInterval: 100,
-                            getDrawingHorizontalLine: (value) {
-                              return FlLine(
-                                color: Theme.of(
-                                  context,
-                                ).dividerColor.withOpacity(0.2),
-                                strokeWidth: 1,
-                              );
-                            },
-                          ),
-                          titlesData: FlTitlesData(
-                            leftTitles: AxisTitles(
-                              sideTitles: SideTitles(
-                                showTitles: true,
-                                reservedSize: 60,
-                                getTitlesWidget: (value, meta) {
-                                  return Text(
-                                    '${value.toInt()}${moneda}',
-                                    style: TextStyle(
-                                      color: Theme.of(
-                                        context,
-                                      ).colorScheme.onSurface.withOpacity(0.6),
-                                      fontSize: 12,
-                                    ),
+                          return LineChart(
+                            LineChartData(
+                              gridData: FlGridData(
+                                show: true,
+                                drawHorizontalLine: true,
+                                horizontalInterval: 100,
+                                getDrawingHorizontalLine: (value) {
+                                  return FlLine(
+                                    color: Theme.of(
+                                      context,
+                                    ).dividerColor.withOpacity(0.2),
+                                    strokeWidth: 1,
                                   );
                                 },
                               ),
-                            ),
-                            bottomTitles: AxisTitles(
-                              sideTitles: SideTitles(
-                                showTitles: true,
-                                getTitlesWidget: (value, meta) {
-                                  if (value >= 0 && value < monthNames.length) {
-                                    return Padding(
-                                      padding: const EdgeInsets.only(top: 8),
-                                      child: Text(
-                                        monthNames[value.toInt()],
+                              titlesData: FlTitlesData(
+                                leftTitles: AxisTitles(
+                                  sideTitles: SideTitles(
+                                    showTitles: true,
+                                    reservedSize: 60,
+                                    getTitlesWidget: (value, meta) {
+                                      return Text(
+                                        '${value.toInt()}${moneda}',
                                         style: TextStyle(
                                           color: Theme.of(context)
                                               .colorScheme
@@ -246,89 +237,114 @@ class YearlyChart extends StatelessWidget {
                                               .withOpacity(0.6),
                                           fontSize: 12,
                                         ),
-                                      ),
-                                    );
-                                  }
-                                  return const Text('');
-                                },
-                              ),
-                            ),
-                            rightTitles: AxisTitles(
-                              sideTitles: SideTitles(showTitles: false),
-                            ),
-                            topTitles: AxisTitles(
-                              sideTitles: SideTitles(showTitles: false),
-                            ),
-                          ),
-                          borderData: FlBorderData(show: true),
-                          lineBarsData: [
-                            // Línea de gastos (roja)
-                            LineChartBarData(
-                              spots:
-                                  yearlyData.asMap().entries.map((e) {
-                                    return FlSpot(
-                                      e.key.toDouble(),
-                                      e.value['expenses']!,
-                                    );
-                                  }).toList(),
-                              isCurved: true,
-                              color: Theme.of(context).colorScheme.error,
-                              barWidth: 2.5,
-                              dotData: FlDotData(
-                                show: true,
-                                getDotPainter:
-                                    (spot, percent, barData, index) =>
-                                        FlDotCirclePainter(
-                                          radius: 4,
-                                          color:
-                                              Theme.of(
-                                                context,
-                                              ).colorScheme.error,
-                                          strokeWidth: 1,
-                                          strokeColor: Theme.of(
-                                            context,
-                                          ).colorScheme.error.withOpacity(0.5),
-                                        ),
-                              ),
-                              belowBarData: BarAreaData(
-                                show: true,
-                                color: Theme.of(
-                                  context,
-                                ).colorScheme.error.withOpacity(0.1),
-                              ),
-                            ),
-                            // Línea de ingresos (verde)
-                            LineChartBarData(
-                              spots:
-                                  yearlyData.asMap().entries.map((e) {
-                                    return FlSpot(
-                                      e.key.toDouble(),
-                                      e.value['incomes']!,
-                                    );
-                                  }).toList(),
-                              isCurved: true,
-                              color: Colors.green,
-                              barWidth: 2.5,
-                              dotData: FlDotData(
-                                show: true,
-                                getDotPainter:
-                                    (spot, percent, barData, index) =>
-                                        FlDotCirclePainter(
-                                          radius: 4,
-                                          color: Colors.green,
-                                          strokeWidth: 1,
-                                          strokeColor: Colors.green.withOpacity(
-                                            0.5,
+                                      );
+                                    },
+                                  ),
+                                ),
+                                bottomTitles: AxisTitles(
+                                  sideTitles: SideTitles(
+                                    showTitles: true,
+                                    getTitlesWidget: (value, meta) {
+                                      if (value >= 0 &&
+                                          value < monthNames.length) {
+                                        return Padding(
+                                          padding: const EdgeInsets.only(
+                                            top: 8,
                                           ),
-                                        ),
+                                          child: Text(
+                                            monthNames[value.toInt()],
+                                            style: TextStyle(
+                                              color: Theme.of(context)
+                                                  .colorScheme
+                                                  .onSurface
+                                                  .withOpacity(0.6),
+                                              fontSize: 12,
+                                            ),
+                                          ),
+                                        );
+                                      }
+                                      return const Text('');
+                                    },
+                                  ),
+                                ),
+                                rightTitles: const AxisTitles(
+                                  sideTitles: SideTitles(showTitles: false),
+                                ),
+                                topTitles: const AxisTitles(
+                                  sideTitles: SideTitles(showTitles: false),
+                                ),
                               ),
-                              belowBarData: BarAreaData(
-                                show: true,
-                                color: Colors.green.withOpacity(0.1),
-                              ),
+                              borderData: FlBorderData(show: true),
+                              lineBarsData: [
+                                // Línea de gastos (roja)
+                                LineChartBarData(
+                                  spots:
+                                      yearlyData.asMap().entries.map((e) {
+                                        return FlSpot(
+                                          e.key.toDouble(),
+                                          e.value['expenses']!,
+                                        );
+                                      }).toList(),
+                                  isCurved: true,
+                                  color: Theme.of(context).colorScheme.error,
+                                  barWidth: 2.5,
+                                  dotData: FlDotData(
+                                    show: true,
+                                    getDotPainter:
+                                        (spot, percent, barData, index) =>
+                                            FlDotCirclePainter(
+                                              radius: 4,
+                                              color:
+                                                  Theme.of(
+                                                    context,
+                                                  ).colorScheme.error,
+                                              strokeWidth: 1,
+                                              strokeColor: Theme.of(context)
+                                                  .colorScheme
+                                                  .error
+                                                  .withOpacity(0.5),
+                                            ),
+                                  ),
+                                  belowBarData: BarAreaData(
+                                    show: true,
+                                    color: Theme.of(
+                                      context,
+                                    ).colorScheme.error.withOpacity(0.1),
+                                  ),
+                                ),
+                                // Línea de ingresos (verde)
+                                LineChartBarData(
+                                  spots:
+                                      yearlyData.asMap().entries.map((e) {
+                                        return FlSpot(
+                                          e.key.toDouble(),
+                                          e.value['incomes']!,
+                                        );
+                                      }).toList(),
+                                  isCurved: true,
+                                  color: Colors.green,
+                                  barWidth: 2.5,
+                                  dotData: FlDotData(
+                                    show: true,
+                                    getDotPainter:
+                                        (spot, percent, barData, index) =>
+                                            FlDotCirclePainter(
+                                              radius: 4,
+                                              color: Colors.green,
+                                              strokeWidth: 1,
+                                              strokeColor: Colors.green
+                                                  .withOpacity(0.5),
+                                            ),
+                                  ),
+                                  belowBarData: BarAreaData(
+                                    show: true,
+                                    color: Colors.green.withOpacity(0.1),
+                                  ),
+                                ),
+                              ],
                             ),
-                          ],
-                        ),
+                          );
+                        },
                       );
                     },
                   );

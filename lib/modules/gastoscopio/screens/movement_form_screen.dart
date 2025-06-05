@@ -5,10 +5,11 @@ import 'package:cashly/data/models/month.dart';
 import 'package:cashly/data/models/movement_value.dart';
 import 'package:cashly/modules/gastoscopio/logic/finance_service.dart';
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
 
 class MovementFormScreen extends StatefulWidget {
-  const MovementFormScreen({super.key});
+  final MovementValue? movement;
+
+  const MovementFormScreen({super.key, this.movement});
 
   @override
   State<MovementFormScreen> createState() => _MovementFormScreenState();
@@ -17,15 +18,22 @@ class MovementFormScreen extends StatefulWidget {
 class _MovementFormScreenState extends State<MovementFormScreen> {
   final _formKey = GlobalKey<FormState>();
   bool _isExpense = true;
-  final _descriptionController = TextEditingController();
-  final _amountController = TextEditingController();
-  DateTime _selectedDate = DateTime.now();
+  late final _descriptionController = TextEditingController();
+  late final _amountController = TextEditingController();
+  late DateTime _selectedDate = DateTime.now();
   late String _moneda = 'loading...';
+  String? _category;
 
   @override
   void initState() {
-    // TODO: implement initState
     super.initState();
+    if (widget.movement != null) {
+      _descriptionController.text = widget.movement!.description;
+      _amountController.text = widget.movement!.amount.toStringAsFixed(2);
+      _isExpense = widget.movement!.isExpense;
+      _selectedDate = DateTime.now().copyWith(day: widget.movement!.day);
+      _category = widget.movement!.category;
+    }
     SharedPreferencesService()
         .getStringValue(SharedPreferencesKeys.currency)
         .then(
@@ -56,129 +64,100 @@ class _MovementFormScreenState extends State<MovementFormScreen> {
     }
   }
 
+  Future<int> _createMonth(DateTime date) async {
+    final db = SqliteService().db;
+    final newMonth = Month(date.month, date.year);
+    await db.monthDao.insertMonth(newMonth);
+    final month = await db.monthDao.findMonthByMonthAndYear(
+      date.month,
+      date.year,
+    );
+    return month!.id!;
+  }
+
   Future<void> _saveMovement(BuildContext context) async {
     if (!_formKey.currentState!.validate()) return;
 
     final amount = double.parse(_amountController.text.replaceAll(',', '.'));
     final db = SqliteService().db;
 
-    // Verificar si el mes existe
+    // Get or create month
     final month = await db.monthDao.findMonthByMonthAndYear(
       _selectedDate.month,
       _selectedDate.year,
     );
 
-    // Si el mes no existe, preguntar si desea crearlo
-    if (month == null) {
-      final shouldCreate =
-          await showDialog<bool>(
-            context: context,
-            builder:
-                (context) => AlertDialog(
-                  title: const Text('Crear nuevo mes'),
-                  content: Text(
-                    'El mes ${_selectedDate.month}/${_selectedDate.year} no existe. ¿Deseas crearlo?',
-                  ),
-                  actions: [
-                    MaterialButton(
-                      onPressed: () => Navigator.pop(context, false),
-                      child: const Text('No'),
-                    ),
-                    MaterialButton(
-                      onPressed: () => Navigator.pop(context, true),
-                      child: const Text('Sí'),
-                    ),
-                  ],
-                ),
-          ) ??
-          false;
+    final monthId = month?.id ?? await _createMonth(_selectedDate);
 
-      if (!shouldCreate) {
+    // Get category    // Generate category if needed and not already set
+    if (_category == null) {
+      final generatedCategory = await GeminiService().generateCategory(
+        _descriptionController.text,
+        context,
+      );
+
+      if (generatedCategory.isEmpty) {
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(
-              content: Text('Operación cancelada'),
+              content: Text(
+                'No se pudo generar la categoría, puedes asignarla manualmente en el visionado de gastos',
+              ),
               behavior: SnackBarBehavior.floating,
             ),
           );
         }
         return;
       }
-
-      // Crear el nuevo mes
-      final newMonth = Month(_selectedDate.month, _selectedDate.year);
-      await db.monthDao.insertMonth(newMonth);
+      _category = generatedCategory;
     }
 
-    // Obtener el ID del mes (ya sea el existente o el recién creado)
-    final monthId =
-        (await db.monthDao.findMonthByMonthAndYear(
-          _selectedDate.month,
-          _selectedDate.year,
-        ))?.id;
-
-    if (monthId == null) {
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Error al crear el movimiento'),
-            behavior: SnackBarBehavior.floating,
-          ),
-        );
-      }
-      return;
+    final MovementValue movement;
+    if (widget.movement != null) {
+      // Update existing movement
+      movement = MovementValue(
+        widget.movement!.id,
+        monthId,
+        _descriptionController.text,
+        amount,
+        _isExpense,
+        _selectedDate.day,
+        _category,
+      );
+      await db.movementValueDao.updateMovementValue(movement);
+    } else {
+      // Create new movement
+      movement = MovementValue(
+        DateTime.now().millisecondsSinceEpoch, // Unique ID based on timestamp
+        monthId,
+        _descriptionController.text,
+        amount,
+        _isExpense,
+        _selectedDate.day,
+        _category,
+      );
+      await db.movementValueDao.insertMovementValue(movement);
     }
 
-    String _category = '';
-
-    _category = await GeminiService().generateCategory(
-      _descriptionController.text,
-      context,
-    );
-
-    if (_category.isEmpty) {
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text(
-              'No se pudo generar la categoría, puedes asignarla manualmente en el visionado de gastos',
-            ),
-            behavior: SnackBarBehavior.floating,
-          ),
-        );
-      }
-      return;
-    }
-    // Crear el movimiento
-    final movement = MovementValue(
-      DateTime.now().millisecondsSinceEpoch, // ID único basado en timestamp
-      monthId,
-      _descriptionController.text,
-      amount,
-      _isExpense,
-      _selectedDate.day,
-      _category, // Categoría - se implementará después
-    );
-    await db.movementValueDao.insertMovementValue(movement);
-
-    // Actualizar el servicio de finanzas si está disponible
+    // Update FinanceService singleton
     if (mounted) {
-      try {
-        final financeService = Provider.of<FinanceService>(
-          context,
-          listen: false,
-        );
-        await financeService.updateSelectedDate(
-          _selectedDate.month,
-          _selectedDate.year,
-        );
-      } catch (e) {
-        debugPrint('No se pudo actualizar el servicio de finanzas: $e');
-      }
+      final financeService = FinanceService.getInstance(
+        db.monthDao,
+        db.movementValueDao,
+        db.fixedMovementDao,
+      );
+      await financeService.updateSelectedDate(
+        _selectedDate.month,
+        _selectedDate.year,
+      );
 
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Movimiento guardado con éxito'),
+        SnackBar(
+          content: Text(
+            widget.movement != null
+                ? 'Movimiento actualizado con éxito'
+                : 'Movimiento guardado con éxito',
+          ),
           behavior: SnackBarBehavior.floating,
         ),
       );

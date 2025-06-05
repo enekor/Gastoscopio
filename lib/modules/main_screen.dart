@@ -9,7 +9,6 @@ import 'package:cashly/modules/settings.dart/settings.dart';
 import 'package:cashly/modules/gastoscopio/screens/fixed_movements_screen.dart';
 import 'package:cashly/onboarding/onboarding.dart';
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
 
 class MainScreen extends StatefulWidget {
   const MainScreen({Key? key}) : super(key: key);
@@ -85,15 +84,16 @@ class _MainScreenState extends State<MainScreen>
 
     if (!isFirstStartup) {
       await SqliteService().initializeDatabase();
-      // Esperamos al siguiente frame para asegurarnos de que el Provider está listo
+      // Esperamos al siguiente frame para asegurarnos de que el singleton está listo
       await Future.microtask(() async {
-        final financeService = Provider.of<FinanceService>(
-          context,
-          listen: false,
+        final financeService = FinanceService.getInstance(
+          SqliteService().db.monthDao,
+          SqliteService().db.movementValueDao,
+          SqliteService().db.fixedMovementDao,
         );
         _availableYears = await financeService.getAvailableYears();
         _availableMonths = await financeService.getAvailableMonths(_year);
-        await financeService.updateSelectedDate(_month, _year);
+        await financeService.setCurrentMonth(_month, _year);
         setState(() {});
       });
     }
@@ -102,7 +102,11 @@ class _MainScreenState extends State<MainScreen>
   }
 
   Future<void> _setNewDate(int month, int year) async {
-    final financeService = Provider.of<FinanceService>(context, listen: false);
+    final financeService = FinanceService.getInstance(
+      SqliteService().db.monthDao,
+      SqliteService().db.movementValueDao,
+      SqliteService().db.fixedMovementDao,
+    );
     _availableMonths = await financeService.getAvailableMonths(year);
     final selectedMonth = await financeService.handleMonthSelection(
       month,
@@ -139,9 +143,10 @@ class _MainScreenState extends State<MainScreen>
                             Navigator.pop(dialogContext);
                           },
                           onYearChanged: (year) async {
-                            final financeService = Provider.of<FinanceService>(
-                              context,
-                              listen: false,
+                            final financeService = FinanceService.getInstance(
+                              SqliteService().db.monthDao,
+                              SqliteService().db.movementValueDao,
+                              SqliteService().db.fixedMovementDao,
                             );
                             final months = await financeService
                                 .getAvailableMonths(year);
