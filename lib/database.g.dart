@@ -76,13 +76,15 @@ class _$AppDatabase extends AppDatabase {
 
   MovementValueDao? _movementValueDaoInstance;
 
+  FixedMovementDao? _fixedMovementDaoInstance;
+
   Future<sqflite.Database> open(
     String path,
     List<Migration> migrations, [
     Callback? callback,
   ]) async {
     final databaseOptions = sqflite.OpenDatabaseOptions(
-      version: 2,
+      version: 3,
       onConfigure: (database) async {
         await database.execute('PRAGMA foreign_keys = ON');
         await callback?.onConfigure?.call(database);
@@ -101,6 +103,8 @@ class _$AppDatabase extends AppDatabase {
             'CREATE TABLE IF NOT EXISTS `Month` (`id` INTEGER PRIMARY KEY AUTOINCREMENT, `month` INTEGER NOT NULL, `year` INTEGER NOT NULL)');
         await database.execute(
             'CREATE TABLE IF NOT EXISTS `MovementValue` (`id` INTEGER PRIMARY KEY AUTOINCREMENT, `monthId` INTEGER NOT NULL, `description` TEXT NOT NULL, `amount` REAL NOT NULL, `isExpense` INTEGER NOT NULL, `day` INTEGER NOT NULL, `category` TEXT)');
+        await database.execute(
+            'CREATE TABLE IF NOT EXISTS `FixedMovement` (`id` INTEGER PRIMARY KEY AUTOINCREMENT, `description` TEXT NOT NULL, `amount` REAL NOT NULL, `isExpense` INTEGER NOT NULL, `day` INTEGER NOT NULL, `category` TEXT)');
 
         await callback?.onCreate?.call(database, version);
       },
@@ -117,6 +121,12 @@ class _$AppDatabase extends AppDatabase {
   MovementValueDao get movementValueDao {
     return _movementValueDaoInstance ??=
         _$MovementValueDao(database, changeListener);
+  }
+
+  @override
+  FixedMovementDao get fixedMovementDao {
+    return _fixedMovementDaoInstance ??=
+        _$FixedMovementDao(database, changeListener);
   }
 }
 
@@ -325,5 +335,115 @@ class _$MovementValueDao extends MovementValueDao {
   @override
   Future<void> deleteMovementValue(MovementValue movementValue) async {
     await _movementValueDeletionAdapter.delete(movementValue);
+  }
+}
+
+class _$FixedMovementDao extends FixedMovementDao {
+  _$FixedMovementDao(
+    this.database,
+    this.changeListener,
+  )   : _queryAdapter = QueryAdapter(database),
+        _fixedMovementInsertionAdapter = InsertionAdapter(
+            database,
+            'FixedMovement',
+            (FixedMovement item) => <String, Object?>{
+                  'id': item.id,
+                  'description': item.description,
+                  'amount': item.amount,
+                  'isExpense': item.isExpense ? 1 : 0,
+                  'day': item.day,
+                  'category': item.category
+                }),
+        _fixedMovementUpdateAdapter = UpdateAdapter(
+            database,
+            'FixedMovement',
+            ['id'],
+            (FixedMovement item) => <String, Object?>{
+                  'id': item.id,
+                  'description': item.description,
+                  'amount': item.amount,
+                  'isExpense': item.isExpense ? 1 : 0,
+                  'day': item.day,
+                  'category': item.category
+                }),
+        _fixedMovementDeletionAdapter = DeletionAdapter(
+            database,
+            'FixedMovement',
+            ['id'],
+            (FixedMovement item) => <String, Object?>{
+                  'id': item.id,
+                  'description': item.description,
+                  'amount': item.amount,
+                  'isExpense': item.isExpense ? 1 : 0,
+                  'day': item.day,
+                  'category': item.category
+                });
+
+  final sqflite.DatabaseExecutor database;
+
+  final StreamController<String> changeListener;
+
+  final QueryAdapter _queryAdapter;
+
+  final InsertionAdapter<FixedMovement> _fixedMovementInsertionAdapter;
+
+  final UpdateAdapter<FixedMovement> _fixedMovementUpdateAdapter;
+
+  final DeletionAdapter<FixedMovement> _fixedMovementDeletionAdapter;
+
+  @override
+  Future<List<FixedMovement>> findAllFixedMovements() async {
+    return _queryAdapter.queryList('SELECT * FROM FixedMovement',
+        mapper: (Map<String, Object?> row) => FixedMovement(
+            row['id'] as int?,
+            row['description'] as String,
+            row['amount'] as double,
+            (row['isExpense'] as int) != 0,
+            row['day'] as int,
+            row['category'] as String?));
+  }
+
+  @override
+  Future<FixedMovement?> findFixedMovementById(int id) async {
+    return _queryAdapter.query('SELECT * FROM FixedMovement WHERE id = ?1',
+        mapper: (Map<String, Object?> row) => FixedMovement(
+            row['id'] as int?,
+            row['description'] as String,
+            row['amount'] as double,
+            (row['isExpense'] as int) != 0,
+            row['day'] as int,
+            row['category'] as String?),
+        arguments: [id]);
+  }
+
+  @override
+  Future<List<FixedMovement>> findFixedMovementsByType(bool isExpense) async {
+    return _queryAdapter.queryList(
+        'SELECT * FROM FixedMovement WHERE isExpense = ?1',
+        mapper: (Map<String, Object?> row) => FixedMovement(
+            row['id'] as int?,
+            row['description'] as String,
+            row['amount'] as double,
+            (row['isExpense'] as int) != 0,
+            row['day'] as int,
+            row['category'] as String?),
+        arguments: [isExpense ? 1 : 0]);
+  }
+
+  @override
+  Future<void> insertFixedMovement(FixedMovement fixedMovement) async {
+    await _fixedMovementInsertionAdapter.insert(
+        fixedMovement, OnConflictStrategy.abort);
+  }
+
+  @override
+  Future<void> updateFixedMovement(FixedMovement fixedMovement) async {
+    await _fixedMovementUpdateAdapter.update(
+        fixedMovement, OnConflictStrategy.abort);
+  }
+
+  @override
+  Future<void> deleteFixedMovement(FixedMovement fixedMovement) async {
+    await _fixedMovementDeletionAdapter.delete(fixedMovement);
   }
 }

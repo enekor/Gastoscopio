@@ -1,25 +1,31 @@
 import 'package:cashly/data/dao/month_dao.dart';
 import 'package:cashly/data/dao/movement_value_dao.dart';
+import 'package:cashly/data/dao/fixed_movement_dao.dart';
 import 'package:cashly/data/models/month.dart';
 import 'package:cashly/data/models/movement_value.dart';
+import 'package:cashly/data/models/fixed_movement.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
 class FinanceService extends ChangeNotifier {
   final MonthDao _monthDao;
   final MovementValueDao _movementValueDao;
+  final FixedMovementDao _fixedMovementDao;
   Month? _currentMonth;
   List<MovementValue> _todayMovements = [];
   Map<String, double> _monthSummary = {};
   double _monthTotal = 0;
 
-  FinanceService(this._monthDao, this._movementValueDao);
+  FinanceService(
+    this._monthDao,
+    this._movementValueDao,
+    this._fixedMovementDao,
+  );
 
   Month? get currentMonth => _currentMonth;
   List<MovementValue> get todayMovements => _todayMovements;
   Map<String, double> get monthSummary => _monthSummary;
   double get monthTotal => _monthTotal;
-
   Future<void> setCurrentMonth(int month, int year) async {
     final monthData = await _monthDao.findMonthByMonthAndYear(month, year);
     if (monthData == null) {
@@ -27,6 +33,15 @@ class FinanceService extends ChangeNotifier {
       final newMonth = Month(month, year);
       await _monthDao.insertMonth(newMonth);
       _currentMonth = await _monthDao.findMonthByMonthAndYear(month, year);
+
+      // Copiar los movimientos fijos al nuevo mes
+      if (_currentMonth != null) {
+        final fixedMovements = await _fixedMovementDao.findAllFixedMovements();
+        for (final movement in fixedMovements) {
+          final movementValue = movement.toMovementValue(_currentMonth!.id!);
+          await _movementValueDao.insertMovementValue(movementValue);
+        }
+      }
     } else {
       _currentMonth = monthData;
     }

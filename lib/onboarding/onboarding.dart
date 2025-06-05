@@ -37,18 +37,20 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
     }
   }
 
-  void _onTermsAccepted() {
-    _pages = [
-      ApiKeySetupScreen(onApiKeySet: _handleNext),
-      GoogleLoginScreen(onLoginOk: _checkExistingBackup),
-      ImportFromGastoscopioScreen(onImportSuccess: _handleImportSuccess),
-    ];
-    SharedPreferencesService().setBoolValue(
+  Future<void> _onTermsAccepted() async {
+    // Primero guardar el valor y esperar a que termine
+    await SharedPreferencesService().setBoolValue(
       SharedPreferencesKeys.isFirstStartup,
       false,
     );
 
-    setState(() {});
+    setState(() {
+      _pages = [
+        ApiKeySetupScreen(onApiKeySet: _handleNext),
+        GoogleLoginScreen(onLoginOk: _checkExistingBackup),
+        ImportFromGastoscopioScreen(onImportSuccess: _handleImportSuccess),
+      ];
+    });
   }
 
   void _checkExistingBackup() async {

@@ -83,6 +83,7 @@ class App extends StatelessWidget {
               (_) => FinanceService(
                 SqliteService().database.monthDao,
                 SqliteService().database.movementValueDao,
+                SqliteService().database.fixedMovementDao,
               ),
         ),
       ],

@@ -3,6 +3,8 @@ import 'dart:io';
 
 import 'package:cashly/data/dao/movement_value_dao.dart';
 import 'package:cashly/data/models/movement_value.dart';
+import 'package:cashly/data/dao/fixed_movement_dao.dart';
+import 'package:cashly/data/models/fixed_movement.dart';
 import 'package:floor/floor.dart';
 import 'package:sqflite/sqflite.dart' as sqflite;
 import 'package:cashly/data/dao/month_dao.dart';
@@ -11,10 +13,11 @@ import 'package:path/path.dart' as p;
 
 part 'sqlite_service.g.dart';
 
-@Database(version: 1, entities: [Month, MovementValue])
+@Database(version: 3, entities: [Month, MovementValue, FixedMovement])
 abstract class AppDatabase extends FloorDatabase {
   MonthDao get monthDao;
   MovementValueDao get movementValueDao;
+  FixedMovementDao get fixedMovementDao;
 }
 
 class SqliteService {
@@ -69,7 +72,6 @@ class SqliteService {
               year INTEGER NOT NULL
             )
           ''');
-
           await database.execute('''
             CREATE TABLE IF NOT EXISTS MovementValue (
               id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -80,6 +82,17 @@ class SqliteService {
               day INTEGER NOT NULL,
               category TEXT,
               FOREIGN KEY (monthId) REFERENCES Month (id) ON DELETE CASCADE
+            )
+          ''');
+
+          await database.execute('''
+            CREATE TABLE IF NOT EXISTS FixedMovement (
+              id INTEGER PRIMARY KEY AUTOINCREMENT,
+              description TEXT NOT NULL,
+              amount REAL NOT NULL,
+              isExpense INTEGER NOT NULL,
+              day INTEGER NOT NULL,
+              category TEXT NOT NULL
             )
           ''');
         },

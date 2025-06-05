@@ -6,7 +6,7 @@ class FirstStartupScreen extends StatelessWidget {
   const FirstStartupScreen({Key? key, required this.onTermsAccepted})
     : super(key: key);
 
-  final Function onTermsAccepted;
+  final Future<void> Function() onTermsAccepted;
 
   @override
   Widget build(BuildContext context) {
@@ -39,7 +39,9 @@ class FirstStartupScreen extends StatelessWidget {
                 child: const Text('Rechazar'),
               ),
               ElevatedButton(
-                onPressed: () => onTermsAccepted(),
+                onPressed: () async {
+                  await onTermsAccepted();
+                },
                 child: const Text('Aceptar'),
               ),
             ],

@@ -48,9 +48,15 @@ class SharedPreferencesService {
 }
 
 enum SharedPreferencesKeys {
-  isFirstStartup,
-  apiKey,
-  currency,
-  avatarColor,
-  isSvgAvatar,
+  isFirstStartup('is_first_startup'),
+  apiKey('api_key'),
+  currency('currency'),
+  avatarColor('avatar_color'),
+  isSvgAvatar('is_svg_avatar');
+
+  final String value;
+  const SharedPreferencesKeys(this.value);
+
+  @override
+  String toString() => value;
 }

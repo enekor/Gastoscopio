@@ -8,6 +8,7 @@ import 'package:cashly/modules/gastoscopio/widgets/finance_widgets.dart';
 import 'package:cashly/modules/gastoscopio/widgets/main_screen_widgets.dart';
 import 'package:cashly/modules/gastoscopio/widgets/month_grid_selector.dart';
 import 'package:cashly/modules/settings.dart/settings.dart';
+import 'package:cashly/modules/gastoscopio/screens/fixed_movements_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -63,6 +64,7 @@ class _MainScreenState extends State<MainScreen> {
       _financeService = FinanceService(
         SqliteService().database.monthDao,
         SqliteService().database.movementValueDao,
+        SqliteService().database.fixedMovementDao,
       );
     }
 
@@ -172,6 +174,18 @@ class _MainScreenState extends State<MainScreen> {
             appBar: AppBar(
               title: const Text('Gastoscopio'),
               actions: [
+                IconButton(
+                  icon: const Icon(Icons.repeat),
+                  tooltip: 'Movimientos Fijos',
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => const FixedMovementsScreen(),
+                      ),
+                    );
+                  },
+                ),
                 IconButton(
                   icon: const Icon(Icons.settings),
                   onPressed: () {
