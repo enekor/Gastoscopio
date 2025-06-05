@@ -61,44 +61,122 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
     _handleNext();
   }
 
-  void _handleImportSuccess(JsonImportResult result) async {
-    // Store the result temporarily
-    _importResult = result;
-    await _saveUserFromFile();
+  void _handleImportSuccess(JsonImportResult? result) async {
+    if (result == null) {
+      await SqliteService().initializeDatabase();
+      _navigateToMainScreen();
+      return;
+    }
+    try {
+      // Si hay datos para importar, los guardamos
+      _importResult = result;
+
+      // Inicializar la base de datos primero
+      await SqliteService().initializeDatabase(forceRecreate: true);
+      AppDatabase db = SqliteService().db;
+
+      // Show progress dialog only after DB is initialized
+      if (!mounted) return;
+      showDialog(
+        context: context,
+        barrierDismissible: false,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            title: Text('Importando datos...'),
+            content: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                CircularProgressIndicator(),
+                SizedBox(height: 16),
+                Text('Guardando ${result.movements.length} movimientos'),
+              ],
+            ),
+          );
+        },
+      );
+
+      // Import months first
+      for (Month month in _importResult!.months) {
+        await db.monthDao.insertMonth(month);
+      }
+
+      // Then import movements
+      for (MovementValue movement in _importResult!.movements) {
+        await db.movementValueDao.insertMovementValue(movement);
+      }
+
+      // Upload to backup
+      await LoginService().uploadDatabase();
+
+      // Pop the progress dialog
+      if (mounted) {
+        Navigator.pop(context);
+      }
+
+      // Show success message and navigate
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Los datos se han importado correctamente'),
+          behavior: SnackBarBehavior.floating,
+          duration: Duration(seconds: 2),
+        ),
+      );
+
+      _navigateToMainScreen();
+    } catch (e) {
+      if (!mounted) return;
+
+      // Pop the progress dialog only if we're showing it
+      try {
+        Navigator.pop(context);
+      } catch (popError) {
+        // Ignore pop errors
+      }
+
+      // Show error dialog with more specific messages
+      String errorMessage = 'Ocurrió un error al guardar los datos';
+      if (e.toString().contains('database')) {
+        errorMessage =
+            'Error al inicializar la base de datos. Por favor, intenta de nuevo.';
+      } else if (e.toString().contains('insert')) {
+        errorMessage =
+            'Error al guardar los datos. Verifica que el formato del archivo sea correcto.';
+      }
+
+      showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            title: Text('Error al importar'),
+            content: Text('$errorMessage\n\nDetalles: ${e.toString()}'),
+            actions: [
+              TextButton(
+                onPressed: () {
+                  Navigator.pop(context);
+                  _navigateToMainScreen();
+                },
+                child: Text('Continuar sin importar'),
+              ),
+              TextButton(
+                onPressed: () => Navigator.pop(context),
+                child: Text('Intentar de nuevo'),
+              ),
+            ],
+          );
+        },
+      );
+    }
   }
 
-  JsonImportResult? _importResult; // Add this field to store the import result
-
-  Future<void> _saveUserFromFile() async {
-    if (_importResult == null) return;
-
-    await SqliteService().initializeDatabase(forceRecreate: true);
-
-    AppDatabase db = SqliteService().db;
-
-    for (Month month in _importResult!.months) {
-      await db.monthDao.insertMonth(month);
-    }
-
-    for (MovementValue movement in _importResult!.movements) {
-      await db.movementValueDao.insertMovementValue(movement);
-    }
-
-    await LoginService().uploadDatabase();
-
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
-        content: Text('Los datos se han guardado correctamente'),
-        behavior: SnackBarBehavior.floating,
-        duration: Duration(seconds: 2),
-      ),
-    );
-
+  void _navigateToMainScreen() {
+    Navigator.pop(context); //close the popup
     Navigator.push(
       context,
       MaterialPageRoute(builder: (context) => const MainScreen()),
     );
   }
+
+  JsonImportResult? _importResult; // Add this field to store the import result
 
   @override
   void initState() {

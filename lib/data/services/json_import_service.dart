@@ -66,26 +66,92 @@ class JsonImportService {
     }
   }
 
+  /// Validates the structure of the imported JSON data
+  static void _validateJsonStructure(Map<String, dynamic> jsonData) {
+    if (!jsonData.containsKey('Meses')) {
+      throw Exception('El archivo no contiene la sección "Meses" requerida');
+    }
+
+    if (!(jsonData['Meses'] is List)) {
+      throw Exception('La sección "Meses" debe ser una lista');
+    }
+
+    if ((jsonData['Meses'] as List).isEmpty) {
+      throw Exception('No se encontraron meses en el archivo');
+    }
+
+    for (var mes in jsonData['Meses']) {
+      if (!(mes is Map<String, dynamic>)) {
+        throw Exception('Formato inválido: cada mes debe ser un objeto');
+      }
+
+      if (!mes.containsKey('NMes')) {
+        throw Exception('Falta el nombre del mes (NMes) en uno de los meses');
+      }
+
+      if (!mes.containsKey('Anno')) {
+        throw Exception('Falta el año (Anno) en uno de los meses');
+      }
+
+      // Validate movements if present
+      if (mes.containsKey('Gastos') && mes['Gastos'] != null) {
+        if (!(mes['Gastos'] is List)) {
+          throw Exception('La sección "Gastos" debe ser una lista');
+        }
+
+        for (var gasto in mes['Gastos']) {
+          if (!(gasto is Map<String, dynamic>)) {
+            throw Exception('Formato inválido: cada gasto debe ser un objeto');
+          }
+          if (!gasto.containsKey('nombre')) {
+            throw Exception('Falta el nombre en uno de los gastos');
+          }
+          if (!gasto.containsKey('valor')) {
+            throw Exception('Falta el valor en uno de los gastos');
+          }
+        }
+      }
+    }
+  }
+
   /// Procesa el contenido JSON y retorna los objetos Month y MovementValue
   static Future<Map<String, dynamic>> _processJsonData(
     String jsonString,
   ) async {
     try {
-      Map<String, dynamic> jsonData = json.decode(jsonString);
+      // First try to parse the JSON
+      Map<String, dynamic> jsonData;
+      try {
+        jsonData = json.decode(jsonString);
+      } catch (e) {
+        throw Exception(
+          'El archivo no contiene un JSON válido. Verifica su formato.',
+        );
+      }
+
+      // Validate the structure
+      _validateJsonStructure(jsonData);
 
       List<Month> months = [];
       List<MovementValue> movements = [];
 
       // Procesar meses
-      List<dynamic> mesesData = jsonData['Meses'] ?? [];
+      List<dynamic> mesesData = jsonData['Meses'];
 
       for (int i = 0; i < mesesData.length; i++) {
         Map<String, dynamic> mesData = mesesData[i];
 
         // Crear objeto Month
-        String nombreMes = mesData['NMes'] ?? '';
-        int numeroMes = _monthNames[nombreMes] ?? 1;
-        int anno = mesData['Anno'] ?? DateTime.now().year;
+        String nombreMes = mesData['NMes'];
+        if (!_monthNames.containsKey(nombreMes)) {
+          throw Exception(
+            'Nombre de mes inválido: "$nombreMes". '
+            'Debe ser uno de: ${_monthNames.keys.join(", ")}',
+          );
+        }
+
+        int numeroMes = _monthNames[nombreMes]!;
+        int anno = mesData['Anno'];
 
         Month month = Month(numeroMes, anno);
         months.add(month);
@@ -95,9 +161,19 @@ class JsonImportService {
         movements.addAll(monthMovements);
       }
 
+      if (movements.isEmpty) {
+        throw Exception(
+          'No se encontraron movimientos en el archivo. '
+          'Verifica que contenga gastos, ingresos o extras.',
+        );
+      }
+
       return {'months': months, 'movements': movements};
     } catch (e) {
-      throw Exception('Error al parsear JSON: $e');
+      if (e is Exception) {
+        rethrow;
+      }
+      throw Exception('Error al procesar el archivo: $e');
     }
   }
 

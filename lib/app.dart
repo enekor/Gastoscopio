@@ -11,29 +11,68 @@ import 'package:provider/provider.dart';
 class App extends StatelessWidget {
   const App({super.key});
 
-  Future<bool> init(BuildContext context) async {
-    bool isFirstStartup =
-        await SharedPreferencesService().getBoolValue(
-          SharedPreferencesKeys.isFirstStartup,
-        ) ??
-        true;
+  @pragma('vm:prefer-inline')
+  Future<(bool, AppDatabase?)> init(BuildContext context) async {
+    try {
+      // Paso 1: Verificar si es primera ejecución
+      final isFirstStartup =
+          await SharedPreferencesService().getBoolValue(
+            SharedPreferencesKeys.isFirstStartup,
+          ) ??
+          true;
 
-    if (!isFirstStartup) {
-      await SqliteService().initializeDatabase();
+      // Si es primera ejecución, no necesitamos inicializar la BD
+      if (isFirstStartup) {
+        return (true, null);
+      }
+
+      // Paso 2: Inicializar la base de datos con retry
+      AppDatabase? database;
+      for (var attempt = 1; attempt <= 3; attempt++) {
+        try {
+          debugPrint('App.init: Intento $attempt de inicializar base de datos');
+          await SqliteService().initializeDatabase();
+          database = SqliteService().database;
+          debugPrint('App.init: Base de datos inicializada correctamente');
+          break;
+        } catch (e, stack) {
+          debugPrint('App.init: Error en intento $attempt: $e');
+          debugPrint('App.init: Stack trace: $stack');
+          if (attempt == 3) {
+            // Si fallamos 3 veces, reiniciamos como first startup
+            debugPrint(
+              'App.init: Demasiados intentos fallidos, reiniciando como first startup',
+            );
+            await SharedPreferencesService().setBoolValue(
+              SharedPreferencesKeys.isFirstStartup,
+              true,
+            );
+            return (true, null);
+          }
+          await Future.delayed(Duration(milliseconds: 500 * attempt));
+        }
+      }
+
+      // Paso 3: Inicializar servicios adicionales
+      try {
+        await GeminiService().initializeGemini();
+      } catch (e) {
+        // Error no crítico, podemos continuar
+        debugPrint('App.init: Error no crítico inicializando Gemini: $e');
+      }
+
+      debugPrint('App.init: Inicialización completada exitosamente');
+      return (false, database);
+    } catch (e, stack) {
+      debugPrint('App.init: Error crítico en inicialización: $e');
+      debugPrint('App.init: Stack trace: $stack');
+      // En caso de error, volvemos al onboarding
+      await SharedPreferencesService().setBoolValue(
+        SharedPreferencesKeys.isFirstStartup,
+        true,
+      );
+      return (true, null);
     }
-
-    if (!isFirstStartup &&
-        await SharedPreferencesService().getStringValue(
-              SharedPreferencesKeys.apiKey,
-            ) ==
-            null) {
-      // Delay the dialog slightly to ensure the app is fully rendered
-    }
-
-    // Initialize Gemini service and check API key
-    await GeminiService().initializeGemini();
-
-    return isFirstStartup;
   }
 
   void _showApiKeyDialog(BuildContext context) {
@@ -76,30 +115,85 @@ class App extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MultiProvider(
-      providers: [
-        ChangeNotifierProvider(
-          create:
-              (_) => FinanceService(
-                SqliteService().database.monthDao,
-                SqliteService().database.movementValueDao,
-                SqliteService().database.fixedMovementDao,
-              ),
-        ),
-      ],
-      child: FutureBuilder<bool>(
-        future: init(context),
-        builder: (context, snapshot) {
-          if (snapshot.connectionState == ConnectionState.done) {
-            return snapshot.data == false
-                ? const MainScreen()
-                : const OnboardingScreen();
+    return FutureBuilder<(bool, AppDatabase?)>(
+      future: init(context),
+      builder: (context, snapshot) {
+        // Asegurarnos de que la inicialización está completa
+        if (snapshot.connectionState != ConnectionState.done) {
+          return const MaterialApp(
+            home: Scaffold(body: Center(child: CircularProgressIndicator())),
+          );
+        }
 
-            // return MainScreen();
-          }
-          return const Center(child: CircularProgressIndicator());
-        },
-      ),
+        final (isFirstStartup, database) = snapshot.data!;
+
+        // Si es first startup, mostrar onboarding
+        if (isFirstStartup) {
+          return const MaterialApp(home: OnboardingScreen());
+        }
+
+        // Si no tenemos base de datos, algo salió mal
+        if (database == null) {
+          return MaterialApp(
+            home: Scaffold(
+              body: Center(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    const Icon(
+                      Icons.error_outline,
+                      size: 48,
+                      color: Colors.red,
+                    ),
+                    const SizedBox(height: 16),
+                    const Text(
+                      'Error al inicializar la aplicación',
+                      style: TextStyle(fontSize: 20),
+                    ),
+                    const SizedBox(height: 8),
+                    ElevatedButton(
+                      onPressed: () {
+                        SharedPreferencesService()
+                            .setBoolValue(
+                              SharedPreferencesKeys.isFirstStartup,
+                              true,
+                            )
+                            .then((_) {
+                              // Reiniciar la app como first startup
+                              Navigator.pushReplacement(
+                                context,
+                                MaterialPageRoute(
+                                  builder:
+                                      (context) => const OnboardingScreen(),
+                                ),
+                              );
+                            });
+                      },
+                      child: const Text('Reiniciar configuración'),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          );
+        }
+
+        return MaterialApp(
+          home: MultiProvider(
+            providers: [
+              ChangeNotifierProvider(
+                create:
+                    (_) => FinanceService(
+                      database.monthDao,
+                      database.movementValueDao,
+                      database.fixedMovementDao,
+                    ),
+              ),
+            ],
+            child: const MainScreen(),
+          ),
+        );
+      },
     );
   }
 }
