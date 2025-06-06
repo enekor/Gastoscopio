@@ -74,6 +74,7 @@ class _MovementsScreenState extends State<MovementsScreen> {
     return Scaffold(
       appBar: _buildAppBar(),
       floatingActionButton: Card(
+        color: Theme.of(context).colorScheme.surfaceContainer,
         elevation: 8,
         shape: const CircleBorder(),
         child: Container(

@@ -106,6 +106,7 @@ class _GastoscopioHomeScreenState extends State<GastoscopioHomeScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       floatingActionButton: Card(
+        color: Theme.of(context).colorScheme.surfaceContainer,
         elevation: 8,
         shape: const CircleBorder(),
         child: Container(
