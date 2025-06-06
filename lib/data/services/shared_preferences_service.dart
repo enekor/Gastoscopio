@@ -1,48 +1,62 @@
 import 'package:shared_preferences/shared_preferences.dart';
 
 class SharedPreferencesService {
-  static SharedPreferences? _prefs;
+  static final SharedPreferencesService _instance =
+      SharedPreferencesService._internal();
 
-  static Future<void> init() async {
-    _prefs ??= await SharedPreferences.getInstance();
+  factory SharedPreferencesService() {
+    return _instance;
   }
 
-  static Future<bool> setString(String key, String value) async {
-    await init();
-    return _prefs!.setString(key, value);
+  SharedPreferencesService._internal();
+
+  Future<void> setStringValue(SharedPreferencesKeys key, String value) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString(key.toString(), value);
   }
 
-  static String? getString(String key) {
-    return _prefs?.getString(key);
+  Future<String?> getStringValue(SharedPreferencesKeys key) async {
+    final prefs = await SharedPreferences.getInstance();
+    var ret = prefs.getString(key.toString());
+    return ret;
   }
 
-  static Future<bool> setInt(String key, int value) async {
-    await init();
-    return _prefs!.setInt(key, value);
+  Future<List<String>> getStringListValue(SharedPreferencesKeys key) async {
+    final prefs = await SharedPreferences.getInstance();
+    var ret = prefs.getStringList(key.toString());
+    return ret ?? [];
   }
 
-  static int? getInt(String key) {
-    return _prefs?.getInt(key);
+  Future<void> setStringListValue(
+    SharedPreferencesKeys key,
+    List<String> value,
+  ) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setStringList(key.toString(), value);
   }
 
-  static Future<bool> setBool(String key, bool value) async {
-    await init();
-    return _prefs!.setBool(key, value);
+  Future<void> setBoolValue(SharedPreferencesKeys key, bool value) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setBool(key.toString(), value);
   }
 
-  static bool? getBool(String key) {
-    return _prefs?.getBool(key);
-  }
-
-  static Future<bool> remove(String key) async {
-    await init();
-    return _prefs!.remove(key);
-  }
-
-  static Future<bool> clear() async {
-    await init();
-    return _prefs!.clear();
+  Future<bool?> getBoolValue(SharedPreferencesKeys key) async {
+    final prefs = await SharedPreferences.getInstance();
+    var ret = prefs.getBool(key.toString());
+    return ret;
   }
 }
 
-enum SharedPrefsKeys { isFirstStartup }
+enum SharedPreferencesKeys {
+  isFirstStartup('is_first_startup'),
+  apiKey('api_key'),
+  currency('currency'),
+  avatarColor('avatar_color'),
+  isSvgAvatar('is_svg_avatar');
+
+  final String value;
+  const SharedPreferencesKeys(this.value);
+
+  @override
+  String toString() => value;
+}

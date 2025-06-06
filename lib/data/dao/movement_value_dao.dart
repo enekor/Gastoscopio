@@ -6,6 +6,22 @@ abstract class MovementValueDao {
   @Query('SELECT * FROM MovementValue WHERE monthId = :monthId')
   Future<List<MovementValue>> findMovementValuesByMonthId(int monthId);
 
+  @Query(
+    'SELECT * FROM MovementValue WHERE monthId = :monthId AND isExpense = :isExpense',
+  )
+  Future<List<MovementValue>> findMovementValuesByMonthIdAndType(
+    int monthId,
+    bool isExpense,
+  );
+
+  @Query(
+    'SELECT SUM(amount) FROM MovementValue WHERE monthId = :monthId AND isExpense = :isExpense',
+  )
+  Future<double?> sumMovementValuesByMonthIdAndType(
+    int monthId,
+    bool isExpense,
+  );
+
   @insert
   Future<void> insertMovementValue(MovementValue movementValue);
 

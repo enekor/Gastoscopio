@@ -1,13 +1,246 @@
+import 'package:cashly/data/services/login_service.dart';
+import 'package:cashly/data/services/sqlite_service.dart';
+import 'package:cashly/modules/gastoscopio/logic/finance_service.dart';
+import 'package:cashly/modules/gastoscopio/screens/home.dart';
+import 'package:cashly/modules/gastoscopio/screens/movements_screen.dart';
+import 'package:cashly/modules/gastoscopio/screens/summary_screen.dart';
+import 'package:cashly/modules/gastoscopio/widgets/finance_widgets.dart';
+import 'package:cashly/modules/gastoscopio/widgets/main_screen_widgets.dart';
+import 'package:cashly/modules/gastoscopio/widgets/month_grid_selector.dart';
+import 'package:cashly/modules/settings.dart/settings.dart';
+import 'package:cashly/modules/gastoscopio/screens/fixed_movements_screen.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
-class MainScreen extends StatelessWidget {
+class MainScreen extends StatefulWidget {
   const MainScreen({Key? key}) : super(key: key);
+  @override
+  State<MainScreen> createState() => _MainScreenState();
+}
+
+class _MainScreenState extends State<MainScreen> {
+  int _selectedIndex = 0;
+  List<int> _availableYears = [];
+  List<int> _availableMonths = [];
+  int _year = DateTime.now().year;
+  int _month = DateTime.now().month;
+  late final FinanceService _financeService;
+  final List<NavigationDestination> _destinations = const [
+    NavigationDestination(
+      icon: Icon(Icons.home_outlined),
+      selectedIcon: Icon(Icons.home),
+      label: '',
+    ),
+    NavigationDestination(
+      icon: Icon(Icons.list_outlined),
+      selectedIcon: Icon(Icons.list),
+      label: '',
+    ),
+    NavigationDestination(
+      icon: Icon(Icons.analytics_outlined),
+      selectedIcon: Icon(Icons.analytics),
+      label: '',
+    ),
+  ];
+
+  void _onDestinationSelected(int index) {
+    setState(() {
+      _selectedIndex = index;
+    });
+  }
 
   @override
+  void initState() {
+    super.initState();
+  }
+
+  Future<void> _loadInitialData() async {
+    await SqliteService().initializeDatabase();
+
+    // Crear una nueva instancia del servicio si no podemos obtenerla del Provider
+    try {
+      _financeService = Provider.of<FinanceService>(context, listen: false);
+    } catch (e) {
+      _financeService = FinanceService(
+        SqliteService().database.monthDao,
+        SqliteService().database.movementValueDao,
+        SqliteService().database.fixedMovementDao,
+      );
+    }
+
+    setState(() {
+      _availableYears = [];
+      _availableMonths = [];
+    });
+
+    await _loadAvailableYearsAndMonths();
+    // Establecer el mes actual al inicio
+    await _financeService.updateSelectedDate(_month, _year);
+  }
+
+  Future<void> _loadAvailableYearsAndMonths() async {
+    _availableYears = await _financeService.getAvailableYears();
+    _availableMonths = await _financeService.getAvailableMonths(_year);
+    setState(() {}); // Actualizar UI con los datos cargados
+  }
+
+  Future<void> _setNewDate(int month, int year) async {
+    _availableMonths = await _financeService.getAvailableMonths(year);
+    final selectedMonth = await _financeService.handleMonthSelection(
+      month,
+      year,
+      context,
+    );
+    if (selectedMonth != null) {
+      setState(() {
+        _month = selectedMonth;
+        _year = year;
+      });
+    }
+  }
+
+  void _showMonthSelector() {
+    showDialog(
+      context: context,
+      builder:
+          (dialogContext) => StatefulBuilder(
+            builder:
+                (context, setDialogState) => Dialog(
+                  child: Padding(
+                    padding: const EdgeInsets.all(16),
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        MonthGridSelector(
+                          availableMonths: _availableMonths,
+                          availableYears: _availableYears,
+                          selectedMonth: _month,
+                          selectedYear: _year,
+                          onMonthChanged: (month) async {
+                            await _setNewDate(month, _year);
+                            Navigator.pop(dialogContext);
+                          },
+                          onYearChanged: (year) async {
+                            final months = await _financeService
+                                .getAvailableMonths(year);
+
+                            // Cerrar el diálogo actual
+                            Navigator.pop(dialogContext);
+
+                            // Actualizar ambos estados de forma sincronizada
+                            setState(() {
+                              _availableMonths = months;
+                              _year = year;
+                            });
+
+                            // Manejar el cambio de mes si es necesario
+                            if (!months.contains(_month)) {
+                              await _setNewDate(months.last, year);
+                            } else {
+                              await _setNewDate(_month, year);
+                            }
+
+                            // Mostrar el diálogo actualizado
+                            _showMonthSelector();
+                          },
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+          ),
+    );
+  }
+
+  List<Widget> get _screens => [
+    GastoscopioHomeScreen(year: _year, month: _month),
+    MovementsScreen(year: _year, month: _month),
+    const SummaryScreen(),
+  ];
+  @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(title: const Text('Main Screen')),
-      body: const Center(child: Text('Welcome to the Main Screen!')),
+    return FutureBuilder(
+      future: _loadInitialData(),
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return const Scaffold(
+            body: Center(child: CircularProgressIndicator()),
+          );
+        }
+        return ChangeNotifierProvider.value(
+          value: _financeService,
+          child: Scaffold(
+            extendBody: _selectedIndex != 2,
+            appBar: AppBar(
+              title: const Text('Gastoscopio'),
+              actions: [
+                IconButton(
+                  icon: const Icon(Icons.repeat),
+                  tooltip: 'Movimientos Fijos',
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => const FixedMovementsScreen(),
+                      ),
+                    );
+                  },
+                ),
+                IconButton(
+                  icon: const Icon(Icons.settings),
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => const SettingsScreen(),
+                      ),
+                    );
+                  },
+                ),
+                if (_selectedIndex != 2)
+                  IconButton(
+                    onPressed: _showMonthSelector,
+                    icon: const Icon(Icons.calendar_today),
+                  ),
+              ],
+            ),
+            body: Column(
+              children: [
+                Expanded(
+                  child: IndexedStack(
+                    index: _selectedIndex,
+                    children: _screens,
+                  ),
+                ),
+              ],
+            ),
+            bottomNavigationBar: Padding(
+              padding: EdgeInsets.only(
+                left: 24.0,
+                right: _selectedIndex != 2 ? 75.0 : 24.0,
+                bottom: 16.0,
+              ),
+              child: Card(
+                color: Theme.of(context).colorScheme.surfaceContainer,
+                elevation: 8,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(24),
+                ),
+                child: NavigationBar(
+                  selectedIndex: _selectedIndex,
+                  onDestinationSelected: _onDestinationSelected,
+                  destinations: _destinations,
+                  backgroundColor: Colors.transparent,
+                  elevation: 0,
+                  height: 48,
+                  labelBehavior: NavigationDestinationLabelBehavior.alwaysHide,
+                  animationDuration: const Duration(milliseconds: 500),
+                ),
+              ),
+            ),
+          ),
+        );
+      },
     );
   }
 }

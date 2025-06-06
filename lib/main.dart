@@ -1,14 +1,42 @@
-import 'package:cashly/data/services/sqlite_service.dart';
-import 'package:cashly/onboarding/screens/login.dart';
-import 'package:flutter/material.dart';
 import 'package:cashly/app.dart';
-import 'package:firebase_core/firebase_core.dart';
-import 'firebase_options.dart';
+import 'package:cashly/common/handlers/lifecycle_handler.dart';
+import 'package:cashly/data/services/login_service.dart';
+import 'package:cashly/onboarding/onboarding.dart';
+import 'package:dynamic_color/dynamic_color.dart';
+import 'package:flutter/material.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
-  await SqliteService.initializeDatabase();
+
+  // Configurar detector de estado de la app
+  bool isInForeground = true;
+
+  // Detectar cuando la app va a segundo plano
+  WidgetsBinding.instance.addObserver(
+    LifecycleEventHandler(
+      resumeCallBack: () async {
+        if (!isInForeground) {
+          isInForeground = true;
+          var a = await LoginService().checkExistingBackup();
+          print(
+            '----------------------------------------------------------------' +
+                a.toString(),
+          );
+        }
+      },
+      suspendingCallBack: () async {
+        if (isInForeground) {
+          isInForeground = false;
+          var a = await LoginService().uploadDatabase();
+          print(
+            '----------------------------------------------------------------' +
+                a.toString(),
+          );
+        }
+      },
+    ),
+  );
+
   runApp(const MyApp());
 }
 
@@ -17,12 +45,29 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'Cashly',
-      theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
-      ),
-      home: GoogleLoginScreen(),
+    return DynamicColorBuilder(
+      builder: (ColorScheme? lightDynamic, ColorScheme? darkDynamic) {
+        return MaterialApp(
+          title: 'Cashly',
+          theme: ThemeData(
+            useMaterial3: true,
+            colorScheme:
+                lightDynamic ??
+                ColorScheme.fromSeed(seedColor: Colors.deepPurple),
+          ),
+          darkTheme: ThemeData(
+            useMaterial3: true,
+            colorScheme:
+                darkDynamic ??
+                ColorScheme.fromSeed(
+                  seedColor: Colors.deepPurple,
+                  brightness: Brightness.dark,
+                ),
+          ),
+          themeMode: ThemeMode.system,
+          home: App(),
+        );
+      },
     );
   }
 }

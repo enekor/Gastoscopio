@@ -1,45 +1,113 @@
-
 import 'dart:async';
+import 'dart:io';
 
 import 'package:cashly/data/dao/movement_value_dao.dart';
 import 'package:cashly/data/models/movement_value.dart';
+import 'package:cashly/data/dao/fixed_movement_dao.dart';
+import 'package:cashly/data/models/fixed_movement.dart';
 import 'package:floor/floor.dart';
-import 'package:path_provider/path_provider.dart';
 import 'package:sqflite/sqflite.dart' as sqflite;
-import '../../database.dart';
 import 'package:cashly/data/dao/month_dao.dart';
 import 'package:cashly/data/models/month.dart';
 import 'package:path/path.dart' as p;
 
-
 part 'sqlite_service.g.dart';
 
-@Database(version: 1, entities: [Month, MovementValue])
+@Database(version: 3, entities: [Month, MovementValue, FixedMovement])
 abstract class AppDatabase extends FloorDatabase {
   MonthDao get monthDao;
   MovementValueDao get movementValueDao;
+  FixedMovementDao get fixedMovementDao;
 }
 
 class SqliteService {
-  static late AppDatabase database;
+  static final SqliteService _instance = SqliteService._internal();
+  late AppDatabase database;
+  bool isInitialized = false;
 
-  static Future<void> initializeDatabase() async {
-    
-    final directory = await getApplicationDocumentsDirectory();
-    final dbPath = p.join(directory.path, 'cashly_database.db');
+  AppDatabase get db => database;
 
-    /*
-    Para crear nueva version
-    
-    final migration1to2 = Migration(1, 2, (database) async {
-      await database.execute('ALTER TABLE Expense ADD COLUMN category TEXT');
-    });
+  // Private constructor
+  SqliteService._internal();
 
-    añadir .addMigrations([migration1to2]) antes del build()
-    */
-    database = await $FloorAppDatabase
-      .databaseBuilder(dbPath)
-      .build();
+  // Factory constructor
+  factory SqliteService() {
+    return _instance;
+  }
+
+  Future<String> getDatabasePath() async {
+    // Usar getDatabasesPath() de sqflite
+    final dbPath = await sqflite.getDatabasesPath();
+    return p.join(dbPath, 'cashly_database.db');
+  }
+
+  Future<void> initializeDatabase({bool forceRecreate = false}) async {
+    if (isInitialized) return;
+
+    try {
+      // Usar getDatabasesPath() de sqflite
+      final path = await getDatabasePath();
+
+      // Asegurarse de que el directorio existe
+      final directory = Directory(p.dirname(path));
+      if (!directory.existsSync()) {
+        directory.createSync(recursive: true);
+      }
+      print('Inicializando base de datos en: $path');
+      // Borrar la base de datos si se solicita recreación
+      if (forceRecreate && File(path).existsSync()) {
+        await File(path).delete();
+        print('Base de datos eliminada para recreación');
+      }
+
+      final callback = Callback(
+        onConfigure: (database) async {
+          await database.execute('PRAGMA foreign_keys = ON');
+        },
+        onCreate: (database, version) async {
+          await database.execute('''
+            CREATE TABLE IF NOT EXISTS Month (
+              id INTEGER PRIMARY KEY AUTOINCREMENT,
+              month INTEGER NOT NULL,
+              year INTEGER NOT NULL
+            )
+          ''');
+          await database.execute('''
+            CREATE TABLE IF NOT EXISTS MovementValue (
+              id INTEGER PRIMARY KEY AUTOINCREMENT,
+              monthId INTEGER NOT NULL,
+              description TEXT NOT NULL,
+              amount REAL NOT NULL,
+              isExpense INTEGER NOT NULL,
+              day INTEGER NOT NULL,
+              category TEXT,
+              FOREIGN KEY (monthId) REFERENCES Month (id) ON DELETE CASCADE
+            )
+          ''');
+
+          await database.execute('''
+            CREATE TABLE IF NOT EXISTS FixedMovement (
+              id INTEGER PRIMARY KEY AUTOINCREMENT,
+              description TEXT NOT NULL,
+              amount REAL NOT NULL,
+              isExpense INTEGER NOT NULL,
+              day INTEGER NOT NULL,
+              category TEXT NOT NULL
+            )
+          ''');
+        },
+      );
+
+      database =
+          await $FloorAppDatabase
+              .databaseBuilder(path)
+              .addCallback(callback)
+              .build();
+
+      isInitialized = true;
+    } catch (e) {
+      print('Error al inicializar la base de datos: $e');
+      rethrow;
+    }
   }
 }
-
