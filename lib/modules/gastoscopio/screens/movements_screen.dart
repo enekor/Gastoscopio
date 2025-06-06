@@ -26,6 +26,7 @@ class _MovementsScreenState extends State<MovementsScreen> {
   final Map<String, bool> _expandedItems = {};
   late String _moneda;
   late FinanceService _financeService;
+  final TextEditingController _searchController = TextEditingController();
 
   @override
   void initState() {
@@ -42,6 +43,13 @@ class _MovementsScreenState extends State<MovementsScreen> {
             _moneda = currency ?? '€';
           }),
         );
+    _searchController.text = _searchQuery;
+  }
+
+  @override
+  void dispose() {
+    _searchController.dispose();
+    super.dispose();
   }
 
   @override
@@ -80,6 +88,8 @@ class _MovementsScreenState extends State<MovementsScreen> {
 
   Widget _buildFAB() {
     return Card(
+      color: Theme.of(context).colorScheme.surfaceContainer,
+
       elevation: 8,
       shape: const CircleBorder(),
       child: Container(
@@ -309,24 +319,38 @@ class _MovementsScreenState extends State<MovementsScreen> {
               ],
             ),
             const SizedBox(height: 8),
-            TextField(
-              decoration: InputDecoration(
-                labelText: 'Buscar',
-                prefixIcon: const Icon(Icons.search),
-                suffixIcon:
-                    _searchQuery.isNotEmpty
-                        ? IconButton(
-                          icon: const Icon(Icons.clear),
-                          onPressed: () {
-                            setState(() {
-                              _searchQuery = '';
-                            });
-                          },
-                        )
-                        : null,
-              ),
-              onChanged: (value) => setState(() => _searchQuery = value),
-              controller: TextEditingController(text: _searchQuery),
+            Row(
+              children: [
+                Expanded(
+                  child: TextField(
+                    controller: _searchController,
+                    decoration: InputDecoration(
+                      labelText: 'Buscar',
+                      prefixIcon: const Icon(Icons.abc),
+                      suffixIcon:
+                          _searchQuery.isNotEmpty
+                              ? IconButton(
+                                icon: const Icon(Icons.clear),
+                                onPressed: () {
+                                  setState(() {
+                                    _searchQuery = '';
+                                    _searchController.clear();
+                                  });
+                                },
+                              )
+                              : null,
+                    ),
+                  ),
+                ),
+                const SizedBox(width: 8),
+                ElevatedButton.icon(
+                  onPressed:
+                      () =>
+                          setState(() => _searchQuery = _searchController.text),
+                  label: Text('Buscar'),
+                  icon: Icon(Icons.search),
+                ),
+              ],
             ),
           ],
         ),

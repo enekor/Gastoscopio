@@ -19,8 +19,7 @@ Widget AnimatedCard(
           duration: const Duration(milliseconds: 300),
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(16),
-            color:
-                color ?? Theme.of(context).colorScheme.surface.withOpacity(0.7),
+            color: color ?? Theme.of(context).colorScheme.primary.withAlpha(70),
           ),
           child: Column(
             mainAxisSize: MainAxisSize.min,
