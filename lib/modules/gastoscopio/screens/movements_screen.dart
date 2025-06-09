@@ -1,11 +1,11 @@
 import 'package:cashly/data/services/shared_preferences_service.dart';
+import 'package:cashly/data/services/sqlite_service.dart';
 import 'package:cashly/modules/gastoscopio/screens/movement_form_screen.dart';
 import 'package:cashly/modules/gastoscopio/widgets/main_screen_widgets.dart';
 import 'package:cashly/common/tag_list.dart';
 import 'package:flutter/material.dart';
 import 'package:cashly/data/models/movement_value.dart';
 import 'package:cashly/modules/gastoscopio/logic/finance_service.dart';
-import 'package:provider/provider.dart';
 
 class MovementsScreen extends StatefulWidget {
   final int year;
@@ -18,48 +18,131 @@ class MovementsScreen extends StatefulWidget {
   State<MovementsScreen> createState() => _MovementsScreenState();
 }
 
-class _MovementsScreenState extends State<MovementsScreen> {
+class _MovementsScreenState extends State<MovementsScreen>
+    with TickerProviderStateMixin {
   bool _showExpenses = true;
   DateTime? _selectedDate;
   String? _selectedCategory;
   String _searchQuery = '';
-  final Map<int, bool> _expandedItems = {};
+  final Map<String, bool> _expandedItems = {};
   late String _moneda;
+  late FinanceService _financeService;
+  final TextEditingController _searchController = TextEditingController();
+
+  // Cache para los movimientos y estado de carga
+  List<MovementValue> _cachedMovements = [];
+  bool _isLoading = true;
+
+  // Animaciones para transiciones suaves
+  late AnimationController _listAnimationController;
+  late AnimationController _toggleAnimationController;
+  late Animation<double> _listFadeAnimation;
+  late Animation<double> _toggleAnimation;
 
   @override
   void initState() {
     super.initState();
+
+    // Inicializar controladores de animación
+    _listAnimationController = AnimationController(
+      duration: const Duration(milliseconds: 300),
+      vsync: this,
+    );
+    _toggleAnimationController = AnimationController(
+      duration: const Duration(milliseconds: 200),
+      vsync: this,
+    );
+
+    _listFadeAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
+      CurvedAnimation(
+        parent: _listAnimationController,
+        curve: Curves.easeInOut,
+      ),
+    );
+
+    _toggleAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
+      CurvedAnimation(
+        parent: _toggleAnimationController,
+        curve: Curves.easeInOut,
+      ),
+    );
+
+    _financeService = FinanceService.getInstance(
+      SqliteService().db.monthDao,
+      SqliteService().db.movementValueDao,
+      SqliteService().db.fixedMovementDao,
+    );
+
+    // Escuchar cambios del servicio
+    _financeService.addListener(_onFinanceServiceChanged);
+
     SharedPreferencesService()
         .getStringValue(SharedPreferencesKeys.currency)
         .then(
           (currency) => setState(() {
-            _moneda = currency ?? '€'; // Valor por defecto si no se encuentra
+            _moneda = currency ?? '€';
           }),
         );
+    _searchController.text = _searchQuery;
+    // Cargar datos iniciales
+    _loadMovements();
+
+    // Iniciar las animaciones
+    _listAnimationController.forward();
+    _toggleAnimationController.forward();
+  }
+
+  void _onFinanceServiceChanged() {
+    // Cuando el servicio notifica cambios, recargar datos con animación
+    _loadMovements();
+  }
+
+  Future<void> _loadMovements() async {
+    try {
+      final movements = await _financeService.getCurrentMonthMovements();
+
+      // Animar la transición de la lista
+      if (_cachedMovements.isNotEmpty) {
+        await _listAnimationController.reverse();
+      }
+
+      setState(() {
+        _cachedMovements = movements;
+        _isLoading = false;
+      });
+
+      await _listAnimationController.forward();
+    } catch (e) {
+      setState(() {
+        _isLoading = false;
+      });
+    }
+  }
+
+  @override
+  void dispose() {
+    _searchController.dispose();
+    _financeService.removeListener(_onFinanceServiceChanged);
+    _listAnimationController.dispose();
+    _toggleAnimationController.dispose();
+    super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
-    return Consumer<FinanceService>(
-      builder: (context, financeService, _) {
-        return FutureBuilder<List<MovementValue>>(
-          future: financeService.getCurrentMonthMovements(),
-          builder: (context, snapshot) {
-            if (snapshot.connectionState == ConnectionState.waiting) {
-              return const Center(child: CircularProgressIndicator());
-            }
+    if (_isLoading) {
+      return const Scaffold(body: Center(child: CircularProgressIndicator()));
+    }
 
-            if (!snapshot.hasData || snapshot.data!.isEmpty) {
-              return _buildEmptyScreen();
-            }
+    if (_cachedMovements.isEmpty) {
+      return _buildEmptyScreen();
+    }
 
-            final allMovements = snapshot.data!;
-            final filteredMovements = _filterMovements(allMovements);
+    final filteredMovements = _filterMovements(_cachedMovements);
 
-            return _buildContent(filteredMovements, _moneda);
-          },
-        );
-      },
+    return FadeTransition(
+      opacity: _listFadeAnimation,
+      child: _buildContent(filteredMovements, _moneda),
     );
   }
 
@@ -67,43 +150,39 @@ class _MovementsScreenState extends State<MovementsScreen> {
     return Scaffold(
       appBar: _buildAppBar(),
       body: const Center(child: Text('No hay movimientos para mostrar')),
+      floatingActionButton: _buildFAB(),
     );
   }
 
-  Widget _buildContent(List<MovementValue> movements, String moneda) {
-    return Scaffold(
-      appBar: _buildAppBar(),
-      floatingActionButton: Card(
-        color: Theme.of(context).colorScheme.surfaceContainer,
-        elevation: 8,
-        shape: const CircleBorder(),
-        child: Container(
-          width: 45,
-          height: 45,
-          decoration: const BoxDecoration(shape: BoxShape.circle),
-          child: FloatingActionButton.small(
-            backgroundColor: Colors.transparent,
-            elevation: 0,
-            onPressed: () {
-              showModalBottomSheet(
-                context: context,
-                isScrollControlled: true,
-                showDragHandle: true,
-                useSafeArea: true,
-                builder: (BuildContext context) => const MovementFormScreen(),
-              );
-            },
-            child: const Icon(Icons.add),
-            heroTag: 'movements_fab',
-          ),
+  Widget _buildFAB() {
+    return Card(
+      color: Theme.of(context).colorScheme.secondary.withAlpha(25),
+      elevation: 8,
+      shape: const CircleBorder(),
+      child: Container(
+        width: 45,
+        height: 45,
+        decoration: const BoxDecoration(shape: BoxShape.circle),
+        child: FloatingActionButton.small(
+          backgroundColor: Colors.transparent,
+          elevation: 0,
+          onPressed: () async {
+            final result = await showModalBottomSheet<bool>(
+              context: context,
+              isScrollControlled: true,
+              showDragHandle: true,
+              useSafeArea: true,
+              builder: (BuildContext context) => MovementFormScreen(),
+            );
+
+            // Si se agregó un movimiento, recargar los datos
+            if (result == true) {
+              await _loadMovements();
+            }
+          },
+          child: const Icon(Icons.add),
+          heroTag: 'movements_fab',
         ),
-      ),
-      body: Column(
-        children: [
-          _buildFilters(),
-          const SizedBox(height: 16),
-          Expanded(child: _buildList(movements, moneda)),
-        ],
       ),
     );
   }
@@ -117,29 +196,42 @@ class _MovementsScreenState extends State<MovementsScreen> {
         fillColor: Theme.of(context).colorScheme.primary.withAlpha(45),
         selectedColor: Theme.of(context).colorScheme.onPrimary,
         isSelected: [!_showExpenses, _showExpenses],
-        onPressed: (index) {
-          setState(() {
-            _showExpenses = index == 1;
-          });
+        onPressed: (index) async {
+          if ((index == 1) != _showExpenses) {
+            // Animar la transición
+            await _toggleAnimationController.reverse();
+            setState(() {
+              _showExpenses = index == 1;
+            });
+            await _toggleAnimationController.forward();
+          }
         },
         children: [
           TextButton.icon(
-            onPressed: () {
-              setState(() {
-                _showExpenses = false;
-              });
+            onPressed: () async {
+              if (_showExpenses) {
+                await _toggleAnimationController.reverse();
+                setState(() {
+                  _showExpenses = false;
+                });
+                await _toggleAnimationController.forward();
+              }
             },
-            label: Text('Ingresos'),
-            icon: Icon(Icons.money),
+            icon: const Icon(Icons.money),
+            label: const Text('Ingresos'),
           ),
           TextButton.icon(
-            onPressed: () {
-              setState(() {
-                _showExpenses = true;
-              });
+            onPressed: () async {
+              if (!_showExpenses) {
+                await _toggleAnimationController.reverse();
+                setState(() {
+                  _showExpenses = true;
+                });
+                await _toggleAnimationController.forward();
+              }
             },
-            label: Text('Gastos'),
-            icon: Icon(Icons.money_off),
+            icon: const Icon(Icons.money_off),
+            label: const Text('Gastos'),
           ),
         ],
       ),
@@ -147,109 +239,60 @@ class _MovementsScreenState extends State<MovementsScreen> {
     );
   }
 
-  Widget _buildFilters() {
-    return Padding(
-      padding: const EdgeInsets.only(left: 16, right: 16, top: 16),
-      child: AnimatedCard(
-        context,
-        isExpanded: false,
-        color: Theme.of(context).colorScheme.secondary.withAlpha(45),
-        leadingWidget: Padding(
-          padding: const EdgeInsets.symmetric(vertical: 10.0, horizontal: 20),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Text('Filtros', style: Theme.of(context).textTheme.titleLarge),
-              Icon(Icons.filter_list),
-            ],
-          ),
-        ),
-        hiddenWidget: Padding(
-          padding: const EdgeInsets.only(left: 16, right: 16, bottom: 16),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Row(
-                children: [
-                  Expanded(
-                    child: FilledButton.tonal(
-                      onPressed: () => _selectDate(context),
-                      child: Text(
-                        _selectedDate != null
-                            ? 'Día ${_selectedDate!.day}'
-                            : 'Seleccionar día',
-                      ),
-                    ),
-                  ),
-                  const SizedBox(width: 10),
-                  Expanded(
-                    child: FutureBuilder<List<MovementValue>>(
-                      future:
-                          Provider.of<FinanceService>(
-                            context,
-                            listen: false,
-                          ).getCurrentMonthMovements(),
-                      builder: (context, snapshot) {
-                        final categories = _getAvailableCategories(
-                          snapshot.data ?? [],
-                        );
-                        return FilledButton.tonal(
-                          onPressed: () => _selectCategory(context, categories),
-                          child: Text(
-                            _selectedCategory ?? 'Categoría: Todas',
-                            overflow: TextOverflow.ellipsis,
-                            maxLines: 1,
-                          ),
-                        );
-                      },
-                    ),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 16),
-              TextField(
-                decoration: const InputDecoration(
-                  labelText: 'Buscar',
-                  prefixIcon: Icon(Icons.search),
-                ),
-                onChanged: (value) => setState(() => _searchQuery = value),
-              ),
-            ],
-          ),
-        ),
+  Widget _buildContent(List<MovementValue> movements, String moneda) {
+    return Scaffold(
+      appBar: _buildAppBar(),
+      floatingActionButton: _buildFAB(),
+      body: Column(
+        children: [
+          _buildFilters(),
+          const SizedBox(height: 16),
+          Expanded(child: _buildList(movements, moneda)),
+        ],
       ),
     );
   }
 
   Widget _buildList(List<MovementValue> movements, String moneda) {
     if (movements.isEmpty) {
-      return Center(
-        child: Text(
-          _showExpenses ? 'No hay gastos' : 'No hay ingresos',
-          style: TextStyle(color: Theme.of(context).colorScheme.secondary),
+      return FadeTransition(
+        opacity: _toggleAnimation,
+        child: Center(
+          child: Text(
+            _showExpenses ? 'No hay gastos' : 'No hay ingresos',
+            style: TextStyle(color: Theme.of(context).colorScheme.secondary),
+          ),
         ),
       );
     }
 
     return RefreshIndicator(
-      onRefresh: () async {
-        await context.read<FinanceService>().getCurrentMonthMovements();
-        setState(() {});
-      },
-      child: ListView.builder(
-        itemCount: movements.length,
-        itemBuilder: (context, index) {
-          final movement = movements[index];
-          final isExpanded = _expandedItems[movement.id] ?? false;
+      onRefresh: _loadMovements,
+      child: FadeTransition(
+        opacity: _toggleAnimation,
+        child: ListView.builder(
+          itemCount: movements.length,
+          itemBuilder: (context, index) {
+            final movement = movements[index];
+            final isExpanded = _expandedItems[movement.id.toString()] ?? false;
 
-          return Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
-            child: AnimatedCard(
-              context,
-              isExpanded: isExpanded,
-              leadingWidget: Column(
-                children: [
-                  ListTile(
+            return AnimatedSlide(
+              offset: Offset(0, isExpanded ? 0 : 0.1),
+              duration: const Duration(milliseconds: 200),
+              child: Padding(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 16,
+                  vertical: 4,
+                ),
+                child: AnimatedCard(
+                  isExpanded: isExpanded,
+                  onTap: () {
+                    setState(() {
+                      final key = movement.id.toString();
+                      _expandedItems[key] = !(_expandedItems[key] ?? false);
+                    });
+                  },
+                  leadingWidget: ListTile(
                     title: Text(movement.description),
                     subtitle:
                         movement.category != null
@@ -276,94 +319,221 @@ class _MovementsScreenState extends State<MovementsScreen> {
                       ],
                     ),
                   ),
-                ],
-              ),
-              hiddenWidget: Column(
-                children: [
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Expanded(
-                        flex: 5,
-                        child: Padding(
-                          padding: const EdgeInsets.only(right: 8.0),
-                          child: ElevatedButton.icon(
-                            onPressed: () {},
-                            label: Text(
-                              '${movement.day}/${widget.month}/${widget.year}',
-                              style: Theme.of(context).textTheme.bodyMedium,
-                            ),
-                            icon: Icon(Icons.calendar_month),
-                          ),
-                        ),
-                      ),
-                      Expanded(
-                        flex: 5,
-                        child: Padding(
-                          padding: const EdgeInsets.only(left: 8.0),
-                          child: ElevatedButton.icon(
-                            onPressed:
-                                () => _showTagSelection(context, movement),
-                            label: Text(
-                              movement.category ?? 'Sin categoría',
-                              style: Theme.of(context).textTheme.bodyMedium,
-                              overflow: TextOverflow.ellipsis,
-                              maxLines: 1,
-                            ),
-                            icon: Icon(Icons.discount_rounded),
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      TextButton.icon(
-                        onPressed: () {
-                          context.read<FinanceService>().showEditMovementDialog(
-                            context,
-                            movement,
-                          );
-                        },
-                        label: Text(
-                          'Editar',
-                          style: Theme.of(context).textTheme.bodyMedium,
-                        ),
-                        icon: Icon(Icons.edit),
-                      ),
-                      TextButton.icon(
-                        onPressed: () async {
-                          final deleted = await context
-                              .read<FinanceService>()
-                              .deleteMovement(context, movement);
 
-                          if (deleted && mounted) {
-                            setState(() {
-                              _expandedItems[movement.id!] = false;
-                            });
-                          }
-                        },
-                        label: Text(
-                          'Eliminar',
-                          style: TextStyle(
-                            color: Theme.of(context).colorScheme.error,
-                          ),
-                        ),
-                        icon: Icon(
-                          Icons.delete,
-                          color: Theme.of(context).colorScheme.error,
-                        ),
-                      ),
-                    ],
-                  ),
-                ],
+                  hiddenWidget: _buildExpandedContent(context, movement),
+                ),
               ),
-            ),
-          );
-        },
+            );
+          },
+        ),
       ),
     );
+  }
+
+  Widget _buildFilters() {
+    final bool isFiltersExpanded = _expandedItems['filters'] ?? false;
+
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+      child: AnimatedCard(
+        isExpanded: isFiltersExpanded,
+        leadingWidget: ListTile(
+          title: Row(
+            children: [
+              const Icon(Icons.filter_list),
+              const SizedBox(width: 8),
+              Text('Filtros', style: Theme.of(context).textTheme.titleMedium),
+              if (_selectedDate != null ||
+                  _selectedCategory != null ||
+                  _searchQuery.isNotEmpty) ...[
+                const SizedBox(width: 8),
+                Container(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 8,
+                    vertical: 2,
+                  ),
+                  decoration: BoxDecoration(
+                    color: Theme.of(context).colorScheme.primaryContainer,
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: Text(
+                    '${(_selectedDate != null ? 1 : 0) + (_selectedCategory != null ? 1 : 0) + (_searchQuery.isNotEmpty ? 1 : 0)}',
+                    style: TextStyle(
+                      color: Theme.of(context).colorScheme.onPrimaryContainer,
+                      fontSize: 12,
+                    ),
+                  ),
+                ),
+              ],
+            ],
+          ),
+          trailing: Icon(
+            isFiltersExpanded ? Icons.expand_less : Icons.expand_more,
+            color: Theme.of(context).colorScheme.primary,
+          ),
+          onTap: () {
+            setState(() {
+              _expandedItems['filters'] = !isFiltersExpanded;
+            });
+          },
+        ),
+        hiddenWidget: Column(
+          children: [
+            Row(
+              children: [
+                Expanded(
+                  child: FilledButton.tonal(
+                    onPressed: () => _selectDate(context),
+                    child: Text(
+                      _selectedDate != null
+                          ? 'Día ${_selectedDate!.day}'
+                          : 'Seleccionar día',
+                    ),
+                  ),
+                ),
+                const SizedBox(width: 8),
+                Expanded(
+                  child: FutureBuilder<List<MovementValue>>(
+                    future: _financeService.getCurrentMonthMovements(),
+                    builder: (context, snapshot) {
+                      final categories = _getAvailableCategories(
+                        snapshot.data ?? [],
+                      );
+                      return FilledButton.tonal(
+                        onPressed: () => _selectCategory(context, categories),
+                        child: Text(
+                          _selectedCategory ?? 'Categoría: Todas',
+                          overflow: TextOverflow.ellipsis,
+                          maxLines: 1,
+                        ),
+                      );
+                    },
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 8),
+            Row(
+              children: [
+                Expanded(
+                  child: TextField(
+                    controller: _searchController,
+                    decoration: InputDecoration(
+                      labelText: 'Buscar',
+                      prefixIcon: const Icon(Icons.abc),
+                      suffixIcon:
+                          _searchQuery.isNotEmpty
+                              ? IconButton(
+                                icon: const Icon(Icons.clear),
+                                onPressed: () {
+                                  setState(() {
+                                    _searchQuery = '';
+                                    _searchController.clear();
+                                  });
+                                },
+                              )
+                              : null,
+                    ),
+                  ),
+                ),
+                const SizedBox(width: 8),
+                ElevatedButton.icon(
+                  onPressed:
+                      () =>
+                          setState(() => _searchQuery = _searchController.text),
+                  label: Text('Buscar'),
+                  icon: Icon(Icons.search),
+                ),
+              ],
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildExpandedContent(BuildContext context, MovementValue movement) {
+    return Column(
+      children: [
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Expanded(
+              flex: 5,
+              child: Padding(
+                padding: const EdgeInsets.only(right: 8.0),
+                child: ElevatedButton.icon(
+                  onPressed: () {},
+                  label: Text(
+                    '${movement.day}/${widget.month}/${widget.year}',
+                    style: Theme.of(context).textTheme.bodyMedium,
+                  ),
+                  icon: const Icon(Icons.calendar_month),
+                ),
+              ),
+            ),
+            Expanded(
+              flex: 2,
+              child: IconButton(
+                icon: const Icon(Icons.edit),
+                onPressed: () => _showEditDialog(movement),
+              ),
+            ),
+            Expanded(
+              flex: 2,
+              child: IconButton(
+                icon: const Icon(Icons.category),
+                tooltip: 'Cambiar categoría',
+                onPressed: () => _showCategoryChangeDialog(context, movement),
+              ),
+            ),
+            Expanded(
+              flex: 2,
+              child: IconButton(
+                icon: const Icon(Icons.delete),
+                onPressed: () => _showDeleteDialog(movement),
+              ),
+            ),
+          ],
+        ),
+      ],
+    );
+  }
+
+  List<MovementValue> _filterMovements(List<MovementValue> movements) {
+    return movements.where((movement) {
+      // Filter by type (expense/income)
+      if (movement.isExpense != _showExpenses) return false;
+
+      // Filter by date if selected
+      if (_selectedDate != null && movement.day != _selectedDate!.day) {
+        return false;
+      }
+
+      // Filter by category if selected
+      if (_selectedCategory != null &&
+          _selectedCategory != 'Todas' &&
+          movement.category != _selectedCategory) {
+        return false;
+      }
+
+      // Filter by search text
+      if (_searchQuery.isNotEmpty &&
+          !movement.description.toLowerCase().contains(
+            _searchQuery.toLowerCase(),
+          )) {
+        return false;
+      }
+
+      return true;
+    }).toList();
+  }
+
+  Set<String> _getAvailableCategories(List<MovementValue> movements) {
+    return movements
+        .where((m) => m.category != null)
+        .map((m) => m.category!)
+        .toSet();
   }
 
   Future<void> _selectDate(BuildContext context) async {
@@ -373,56 +543,75 @@ class _MovementsScreenState extends State<MovementsScreen> {
       firstDate: DateTime(widget.year, widget.month, 1),
       lastDate: DateTime(widget.year, widget.month + 1, 0),
     );
+
     if (date != null) {
       setState(() => _selectedDate = date);
     }
   }
 
-  void _selectCategory(BuildContext context, List<String> categories) {
+  void _selectCategory(BuildContext context, Set<String> existingCategories) {
+    // Combinar categorías existentes con TagList y ordenar alfabéticamente
+    final allCategories =
+        {...existingCategories, ...TagList}.toList()
+          ..sort((a, b) => a.compareTo(b));
+
     showModalBottomSheet(
       context: context,
+      useSafeArea: true,
       isScrollControlled: true,
-      showDragHandle: true,
       builder: (BuildContext context) {
         return DraggableScrollableSheet(
-          initialChildSize: 0.6,
-          minChildSize: 0.3,
-          maxChildSize: 0.9,
           expand: false,
+          initialChildSize: 0.5,
+          minChildSize: 0.3,
+          maxChildSize: 0.85,
           builder: (context, scrollController) {
             return Column(
               children: [
                 Padding(
-                  padding: const EdgeInsets.all(16.0),
-                  child: Text(
-                    'Seleccionar categoría',
-                    style: Theme.of(context).textTheme.titleLarge,
+                  padding: const EdgeInsets.all(16),
+                  child: Row(
+                    children: [
+                      const Icon(Icons.category),
+                      const SizedBox(width: 16),
+                      Text(
+                        'Selecciona una categoría',
+                        style: Theme.of(context).textTheme.titleLarge,
+                      ),
+                    ],
                   ),
                 ),
+                const Divider(),
                 Expanded(
                   child: ListView(
                     controller: scrollController,
                     children: [
                       ListTile(
-                        title: const Text('Todas'),
-                        selected: _selectedCategory == null,
+                        title: const Text('Todas las categorías'),
                         leading:
                             _selectedCategory == null
-                                ? Icon(Icons.check)
-                                : null,
+                                ? Icon(
+                                  Icons.check,
+                                  color: Theme.of(context).colorScheme.primary,
+                                )
+                                : const Icon(Icons.label_outline),
                         onTap: () {
                           setState(() => _selectedCategory = null);
                           Navigator.pop(context);
                         },
                       ),
-                      ...TagList.map(
+                      const Divider(),
+                      ...allCategories.map(
                         (category) => ListTile(
                           title: Text(category),
-                          selected: category == _selectedCategory,
                           leading:
-                              category == _selectedCategory
-                                  ? Icon(Icons.check)
-                                  : null,
+                              _selectedCategory == category
+                                  ? Icon(
+                                    Icons.check,
+                                    color:
+                                        Theme.of(context).colorScheme.primary,
+                                  )
+                                  : const Icon(Icons.label_outline),
                           onTap: () {
                             setState(() => _selectedCategory = category);
                             Navigator.pop(context);
@@ -440,52 +629,306 @@ class _MovementsScreenState extends State<MovementsScreen> {
     );
   }
 
-  void _showTagSelection(BuildContext parentContext, MovementValue movement) {
-    // Get the FinanceService before opening the modal
-    final financeService = parentContext.read<FinanceService>();
+  Future<void> _showEditDialog(MovementValue movement) async {
+    final formKey = GlobalKey<FormState>();
+    final descriptionController = TextEditingController(
+      text: movement.description,
+    );
+    final amountController = TextEditingController(
+      text: movement.amount.toStringAsFixed(2),
+    );
+    DateTime selectedDate = DateTime(widget.year, widget.month, movement.day);
 
-    showModalBottomSheet(
-      context: parentContext,
+    await showModalBottomSheet(
+      context: context,
       isScrollControlled: true,
       showDragHandle: true,
+      useSafeArea: true,
+      builder:
+          (BuildContext context) => Padding(
+            padding: EdgeInsets.only(
+              bottom: MediaQuery.of(context).viewInsets.bottom,
+            ),
+            child: SingleChildScrollView(
+              child: Padding(
+                padding: const EdgeInsets.all(16.0),
+                child: Form(
+                  key: formKey,
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      Row(
+                        children: [
+                          const Icon(Icons.edit),
+                          const SizedBox(width: 16),
+                          Text(
+                            'Editar movimiento',
+                            style: Theme.of(context).textTheme.titleLarge,
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 16),
+                      TextFormField(
+                        controller: descriptionController,
+                        decoration: const InputDecoration(
+                          labelText: 'Descripción',
+                          prefixIcon: Icon(Icons.description),
+                        ),
+                        validator: (value) {
+                          if (value == null || value.isEmpty) {
+                            return 'Por favor ingresa una descripción';
+                          }
+                          return null;
+                        },
+                      ),
+                      const SizedBox(height: 16),
+                      TextFormField(
+                        controller: amountController,
+                        decoration: InputDecoration(
+                          labelText: 'Cantidad',
+                          prefixIcon: const Icon(Icons.attach_money),
+                          suffixText: _moneda,
+                        ),
+                        keyboardType: const TextInputType.numberWithOptions(
+                          decimal: true,
+                        ),
+                        validator: (value) {
+                          if (value == null || value.isEmpty) {
+                            return 'Por favor ingresa una cantidad';
+                          }
+                          if (double.tryParse(value.replaceAll(',', '.')) ==
+                              null) {
+                            return 'Por favor ingresa un número válido';
+                          }
+                          return null;
+                        },
+                      ),
+                      const SizedBox(height: 16),
+                      StatefulBuilder(
+                        builder:
+                            (context, setDateState) => FilledButton.icon(
+                              onPressed: () async {
+                                final date = await showDatePicker(
+                                  context: context,
+                                  initialDate: selectedDate,
+                                  firstDate: DateTime(
+                                    widget.year,
+                                    widget.month,
+                                    1,
+                                  ),
+                                  lastDate: DateTime(
+                                    widget.year,
+                                    widget.month + 1,
+                                    0,
+                                  ),
+                                );
+                                if (date != null) {
+                                  setDateState(() => selectedDate = date);
+                                }
+                              },
+                              icon: const Icon(Icons.calendar_today),
+                              label: Text(
+                                'Fecha: ${selectedDate.day}/${selectedDate.month}/${selectedDate.year}',
+                              ),
+                            ),
+                      ),
+                      const SizedBox(height: 24),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.end,
+                        children: [
+                          TextButton(
+                            onPressed: () => Navigator.pop(context),
+                            child: const Text('Cancelar'),
+                          ),
+                          const SizedBox(width: 8),
+                          FilledButton(
+                            onPressed: () async {
+                              if (!formKey.currentState!.validate()) return;
+
+                              // Show loading indicator
+                              if (!context.mounted) return;
+                              showDialog(
+                                context: context,
+                                barrierDismissible: false,
+                                builder:
+                                    (context) => const Center(
+                                      child: CircularProgressIndicator(),
+                                    ),
+                              );
+
+                              final updatedMovement = MovementValue(
+                                movement.id,
+                                movement.monthId,
+                                descriptionController.text,
+                                double.parse(
+                                  amountController.text.replaceAll(',', '.'),
+                                ),
+                                movement.isExpense,
+                                selectedDate.day,
+                                movement.category,
+                              );
+
+                              await _financeService.updateMovement(
+                                updatedMovement,
+                              );
+
+                              // Close both dialogs
+                              if (!context.mounted) return;
+                              Navigator.pop(context); // Close loading
+                              Navigator.pop(context); // Close form
+
+                              // Show success message
+                              if (!context.mounted) return;
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                const SnackBar(
+                                  content: Text(
+                                    'Movimiento actualizado con éxito',
+                                  ),
+                                  behavior: SnackBarBehavior.floating,
+                                ),
+                              );
+                            },
+                            child: const Text('Guardar'),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+          ),
+    );
+  }
+
+  Future<void> _showDeleteDialog(MovementValue movement) async {
+    final shouldDelete = await showDialog<bool>(
+      context: context,
+      builder:
+          (context) => AlertDialog(
+            title: const Text('¿Eliminar movimiento?'),
+            content: Text(
+              '¿Estás seguro de que quieres eliminar "${movement.description}"?',
+            ),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.pop(context, false),
+                child: const Text('Cancelar'),
+              ),
+              TextButton(
+                onPressed: () => Navigator.pop(context, true),
+                child: const Text('Eliminar'),
+              ),
+            ],
+          ),
+    );
+    if (shouldDelete == true) {
+      await _financeService.deleteMovement(context, movement);
+      if (mounted) {
+        setState(() {
+          _expandedItems.remove(movement.id.toString());
+        });
+      }
+    }
+  }
+
+  Future<void> _showCategoryChangeDialog(
+    BuildContext context,
+    MovementValue movement,
+  ) async {
+    // Combine existing categories with TagList and sort alphabetically
+    final movements = await _financeService.getCurrentMonthMovements();
+    final existingCategories = _getAvailableCategories(movements);
+    final allCategories =
+        {...existingCategories, ...TagList}.toList()
+          ..sort((a, b) => a.compareTo(b));
+
+    await showModalBottomSheet(
+      context: context,
+      useSafeArea: true,
+      isScrollControlled: true,
       builder: (BuildContext context) {
         return DraggableScrollableSheet(
-          initialChildSize: 0.6,
-          minChildSize: 0.3,
-          maxChildSize: 0.9,
           expand: false,
+          initialChildSize: 0.5,
+          minChildSize: 0.3,
+          maxChildSize: 0.85,
           builder: (context, scrollController) {
             return Column(
               children: [
                 Padding(
-                  padding: const EdgeInsets.all(16.0),
-                  child: Text(
-                    'Seleccionar categoría',
-                    style: Theme.of(context).textTheme.titleLarge,
+                  padding: const EdgeInsets.all(16),
+                  child: Row(
+                    children: [
+                      const Icon(Icons.category),
+                      const SizedBox(width: 16),
+                      Text(
+                        'Cambiar categoría',
+                        style: Theme.of(context).textTheme.titleLarge,
+                      ),
+                    ],
                   ),
                 ),
+                const Divider(),
                 Expanded(
-                  child: ListView.builder(
+                  child: ListView(
                     controller: scrollController,
-                    itemCount: TagList.length,
-                    itemBuilder: (context, index) {
-                      final category = TagList[index];
-                      final isSelected = category == movement.category;
+                    children: [
+                      ...allCategories.map(
+                        (category) => ListTile(
+                          title: Text(category),
+                          leading:
+                              movement.category == category
+                                  ? Icon(
+                                    Icons.check,
+                                    color:
+                                        Theme.of(context).colorScheme.primary,
+                                  )
+                                  : const Icon(Icons.label_outline),
+                          onTap: () async {
+                            final updatedMovement = MovementValue(
+                              movement.id,
+                              movement.monthId,
+                              movement.description,
+                              movement.amount,
+                              movement.isExpense,
+                              movement.day,
+                              category,
+                            ); // Show loading indicator
+                            if (!context.mounted) return;
+                            showDialog(
+                              context: context,
+                              barrierDismissible: false,
+                              builder:
+                                  (context) => const Center(
+                                    child: CircularProgressIndicator(),
+                                  ),
+                            );
 
-                      return ListTile(
-                        title: Text(category),
-                        selected: isSelected,
-                        leading: isSelected ? Icon(Icons.check) : null,
-                        onTap: () async {
-                          final updatedMovement = movement.copyWith(
-                            category: category,
-                          );
-                          await financeService.updateMovement(updatedMovement);
-                          Navigator.pop(context);
-                          setState(() {}); // Refresh UI
-                        },
-                      );
-                    },
+                            await _financeService.updateMovement(
+                              updatedMovement,
+                            );
+
+                            // Close loading dialog and bottom sheet
+                            if (!context.mounted) return;
+                            Navigator.pop(context); // Close loading
+                            Navigator.pop(context); // Close bottom sheet
+
+                            // Show success message
+                            if (!context.mounted) return;
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(
+                                content: Text(
+                                  'Categoría actualizada: ${updatedMovement.category}',
+                                ),
+                                behavior: SnackBarBehavior.floating,
+                              ),
+                            );
+                          },
+                        ),
+                      ),
+                    ],
                   ),
                 ),
               ],
@@ -494,40 +937,5 @@ class _MovementsScreenState extends State<MovementsScreen> {
         );
       },
     );
-  }
-
-  List<String> _getAvailableCategories(List<MovementValue> movements) {
-    return movements
-        .where((m) => m.category != null)
-        .map((m) => m.category!)
-        .toSet()
-        .toList();
-  }
-
-  List<MovementValue> _filterMovements(List<MovementValue> movements) {
-    return movements.where((movement) {
-      // Filtrar por tipo (gasto/ingreso)
-      if (movement.isExpense != _showExpenses) return false;
-
-      // Filtrar por fecha si está seleccionada
-      if (_selectedDate != null && movement.day != _selectedDate!.day) {
-        return false;
-      }
-
-      // Filtrar por categoría si está seleccionada
-      if (_selectedCategory != null && movement.category != _selectedCategory) {
-        return false;
-      }
-
-      // Filtrar por texto de búsqueda
-      if (_searchQuery.isNotEmpty &&
-          !movement.description.toLowerCase().contains(
-            _searchQuery.toLowerCase(),
-          )) {
-        return false;
-      }
-
-      return true;
-    }).toList();
   }
 }

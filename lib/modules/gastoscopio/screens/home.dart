@@ -8,7 +8,7 @@ import 'package:cashly/modules/gastoscopio/widgets/category_progress_chart.dart'
 import 'package:cashly/data/models/movement_value.dart';
 import 'package:cashly/common/tag_list.dart';
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
+
 import 'package:svg_flutter/svg.dart';
 
 class GastoscopioHomeScreen extends StatefulWidget {
@@ -75,7 +75,11 @@ class _GastoscopioHomeScreenState extends State<GastoscopioHomeScreen> {
   Future<void> _loadInitialData() async {
     try {
       // Establecer el mes actual y cargar sus datos
-      final service = Provider.of<FinanceService>(context, listen: false);
+      final service = FinanceService.getInstance(
+        SqliteService().db.monthDao,
+        SqliteService().db.movementValueDao,
+        SqliteService().db.fixedMovementDao,
+      );
       await service.updateSelectedDate(widget.month, widget.year);
     } catch (e) {
       debugPrint('Error al cargar datos iniciales: $e');
@@ -106,7 +110,7 @@ class _GastoscopioHomeScreenState extends State<GastoscopioHomeScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       floatingActionButton: Card(
-        color: Theme.of(context).colorScheme.surfaceContainer,
+        color: Theme.of(context).colorScheme.secondary.withAlpha(25),
         elevation: 8,
         shape: const CircleBorder(),
         child: Container(
@@ -185,12 +189,18 @@ class _GastoscopioHomeScreenState extends State<GastoscopioHomeScreen> {
   }
 
   Widget _buildLastInteractionsPart() {
-    return Consumer<FinanceService>(
-      builder: (context, service, _) {
+    final service = FinanceService.getInstance(
+      SqliteService().db.monthDao,
+      SqliteService().db.movementValueDao,
+      SqliteService().db.fixedMovementDao,
+    );
+    return AnimatedBuilder(
+      animation: service,
+      builder: (context, child) {
         final movements = service.todayMovements;
 
         return Card(
-          color: Theme.of(context).colorScheme.surface,
+          color: Theme.of(context).colorScheme.secondary.withAlpha(25),
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(16),
             side: BorderSide(
@@ -243,12 +253,19 @@ class _GastoscopioHomeScreenState extends State<GastoscopioHomeScreen> {
   }
 
   Widget _buildTotalPart() {
-    return Consumer<FinanceService>(
-      builder: (context, service, _) {
+    final service = FinanceService.getInstance(
+      SqliteService().db.monthDao,
+      SqliteService().db.movementValueDao,
+      SqliteService().db.fixedMovementDao,
+    );
+    return AnimatedBuilder(
+      animation: service,
+      builder: (context, child) {
         final total = service.monthTotal;
         final isPositive = total >= 0;
 
         return Card(
+          color: Theme.of(context).colorScheme.secondary.withAlpha(25),
           child: Padding(
             padding: const EdgeInsets.all(16),
             child: Column(
@@ -309,8 +326,14 @@ class _ChartPart extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Consumer<FinanceService>(
-      builder: (context, service, _) {
+    final service = FinanceService.getInstance(
+      SqliteService().db.monthDao,
+      SqliteService().db.movementValueDao,
+      SqliteService().db.fixedMovementDao,
+    );
+    return AnimatedBuilder(
+      animation: service,
+      builder: (context, _) {
         if (service.currentMonth == null) return const SizedBox.shrink();
 
         return FutureBuilder<List<MovementValue>>(
@@ -327,6 +350,7 @@ class _ChartPart extends StatelessWidget {
             final categoryData = _calculateCategoryPercentages(expenses);
 
             return Card(
+              color: Theme.of(context).colorScheme.secondary.withAlpha(25),
               child: Padding(
                 padding: const EdgeInsets.all(16),
                 child: Column(

@@ -8,7 +8,7 @@ import 'package:cashly/modules/gastoscopio/widgets/month_grid_selector.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_markdown/flutter_markdown.dart';
-import 'package:provider/provider.dart';
+import 'package:cashly/data/services/sqlite_service.dart';
 
 class SummaryScreen extends StatefulWidget {
   const SummaryScreen({super.key});
@@ -32,6 +32,11 @@ class _SummaryScreenState extends State<SummaryScreen>
   void initState() {
     super.initState();
     _tabController = TabController(length: 2, vsync: this);
+    _financeService = FinanceService.getInstance(
+      SqliteService().db.monthDao,
+      SqliteService().db.movementValueDao,
+      SqliteService().db.fixedMovementDao,
+    );
     _loadInitialData();
   }
 
@@ -42,7 +47,6 @@ class _SummaryScreenState extends State<SummaryScreen>
   }
 
   Future<void> _loadInitialData() async {
-    _financeService = Provider.of<FinanceService>(context, listen: false);
     _availableYears = await _financeService.getAvailableYears();
     _availableMonths = await _financeService.getAvailableMonths(_year);
     setState(() {}); // Update UI with loaded data
@@ -52,11 +56,9 @@ class _SummaryScreenState extends State<SummaryScreen>
     setState(() => _isLoadingAnalysis = true);
 
     final movements = await _financeService.getMovementsForMonth(_month, _year);
-    final analysis = await generateSummary(
-      movements,
-      Month(_month, _year),
-      context,
-    ).then((value) {
+    await generateSummary(movements, Month(_month, _year), context).then((
+      value,
+    ) {
       setState(() {
         _aiAnalysis = value;
         _isLoadingAnalysis = false;
@@ -152,10 +154,11 @@ class _SummaryScreenState extends State<SummaryScreen>
           SingleChildScrollView(
             child: Column(
               children: [
-                Consumer<FinanceService>(
-                  builder: (context, financeService, _) {
+                AnimatedBuilder(
+                  animation: _financeService,
+                  builder: (context, child) {
                     return FutureBuilder<List<MovementValue>>(
-                      future: financeService.getMovementsForMonth(
+                      future: _financeService.getMovementsForMonth(
                         _month,
                         _year,
                       ),
@@ -228,6 +231,9 @@ class _SummaryScreenState extends State<SummaryScreen>
               else
                 Expanded(
                   child: Card(
+                    color: Theme.of(
+                      context,
+                    ).colorScheme.secondary.withAlpha(25),
                     margin: const EdgeInsets.all(16),
                     child: LayoutBuilder(
                       builder:
@@ -291,6 +297,7 @@ class _SummaryScreenState extends State<SummaryScreen>
     final expenseRatio = expenses > 0 ? (expenses / incomes) * 100 : 0;
 
     return Card(
+      color: Theme.of(context).colorScheme.secondary.withAlpha(25),
       child: Padding(
         padding: const EdgeInsets.all(16),
         child: Column(
@@ -369,6 +376,7 @@ class _SummaryScreenState extends State<SummaryScreen>
         Text('Gastos Diarios', style: Theme.of(context).textTheme.titleLarge),
         const SizedBox(height: 16),
         Card(
+          color: Theme.of(context).colorScheme.secondary.withAlpha(25),
           child: Padding(
             padding: const EdgeInsets.all(16),
             child: SizedBox(

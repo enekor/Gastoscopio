@@ -30,9 +30,14 @@ android {
         applicationId = "com.N3k0chan.cashly"        // You can update the following values to match your application needs.
         // For more information, see: https://flutter.dev/to/review-gradle-config.
         minSdk = flutter.minSdkVersion
-        targetSdk = 33 // Update to API 33 (Android 13) as required by Google Play
+        targetSdk = 34
         versionCode = flutter.versionCode
         versionName = flutter.versionName
+
+        ndk {
+            // Especifica las arquitecturas de CPU que quieres soportar
+            abiFilters += listOf("armeabi-v7a", "arm64-v8a", "x86_64", "x86")
+        }
     }
 
     signingConfigs {

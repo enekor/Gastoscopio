@@ -1,105 +1,67 @@
 import 'package:cashly/data/services/shared_preferences_service.dart';
 import 'package:cashly/data/services/sqlite_service.dart';
-import 'package:cashly/data/services/gemini_service.dart';
 import 'package:cashly/modules/gastoscopio/logic/finance_service.dart';
 import 'package:cashly/modules/main_screen.dart';
 import 'package:cashly/onboarding/onboarding.dart';
 import 'package:cashly/modules/settings.dart/settings.dart';
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
 
-class App extends StatelessWidget {
+class App extends StatefulWidget {
   const App({super.key});
 
-  Future<bool> init(BuildContext context) async {
-    bool isFirstStartup =
-        await SharedPreferencesService().getBoolValue(
-          SharedPreferencesKeys.isFirstStartup,
-        ) ??
-        true;
+  @override
+  State<App> createState() => _AppState();
+}
 
-    if (!isFirstStartup) {
-      await SqliteService().initializeDatabase();
-    }
+class _AppState extends State<App> {
+  late Future<bool> _initializationFuture;
 
-    if (!isFirstStartup &&
-        await SharedPreferencesService().getStringValue(
-              SharedPreferencesKeys.apiKey,
-            ) ==
-            null) {
-      // Delay the dialog slightly to ensure the app is fully rendered
-    }
-
-    // Initialize Gemini service and check API key
-    await GeminiService().initializeGemini();
-
-    return isFirstStartup;
+  @override
+  void initState() {
+    super.initState();
+    _initializationFuture = init();
   }
 
-  void _showApiKeyDialog(BuildContext context) {
-    showDialog(
-      context: context,
-      builder:
-          (context) => AlertDialog(
-            title: const Text('Configurar API Key de Gemini'),
-            content: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                const Text(
-                  'Para utilizar las funciones de IA, necesitas una API Key de Gemini.\n\n'
-                  'Es gratis y fácil de obtener.',
-                ),
-              ],
-            ),
-            actions: [
-              TextButton(
-                onPressed: () => Navigator.pop(context),
-                child: const Text('Más tarde'),
-              ),
-              ElevatedButton.icon(
-                onPressed: () {
-                  Navigator.pop(context);
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => const SettingsScreen(),
-                    ),
-                  );
-                },
-                icon: const Icon(Icons.settings),
-                label: const Text('Ir a configuración'),
-              ),
-            ],
-          ),
-    );
+  Future<bool> init() async {
+    try {
+      // Paso 2: Inicializar la base de datos
+      await SqliteService().initializeDatabase();
+
+      // Paso 3: Inicializar FinanceService singleton
+      FinanceService.getInstance(
+        SqliteService().db.monthDao,
+        SqliteService().db.movementValueDao,
+        SqliteService().db.fixedMovementDao,
+      );
+
+      return true;
+    } catch (e) {
+      debugPrint(
+        'Error durante la inicialización: $e',
+      ); // Volver a la pantalla de onboarding en caso de error
+      return false;
+    }
   }
 
   @override
   Widget build(BuildContext context) {
-    return MultiProvider(
-      providers: [
-        ChangeNotifierProvider(
-          create:
-              (_) => FinanceService(
-                SqliteService().database.monthDao,
-                SqliteService().database.movementValueDao,
-                SqliteService().database.fixedMovementDao,
-              ),
-        ),
-      ],
-      child: FutureBuilder<bool>(
-        future: init(context),
-        builder: (context, snapshot) {
-          if (snapshot.connectionState == ConnectionState.done) {
-            return snapshot.data == false
-                ? const MainScreen()
-                : const OnboardingScreen();
+    return FutureBuilder<bool>(
+      future: _initializationFuture,
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return const Scaffold(
+            body: Center(child: CircularProgressIndicator()),
+          );
+        }
 
-            // return MainScreen();
-          }
-          return const Center(child: CircularProgressIndicator());
-        },
-      ),
+        if (snapshot.hasError) {
+          return Scaffold(
+            body: Center(child: Text('Error: ${snapshot.error}')),
+          );
+        }
+
+        return MainScreen();
+      },
     );
   }
 }

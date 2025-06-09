@@ -1,3 +1,5 @@
+import 'package:cashly/data/models/month.dart';
+import 'package:cashly/data/models/movement_value.dart';
 import 'package:cashly/data/services/json_import_service.dart';
 import 'package:cashly/data/services/shared_preferences_service.dart';
 import 'package:cashly/data/services/sqlite_service.dart';
@@ -5,7 +7,7 @@ import 'package:cashly/modules/main_screen.dart';
 import 'package:flutter/material.dart';
 
 class ImportFromGastoscopioScreen extends StatefulWidget {
-  final Function(JsonImportResult) onImportSuccess;
+  final Function(Map<String, dynamic> result) onImportSuccess;
 
   const ImportFromGastoscopioScreen({Key? key, required this.onImportSuccess})
     : super(key: key);
@@ -18,7 +20,7 @@ class ImportFromGastoscopioScreen extends StatefulWidget {
 class _ImportFromGastoscopioScreenState
     extends State<ImportFromGastoscopioScreen> {
   bool _isLoading = false;
-  JsonImportResult? _importResult;
+  Map<String, dynamic>? _importResult;
   late String _moneda;
 
   @override
@@ -57,16 +59,16 @@ class _ImportFromGastoscopioScreenState
     }
   }
 
-  void _showSuccessDialog(JsonImportResult result) {
+  void _showSuccessDialog(Map<String, dynamic> result) {
     showDialog(
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
           title: Text('¡Éxito!'),
           content: Text(
-            'Archivo "${result.fileName}" procesado correctamente:\n'
-            '• ${result.months.length} meses encontrados\n'
-            '• ${result.movements.length} movimientos procesados',
+            'Archivo procesado correctamente:\n'
+            '• ${result['Months']?.length ?? 0} meses encontrados\n'
+            '• ${result['Movements']?.length ?? 0} movimientos procesados',
           ),
           actions: [
             TextButton(
@@ -111,6 +113,7 @@ class _ImportFromGastoscopioScreenState
           children: [
             // Header Card
             Card(
+              color: Theme.of(context).colorScheme.secondary.withAlpha(25),
               child: Padding(
                 padding: const EdgeInsets.all(16.0),
                 child: Column(
@@ -140,19 +143,6 @@ class _ImportFromGastoscopioScreenState
                         ),
                       ],
                     ),
-                    SizedBox(height: 16),
-                    if (_importResult != null)
-                      Container(
-                        padding: EdgeInsets.all(8),
-                        decoration: BoxDecoration(
-                          color: Colors.green.withOpacity(0.1),
-                          borderRadius: BorderRadius.circular(8),
-                        ),
-                        child: Text(
-                          'Último archivo: ${_importResult!.fileName}',
-                          style: TextStyle(color: Colors.green),
-                        ),
-                      ),
                   ],
                 ),
               ),
@@ -214,15 +204,16 @@ class _ImportFromGastoscopioScreenState
     );
   }
 
-  Widget _buildResultsList(JsonImportResult result) {
+  Widget _buildResultsList(Map<String, dynamic> result) {
     return ListView(
       children: [
         // Meses Card
         Card(
+          color: Theme.of(context).colorScheme.secondary.withAlpha(25),
           child: ExpansionTile(
-            title: Text('Meses (${result.months.length})'),
+            title: Text('Meses (${result['Months']?.length ?? 0})'),
             children:
-                result.months.map((month) {
+                (result['Months'] ?? []).map<Widget>((month) {
                   return ListTile(
                     title: Text('Mes ${month.month}/${month.year}'),
                     subtitle: Text('ID: ${month.id}'),
@@ -233,10 +224,11 @@ class _ImportFromGastoscopioScreenState
 
         // Movimientos Card
         Card(
+          color: Theme.of(context).colorScheme.secondary.withAlpha(25),
           child: ExpansionTile(
-            title: Text('Movimientos (${result.movements.length})'),
+            title: Text('Movimientos (${result["Movements"]?.length ?? 0})'),
             children:
-                result.movements.map((movement) {
+                (result["Movements"] ?? []).map<Widget>((movement) {
                   return ListTile(
                     title: Text(movement.description),
                     subtitle: Text(

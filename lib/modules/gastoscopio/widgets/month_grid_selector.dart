@@ -36,6 +36,7 @@ class MonthGridSelector extends StatelessWidget {
     ];
 
     return Card(
+      color: Theme.of(context).colorScheme.secondary.withAlpha(25),
       child: Padding(
         padding: const EdgeInsets.all(16),
         child: Column(

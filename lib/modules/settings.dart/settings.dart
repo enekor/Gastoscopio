@@ -120,6 +120,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
               ),
               const SizedBox(height: 16),
               Card(
+                color: Theme.of(context).colorScheme.secondary.withAlpha(25),
                 child: Padding(
                   padding: const EdgeInsets.all(16.0),
                   child: Column(

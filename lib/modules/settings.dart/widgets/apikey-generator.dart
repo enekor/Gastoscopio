@@ -1,5 +1,6 @@
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:cashly/data/services/shared_preferences_service.dart';
+import 'package:cashly/data/services/gemini_service.dart';
 import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
 
@@ -78,6 +79,7 @@ class _ApiKeyGeneratorState extends State<ApiKeyGenerator> {
   @override
   Widget build(BuildContext context) {
     return Card(
+      color: Theme.of(context).colorScheme.secondary.withAlpha(25),
       child: Column(
         children: [
           const Text(
@@ -178,6 +180,10 @@ class _ApiKeyGeneratorState extends State<ApiKeyGenerator> {
                       SharedPreferencesKeys.apiKey,
                       _apiKeyController.text,
                     );
+
+                    // Inicializar Gemini con la nueva API Key
+                    await GeminiService().initializeGemini();
+
                     if (mounted) {
                       ScaffoldMessenger.of(context).showSnackBar(
                         const SnackBar(

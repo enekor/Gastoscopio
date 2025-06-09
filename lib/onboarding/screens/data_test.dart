@@ -93,6 +93,7 @@ class _DataTestPageState extends State<DataTestPage> {
       itemBuilder: (context, index) {
         final movement = _movements[index];
         return Card(
+          color: Theme.of(context).colorScheme.secondary.withAlpha(25),
           margin: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 4.0),
           child: ListTile(
             title: Text(movement.description),
@@ -137,6 +138,9 @@ class _DataTestPageState extends State<DataTestPage> {
                 itemBuilder: (context, index) {
                   final month = _months[index];
                   return Card(
+                    color: Theme.of(
+                      context,
+                    ).colorScheme.secondary.withAlpha(25),
                     margin: const EdgeInsets.all(8.0),
                     child: ListTile(
                       title: Text('${month.month}/${month.year}'),

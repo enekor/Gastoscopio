@@ -8,6 +8,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
 class FinanceService extends ChangeNotifier {
+  static FinanceService? _instance;
   final MonthDao _monthDao;
   final MovementValueDao _movementValueDao;
   final FixedMovementDao _fixedMovementDao;
@@ -16,25 +17,41 @@ class FinanceService extends ChangeNotifier {
   Map<String, double> _monthSummary = {};
   double _monthTotal = 0;
 
-  FinanceService(
+  // Private constructor
+  FinanceService._internal(
     this._monthDao,
     this._movementValueDao,
     this._fixedMovementDao,
   );
 
+  // Factory constructor to get instance
+  static FinanceService getInstance(
+    MonthDao monthDao,
+    MovementValueDao movementValueDao,
+    FixedMovementDao fixedMovementDao,
+  ) {
+    _instance ??= FinanceService._internal(
+      monthDao,
+      movementValueDao,
+      fixedMovementDao,
+    );
+    return _instance!;
+  }
+
   Month? get currentMonth => _currentMonth;
   List<MovementValue> get todayMovements => _todayMovements;
   Map<String, double> get monthSummary => _monthSummary;
   double get monthTotal => _monthTotal;
+
   Future<void> setCurrentMonth(int month, int year) async {
     final monthData = await _monthDao.findMonthByMonthAndYear(month, year);
     if (monthData == null) {
-      // Crear nuevo mes si no existe
+      // Create new month if it doesn't exist
       final newMonth = Month(month, year);
       await _monthDao.insertMonth(newMonth);
       _currentMonth = await _monthDao.findMonthByMonthAndYear(month, year);
 
-      // Copiar los movimientos fijos al nuevo mes
+      // Copy fixed movements to new month
       if (_currentMonth != null) {
         final fixedMovements = await _fixedMovementDao.findAllFixedMovements();
         for (final movement in fixedMovements) {
