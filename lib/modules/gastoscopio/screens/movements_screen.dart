@@ -192,8 +192,13 @@ class _MovementsScreenState extends State<MovementsScreen> {
           return Padding(
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
             child: AnimatedCard(
-              context,
               isExpanded: isExpanded,
+              onTap: () {
+                setState(() {
+                  final key = movement.id.toString();
+                  _expandedItems[key] = !(_expandedItems[key] ?? false);
+                });
+              },
               leadingWidget: ListTile(
                 title: Text(movement.description),
                 subtitle:
@@ -220,13 +225,8 @@ class _MovementsScreenState extends State<MovementsScreen> {
                     ),
                   ],
                 ),
-                onTap: () {
-                  setState(() {
-                    final key = movement.id.toString();
-                    _expandedItems[key] = !(_expandedItems[key] ?? false);
-                  });
-                },
               ),
+
               hiddenWidget: _buildExpandedContent(context, movement),
             ),
           );
@@ -241,7 +241,6 @@ class _MovementsScreenState extends State<MovementsScreen> {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
       child: AnimatedCard(
-        context,
         isExpanded: isFiltersExpanded,
         leadingWidget: ListTile(
           title: Row(
@@ -388,6 +387,14 @@ class _MovementsScreenState extends State<MovementsScreen> {
             Expanded(
               flex: 2,
               child: IconButton(
+                icon: const Icon(Icons.category),
+                tooltip: 'Cambiar categoría',
+                onPressed: () => _showCategoryChangeDialog(context, movement),
+              ),
+            ),
+            Expanded(
+              flex: 2,
+              child: IconButton(
                 icon: const Icon(Icons.delete),
                 onPressed: () => _showDeleteDialog(movement),
               ),
@@ -447,56 +454,256 @@ class _MovementsScreenState extends State<MovementsScreen> {
     }
   }
 
-  void _selectCategory(BuildContext context, Set<String> categories) {
-    showDialog(
+  void _selectCategory(BuildContext context, Set<String> existingCategories) {
+    // Combinar categorías existentes con TagList y ordenar alfabéticamente
+    final allCategories =
+        {...existingCategories, ...TagList}.toList()
+          ..sort((a, b) => a.compareTo(b));
+
+    showModalBottomSheet(
       context: context,
+      useSafeArea: true,
+      isScrollControlled: true,
       builder: (BuildContext context) {
-        return AlertDialog(
-          title: const Text('Selecciona una categoría'),
-          content: SingleChildScrollView(
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
+        return DraggableScrollableSheet(
+          expand: false,
+          initialChildSize: 0.5,
+          minChildSize: 0.3,
+          maxChildSize: 0.85,
+          builder: (context, scrollController) {
+            return Column(
               children: [
-                ListTile(
-                  title: const Text('Todas'),
-                  leading:
-                      _selectedCategory == null
-                          ? const Icon(Icons.check)
-                          : null,
-                  onTap: () {
-                    setState(() => _selectedCategory = null);
-                    Navigator.pop(context);
-                  },
+                Padding(
+                  padding: const EdgeInsets.all(16),
+                  child: Row(
+                    children: [
+                      const Icon(Icons.category),
+                      const SizedBox(width: 16),
+                      Text(
+                        'Selecciona una categoría',
+                        style: Theme.of(context).textTheme.titleLarge,
+                      ),
+                    ],
+                  ),
                 ),
-                ...categories.map(
-                  (category) => ListTile(
-                    title: Text(category),
-                    leading:
-                        _selectedCategory == category
-                            ? const Icon(Icons.check)
-                            : null,
-                    onTap: () {
-                      setState(() => _selectedCategory = category);
-                      Navigator.pop(context);
-                    },
+                const Divider(),
+                Expanded(
+                  child: ListView(
+                    controller: scrollController,
+                    children: [
+                      ListTile(
+                        title: const Text('Todas las categorías'),
+                        leading:
+                            _selectedCategory == null
+                                ? Icon(
+                                  Icons.check,
+                                  color: Theme.of(context).colorScheme.primary,
+                                )
+                                : const Icon(Icons.label_outline),
+                        onTap: () {
+                          setState(() => _selectedCategory = null);
+                          Navigator.pop(context);
+                        },
+                      ),
+                      const Divider(),
+                      ...allCategories.map(
+                        (category) => ListTile(
+                          title: Text(category),
+                          leading:
+                              _selectedCategory == category
+                                  ? Icon(
+                                    Icons.check,
+                                    color:
+                                        Theme.of(context).colorScheme.primary,
+                                  )
+                                  : const Icon(Icons.label_outline),
+                          onTap: () {
+                            setState(() => _selectedCategory = category);
+                            Navigator.pop(context);
+                          },
+                        ),
+                      ),
+                    ],
                   ),
                 ),
               ],
-            ),
-          ),
+            );
+          },
         );
       },
     );
   }
 
   Future<void> _showEditDialog(MovementValue movement) async {
-    // Show edit dialog
+    final formKey = GlobalKey<FormState>();
+    final descriptionController = TextEditingController(
+      text: movement.description,
+    );
+    final amountController = TextEditingController(
+      text: movement.amount.toStringAsFixed(2),
+    );
+    DateTime selectedDate = DateTime(widget.year, widget.month, movement.day);
+
     await showModalBottomSheet(
       context: context,
       isScrollControlled: true,
       showDragHandle: true,
       useSafeArea: true,
-      builder: (BuildContext context) => MovementFormScreen(),
+      builder:
+          (BuildContext context) => Padding(
+            padding: EdgeInsets.only(
+              bottom: MediaQuery.of(context).viewInsets.bottom,
+            ),
+            child: SingleChildScrollView(
+              child: Padding(
+                padding: const EdgeInsets.all(16.0),
+                child: Form(
+                  key: formKey,
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      Row(
+                        children: [
+                          const Icon(Icons.edit),
+                          const SizedBox(width: 16),
+                          Text(
+                            'Editar movimiento',
+                            style: Theme.of(context).textTheme.titleLarge,
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 16),
+                      TextFormField(
+                        controller: descriptionController,
+                        decoration: const InputDecoration(
+                          labelText: 'Descripción',
+                          prefixIcon: Icon(Icons.description),
+                        ),
+                        validator: (value) {
+                          if (value == null || value.isEmpty) {
+                            return 'Por favor ingresa una descripción';
+                          }
+                          return null;
+                        },
+                      ),
+                      const SizedBox(height: 16),
+                      TextFormField(
+                        controller: amountController,
+                        decoration: InputDecoration(
+                          labelText: 'Cantidad',
+                          prefixIcon: const Icon(Icons.attach_money),
+                          suffixText: _moneda,
+                        ),
+                        keyboardType: const TextInputType.numberWithOptions(
+                          decimal: true,
+                        ),
+                        validator: (value) {
+                          if (value == null || value.isEmpty) {
+                            return 'Por favor ingresa una cantidad';
+                          }
+                          if (double.tryParse(value.replaceAll(',', '.')) ==
+                              null) {
+                            return 'Por favor ingresa un número válido';
+                          }
+                          return null;
+                        },
+                      ),
+                      const SizedBox(height: 16),
+                      StatefulBuilder(
+                        builder:
+                            (context, setDateState) => FilledButton.icon(
+                              onPressed: () async {
+                                final date = await showDatePicker(
+                                  context: context,
+                                  initialDate: selectedDate,
+                                  firstDate: DateTime(
+                                    widget.year,
+                                    widget.month,
+                                    1,
+                                  ),
+                                  lastDate: DateTime(
+                                    widget.year,
+                                    widget.month + 1,
+                                    0,
+                                  ),
+                                );
+                                if (date != null) {
+                                  setDateState(() => selectedDate = date);
+                                }
+                              },
+                              icon: const Icon(Icons.calendar_today),
+                              label: Text(
+                                'Fecha: ${selectedDate.day}/${selectedDate.month}/${selectedDate.year}',
+                              ),
+                            ),
+                      ),
+                      const SizedBox(height: 24),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.end,
+                        children: [
+                          TextButton(
+                            onPressed: () => Navigator.pop(context),
+                            child: const Text('Cancelar'),
+                          ),
+                          const SizedBox(width: 8),
+                          FilledButton(
+                            onPressed: () async {
+                              if (!formKey.currentState!.validate()) return;
+
+                              // Show loading indicator
+                              if (!context.mounted) return;
+                              showDialog(
+                                context: context,
+                                barrierDismissible: false,
+                                builder:
+                                    (context) => const Center(
+                                      child: CircularProgressIndicator(),
+                                    ),
+                              );
+
+                              final updatedMovement = MovementValue(
+                                movement.id,
+                                movement.monthId,
+                                descriptionController.text,
+                                double.parse(
+                                  amountController.text.replaceAll(',', '.'),
+                                ),
+                                movement.isExpense,
+                                selectedDate.day,
+                                movement.category,
+                              );
+
+                              await _financeService.updateMovement(
+                                updatedMovement,
+                              );
+
+                              // Close both dialogs
+                              if (!context.mounted) return;
+                              Navigator.pop(context); // Close loading
+                              Navigator.pop(context); // Close form
+
+                              // Show success message
+                              if (!context.mounted) return;
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                const SnackBar(
+                                  content: Text(
+                                    'Movimiento actualizado con éxito',
+                                  ),
+                                  behavior: SnackBarBehavior.floating,
+                                ),
+                              );
+                            },
+                            child: const Text('Guardar'),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+          ),
     );
   }
 
@@ -529,5 +736,111 @@ class _MovementsScreenState extends State<MovementsScreen> {
         });
       }
     }
+  }
+
+  Future<void> _showCategoryChangeDialog(
+    BuildContext context,
+    MovementValue movement,
+  ) async {
+    // Combine existing categories with TagList and sort alphabetically
+    final movements = await _financeService.getCurrentMonthMovements();
+    final existingCategories = _getAvailableCategories(movements);
+    final allCategories =
+        {...existingCategories, ...TagList}.toList()
+          ..sort((a, b) => a.compareTo(b));
+
+    await showModalBottomSheet(
+      context: context,
+      useSafeArea: true,
+      isScrollControlled: true,
+      builder: (BuildContext context) {
+        return DraggableScrollableSheet(
+          expand: false,
+          initialChildSize: 0.5,
+          minChildSize: 0.3,
+          maxChildSize: 0.85,
+          builder: (context, scrollController) {
+            return Column(
+              children: [
+                Padding(
+                  padding: const EdgeInsets.all(16),
+                  child: Row(
+                    children: [
+                      const Icon(Icons.category),
+                      const SizedBox(width: 16),
+                      Text(
+                        'Cambiar categoría',
+                        style: Theme.of(context).textTheme.titleLarge,
+                      ),
+                    ],
+                  ),
+                ),
+                const Divider(),
+                Expanded(
+                  child: ListView(
+                    controller: scrollController,
+                    children: [
+                      ...allCategories.map(
+                        (category) => ListTile(
+                          title: Text(category),
+                          leading:
+                              movement.category == category
+                                  ? Icon(
+                                    Icons.check,
+                                    color:
+                                        Theme.of(context).colorScheme.primary,
+                                  )
+                                  : const Icon(Icons.label_outline),
+                          onTap: () async {
+                            final updatedMovement = MovementValue(
+                              movement.id,
+                              movement.monthId,
+                              movement.description,
+                              movement.amount,
+                              movement.isExpense,
+                              movement.day,
+                              category,
+                            ); // Show loading indicator
+                            if (!context.mounted) return;
+                            showDialog(
+                              context: context,
+                              barrierDismissible: false,
+                              builder:
+                                  (context) => const Center(
+                                    child: CircularProgressIndicator(),
+                                  ),
+                            );
+
+                            await _financeService.updateMovement(
+                              updatedMovement,
+                            );
+
+                            // Close loading dialog and bottom sheet
+                            if (!context.mounted) return;
+                            Navigator.pop(context); // Close loading
+                            Navigator.pop(context); // Close bottom sheet
+
+                            // Show success message
+                            if (!context.mounted) return;
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(
+                                content: Text(
+                                  'Categoría actualizada: ${updatedMovement.category}',
+                                ),
+                                behavior: SnackBarBehavior.floating,
+                              ),
+                            );
+                          },
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            );
+          },
+        );
+      },
+    );
   }
 }
