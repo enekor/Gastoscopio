@@ -108,10 +108,10 @@ class MovementCard extends StatelessWidget {
     this.category,
     required this.moneda,
   }) : super(key: key);
-
   @override
   Widget build(BuildContext context) {
     return Card(
+      color: Theme.of(context).colorScheme.secondary.withAlpha(25),
       elevation: 2,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
       child: ListTile(
@@ -154,10 +154,10 @@ class YearlyChart extends StatelessWidget {
 
   const YearlyChart({Key? key, required this.year, required this.moneda})
     : super(key: key);
-
   @override
   Widget build(BuildContext context) {
     return Card(
+      color: Theme.of(context).colorScheme.secondary.withAlpha(25),
       elevation: 2,
       margin: const EdgeInsets.all(8),
       child: Padding(

@@ -231,6 +231,9 @@ class _SummaryScreenState extends State<SummaryScreen>
               else
                 Expanded(
                   child: Card(
+                    color: Theme.of(
+                      context,
+                    ).colorScheme.secondary.withAlpha(25),
                     margin: const EdgeInsets.all(16),
                     child: LayoutBuilder(
                       builder:
@@ -294,6 +297,7 @@ class _SummaryScreenState extends State<SummaryScreen>
     final expenseRatio = expenses > 0 ? (expenses / incomes) * 100 : 0;
 
     return Card(
+      color: Theme.of(context).colorScheme.secondary.withAlpha(25),
       child: Padding(
         padding: const EdgeInsets.all(16),
         child: Column(
@@ -372,6 +376,7 @@ class _SummaryScreenState extends State<SummaryScreen>
         Text('Gastos Diarios', style: Theme.of(context).textTheme.titleLarge),
         const SizedBox(height: 16),
         Card(
+          color: Theme.of(context).colorScheme.secondary.withAlpha(25),
           child: Padding(
             padding: const EdgeInsets.all(16),
             child: SizedBox(

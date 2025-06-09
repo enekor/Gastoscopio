@@ -110,7 +110,7 @@ class _GastoscopioHomeScreenState extends State<GastoscopioHomeScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       floatingActionButton: Card(
-        color: Theme.of(context).colorScheme.surfaceContainer,
+        color: Theme.of(context).colorScheme.secondary.withAlpha(25),
         elevation: 8,
         shape: const CircleBorder(),
         child: Container(
@@ -200,7 +200,7 @@ class _GastoscopioHomeScreenState extends State<GastoscopioHomeScreen> {
         final movements = service.todayMovements;
 
         return Card(
-          color: Theme.of(context).colorScheme.surface,
+          color: Theme.of(context).colorScheme.secondary.withAlpha(25),
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(16),
             side: BorderSide(
@@ -265,6 +265,7 @@ class _GastoscopioHomeScreenState extends State<GastoscopioHomeScreen> {
         final isPositive = total >= 0;
 
         return Card(
+          color: Theme.of(context).colorScheme.secondary.withAlpha(25),
           child: Padding(
             padding: const EdgeInsets.all(16),
             child: Column(
@@ -349,6 +350,7 @@ class _ChartPart extends StatelessWidget {
             final categoryData = _calculateCategoryPercentages(expenses);
 
             return Card(
+              color: Theme.of(context).colorScheme.secondary.withAlpha(25),
               child: Padding(
                 padding: const EdgeInsets.all(16),
                 child: Column(

@@ -113,6 +113,7 @@ class _ImportFromGastoscopioScreenState
           children: [
             // Header Card
             Card(
+              color: Theme.of(context).colorScheme.secondary.withAlpha(25),
               child: Padding(
                 padding: const EdgeInsets.all(16.0),
                 child: Column(
@@ -208,6 +209,7 @@ class _ImportFromGastoscopioScreenState
       children: [
         // Meses Card
         Card(
+          color: Theme.of(context).colorScheme.secondary.withAlpha(25),
           child: ExpansionTile(
             title: Text('Meses (${result['Months']?.length ?? 0})'),
             children:
@@ -222,6 +224,7 @@ class _ImportFromGastoscopioScreenState
 
         // Movimientos Card
         Card(
+          color: Theme.of(context).colorScheme.secondary.withAlpha(25),
           child: ExpansionTile(
             title: Text('Movimientos (${result["Movements"]?.length ?? 0})'),
             children:

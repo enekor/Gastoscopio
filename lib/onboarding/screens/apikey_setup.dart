@@ -38,6 +38,7 @@ class _ApiKeySetupScreenState extends State<ApiKeySetupScreen> {
             ),
             const SizedBox(height: 32),
             const Card(
+              color: Color.fromRGBO(3, 218, 198, 25),
               child: Padding(
                 padding: EdgeInsets.all(16.0),
                 child: ApiKeyGenerator(),

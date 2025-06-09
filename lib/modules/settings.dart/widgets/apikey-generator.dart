@@ -78,6 +78,7 @@ class _ApiKeyGeneratorState extends State<ApiKeyGenerator> {
   @override
   Widget build(BuildContext context) {
     return Card(
+      color: Theme.of(context).colorScheme.secondary.withAlpha(25),
       child: Column(
         children: [
           const Text(

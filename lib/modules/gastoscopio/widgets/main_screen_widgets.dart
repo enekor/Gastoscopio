@@ -65,7 +65,7 @@ class _AnimatedCardState extends State<AnimatedCard>
     return Card(
       margin: EdgeInsets.zero,
       color:
-          widget.color ?? Theme.of(context).colorScheme.primary.withAlpha(70),
+          widget.color ?? Theme.of(context).colorScheme.secondary.withAlpha(25),
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
       elevation: widget.isExpanded ? 2 : 0,
       clipBehavior: Clip.antiAlias,

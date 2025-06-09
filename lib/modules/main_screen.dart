@@ -265,7 +265,7 @@ class _MainScreenState extends State<MainScreen>
               bottom: 16.0,
             ),
             child: Card(
-              color: Theme.of(context).colorScheme.surfaceContainer,
+              color: Theme.of(context).colorScheme.secondary.withAlpha(25),
               elevation: 8,
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(24),

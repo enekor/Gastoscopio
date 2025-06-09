@@ -156,7 +156,7 @@ class _MovementsScreenState extends State<MovementsScreen>
 
   Widget _buildFAB() {
     return Card(
-      color: Theme.of(context).colorScheme.surfaceContainer,
+      color: Theme.of(context).colorScheme.secondary.withAlpha(25),
       elevation: 8,
       shape: const CircleBorder(),
       child: Container(
