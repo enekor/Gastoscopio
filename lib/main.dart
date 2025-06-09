@@ -1,12 +1,15 @@
 import 'package:cashly/app.dart';
 import 'package:cashly/common/handlers/lifecycle_handler.dart';
 import 'package:cashly/data/services/login_service.dart';
-import 'package:cashly/onboarding/onboarding.dart';
+import 'package:cashly/data/services/gemini_service.dart';
 import 'package:dynamic_color/dynamic_color.dart';
 import 'package:flutter/material.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+
+  // Inicializar servicio de Gemini para cargar API Key existente
+  await GeminiService().initializeGemini();
 
   // Configurar detector de estado de la app
   bool isInForeground = true;
