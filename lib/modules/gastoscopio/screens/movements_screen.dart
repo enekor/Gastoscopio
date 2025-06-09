@@ -18,7 +18,8 @@ class MovementsScreen extends StatefulWidget {
   State<MovementsScreen> createState() => _MovementsScreenState();
 }
 
-class _MovementsScreenState extends State<MovementsScreen> {
+class _MovementsScreenState extends State<MovementsScreen>
+    with TickerProviderStateMixin {
   bool _showExpenses = true;
   DateTime? _selectedDate;
   String? _selectedCategory;
@@ -28,14 +29,53 @@ class _MovementsScreenState extends State<MovementsScreen> {
   late FinanceService _financeService;
   final TextEditingController _searchController = TextEditingController();
 
+  // Cache para los movimientos y estado de carga
+  List<MovementValue> _cachedMovements = [];
+  bool _isLoading = true;
+
+  // Animaciones para transiciones suaves
+  late AnimationController _listAnimationController;
+  late AnimationController _toggleAnimationController;
+  late Animation<double> _listFadeAnimation;
+  late Animation<double> _toggleAnimation;
+
   @override
   void initState() {
     super.initState();
+
+    // Inicializar controladores de animación
+    _listAnimationController = AnimationController(
+      duration: const Duration(milliseconds: 300),
+      vsync: this,
+    );
+    _toggleAnimationController = AnimationController(
+      duration: const Duration(milliseconds: 200),
+      vsync: this,
+    );
+
+    _listFadeAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
+      CurvedAnimation(
+        parent: _listAnimationController,
+        curve: Curves.easeInOut,
+      ),
+    );
+
+    _toggleAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
+      CurvedAnimation(
+        parent: _toggleAnimationController,
+        curve: Curves.easeInOut,
+      ),
+    );
+
     _financeService = FinanceService.getInstance(
       SqliteService().db.monthDao,
       SqliteService().db.movementValueDao,
       SqliteService().db.fixedMovementDao,
     );
+
+    // Escuchar cambios del servicio
+    _financeService.addListener(_onFinanceServiceChanged);
+
     SharedPreferencesService()
         .getStringValue(SharedPreferencesKeys.currency)
         .then(
@@ -44,37 +84,65 @@ class _MovementsScreenState extends State<MovementsScreen> {
           }),
         );
     _searchController.text = _searchQuery;
+    // Cargar datos iniciales
+    _loadMovements();
+
+    // Iniciar las animaciones
+    _listAnimationController.forward();
+    _toggleAnimationController.forward();
+  }
+
+  void _onFinanceServiceChanged() {
+    // Cuando el servicio notifica cambios, recargar datos con animación
+    _loadMovements();
+  }
+
+  Future<void> _loadMovements() async {
+    try {
+      final movements = await _financeService.getCurrentMonthMovements();
+
+      // Animar la transición de la lista
+      if (_cachedMovements.isNotEmpty) {
+        await _listAnimationController.reverse();
+      }
+
+      setState(() {
+        _cachedMovements = movements;
+        _isLoading = false;
+      });
+
+      await _listAnimationController.forward();
+    } catch (e) {
+      setState(() {
+        _isLoading = false;
+      });
+    }
   }
 
   @override
   void dispose() {
     _searchController.dispose();
+    _financeService.removeListener(_onFinanceServiceChanged);
+    _listAnimationController.dispose();
+    _toggleAnimationController.dispose();
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
-    return AnimatedBuilder(
-      animation: _financeService,
-      builder: (context, child) {
-        return FutureBuilder<List<MovementValue>>(
-          future: _financeService.getCurrentMonthMovements(),
-          builder: (context, snapshot) {
-            if (snapshot.connectionState == ConnectionState.waiting) {
-              return const Center(child: CircularProgressIndicator());
-            }
+    if (_isLoading) {
+      return const Scaffold(body: Center(child: CircularProgressIndicator()));
+    }
 
-            if (!snapshot.hasData || snapshot.data!.isEmpty) {
-              return _buildEmptyScreen();
-            }
+    if (_cachedMovements.isEmpty) {
+      return _buildEmptyScreen();
+    }
 
-            final allMovements = snapshot.data!;
-            final filteredMovements = _filterMovements(allMovements);
+    final filteredMovements = _filterMovements(_cachedMovements);
 
-            return _buildContent(filteredMovements, _moneda);
-          },
-        );
-      },
+    return FadeTransition(
+      opacity: _listFadeAnimation,
+      child: _buildContent(filteredMovements, _moneda),
     );
   }
 
@@ -89,7 +157,6 @@ class _MovementsScreenState extends State<MovementsScreen> {
   Widget _buildFAB() {
     return Card(
       color: Theme.of(context).colorScheme.surfaceContainer,
-
       elevation: 8,
       shape: const CircleBorder(),
       child: Container(
@@ -99,14 +166,19 @@ class _MovementsScreenState extends State<MovementsScreen> {
         child: FloatingActionButton.small(
           backgroundColor: Colors.transparent,
           elevation: 0,
-          onPressed: () {
-            showModalBottomSheet(
+          onPressed: () async {
+            final result = await showModalBottomSheet<bool>(
               context: context,
               isScrollControlled: true,
               showDragHandle: true,
               useSafeArea: true,
               builder: (BuildContext context) => MovementFormScreen(),
             );
+
+            // Si se agregó un movimiento, recargar los datos
+            if (result == true) {
+              await _loadMovements();
+            }
           },
           child: const Icon(Icons.add),
           heroTag: 'movements_fab',
@@ -124,26 +196,39 @@ class _MovementsScreenState extends State<MovementsScreen> {
         fillColor: Theme.of(context).colorScheme.primary.withAlpha(45),
         selectedColor: Theme.of(context).colorScheme.onPrimary,
         isSelected: [!_showExpenses, _showExpenses],
-        onPressed: (index) {
-          setState(() {
-            _showExpenses = index == 1;
-          });
+        onPressed: (index) async {
+          if ((index == 1) != _showExpenses) {
+            // Animar la transición
+            await _toggleAnimationController.reverse();
+            setState(() {
+              _showExpenses = index == 1;
+            });
+            await _toggleAnimationController.forward();
+          }
         },
         children: [
           TextButton.icon(
-            onPressed: () {
-              setState(() {
-                _showExpenses = false;
-              });
+            onPressed: () async {
+              if (_showExpenses) {
+                await _toggleAnimationController.reverse();
+                setState(() {
+                  _showExpenses = false;
+                });
+                await _toggleAnimationController.forward();
+              }
             },
             icon: const Icon(Icons.money),
             label: const Text('Ingresos'),
           ),
           TextButton.icon(
-            onPressed: () {
-              setState(() {
-                _showExpenses = true;
-              });
+            onPressed: () async {
+              if (!_showExpenses) {
+                await _toggleAnimationController.reverse();
+                setState(() {
+                  _showExpenses = true;
+                });
+                await _toggleAnimationController.forward();
+              }
             },
             icon: const Icon(Icons.money_off),
             label: const Text('Gastos'),
@@ -170,67 +255,77 @@ class _MovementsScreenState extends State<MovementsScreen> {
 
   Widget _buildList(List<MovementValue> movements, String moneda) {
     if (movements.isEmpty) {
-      return Center(
-        child: Text(
-          _showExpenses ? 'No hay gastos' : 'No hay ingresos',
-          style: TextStyle(color: Theme.of(context).colorScheme.secondary),
+      return FadeTransition(
+        opacity: _toggleAnimation,
+        child: Center(
+          child: Text(
+            _showExpenses ? 'No hay gastos' : 'No hay ingresos',
+            style: TextStyle(color: Theme.of(context).colorScheme.secondary),
+          ),
         ),
       );
     }
 
     return RefreshIndicator(
-      onRefresh: () async {
-        await _financeService.getCurrentMonthMovements();
-        setState(() {});
-      },
-      child: ListView.builder(
-        itemCount: movements.length,
-        itemBuilder: (context, index) {
-          final movement = movements[index];
-          final isExpanded = _expandedItems[movement.id.toString()] ?? false;
+      onRefresh: _loadMovements,
+      child: FadeTransition(
+        opacity: _toggleAnimation,
+        child: ListView.builder(
+          itemCount: movements.length,
+          itemBuilder: (context, index) {
+            final movement = movements[index];
+            final isExpanded = _expandedItems[movement.id.toString()] ?? false;
 
-          return Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
-            child: AnimatedCard(
-              isExpanded: isExpanded,
-              onTap: () {
-                setState(() {
-                  final key = movement.id.toString();
-                  _expandedItems[key] = !(_expandedItems[key] ?? false);
-                });
-              },
-              leadingWidget: ListTile(
-                title: Text(movement.description),
-                subtitle:
-                    movement.category != null
-                        ? Text(
-                          movement.category!,
+            return AnimatedSlide(
+              offset: Offset(0, isExpanded ? 0 : 0.1),
+              duration: const Duration(milliseconds: 200),
+              child: Padding(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 16,
+                  vertical: 4,
+                ),
+                child: AnimatedCard(
+                  isExpanded: isExpanded,
+                  onTap: () {
+                    setState(() {
+                      final key = movement.id.toString();
+                      _expandedItems[key] = !(_expandedItems[key] ?? false);
+                    });
+                  },
+                  leadingWidget: ListTile(
+                    title: Text(movement.description),
+                    subtitle:
+                        movement.category != null
+                            ? Text(
+                              movement.category!,
+                              style: TextStyle(
+                                color: Theme.of(context).colorScheme.secondary,
+                              ),
+                            )
+                            : null,
+                    trailing: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Text(
+                          '${movement.amount.toStringAsFixed(2)}${moneda}',
                           style: TextStyle(
-                            color: Theme.of(context).colorScheme.secondary,
+                            color:
+                                movement.isExpense
+                                    ? Theme.of(context).colorScheme.error
+                                    : Theme.of(context).colorScheme.primary,
+                            fontWeight: FontWeight.bold,
                           ),
-                        )
-                        : null,
-                trailing: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Text(
-                      '${movement.amount.toStringAsFixed(2)}${moneda}',
-                      style: TextStyle(
-                        color:
-                            movement.isExpense
-                                ? Theme.of(context).colorScheme.error
-                                : Theme.of(context).colorScheme.primary,
-                        fontWeight: FontWeight.bold,
-                      ),
+                        ),
+                      ],
                     ),
-                  ],
+                  ),
+
+                  hiddenWidget: _buildExpandedContent(context, movement),
                 ),
               ),
-
-              hiddenWidget: _buildExpandedContent(context, movement),
-            ),
-          );
-        },
+            );
+          },
+        ),
       ),
     );
   }

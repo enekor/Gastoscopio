@@ -150,7 +150,6 @@ class _MovementFormScreenState extends State<MovementFormScreen> {
         _selectedDate.month,
         _selectedDate.year,
       );
-
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text(
@@ -161,7 +160,7 @@ class _MovementFormScreenState extends State<MovementFormScreen> {
           behavior: SnackBarBehavior.floating,
         ),
       );
-      Navigator.pop(context);
+      Navigator.pop(context, true); // Devolver true para indicar éxito
     }
   }
 
