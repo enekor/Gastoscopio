@@ -61,7 +61,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
     _handleNext();
   }
 
-  void _handleImportSuccess(JsonImportResult? result) async {
+  void _handleImportSuccess(Map<String, dynamic>? result) async {
     if (result == null) {
       await SqliteService().initializeDatabase();
       _navigateToMainScreen();
@@ -88,7 +88,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
               children: [
                 CircularProgressIndicator(),
                 SizedBox(height: 16),
-                Text('Guardando ${result.movements.length} movimientos'),
+                Text('Guardando ${result['Movements'].length} movimientos'),
                 ElevatedButton(
                   onPressed: () => Navigator.pop(context),
                   child: Text('Ok'),
@@ -100,12 +100,12 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
       );
 
       // Import months first
-      for (Month month in _importResult!.months) {
+      for (Month month in _importResult!['Months']) {
         await db.monthDao.insertMonth(month);
       }
 
       // Then import movements
-      for (MovementValue movement in _importResult!.movements) {
+      for (MovementValue movement in _importResult!['Movements']) {
         await db.movementValueDao.insertMovementValue(movement);
       }
 
@@ -181,7 +181,8 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
     );
   }
 
-  JsonImportResult? _importResult; // Add this field to store the import result
+  Map<String, dynamic>?
+  _importResult; // Add this field to store the import result
 
   @override
   void initState() {
