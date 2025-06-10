@@ -275,7 +275,7 @@ class _ImportFromGastoscopioScreenState
                   return ListTile(
                     title: Text(fixedMovement.description),
                     subtitle: Text(
-                      'Mes ID: ${fixedMovement.monthId} | Día: ${fixedMovement.day} | '
+                      'Día: ${fixedMovement.day} | '
                       'Categoría: ${fixedMovement.category ?? "Sin categoría"}',
                     ),
                     trailing: Text(

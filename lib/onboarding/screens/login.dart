@@ -1,16 +1,14 @@
-// lib/screens/google_login_screen.dart
-
 import 'package:cashly/data/services/login_service.dart';
 import 'package:flutter/material.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 
 class GoogleLoginScreen extends StatefulWidget {
-  @override
-  _GoogleLoginScreenState createState() => _GoogleLoginScreenState();
+  const GoogleLoginScreen({super.key, required this.onLoginOk});
 
-  const GoogleLoginScreen({Key? key, required this.onLoginOk})
-    : super(key: key);
   final Function() onLoginOk;
+
+  @override
+  State<GoogleLoginScreen> createState() => _GoogleLoginScreenState();
 }
 
 class _GoogleLoginScreenState extends State<GoogleLoginScreen> {
@@ -81,125 +79,291 @@ class _GoogleLoginScreenState extends State<GoogleLoginScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Center(
+    return Scaffold(
+      body: SafeArea(
+        child: Padding(
+          padding: const EdgeInsets.all(24.0),
+          child: Column(
+            children: [
+              const SizedBox(height: 40),
+              // Header con logo y título
+              _buildHeader(context),
+              const SizedBox(height: 32),
+
+              Expanded(
+                child: SingleChildScrollView(
+                  child: Column(
+                    children: [
+                      // Card principal de información de usuario
+                      _buildUserCard(context),
+                      const SizedBox(height: 24),
+
+                      // Card de acciones
+                      _buildActionsCard(context),
+                      const SizedBox(height: 24),
+
+                      // Mensaje de estado si existe
+                      if (_statusMessage.isNotEmpty)
+                        _buildStatusMessage(context),
+
+                      // Indicador de carga
+                      if (_isLoading) ...[
+                        const SizedBox(height: 24),
+                        const CircularProgressIndicator(),
+                      ],
+                    ],
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildHeader(BuildContext context) {
+    return Column(
+      children: [
+        // Logo
+        Container(
+          padding: const EdgeInsets.all(16),
+          decoration: BoxDecoration(
+            color: Theme.of(context).colorScheme.primary.withAlpha(25),
+            shape: BoxShape.circle,
+          ),
+          child: Icon(
+            Icons.account_circle,
+            size: 64,
+            color: Theme.of(context).colorScheme.primary,
+          ),
+        ),
+        const SizedBox(height: 16),
+        Text(
+          'Bienvenido a Cashly',
+          style: Theme.of(
+            context,
+          ).textTheme.headlineMedium?.copyWith(fontWeight: FontWeight.bold),
+          textAlign: TextAlign.center,
+        ),
+        const SizedBox(height: 8),
+        Text(
+          'Conecta tu cuenta de Google para sincronizar y respaldar tus datos financieros',
+          style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+            color: Theme.of(context).colorScheme.onSurfaceVariant,
+          ),
+          textAlign: TextAlign.center,
+        ),
+      ],
+    );
+  }
+
+  Widget _buildUserCard(BuildContext context) {
+    return Card(
+      color: Theme.of(context).colorScheme.secondary.withAlpha(25),
+      elevation: 0,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(16),
+        side: BorderSide(
+          color: Theme.of(context).colorScheme.outline.withAlpha(50),
+        ),
+      ),
       child: Padding(
-        padding: const EdgeInsets.all(20.0),
+        padding: const EdgeInsets.all(24),
         child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Text(_currentUser?.displayName ?? 'Algo'),
-            // Estado del usuario (conectado/desconectado)
-            _currentUser != null
-                ? Column(
-                  children: [
-                    CircleAvatar(
-                      backgroundImage: NetworkImage(
-                        _currentUser!.photoUrl ?? '',
-                      ),
-                      radius: 30,
-                      backgroundColor: Colors.grey[200],
-                      child:
-                          _currentUser!.photoUrl == null
-                              ? Icon(Icons.person, size: 30, color: Colors.grey)
-                              : null,
+            if (_currentUser != null) ...[
+              // Usuario conectado
+              CircleAvatar(
+                backgroundImage:
+                    _currentUser!.photoUrl != null
+                        ? NetworkImage(_currentUser!.photoUrl!)
+                        : null,
+                radius: 40,
+                backgroundColor: Theme.of(
+                  context,
+                ).colorScheme.primary.withAlpha(25),
+                child:
+                    _currentUser!.photoUrl == null
+                        ? Icon(
+                          Icons.person,
+                          size: 40,
+                          color: Theme.of(context).colorScheme.primary,
+                        )
+                        : null,
+              ),
+              const SizedBox(height: 16),
+              Row(
+                children: [
+                  Icon(Icons.check_circle, color: Colors.green, size: 20),
+                  const SizedBox(width: 8),
+                  Text(
+                    'Conectado correctamente',
+                    style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                      color: Colors.green,
+                      fontWeight: FontWeight.w500,
                     ),
-                    SizedBox(height: 8),
-                    Text('Conectado como:', style: TextStyle(fontSize: 16)),
-                    Text(
-                      _currentUser!.displayName ?? 'Usuario',
-                      style: TextStyle(
-                        fontSize: 20,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                    Text(
-                      _currentUser!.email,
-                      style: TextStyle(fontSize: 16, color: Colors.grey[600]),
-                    ),
-                  ],
-                )
-                : Text(
-                  'No has iniciado sesión',
-                  style: TextStyle(fontSize: 20),
-                ),
-
-            SizedBox(height: 30),
-
-            // Botón de inicio de sesión con Google
-            if (_currentUser == null)
-              ElevatedButton.icon(
-                onPressed: _isLoading ? null : _handleSignIn,
-                icon: Icon(Icons.login),
-                label: Padding(
-                  padding: EdgeInsets.symmetric(vertical: 12, horizontal: 8),
-                  child: Text(
-                    'Iniciar sesión con Google',
-                    style: TextStyle(fontSize: 16),
                   ),
-                ),
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.blue,
-                  foregroundColor: Colors.white,
-                  elevation: 2,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                ),
+                ],
               ),
-
-            // Botón para cerrar sesión
-            if (_currentUser != null)
-              ElevatedButton.icon(
-                onPressed: _isLoading ? null : _handleSignOut,
-                icon: Icon(Icons.logout),
-                label: Text('Cerrar sesión'),
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.red[700],
-                  foregroundColor: Colors.white,
+              const SizedBox(height: 12),
+              Text(
+                _currentUser!.displayName ?? 'Usuario',
+                style: Theme.of(context).textTheme.headlineSmall?.copyWith(
+                  fontWeight: FontWeight.bold,
                 ),
+                textAlign: TextAlign.center,
               ),
-
-            SizedBox(height: 20),
-
-            // Botón para ir a la pantalla de respaldos (solo si está conectado)
-            if (_currentUser != null)
-              ElevatedButton.icon(
-                onPressed: widget.onLoginOk,
-                icon: Icon(Icons.navigate_next_rounded),
-                label: Text('Siguiente paso'),
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.blue,
-                  foregroundColor: Colors.white,
+              const SizedBox(height: 4),
+              Text(
+                _currentUser!.email,
+                style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                  color: Theme.of(context).colorScheme.onSurfaceVariant,
                 ),
+                textAlign: TextAlign.center,
               ),
-
-            SizedBox(height: 20),
-
-            // Mensaje de estado
-            if (_statusMessage.isNotEmpty)
-              Container(
-                padding: EdgeInsets.all(12),
-                decoration: BoxDecoration(
-                  color: _isError ? Colors.red[100] : Colors.green[100],
-                  borderRadius: BorderRadius.circular(8),
+            ] else ...[
+              // Sin usuario conectado
+              Icon(
+                Icons.cloud_off,
+                size: 64,
+                color: Theme.of(context).colorScheme.onSurfaceVariant,
+              ),
+              const SizedBox(height: 16),
+              Text(
+                'Sin cuenta conectada',
+                style: Theme.of(context).textTheme.headlineSmall?.copyWith(
+                  fontWeight: FontWeight.bold,
                 ),
-                child: Text(
-                  _statusMessage,
-                  style: TextStyle(
-                    color: _isError ? Colors.red[800] : Colors.green[800],
-                  ),
-                  textAlign: TextAlign.center,
+                textAlign: TextAlign.center,
+              ),
+              const SizedBox(height: 8),
+              Text(
+                'Inicia sesión con Google para acceder a funciones de respaldo y sincronización',
+                style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                  color: Theme.of(context).colorScheme.onSurfaceVariant,
                 ),
+                textAlign: TextAlign.center,
               ),
-
-            // Indicador de carga
-            if (_isLoading)
-              Padding(
-                padding: const EdgeInsets.only(top: 16.0),
-                child: CircularProgressIndicator(),
-              ),
+            ],
           ],
         ),
+      ),
+    );
+  }
+
+  Widget _buildActionsCard(BuildContext context) {
+    return Card(
+      color: Theme.of(context).colorScheme.secondary.withAlpha(25),
+      elevation: 0,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(16),
+        side: BorderSide(
+          color: Theme.of(context).colorScheme.outline.withAlpha(50),
+        ),
+      ),
+      child: Padding(
+        padding: const EdgeInsets.all(24),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            if (_currentUser == null) ...[
+              // Botón de inicio de sesión
+              ElevatedButton.icon(
+                onPressed: _isLoading ? null : _handleSignIn,
+                icon: const Icon(Icons.login),
+                label: const Text('Iniciar sesión con Google'),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Theme.of(context).colorScheme.primary,
+                  foregroundColor: Theme.of(context).colorScheme.onPrimary,
+                  padding: const EdgeInsets.symmetric(vertical: 16),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                ),
+              ),
+              const SizedBox(height: 12),
+              Text(
+                'Opcional: Puedes continuar sin cuenta, pero no tendrás acceso a funciones de respaldo.',
+                style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                  color: Theme.of(context).colorScheme.onSurfaceVariant,
+                ),
+                textAlign: TextAlign.center,
+              ),
+            ] else ...[
+              // Opciones cuando está conectado
+              ElevatedButton.icon(
+                onPressed: widget.onLoginOk,
+                icon: const Icon(Icons.navigate_next),
+                label: const Text('Continuar al siguiente paso'),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Theme.of(context).colorScheme.primary,
+                  foregroundColor: Theme.of(context).colorScheme.onPrimary,
+                  padding: const EdgeInsets.symmetric(vertical: 16),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                ),
+              ),
+              const SizedBox(height: 16),
+              OutlinedButton.icon(
+                onPressed: _isLoading ? null : _handleSignOut,
+                icon: const Icon(Icons.logout),
+                label: const Text('Cerrar sesión'),
+                style: OutlinedButton.styleFrom(
+                  foregroundColor: Theme.of(context).colorScheme.error,
+                  side: BorderSide(color: Theme.of(context).colorScheme.error),
+                  padding: const EdgeInsets.symmetric(vertical: 16),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                ),
+              ),
+            ],
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildStatusMessage(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color:
+            _isError
+                ? Theme.of(context).colorScheme.errorContainer
+                : Theme.of(context).colorScheme.primaryContainer,
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(
+          color:
+              _isError
+                  ? Theme.of(context).colorScheme.error.withAlpha(50)
+                  : Theme.of(context).colorScheme.primary.withAlpha(50),
+        ),
+      ),
+      child: Row(
+        children: [
+          Icon(
+            _isError ? Icons.error_outline : Icons.check_circle_outline,
+            color:
+                _isError
+                    ? Theme.of(context).colorScheme.error
+                    : Theme.of(context).colorScheme.primary,
+          ),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Text(
+              _statusMessage,
+              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                color:
+                    _isError
+                        ? Theme.of(context).colorScheme.onErrorContainer
+                        : Theme.of(context).colorScheme.onPrimaryContainer,
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }
