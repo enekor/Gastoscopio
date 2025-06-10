@@ -226,14 +226,20 @@ class _GastoscopioHomeScreenState extends State<GastoscopioHomeScreen> {
                   child: Column(
                     children: [
                       if (movements.isEmpty) ...[
-                        const SizedBox(height: 16),
-                        Center(
-                          child: Text(
-                            'No hay movimientos para mostrar',
-                            style: Theme.of(
-                              context,
-                            ).textTheme.bodyMedium?.copyWith(
-                              color: Theme.of(context).colorScheme.secondary,
+                        Padding(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 16.0,
+                            vertical: 60,
+                          ),
+                          child: Center(
+                            child: Text(
+                              'No hay movimientos para mostrar',
+                              textAlign: TextAlign.center,
+                              style: Theme.of(
+                                context,
+                              ).textTheme.bodyMedium?.copyWith(
+                                color: Theme.of(context).colorScheme.secondary,
+                              ),
                             ),
                           ),
                         ),
