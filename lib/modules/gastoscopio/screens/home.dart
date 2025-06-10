@@ -31,6 +31,7 @@ class _GastoscopioHomeScreenState extends State<GastoscopioHomeScreen> {
   int _g = 255;
   int _b = 255;
   late String _moneda = 'loading...';
+  bool _showExpandedBalance = false;
 
   @override
   void initState() {
@@ -301,6 +302,11 @@ class _GastoscopioHomeScreenState extends State<GastoscopioHomeScreen> {
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
+                        if (!_showExpandedBalance) ...[
+                          const SizedBox(height: 16),
+                          Text(service.currentMonthName()),
+                        ],
+
                         Text(
                           'Total: ${total < 0 ? '-' : ''}${total.abs().toStringAsFixed(2)}${_moneda}',
                           style: Theme.of(
@@ -313,33 +319,39 @@ class _GastoscopioHomeScreenState extends State<GastoscopioHomeScreen> {
                             fontWeight: FontWeight.bold,
                           ),
                         ),
-                        const SizedBox(height: 8),
-                        Divider(
-                          color: Theme.of(context).colorScheme.primary,
-                          thickness: 2,
-                          indent: 8,
-                          endIndent: 8,
-                        ),
-                        const SizedBox(height: 8),
-                        Text(
-                          'Ingresos: ${incomes.abs().toStringAsFixed(2)}${_moneda}',
-                          style: Theme.of(
-                            context,
-                          ).textTheme.titleMedium?.copyWith(
-                            color: Theme.of(context).colorScheme.primary,
-                            fontWeight: FontWeight.bold,
+                        InkWell(
+                          onTap:
+                              () => setState(() {
+                                _showExpandedBalance = !_showExpandedBalance;
+                              }),
+                          child: Icon(
+                            _showExpandedBalance
+                                ? Icons.expand_less
+                                : Icons.expand_more,
                           ),
                         ),
-                        SizedBox(height: 8),
-                        Text(
-                          'Gastos: -${expenses.abs().toStringAsFixed(2)}${_moneda}',
-                          style: Theme.of(
-                            context,
-                          ).textTheme.titleMedium?.copyWith(
-                            color: Theme.of(context).colorScheme.error,
-                            fontWeight: FontWeight.bold,
+                        const SizedBox(height: 8),
+                        if (_showExpandedBalance) ...[
+                          Text(
+                            'Ingresos: ${incomes.abs().toStringAsFixed(2)}${_moneda}',
+                            style: Theme.of(
+                              context,
+                            ).textTheme.titleMedium?.copyWith(
+                              color: Theme.of(context).colorScheme.primary,
+                              fontWeight: FontWeight.bold,
+                            ),
                           ),
-                        ),
+                          SizedBox(height: 8),
+                          Text(
+                            'Gastos: -${expenses.abs().toStringAsFixed(2)}${_moneda}',
+                            style: Theme.of(
+                              context,
+                            ).textTheme.titleMedium?.copyWith(
+                              color: Theme.of(context).colorScheme.error,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ],
                       ],
                     ),
                   ),

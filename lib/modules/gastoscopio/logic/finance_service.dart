@@ -151,6 +151,11 @@ class FinanceService extends ChangeNotifier {
       ..sort();
   }
 
+  String currentMonthName() {
+    if (_currentMonth == null) return 'Mes no seleccionado';
+    return '${_getMonthName(_currentMonth!.month)} ${_currentMonth!.year}';
+  }
+
   /// Verifica si un mes existe en la base de datos
   Future<bool> monthExists(int month, int year) async {
     final monthData = await _monthDao.findMonthByMonthAndYear(month, year);
