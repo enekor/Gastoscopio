@@ -51,7 +51,7 @@ class MyApp extends StatelessWidget {
     return DynamicColorBuilder(
       builder: (ColorScheme? lightDynamic, ColorScheme? darkDynamic) {
         return MaterialApp(
-          title: 'Cashly',
+          title: 'Gastoscopio',
           theme: ThemeData(
             useMaterial3: true,
             colorScheme:

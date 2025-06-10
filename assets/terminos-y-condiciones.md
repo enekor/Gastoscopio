@@ -1,14 +1,14 @@
-# TÉRMINOS Y CONDICIONES DE USO - CASHLY
+# TÉRMINOS Y CONDICIONES DE USO - Gastoscopio
 
 **Última actualización:** Junio 2025
 
 ## 1. ACEPTACIÓN DE TÉRMINOS
 
-Al utilizar la aplicación Cashly, usted acepta estar sujeto a estos términos y condiciones de uso. Si no está de acuerdo con alguno de estos términos, no utilice la aplicación.
+Al utilizar la aplicación Gastoscopio, usted acepta estar sujeto a estos términos y condiciones de uso. Si no está de acuerdo con alguno de estos términos, no utilice la aplicación.
 
 ## 2. DESCRIPCIÓN DEL SERVICIO
 
-Cashly es una aplicación de gestión financiera personal que permite a los usuarios administrar sus gastos, ingresos y presupuestos de manera eficiente.
+Gastoscopio es una aplicación de gestión financiera personal que permite a los usuarios administrar sus gastos, ingresos y presupuestos de manera eficiente.
 
 ## 3. USO DE CUENTA DE GOOGLE 
 
@@ -18,7 +18,7 @@ La aplicación utiliza su cuenta de Google para:
 - Respaldo automático de su información financiera en su Google Drive personal
 - Restauración de datos cuando reinstale la aplicación
 
-> **Autorización:** Al usar esta funcionalidad, usted autoriza expresamente a Cashly a acceder a su Google Drive únicamente para los fines mencionados. Sus datos permanecen en su cuenta personal de Google Drive y no son accesibles por terceros.
+> **Autorización:** Al usar esta funcionalidad, usted autoriza expresamente a Gastoscopio a acceder a su Google Drive únicamente para los fines mencionados. Sus datos permanecen en su cuenta personal de Google Drive y no son accesibles por terceros.
 
 ## 4. USO DE API KEY DE GEMINI (INTELIGENCIA ARTIFICIAL) 
 

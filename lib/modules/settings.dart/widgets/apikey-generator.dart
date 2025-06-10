@@ -80,125 +80,131 @@ class _ApiKeyGeneratorState extends State<ApiKeyGenerator> {
   Widget build(BuildContext context) {
     return Card(
       color: Theme.of(context).colorScheme.secondary.withAlpha(25),
-      child: Column(
-        children: [
-          const Text(
-            'Para usar la aplicación, necesitas una API Key de Google AI Studio. Sigue estos pasos:',
-            style: TextStyle(fontSize: 16),
-            textAlign: TextAlign.center,
-          ),
-          const SizedBox(height: 16),
-          SizedBox(
-            height: 300,
-            child: CarouselSlider(
-              options: CarouselOptions(
-                height: 280,
-                viewportFraction: 0.9,
-                enlargeCenterPage: true,
-                enableInfiniteScroll: false,
-                autoPlay: false,
-                pageSnapping: true,
-                padEnds: true,
-                onPageChanged: (index, reason) {
-                  setState(() {
-                    _currentIndex = index;
-                  });
-                },
-              ),
-              items: [
-                _buildCarouselItem(
-                  'assets/guide/step1.jpg',
-                  '1. Ve a Google AI Studio inicia sesión y seleciona "Crear clave de api',
-                ),
-                _buildCarouselItem(
-                  'assets/guide/step2.jpg',
-                  '2. Dale al boton de copiar para copiar la API Key, si te da una pantalla diferente ve al siguiente paso, si no, ve al paso 3',
-                ),
-                _buildCarouselItem(
-                  'assets/guide/step2b.jpg',
-                  '2.1. Si te sale la pantalla como esta dale a la X para cerrar la ventana y vuelve a la pantalla anterior',
-                ),
-                _buildCarouselItem(
-                  'assets/guide/step2c.jpg',
-                  '2.2. Haz scroll hacia abajo hasta que veas una tabla',
-                ),
-                _buildCarouselItem(
-                  'assets/guide/step2d.jpg',
-                  '2.3. Selecciona el texto azul y verás el recuadro del paso 2 para poder seguirlo',
-                ),
-                _buildCarouselItem(
-                  'assets/guide/step3.jpg',
-                  '3. Pega la API Key en la barra de texto de la app',
-                ),
-                _buildCarouselItem(
-                  'assets/guide/step4.jpg',
-                  '4. Dale al boton de guardar',
-                ),
-                _buildCarouselItem('assets/guide/step5.jpg', ''),
-              ],
+      child: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Column(
+          children: [
+            const Text(
+              'Para activar las funciones de inteligencia artificial, necesitas obtener una clave API de Google. Te guiamos paso a paso:',
+              style: TextStyle(fontSize: 16),
+              textAlign: TextAlign.center,
             ),
-          ),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: List.generate(
-              7,
-              (index) => Container(
-                width: 10.0,
-                height: 10.0,
-                margin: const EdgeInsets.symmetric(horizontal: 4.0),
-                decoration: BoxDecoration(
-                  shape: BoxShape.circle,
-                  color:
-                      _currentIndex == index
-                          ? Theme.of(context).colorScheme.primary.withAlpha(45)
-                          : Colors.grey.shade300,
-                ),
-              ),
-            ),
-          ),
-          const SizedBox(height: 16),
-          Center(
-            child: ElevatedButton.icon(
-              onPressed:
-                  () => _launchUrl('https://makersuite.google.com/app/apikey'),
-              icon: const Icon(Icons.open_in_new),
-              label: const Text('Obtener API Key'),
-            ),
-          ),
-          const SizedBox(height: 48),
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16.0),
-            child: TextFormField(
-              controller: _apiKeyController,
-              decoration: InputDecoration(
-                labelText: 'API Key',
-                border: const OutlineInputBorder(),
-                suffixIcon: IconButton(
-                  icon: const Icon(Icons.save),
-                  onPressed: () async {
-                    await SharedPreferencesService().setStringValue(
-                      SharedPreferencesKeys.apiKey,
-                      _apiKeyController.text,
-                    );
-
-                    // Inicializar Gemini con la nueva API Key
-                    await GeminiService().initializeGemini();
-
-                    if (mounted) {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(
-                          content: Text('API Key guardada correctamente'),
-                          behavior: SnackBarBehavior.floating,
-                        ),
-                      );
-                    }
+            SizedBox(
+              height: 300,
+              child: CarouselSlider(
+                options: CarouselOptions(
+                  height: 280,
+                  viewportFraction: 0.9,
+                  enlargeCenterPage: true,
+                  enableInfiniteScroll: false,
+                  autoPlay: false,
+                  pageSnapping: true,
+                  padEnds: true,
+                  onPageChanged: (index, reason) {
+                    setState(() {
+                      _currentIndex = index;
+                    });
                   },
                 ),
+                items: [
+                  _buildCarouselItem(
+                    'assets/guide/step1.jpg',
+                    '1. Accede a Google AI Studio e inicia sesión con tu cuenta',
+                  ),
+                  _buildCarouselItem(
+                    'assets/guide/step2.jpg',
+                    '2. Haz clic en "Crear clave de API" y copia la clave generada',
+                  ),
+                  _buildCarouselItem(
+                    'assets/guide/step2b.jpg',
+                    '2.1. Si aparece esta ventana emergente, ciérrala con la X',
+                  ),
+                  _buildCarouselItem(
+                    'assets/guide/step2c.jpg',
+                    '2.2. Desplázate hacia abajo hasta encontrar la tabla de claves',
+                  ),
+                  _buildCarouselItem(
+                    'assets/guide/step2d.jpg',
+                    '2.3. Haz clic en el enlace azul para acceder a la clave',
+                  ),
+                  _buildCarouselItem(
+                    'assets/guide/step3.jpg',
+                    '3. Pega la clave API en el campo de texto de la aplicación',
+                  ),
+                  _buildCarouselItem(
+                    'assets/guide/step4.jpg',
+                    '4. Presiona el botón guardar para completar la configuración',
+                  ),
+                ],
               ),
             ),
-          ),
-          const SizedBox(height: 16),
-        ],
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: List.generate(
+                7,
+                (index) => Container(
+                  width: 10.0,
+                  height: 10.0,
+                  margin: const EdgeInsets.symmetric(horizontal: 4.0),
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    color:
+                        _currentIndex == index
+                            ? Theme.of(
+                              context,
+                            ).colorScheme.primary.withAlpha(45)
+                            : Colors.grey.shade300,
+                  ),
+                ),
+              ),
+            ),
+            const SizedBox(height: 16),
+            Center(
+              child: ElevatedButton.icon(
+                onPressed:
+                    () =>
+                        _launchUrl('https://makersuite.google.com/app/apikey'),
+                icon: const Icon(Icons.open_in_new),
+                label: const Text('Ir a Google AI Studio'),
+              ),
+            ),
+            const SizedBox(height: 48),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16.0),
+              child: TextFormField(
+                controller: _apiKeyController,
+                decoration: InputDecoration(
+                  labelText: 'Clave API de Google',
+                  border: const OutlineInputBorder(),
+                  suffixIcon: IconButton(
+                    icon: const Icon(Icons.save),
+                    onPressed: () async {
+                      await SharedPreferencesService().setStringValue(
+                        SharedPreferencesKeys.apiKey,
+                        _apiKeyController.text,
+                      );
+
+                      // Inicializar Gemini con la nueva API Key
+                      await GeminiService().initializeGemini();
+
+                      if (mounted) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(
+                            content: Text(
+                              'Clave API configurada correctamente',
+                            ),
+                            behavior: SnackBarBehavior.floating,
+                          ),
+                        );
+                      }
+                    },
+                  ),
+                ),
+              ),
+            ),
+            const SizedBox(height: 16),
+          ],
+        ),
       ),
     );
   }

@@ -140,7 +140,7 @@ class _GoogleLoginScreenState extends State<GoogleLoginScreen> {
         ),
         const SizedBox(height: 16),
         Text(
-          'Bienvenido a Cashly',
+          'Bienvenido a Gastoscopio',
           style: Theme.of(
             context,
           ).textTheme.headlineMedium?.copyWith(fontWeight: FontWeight.bold),

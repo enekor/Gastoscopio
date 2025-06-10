@@ -76,7 +76,7 @@ class _FirstStartupScreenState extends State<FirstStartupScreen> {
             const Icon(Icons.rocket_launch, size: 60, color: Colors.blue),
             const SizedBox(height: 16),
             const Text(
-              '¡Bienvenido a Cashly!',
+              '¡Bienvenido a Gastoscopio!',
               style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 8),
@@ -177,13 +177,14 @@ class _FirstStartupScreenState extends State<FirstStartupScreen> {
   }
 }
 
-const String _fallbackTermsText = '''# TÉRMINOS Y CONDICIONES DE USO - CASHLY
+const String _fallbackTermsText =
+    '''# TÉRMINOS Y CONDICIONES DE USO - Gastoscopio
 
 **Última actualización:** Junio 2025
 
-Al utilizar la aplicación Cashly, usted acepta estos términos y condiciones de uso.
+Al utilizar la aplicación Gastoscopio, usted acepta estos términos y condiciones de uso.
 
-Cashly es una aplicación de gestión financiera personal que utiliza su cuenta de Google para autenticación y almacenamiento seguro en Google Drive.
+Gastoscopio es una aplicación de gestión financiera personal que utiliza su cuenta de Google para autenticación y almacenamiento seguro en Google Drive.
 
 La aplicación requiere una API Key de Google Gemini para análisis inteligentes. Esta clave se almacena localmente en su dispositivo.
 
