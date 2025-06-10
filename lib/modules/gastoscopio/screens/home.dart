@@ -1,10 +1,10 @@
+import 'package:carousel_slider/carousel_slider.dart';
 import 'package:cashly/data/services/shared_preferences_service.dart';
 import 'package:cashly/data/services/sqlite_service.dart';
 import 'package:cashly/data/services/login_service.dart';
 import 'package:cashly/modules/gastoscopio/logic/finance_service.dart';
 import 'package:cashly/modules/gastoscopio/screens/movement_form_screen.dart';
 import 'package:cashly/modules/gastoscopio/widgets/finance_widgets.dart';
-import 'package:cashly/modules/gastoscopio/widgets/category_progress_chart.dart';
 import 'package:cashly/data/models/movement_value.dart';
 import 'package:cashly/common/tag_list.dart';
 import 'package:flutter/material.dart';
@@ -31,7 +31,8 @@ class _GastoscopioHomeScreenState extends State<GastoscopioHomeScreen> {
   int _g = 255;
   int _b = 255;
   late String _moneda = 'loading...';
-  bool _showExpandedBalance = false;
+  final CarouselSliderController _carouselController =
+      CarouselSliderController();
 
   @override
   void initState() {
@@ -278,6 +279,69 @@ class _GastoscopioHomeScreenState extends State<GastoscopioHomeScreen> {
       SqliteService().db.movementValueDao,
       SqliteService().db.fixedMovementDao,
     );
+
+    Widget _firstPage(double total, bool isPositive) => Column(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        Text(service.currentMonthName()),
+
+        Text(
+          'Total: ${total < 0 ? '-' : ''}${total.abs().toStringAsFixed(2)}${_moneda}',
+          style: Theme.of(context).textTheme.titleLarge?.copyWith(
+            color:
+                isPositive
+                    ? Theme.of(context).colorScheme.primary
+                    : Theme.of(context).colorScheme.error,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+        InkWell(
+          onTap:
+              () => setState(() {
+                _carouselController.nextPage(
+                  duration: const Duration(milliseconds: 300),
+                  curve: Curves.easeInOut,
+                );
+              }),
+          child: Icon(Icons.expand_more),
+        ),
+      ],
+    );
+
+    Widget _secondPage(double incomes, double expenses) => Column(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        InkWell(
+          onTap:
+              () => setState(() {
+                _carouselController.previousPage(
+                  duration: const Duration(milliseconds: 300),
+                  curve: Curves.easeInOut,
+                );
+              }),
+          child: Icon(
+            Icons.expand_less,
+            color: Theme.of(context).colorScheme.primary,
+          ),
+        ),
+        Text(
+          'Ingresos: ${incomes.abs().toStringAsFixed(2)}${_moneda}',
+          style: Theme.of(context).textTheme.titleMedium?.copyWith(
+            color: Theme.of(context).colorScheme.primary,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+        const SizedBox(height: 8),
+        Text(
+          'Gastos: -${expenses.abs().toStringAsFixed(2)}${_moneda}',
+          style: Theme.of(context).textTheme.titleMedium?.copyWith(
+            color: Theme.of(context).colorScheme.error,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+      ],
+    );
+
     return AnimatedBuilder(
       animation: service,
       builder: (context, child) {
@@ -298,62 +362,22 @@ class _GastoscopioHomeScreenState extends State<GastoscopioHomeScreen> {
               child: Card(
                 color: Theme.of(context).colorScheme.secondary.withAlpha(25),
                 child: Center(
-                  child: SingleChildScrollView(
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        if (!_showExpandedBalance) ...[
-                          const SizedBox(height: 16),
-                          Text(service.currentMonthName()),
-                        ],
-
-                        Text(
-                          'Total: ${total < 0 ? '-' : ''}${total.abs().toStringAsFixed(2)}${_moneda}',
-                          style: Theme.of(
-                            context,
-                          ).textTheme.titleLarge?.copyWith(
-                            color:
-                                isPositive
-                                    ? Theme.of(context).colorScheme.primary
-                                    : Theme.of(context).colorScheme.error,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                        InkWell(
-                          onTap:
-                              () => setState(() {
-                                _showExpandedBalance = !_showExpandedBalance;
-                              }),
-                          child: Icon(
-                            _showExpandedBalance
-                                ? Icons.expand_less
-                                : Icons.expand_more,
-                          ),
-                        ),
-                        const SizedBox(height: 8),
-                        if (_showExpandedBalance) ...[
-                          Text(
-                            'Ingresos: ${incomes.abs().toStringAsFixed(2)}${_moneda}',
-                            style: Theme.of(
-                              context,
-                            ).textTheme.titleMedium?.copyWith(
-                              color: Theme.of(context).colorScheme.primary,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                          SizedBox(height: 8),
-                          Text(
-                            'Gastos: -${expenses.abs().toStringAsFixed(2)}${_moneda}',
-                            style: Theme.of(
-                              context,
-                            ).textTheme.titleMedium?.copyWith(
-                              color: Theme.of(context).colorScheme.error,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                        ],
-                      ],
+                  child: CarouselSlider(
+                    carouselController: _carouselController,
+                    options: CarouselOptions(
+                      scrollDirection: Axis.vertical,
+                      height: 280,
+                      viewportFraction: 0.9,
+                      enlargeCenterPage: true,
+                      enableInfiniteScroll: false,
+                      autoPlay: false,
+                      pageSnapping: true,
+                      padEnds: true,
                     ),
+                    items: [
+                      _firstPage(total, isPositive),
+                      _secondPage(incomes, expenses),
+                    ],
                   ),
                 ),
               ),
