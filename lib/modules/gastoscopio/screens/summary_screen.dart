@@ -56,14 +56,14 @@ class _SummaryScreenState extends State<SummaryScreen>
     setState(() => _isLoadingAnalysis = true);
 
     final movements = await _financeService.getMovementsForMonth(_month, _year);
-    await generateSummary(movements, Month(_month, _year), context).then((
-      value,
-    ) {
-      setState(() {
-        _aiAnalysis = value;
-        _isLoadingAnalysis = false;
-      });
-    });
+    await GeminiService()
+        .generateSummary(movements, Month(_month, _year), context)
+        .then((value) {
+          setState(() {
+            _aiAnalysis = value;
+            _isLoadingAnalysis = false;
+          });
+        });
   }
 
   Future<void> _setNewDate(int month, int year) async {

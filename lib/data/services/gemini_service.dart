@@ -99,22 +99,35 @@ class GeminiService {
 
     return await _initGenerateContent(prompt, context);
   }
-}
 
-Future<String> generateSummary(
-  List<MovementValue> movements,
-  Month month,
-  BuildContext context,
-) async {
-  String prompt =
-      'Quiero que me des un resumen de la contabilidad de mi usuario para el mes de ${month.month}/${month.year}. '
-      'Quieron que me des solo el resultado de tu analisis en formato markdown.'
-      'Para el analisis quiero que me digas en que me he gastado mas, en que menos, como podria mejorar, cuales han sido potencialmente gastos inutiles...todo tipo de información que me de información sobre como ha ido el mes financieramente.'
-      'Te paso en modo json los datos de los gastos e ingresos de mi usuario:'
-      '${movements.map((m) => m.toJson()).toList()}';
+  Future<List<String>> generateTags(String names, BuildContext context) async {
+    String prompt =
+        'Dime las mejores etiquetas para los siguientes movimientos (solo dime las etiquetas separadas por comas en el orden de los nombres que te mando, nada mas): "$names". '
+        'Elige entre las siguientes etiquetas: ${TagList.join(', ')}. '
+        'Si no encuentras una etiqueta adecuada, responde con la ultima etiqueta.';
 
-  String response = await GeminiService()._initGenerateContent(prompt, context);
-  return response;
+    String response = await _initGenerateContent(prompt, context);
+    return response.split(',').map((e) => e.trim()).toList();
+  }
+
+  Future<String> generateSummary(
+    List<MovementValue> movements,
+    Month month,
+    BuildContext context,
+  ) async {
+    String prompt =
+        'Quiero que me des un resumen de la contabilidad de mi usuario para el mes de ${month.month}/${month.year}. '
+        'Quieron que me des solo el resultado de tu analisis en formato markdown.'
+        'Para el analisis quiero que me digas en que me he gastado mas, en que menos, como podria mejorar, cuales han sido potencialmente gastos inutiles...todo tipo de información que me de información sobre como ha ido el mes financieramente.'
+        'Te paso en modo json los datos de los gastos e ingresos de mi usuario:'
+        '${movements.map((m) => m.toJson()).toList()}';
+
+    String response = await GeminiService()._initGenerateContent(
+      prompt,
+      context,
+    );
+    return response;
+  }
 }
 
 class NoApiKeyException implements Exception {

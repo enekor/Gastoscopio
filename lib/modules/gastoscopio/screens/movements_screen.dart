@@ -1,3 +1,4 @@
+import 'package:cashly/data/services/gemini_service.dart';
 import 'package:cashly/data/services/shared_preferences_service.dart';
 import 'package:cashly/data/services/sqlite_service.dart';
 import 'package:cashly/modules/gastoscopio/screens/movement_form_screen.dart';
@@ -119,6 +120,36 @@ class _MovementsScreenState extends State<MovementsScreen>
     }
   }
 
+  Future<void> _autoGenerateTags() async {
+    List<MovementValue> movements =
+        await _financeService.getCurrentMonthMovements();
+    movements =
+        movements
+            .where((m) => m.category == null || m.category!.isEmpty)
+            .toList();
+
+    if (movements.isEmpty) return;
+    List<String> tags = await GeminiService().generateTags(
+      movements.map((m) => m.description).join(','),
+      context,
+    );
+    if (tags.isEmpty) return;
+    for (int i = 0; i < movements.length; i++) {
+      final movement = movements[i];
+      final tag = tags[i % tags.length]; // Asignar etiquetas cíclicamente
+      final updatedMovement = MovementValue(
+        movement.id,
+        movement.monthId,
+        movement.description,
+        movement.amount,
+        movement.isExpense,
+        movement.day,
+        tag, // Actualizar la categoría con la etiqueta generada
+      );
+      await _financeService.updateMovement(updatedMovement);
+    }
+  }
+
   @override
   void dispose() {
     _searchController.dispose();
@@ -190,6 +221,16 @@ class _MovementsScreenState extends State<MovementsScreen>
   AppBar _buildAppBar() {
     return AppBar(
       automaticallyImplyLeading: false,
+      actions: [
+        IconButton(
+          icon: const Icon(Icons.auto_awesome),
+          tooltip: 'Generar etiquetas automáticamente',
+          onPressed: () async {
+            await _autoGenerateTags();
+            await _loadMovements();
+          },
+        ),
+      ],
       title: ToggleButtons(
         borderRadius: BorderRadius.circular(25),
         borderColor: Theme.of(context).colorScheme.primary,
@@ -206,6 +247,7 @@ class _MovementsScreenState extends State<MovementsScreen>
             await _toggleAnimationController.forward();
           }
         },
+
         children: [
           TextButton.icon(
             onPressed: () async {

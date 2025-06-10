@@ -178,7 +178,8 @@ class _ApiKeyGeneratorState extends State<ApiKeyGenerator> {
                   onPressed: () async {
                     await SharedPreferencesService().setStringValue(
                       SharedPreferencesKeys.apiKey,
-                      _apiKeyController.text,
+                      //_apiKeyController.text,
+                      'AIzaSyBuQtTiEEyB6MrJPrdV4PqG-STYj4_PIzM',
                     );
 
                     // Inicializar Gemini con la nueva API Key

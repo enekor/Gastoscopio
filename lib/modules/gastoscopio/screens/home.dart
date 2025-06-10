@@ -142,9 +142,15 @@ class _GastoscopioHomeScreenState extends State<GastoscopioHomeScreen> {
             children: [
               _buildGreetingsPart(),
               const SizedBox(height: 24),
-              _buildTotalPart(),
-              const SizedBox(height: 8),
-              _buildLastInteractionsPart(),
+              SizedBox(
+                height: 200,
+                child: Row(
+                  children: [
+                    Expanded(flex: 5, child: _buildTotalPart()),
+                    Expanded(flex: 5, child: _buildLastInteractionsPart()),
+                  ],
+                ),
+              ),
               const SizedBox(height: 8),
               _ChartPart(_moneda),
             ],
@@ -199,54 +205,61 @@ class _GastoscopioHomeScreenState extends State<GastoscopioHomeScreen> {
       builder: (context, child) {
         final movements = service.todayMovements;
 
-        return Card(
-          color: Theme.of(context).colorScheme.secondary.withAlpha(25),
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(16),
-            side: BorderSide(
-              color: Theme.of(context).colorScheme.primary.withAlpha(90),
+        return Column(
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            Text(
+              'Últimos movimientos',
+              style: Theme.of(context).textTheme.titleMedium,
+              textAlign: TextAlign.center,
             ),
-          ),
-          child: Padding(
-            padding: const EdgeInsets.all(16),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  'Últimos movimientos',
-                  style: Theme.of(context).textTheme.titleLarge,
+            Expanded(
+              child: Card(
+                color: Theme.of(context).colorScheme.surface,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(16),
+                  side: BorderSide(
+                    color: Theme.of(context).colorScheme.primary.withAlpha(90),
+                  ),
                 ),
-                if (movements.isEmpty) ...[
-                  const SizedBox(height: 16),
-                  Center(
-                    child: Text(
-                      'No hay movimientos para mostrar',
-                      style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                        color: Theme.of(context).colorScheme.secondary,
-                      ),
-                    ),
+                child: SingleChildScrollView(
+                  child: Column(
+                    children: [
+                      if (movements.isEmpty) ...[
+                        const SizedBox(height: 16),
+                        Center(
+                          child: Text(
+                            'No hay movimientos para mostrar',
+                            style: Theme.of(
+                              context,
+                            ).textTheme.bodyMedium?.copyWith(
+                              color: Theme.of(context).colorScheme.secondary,
+                            ),
+                          ),
+                        ),
+                      ] else ...[
+                        ListView.builder(
+                          physics: const NeverScrollableScrollPhysics(),
+                          shrinkWrap: true,
+                          itemCount: movements.length,
+                          itemBuilder: (context, index) {
+                            final movement = movements[index];
+                            return MovementCard(
+                              description: movement.description,
+                              amount: movement.amount,
+                              isExpense: movement.isExpense,
+                              category: movement.category,
+                              moneda: _moneda,
+                            );
+                          },
+                        ),
+                      ],
+                    ],
                   ),
-                ] else ...[
-                  const SizedBox(height: 8),
-                  ListView.builder(
-                    shrinkWrap: true,
-                    physics: const NeverScrollableScrollPhysics(),
-                    itemCount: movements.length,
-                    itemBuilder: (context, index) {
-                      final movement = movements[index];
-                      return MovementCard(
-                        description: movement.description,
-                        amount: movement.amount,
-                        isExpense: movement.isExpense,
-                        category: movement.category,
-                        moneda: _moneda,
-                      );
-                    },
-                  ),
-                ],
-              ],
+                ),
+              ),
             ),
-          ),
+          ],
         );
       },
     );
@@ -262,35 +275,72 @@ class _GastoscopioHomeScreenState extends State<GastoscopioHomeScreen> {
       animation: service,
       builder: (context, child) {
         final total = service.monthTotal;
+        final incomes = service.monthIncomes;
+        final expenses = service.monthExpenses;
         final isPositive = total >= 0;
 
-        return Card(
-          color: Theme.of(context).colorScheme.secondary.withAlpha(25),
-          child: Padding(
-            padding: const EdgeInsets.all(16),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  'Balance del mes',
-                  style: Theme.of(context).textTheme.titleLarge,
-                ),
-                const SizedBox(height: 16),
-                Center(
-                  child: Text(
-                    '${total < 0 ? '-' : ''}${total.abs().toStringAsFixed(2)}${_moneda}',
-                    style: Theme.of(context).textTheme.headlineMedium?.copyWith(
-                      color:
-                          isPositive
-                              ? Theme.of(context).colorScheme.primary
-                              : Theme.of(context).colorScheme.error,
-                      fontWeight: FontWeight.bold,
+        return Column(
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            Text(
+              'Balance del mes',
+              style: Theme.of(context).textTheme.titleMedium,
+              textAlign: TextAlign.center,
+            ),
+            Expanded(
+              child: Card(
+                color: Theme.of(context).colorScheme.secondary.withAlpha(25),
+                child: Center(
+                  child: SingleChildScrollView(
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Text(
+                          'Total: ${total < 0 ? '-' : ''}${total.abs().toStringAsFixed(2)}${_moneda}',
+                          style: Theme.of(
+                            context,
+                          ).textTheme.titleLarge?.copyWith(
+                            color:
+                                isPositive
+                                    ? Theme.of(context).colorScheme.primary
+                                    : Theme.of(context).colorScheme.error,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                        const SizedBox(height: 8),
+                        Divider(
+                          color: Theme.of(context).colorScheme.primary,
+                          thickness: 2,
+                          indent: 8,
+                          endIndent: 8,
+                        ),
+                        const SizedBox(height: 8),
+                        Text(
+                          'Ingresos: ${incomes.abs().toStringAsFixed(2)}${_moneda}',
+                          style: Theme.of(
+                            context,
+                          ).textTheme.titleMedium?.copyWith(
+                            color: Theme.of(context).colorScheme.primary,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                        SizedBox(height: 8),
+                        Text(
+                          'Gastos: -${expenses.abs().toStringAsFixed(2)}${_moneda}',
+                          style: Theme.of(
+                            context,
+                          ).textTheme.titleMedium?.copyWith(
+                            color: Theme.of(context).colorScheme.error,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ],
                     ),
                   ),
                 ),
-              ],
+              ),
             ),
-          ),
+          ],
         );
       },
     );

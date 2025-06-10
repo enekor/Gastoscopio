@@ -3,6 +3,7 @@ import 'package:dropdown_button2/dropdown_button2.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:cashly/modules/gastoscopio/logic/finance_service.dart';
 import 'package:cashly/data/services/sqlite_service.dart';
+import 'package:path/path.dart';
 
 class MonthYearSelector extends StatelessWidget {
   final int selectedYear;
@@ -110,40 +111,29 @@ class MovementCard extends StatelessWidget {
   }) : super(key: key);
   @override
   Widget build(BuildContext context) {
-    return Card(
-      color: Theme.of(context).colorScheme.secondary.withAlpha(25),
-      elevation: 2,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-      child: ListTile(
-        contentPadding: const EdgeInsets.only(right: 16, left: 16, top: 8),
-        title: Text(
-          description,
-          style: const TextStyle(fontWeight: FontWeight.w500),
-        ),
-        subtitle:
-            category != null
-                ? Padding(
-                  padding: const EdgeInsets.only(top: 4),
-                  child: Text(
-                    category!,
-                    style: TextStyle(
-                      color: Theme.of(context).colorScheme.secondary,
-                    ),
-                  ),
-                )
-                : null,
-        trailing: Text(
-          '${isExpense ? '-' : '+'}${amount.toStringAsFixed(2)}${moneda}',
-          style: TextStyle(
-            color:
-                isExpense
-                    ? Theme.of(context).colorScheme.error
-                    : Theme.of(context).colorScheme.primary,
-            fontWeight: FontWeight.bold,
-            fontSize: 16,
+    return Column(
+      children: [
+        ListTile(
+          contentPadding: const EdgeInsets.only(right: 16, left: 16, top: 8),
+          title: Text(
+            description,
+            style: const TextStyle(fontWeight: FontWeight.w500),
+          ),
+          subtitle: Text(
+            '${isExpense ? '-' : '+'}${amount.toStringAsFixed(2)}${moneda}',
+            textAlign: TextAlign.end,
+            style: TextStyle(
+              color:
+                  isExpense
+                      ? Theme.of(context).colorScheme.error
+                      : Theme.of(context).colorScheme.primary,
+              fontWeight: FontWeight.bold,
+              fontSize: 16,
+            ),
           ),
         ),
-      ),
+        const Divider(height: 1, thickness: 1, indent: 16, endIndent: 16),
+      ],
     );
   }
 }

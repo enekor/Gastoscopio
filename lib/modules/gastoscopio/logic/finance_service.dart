@@ -16,6 +16,8 @@ class FinanceService extends ChangeNotifier {
   List<MovementValue> _todayMovements = [];
   Map<String, double> _monthSummary = {};
   double _monthTotal = 0;
+  double _monthIncomes = 0;
+  double _monthExpenses = 0;
 
   // Private constructor
   FinanceService._internal(
@@ -42,6 +44,8 @@ class FinanceService extends ChangeNotifier {
   List<MovementValue> get todayMovements => _todayMovements;
   Map<String, double> get monthSummary => _monthSummary;
   double get monthTotal => _monthTotal;
+  double get monthIncomes => _monthIncomes;
+  double get monthExpenses => _monthExpenses;
 
   Future<void> setCurrentMonth(int month, int year) async {
     final monthData = await _monthDao.findMonthByMonthAndYear(month, year);
@@ -94,6 +98,8 @@ class FinanceService extends ChangeNotifier {
         0.0;
 
     _monthTotal = totalIncomes - totalExpenses;
+    _monthIncomes = totalIncomes;
+    _monthExpenses = totalExpenses;
 
     // Actualizar movimientos de hoy
     final now = DateTime.now();
@@ -269,6 +275,26 @@ class FinanceService extends ChangeNotifier {
   Future<List<MovementValue>> getCurrentMonthMovements() async {
     if (_currentMonth == null) return [];
     return _movementValueDao.findMovementValuesByMonthId(_currentMonth!.id!);
+  }
+
+  Future<void> getCurrentMonthInserts() async {
+    if (_currentMonth == null) return;
+    _monthIncomes =
+        await _movementValueDao.sumMovementValuesByMonthIdAndType(
+          _currentMonth!.id!,
+          false,
+        ) ??
+        0.0;
+  }
+
+  Future<void> getCurrentMonthExpenses() async {
+    if (_currentMonth == null) return;
+    _monthExpenses =
+        await _movementValueDao.sumMovementValuesByMonthIdAndType(
+          _currentMonth!.id!,
+          true,
+        ) ??
+        0.0;
   }
 
   Future<bool> deleteMovement(

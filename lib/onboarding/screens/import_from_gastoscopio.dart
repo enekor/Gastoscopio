@@ -68,7 +68,8 @@ class _ImportFromGastoscopioScreenState
           content: Text(
             'Archivo procesado correctamente:\n'
             '• ${result['Months']?.length ?? 0} meses encontrados\n'
-            '• ${result['Movements']?.length ?? 0} movimientos procesados',
+            '• ${result['Movements']?.length ?? 0} movimientos procesados\n'
+            '• ${result['FixedMovements']?.length ?? 0} movimientos fijos procesados',
           ),
           actions: [
             TextButton(
@@ -256,6 +257,33 @@ class _ImportFromGastoscopioScreenState
                           ),
                         ),
                       ],
+                    ),
+                  );
+                }).toList(),
+          ),
+        ),
+
+        // Movimientos Fijos Card
+        Card(
+          color: Theme.of(context).colorScheme.secondary.withAlpha(25),
+          child: ExpansionTile(
+            title: Text(
+              'Movimientos Fijos (${result["FixedMovements"]?.length ?? 0})',
+            ),
+            children:
+                (result["FixedMovements"] ?? []).map<Widget>((fixedMovement) {
+                  return ListTile(
+                    title: Text(fixedMovement.description),
+                    subtitle: Text(
+                      'Mes ID: ${fixedMovement.monthId} | Día: ${fixedMovement.day} | '
+                      'Categoría: ${fixedMovement.category ?? "Sin categoría"}',
+                    ),
+                    trailing: Text(
+                      '${fixedMovement.amount.toStringAsFixed(2)}${_moneda}',
+                      style: TextStyle(
+                        fontWeight: FontWeight.bold,
+                        color: Colors.black,
+                      ),
                     ),
                   );
                 }).toList(),

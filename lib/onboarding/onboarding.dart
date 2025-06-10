@@ -1,3 +1,4 @@
+import 'package:cashly/data/models/fixed_movement.dart';
 import 'package:cashly/data/models/month.dart';
 import 'package:cashly/data/models/movement_value.dart';
 import 'package:cashly/data/services/json_import_service.dart';
@@ -107,6 +108,13 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
       // Then import movements
       for (MovementValue movement in _importResult!['Movements']) {
         await db.movementValueDao.insertMovementValue(movement);
+      }
+
+      // Finally, import fixed movements if they exist
+      if (_importResult!.containsKey('FixedMovements')) {
+        for (FixedMovement fixedMovement in _importResult!['FixedMovements']) {
+          await db.fixedMovementDao.insertFixedMovement(fixedMovement);
+        }
       }
 
       // Upload to backup

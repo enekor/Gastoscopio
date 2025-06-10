@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'dart:io';
+import 'package:cashly/data/models/fixed_movement.dart';
 import 'package:cashly/data/models/json_import_account.dart';
 import 'package:cashly/data/models/month.dart';
 import 'package:cashly/data/models/movement_value.dart';
@@ -62,6 +63,18 @@ class JsonImportService {
       Map<String, dynamic> _jsonAccountProccessed = {};
       _jsonAccountProccessed['Months'] = [];
       _jsonAccountProccessed['Movements'] = [];
+      _jsonAccountProccessed['FixedMovements'] =
+          _jsonAccount.fijos?.map(
+            (fijo) => FixedMovement(
+              null,
+              fijo.nombre ?? '',
+              fijo.valor! < 0 ? -1 * fijo.valor! : fijo.valor!,
+              fijo.valor! > 0,
+              fijo.dia ?? 1,
+              fijo.tag ?? '',
+            ),
+          ) ??
+          [];
 
       if (_jsonAccount.meses == null) return _jsonAccountProccessed;
 
@@ -77,8 +90,19 @@ class JsonImportService {
         _jsonAccountProccessed['Movements'].addAll(
           _processMovementsForMonth(mes.gastos, mes.extras, month.id!),
         );
-      }
 
+        _jsonAccountProccessed['Movements'].add(
+          MovementValue(
+            null,
+            month.id!,
+            'Salario',
+            mes.ingreso ?? 0,
+            false,
+            1,
+            '',
+          ),
+        );
+      }
       return _jsonAccountProccessed;
     } catch (e) {
       throw Exception('Error al parsear JSON: $e');
