@@ -1,5 +1,11 @@
+import 'package:cashly/data/models/fixed_movement.dart';
+import 'package:cashly/data/models/month.dart';
+import 'package:cashly/data/models/movement_value.dart';
+import 'package:cashly/data/services/login_service.dart';
 import 'package:cashly/data/services/shared_preferences_service.dart';
+import 'package:cashly/data/services/sqlite_service.dart';
 import 'package:cashly/modules/settings.dart/widgets/apikey-generator.dart';
+import 'package:cashly/modules/settings.dart/widgets/import_from_gastoscopio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_colorpicker/flutter_colorpicker.dart';
 import 'package:svg_flutter/svg.dart';
@@ -22,6 +28,129 @@ class _SettingsScreenState extends State<SettingsScreen> {
   void initState() {
     super.initState();
     _loadData();
+  }
+
+  void _handleImportSuccess(Map<String, dynamic>? result) async {
+    if (result == null) {
+      showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            title: Text('Error'),
+            content: Text('No hay datos para importar'),
+            actions: [
+              TextButton(
+                onPressed: () {
+                  Navigator.pop(context);
+                },
+                child: Text('Aceptar'),
+              ),
+            ],
+          );
+        },
+      );
+      return;
+    }
+    try {
+      showDialog(
+        context: context,
+        barrierDismissible: false,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            title: Text('Importando datos...'),
+            content: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                CircularProgressIndicator(),
+                SizedBox(height: 16),
+                Text('Guardando ${result['Movements'].length} movimientos'),
+                ElevatedButton(
+                  onPressed: () => Navigator.pop(context),
+                  child: Text('Ok'),
+                ),
+              ],
+            ),
+          );
+        },
+      );
+
+      // Import months first
+      for (Month month in result['Months']) {
+        await SqliteService().db.monthDao.insertMonth(month);
+      }
+
+      // Then import movements
+      for (MovementValue movement in result['Movements']) {
+        await SqliteService().db.movementValueDao.insertMovementValue(movement);
+      }
+
+      // Finalmente, importa los movimientos fijos si existen
+      if (result.containsKey('FixedMovements')) {
+        for (FixedMovement fixedMovement in result['FixedMovements']) {
+          await SqliteService().db.fixedMovementDao.insertFixedMovement(
+            fixedMovement,
+          );
+        }
+      }
+
+      // Subir a la copia de seguridad
+      await LoginService().uploadDatabase();
+
+      // Pop the progress dialog
+      if (mounted) {
+        Navigator.pop(context);
+      }
+
+      // Show success message and navigate
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Los datos se han importado correctamente'),
+          behavior: SnackBarBehavior.floating,
+          duration: Duration(seconds: 2),
+        ),
+      );
+    } catch (e) {
+      if (!mounted) return;
+
+      // Pop the progress dialog only if we're showing it
+      try {
+        Navigator.pop(context);
+      } catch (popError) {
+        // Ignore pop errors
+      }
+
+      // Show error dialog with more specific messages
+      String errorMessage = 'Ocurrió un error al guardar los datos';
+      if (e.toString().contains('database')) {
+        errorMessage =
+            'Error al inicializar la base de datos. Por favor, intenta de nuevo.';
+      } else if (e.toString().contains('insert')) {
+        errorMessage =
+            'Error al guardar los datos. Verifica que el formato del archivo sea correcto.';
+      }
+
+      showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            title: Text('Error al importar'),
+            content: Text('$errorMessage\n\nDetalles: ${e.toString()}'),
+            actions: [
+              TextButton(
+                onPressed: () {
+                  Navigator.pop(context);
+                },
+                child: Text('Continuar sin importar'),
+              ),
+              TextButton(
+                onPressed: () => Navigator.pop(context),
+                child: Text('Intentar de nuevo'),
+              ),
+            ],
+          );
+        },
+      );
+    }
   }
 
   Future<void> _loadData() async {
@@ -146,6 +275,20 @@ class _SettingsScreenState extends State<SettingsScreen> {
 
               // API Key Card
               const ApiKeyGenerator(),
+
+              const SizedBox(height: 20),
+
+              _buildSectionHeader(
+                context,
+                'Gestión de Datos',
+                'Importar y gestionar tus datos financieros',
+                Icons.storage_outlined,
+              ),
+              const SizedBox(height: 20),
+
+              ImportFromGastoscopioScreen(
+                onImportSuccess: _handleImportSuccess,
+              ),
             ],
           ),
         ),

@@ -73,7 +73,12 @@ class _FirstStartupScreenState extends State<FirstStartupScreen> {
         padding: const EdgeInsets.all(16.0),
         child: Column(
           children: [
-            const Icon(Icons.rocket_launch, size: 60, color: Colors.blue),
+            Image.asset(
+              'assets/logo.png',
+              width: 60,
+              height: 60,
+              fit: BoxFit.contain,
+            ),
             const SizedBox(height: 16),
             const Text(
               '¡Bienvenido a Gastoscopio!',
