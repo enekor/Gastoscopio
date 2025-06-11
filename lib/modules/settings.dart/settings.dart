@@ -1,4 +1,3 @@
-import 'package:carousel_slider/carousel_slider.dart';
 import 'package:cashly/data/services/shared_preferences_service.dart';
 import 'package:cashly/modules/settings.dart/widgets/apikey-generator.dart';
 import 'package:flutter/material.dart';
@@ -107,257 +106,455 @@ class _SettingsScreenState extends State<SettingsScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Ajustes')),
+      appBar: AppBar(
+        title: const Text('Configuración'),
+        centerTitle: true,
+        backgroundColor: Theme.of(context).colorScheme.surface,
+        foregroundColor: Theme.of(context).colorScheme.onSurface,
+      ),
       body: SingleChildScrollView(
         child: Padding(
-          padding: const EdgeInsets.all(16.0),
+          padding: const EdgeInsets.all(24.0),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(
-                'Configuración General',
-                style: Theme.of(context).textTheme.titleLarge,
+              // Header
+              _buildSectionHeader(
+                context,
+                'Personalización',
+                'Configura tu experiencia en la aplicación',
+                Icons.palette_outlined,
               ),
-              const SizedBox(height: 16),
-              Card(
-                color: Theme.of(context).colorScheme.secondary.withAlpha(25),
-                child: Padding(
-                  padding: const EdgeInsets.all(16.0),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        'Moneda',
-                        style: Theme.of(context).textTheme.titleMedium,
-                      ),
-                      const SizedBox(height: 8),
-                      DropdownButtonFormField<String>(
-                        value: _currentCurrency,
-                        decoration: const InputDecoration(
-                          border: OutlineInputBorder(),
-                          contentPadding: EdgeInsets.symmetric(horizontal: 16),
-                        ),
-                        items: const [
-                          DropdownMenuItem(value: '€', child: Text('Euro (€)')),
-                          DropdownMenuItem(
-                            value: '\$',
-                            child: Text('Dólar (\$)'),
-                          ),
-                          DropdownMenuItem(
-                            value: '£',
-                            child: Text('Libra (£)'),
-                          ),
-                        ],
-                        onChanged: (value) {
-                          if (value != null) {
-                            _saveCurrency(value);
-                          }
-                        },
-                      ),
-                      const SizedBox(height: 16),
-                      Column(
-                        crossAxisAlignment: CrossAxisAlignment.stretch,
-                        children: [
-                          Text(
-                            'Logo',
-                            style: Theme.of(context).textTheme.titleMedium,
-                          ),
-                          const SizedBox(height: 8),
-                          SizedBox(
-                            height: 100,
-                            child: Row(
-                              children: [
-                                Expanded(
-                                  child: CarouselSlider(
-                                    options: CarouselOptions(
-                                      height: 100,
-                                      viewportFraction: 0.9,
-                                      enlargeCenterPage: true,
-                                      enableInfiniteScroll: false,
-                                      autoPlay: false,
-                                      pageSnapping: true,
-                                      padEnds: true,
-                                      onPageChanged: (index, reason) {
-                                        setState(() {
-                                          _isSvg = index == 1;
-                                        });
-                                        _saveLogo();
-                                      },
-                                    ),
-                                    items: [
-                                      Container(
-                                        decoration: BoxDecoration(
-                                          border: Border.all(
-                                            color:
-                                                Theme.of(
-                                                  context,
-                                                ).colorScheme.outline,
-                                            width: 1,
-                                          ),
-                                          borderRadius: BorderRadius.circular(
-                                            8,
-                                          ),
-                                        ),
-                                        child: ClipRRect(
-                                          borderRadius: BorderRadius.circular(
-                                            8,
-                                          ),
-                                          child: Image.asset(
-                                            'assets/logo.png',
-                                            fit: BoxFit.contain,
-                                          ),
-                                        ),
-                                      ),
-                                      Container(
-                                        decoration: BoxDecoration(
-                                          border: Border.all(
-                                            color:
-                                                Theme.of(
-                                                  context,
-                                                ).colorScheme.outline,
-                                            width: 1,
-                                          ),
-                                          borderRadius: BorderRadius.circular(
-                                            8,
-                                          ),
-                                        ),
-                                        child: ClipRRect(
-                                          borderRadius: BorderRadius.circular(
-                                            8,
-                                          ),
-                                          child: Row(
-                                            mainAxisAlignment:
-                                                MainAxisAlignment.spaceAround,
-                                            children: [
-                                              SvgPicture.asset(
-                                                'assets/logo.svg',
-                                                width: 80,
-                                                height: 80,
-                                                colorFilter: ColorFilter.mode(
-                                                  Color.fromARGB(
-                                                    255,
-                                                    _r,
-                                                    _g,
-                                                    _b,
-                                                  ),
-                                                  BlendMode.srcIn,
-                                                ),
-                                              ),
-                                              GestureDetector(
-                                                onTap: () {
-                                                  showDialog(
-                                                    context: context,
-                                                    builder: (
-                                                      BuildContext context,
-                                                    ) {
-                                                      return AlertDialog(
-                                                        title: const Text(
-                                                          'Selecciona un color',
-                                                        ),
-                                                        content: SingleChildScrollView(
-                                                          child: ColorPicker(
-                                                            pickerColor:
-                                                                Color.fromARGB(
-                                                                  255,
-                                                                  _r,
-                                                                  _g,
-                                                                  _b,
-                                                                ),
-                                                            onColorChanged: (
-                                                              Color color,
-                                                            ) {
-                                                              setState(() {
-                                                                _r = color.red;
-                                                                _g =
-                                                                    color.green;
-                                                                _b = color.blue;
-                                                              });
-                                                            },
-                                                            pickerAreaHeightPercent:
-                                                                0.8,
-                                                          ),
-                                                        ),
-                                                        actions: <Widget>[
-                                                          TextButton(
-                                                            child: const Text(
-                                                              'Cancelar',
-                                                            ),
-                                                            onPressed: () {
-                                                              Navigator.of(
-                                                                context,
-                                                              ).pop();
-                                                            },
-                                                          ),
-                                                          TextButton(
-                                                            child: const Text(
-                                                              'Aceptar',
-                                                            ),
-                                                            onPressed: () {
-                                                              _saveAvatarColor(
-                                                                _r,
-                                                                _g,
-                                                                _b,
-                                                              );
-                                                              Navigator.of(
-                                                                context,
-                                                              ).pop();
-                                                            },
-                                                          ),
-                                                        ],
-                                                      );
-                                                    },
-                                                  );
-                                                },
-                                                child: Container(
-                                                  decoration: BoxDecoration(
-                                                    shape: BoxShape.circle,
-                                                    border: Border.all(
-                                                      color:
-                                                          Theme.of(
-                                                            context,
-                                                          ).colorScheme.outline,
-                                                      width: 1,
-                                                    ),
-                                                  ),
-                                                  child: CircleAvatar(
-                                                    radius: 20,
-                                                    backgroundColor:
-                                                        Color.fromARGB(
-                                                          255,
-                                                          _r,
-                                                          _g,
-                                                          _b,
-                                                        ),
-                                                  ),
-                                                ),
-                                              ),
-                                            ],
-                                          ),
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                        ],
-                      ),
-                    ],
-                  ),
-                ),
+              const SizedBox(height: 20),
+
+              // Currency Card
+              _buildCurrencyCard(context),
+              const SizedBox(height: 20),
+
+              // Logo Card
+              _buildLogoCard(context),
+              const SizedBox(height: 32),
+
+              // API Section
+              _buildSectionHeader(
+                context,
+                'Inteligencia Artificial',
+                'Configuración para funciones avanzadas con IA',
+                Icons.smart_toy_outlined,
               ),
-              const SizedBox(height: 24),
-              Text(
-                'API Key de Google AI Studio',
-                style: Theme.of(context).textTheme.titleLarge,
-              ),
-              const SizedBox(height: 16),
+              const SizedBox(height: 20),
+
+              // API Key Card
               const ApiKeyGenerator(),
             ],
           ),
         ),
       ),
     );
+  }
+
+  Widget _buildSectionHeader(
+    BuildContext context,
+    String title,
+    String subtitle,
+    IconData icon,
+  ) {
+    return Row(
+      children: [
+        Container(
+          padding: const EdgeInsets.all(12),
+          decoration: BoxDecoration(
+            color: Theme.of(context).colorScheme.primary.withAlpha(25),
+            borderRadius: BorderRadius.circular(12),
+          ),
+          child: Icon(
+            icon,
+            color: Theme.of(context).colorScheme.primary,
+            size: 24,
+          ),
+        ),
+        const SizedBox(width: 16),
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                title,
+                style: Theme.of(
+                  context,
+                ).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold),
+              ),
+              const SizedBox(height: 4),
+              Text(
+                subtitle,
+                style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                  color: Theme.of(context).colorScheme.onSurfaceVariant,
+                ),
+              ),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildCurrencyCard(BuildContext context) {
+    return Card(
+      color: Theme.of(context).colorScheme.secondary.withAlpha(25),
+      elevation: 0,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(16),
+        side: BorderSide(
+          color: Theme.of(context).colorScheme.outline.withAlpha(50),
+        ),
+      ),
+      child: Padding(
+        padding: const EdgeInsets.all(20.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                Icon(
+                  Icons.currency_exchange,
+                  color: Theme.of(context).colorScheme.primary,
+                  size: 20,
+                ),
+                const SizedBox(width: 8),
+                Text(
+                  'Moneda Preferida',
+                  style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 8),
+            Text(
+              'Selecciona la moneda que se mostrará en toda la aplicación',
+              style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                color: Theme.of(context).colorScheme.onSurfaceVariant,
+              ),
+            ),
+            const SizedBox(height: 16),
+            Container(
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(12),
+                border: Border.all(
+                  color: Theme.of(context).colorScheme.outline.withAlpha(100),
+                ),
+              ),
+              child: DropdownButtonFormField<String>(
+                value: _currentCurrency,
+                decoration: InputDecoration(
+                  border: InputBorder.none,
+                  contentPadding: const EdgeInsets.symmetric(
+                    horizontal: 16,
+                    vertical: 12,
+                  ),
+                  prefixIcon: Icon(
+                    Icons.attach_money,
+                    color: Theme.of(context).colorScheme.primary,
+                  ),
+                ),
+                items: const [
+                  DropdownMenuItem(value: '€', child: Text('Euro (€)')),
+                  DropdownMenuItem(
+                    value: '\$',
+                    child: Text('Dólar Estadounidense (\$)'),
+                  ),
+                  DropdownMenuItem(
+                    value: '£',
+                    child: Text('Libra Esterlina (£)'),
+                  ),
+                  DropdownMenuItem(value: '¥', child: Text('Yen Japonés (¥)')),
+                  DropdownMenuItem(
+                    value: 'CHF',
+                    child: Text('Franco Suizo (CHF)'),
+                  ),
+                ],
+                onChanged: (value) {
+                  if (value != null) {
+                    _saveCurrency(value);
+                  }
+                },
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildLogoCard(BuildContext context) {
+    return Card(
+      color: Theme.of(context).colorScheme.secondary.withAlpha(25),
+      elevation: 0,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(16),
+        side: BorderSide(
+          color: Theme.of(context).colorScheme.outline.withAlpha(50),
+        ),
+      ),
+      child: Padding(
+        padding: const EdgeInsets.all(20.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                Icon(
+                  Icons.image_outlined,
+                  color: Theme.of(context).colorScheme.primary,
+                  size: 20,
+                ),
+                const SizedBox(width: 8),
+                Text(
+                  'Personalización del Logo',
+                  style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 8),
+            Text(
+              'Elige entre PNG estático o SVG personalizable con color',
+              style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                color: Theme.of(context).colorScheme.onSurfaceVariant,
+              ),
+            ),
+            const SizedBox(height: 20),
+            Row(
+              children: [
+                // PNG Option
+                Expanded(
+                  child: _buildLogoOption(
+                    context,
+                    isPng: true,
+                    isSelected: !_isSvg,
+                    onTap: () {
+                      setState(() {
+                        _isSvg = false;
+                      });
+                      _saveLogo();
+                    },
+                  ),
+                ),
+                const SizedBox(width: 16),
+                // SVG Option
+                Expanded(
+                  child: _buildLogoOption(
+                    context,
+                    isPng: false,
+                    isSelected: _isSvg,
+                    onTap: () {
+                      setState(() {
+                        _isSvg = true;
+                      });
+                      _saveLogo();
+                    },
+                  ),
+                ),
+              ],
+            ),
+            if (_isSvg) ...[
+              const SizedBox(height: 20),
+              Divider(
+                color: Theme.of(context).colorScheme.outline.withAlpha(50),
+              ),
+              const SizedBox(height: 16),
+              Row(
+                children: [
+                  Icon(
+                    Icons.color_lens_outlined,
+                    color: Theme.of(context).colorScheme.primary,
+                    size: 18,
+                  ),
+                  const SizedBox(width: 8),
+                  Text(
+                    'Color del Logo SVG',
+                    style: Theme.of(context).textTheme.titleSmall?.copyWith(
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                  const Spacer(),
+                  GestureDetector(
+                    onTap: _showColorPicker,
+                    child: Container(
+                      padding: const EdgeInsets.all(4),
+                      decoration: BoxDecoration(
+                        shape: BoxShape.circle,
+                        border: Border.all(
+                          color: Theme.of(context).colorScheme.outline,
+                          width: 2,
+                        ),
+                      ),
+                      child: CircleAvatar(
+                        radius: 16,
+                        backgroundColor: Color.fromARGB(255, _r, _g, _b),
+                        child: Icon(
+                          Icons.edit,
+                          size: 16,
+                          color: _getContrastColor(
+                            Color.fromARGB(255, _r, _g, _b),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ],
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildLogoOption(
+    BuildContext context, {
+    required bool isPng,
+    required bool isSelected,
+    required VoidCallback onTap,
+  }) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        padding: const EdgeInsets.all(16),
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(12),
+          border: Border.all(
+            color:
+                isSelected
+                    ? Theme.of(context).colorScheme.primary
+                    : Theme.of(context).colorScheme.outline.withAlpha(100),
+            width: isSelected ? 2 : 1,
+          ),
+          color:
+              isSelected
+                  ? Theme.of(context).colorScheme.primary.withAlpha(25)
+                  : Theme.of(context).colorScheme.surface,
+        ),
+        child: Column(
+          children: [
+            Container(
+              height: 60,
+              width: 60,
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(8),
+                color: Theme.of(context).colorScheme.surfaceContainerHighest,
+              ),
+              child: Center(
+                child:
+                    isPng
+                        ? Image.asset(
+                          'assets/logo.png',
+                          width: 40,
+                          height: 40,
+                          fit: BoxFit.contain,
+                        )
+                        : SvgPicture.asset(
+                          'assets/logo.svg',
+                          width: 40,
+                          height: 40,
+                          colorFilter: ColorFilter.mode(
+                            Color.fromARGB(255, _r, _g, _b),
+                            BlendMode.srcIn,
+                          ),
+                        ),
+              ),
+            ),
+            const SizedBox(height: 12),
+            Text(
+              isPng ? 'PNG' : 'SVG',
+              style: Theme.of(context).textTheme.titleSmall?.copyWith(
+                fontWeight: FontWeight.w600,
+                color:
+                    isSelected
+                        ? Theme.of(context).colorScheme.primary
+                        : Theme.of(context).colorScheme.onSurface,
+              ),
+            ),
+            const SizedBox(height: 4),
+            Text(
+              isPng ? 'Estático' : 'Personalizable',
+              style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                color: Theme.of(context).colorScheme.onSurfaceVariant,
+              ),
+            ),
+            if (isSelected) ...[
+              const SizedBox(height: 8),
+              Icon(
+                Icons.check_circle,
+                color: Theme.of(context).colorScheme.primary,
+                size: 20,
+              ),
+            ],
+          ],
+        ),
+      ),
+    );
+  }
+
+  void _showColorPicker() {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Row(
+            children: [
+              Icon(Icons.palette, color: Theme.of(context).colorScheme.primary),
+              const SizedBox(width: 8),
+              const Text('Selecciona un Color'),
+            ],
+          ),
+          content: SingleChildScrollView(
+            child: ColorPicker(
+              pickerColor: Color.fromARGB(255, _r, _g, _b),
+              onColorChanged: (Color color) {
+                setState(() {
+                  _r = color.red;
+                  _g = color.green;
+                  _b = color.blue;
+                });
+              },
+              pickerAreaHeightPercent: 0.8,
+              enableAlpha: false,
+              displayThumbColor: true,
+            ),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(),
+              child: Text(
+                'Cancelar',
+                style: TextStyle(
+                  color: Theme.of(context).colorScheme.onSurfaceVariant,
+                ),
+              ),
+            ),
+            ElevatedButton(
+              onPressed: () {
+                _saveAvatarColor(_r, _g, _b);
+                Navigator.of(context).pop();
+              },
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Theme.of(context).colorScheme.primary,
+                foregroundColor: Theme.of(context).colorScheme.onPrimary,
+              ),
+              child: const Text('Aplicar'),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  Color _getContrastColor(Color color) {
+    // Calculate relative luminance
+    double luminance =
+        (0.299 * color.red + 0.587 * color.green + 0.114 * color.blue) / 255;
+    return luminance > 0.5 ? Colors.black : Colors.white;
   }
 }
