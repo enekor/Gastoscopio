@@ -7,6 +7,7 @@ import 'package:cashly/common/tag_list.dart';
 import 'package:flutter/material.dart';
 import 'package:cashly/data/models/movement_value.dart';
 import 'package:cashly/modules/gastoscopio/logic/finance_service.dart';
+import 'package:google_fonts/google_fonts.dart';
 
 class MovementsScreen extends StatefulWidget {
   final int year;
@@ -180,7 +181,7 @@ class _MovementsScreenState extends State<MovementsScreen>
   Widget _buildEmptyScreen() {
     return Scaffold(
       appBar: _buildAppBar(),
-      body: const Center(child: Text('No hay movimientos para mostrar')),
+      body: const Center(child: Text('No hay movimientos para mostrar.')),
       floatingActionButton: _buildFAB(),
     );
   }
@@ -193,7 +194,13 @@ class _MovementsScreenState extends State<MovementsScreen>
       child: Container(
         width: 45,
         height: 45,
-        decoration: const BoxDecoration(shape: BoxShape.circle),
+        decoration: BoxDecoration(
+          shape: BoxShape.circle,
+          border: Border.all(
+            color: Theme.of(context).colorScheme.primary.withOpacity(0.3),
+            width: 2,
+          ),
+        ),
         child: FloatingActionButton.small(
           backgroundColor: Colors.transparent,
           elevation: 0,
@@ -211,7 +218,7 @@ class _MovementsScreenState extends State<MovementsScreen>
               await _loadMovements();
             }
           },
-          child: const Icon(Icons.add),
+          child: Icon(Icons.add, color: Theme.of(context).colorScheme.primary),
           heroTag: 'movements_fab',
         ),
       ),
@@ -221,16 +228,6 @@ class _MovementsScreenState extends State<MovementsScreen>
   AppBar _buildAppBar() {
     return AppBar(
       automaticallyImplyLeading: false,
-      actions: [
-        IconButton(
-          icon: const Icon(Icons.auto_awesome),
-          tooltip: 'Generar etiquetas automáticamente',
-          onPressed: () async {
-            await _autoGenerateTags();
-            await _loadMovements();
-          },
-        ),
-      ],
       title: ToggleButtons(
         borderRadius: BorderRadius.circular(25),
         borderColor: Theme.of(context).colorScheme.primary,
@@ -277,7 +274,9 @@ class _MovementsScreenState extends State<MovementsScreen>
           ),
         ],
       ),
-      centerTitle: true,
+      actions: [_buildGenerateTagsButton(), _buildOrderByButton()],
+      centerTitle: false,
+      actionsPadding: const EdgeInsets.only(right: 16),
     );
   }
 
@@ -288,6 +287,7 @@ class _MovementsScreenState extends State<MovementsScreen>
       body: Column(
         children: [
           _buildFilters(),
+          _buildTotalIndicator(movements, moneda),
           const SizedBox(height: 16),
           Expanded(child: _buildList(movements, moneda)),
         ],
@@ -301,7 +301,7 @@ class _MovementsScreenState extends State<MovementsScreen>
         opacity: _toggleAnimation,
         child: Center(
           child: Text(
-            _showExpenses ? 'No hay gastos' : 'No hay ingresos',
+            _showExpenses ? 'No hay gastos.' : 'No hay ingresos.',
             style: TextStyle(color: Theme.of(context).colorScheme.secondary),
           ),
         ),
@@ -372,6 +372,170 @@ class _MovementsScreenState extends State<MovementsScreen>
     );
   }
 
+  Widget _buildOrderByButton() {
+    return Card(
+      color: Theme.of(context).colorScheme.secondary.withAlpha(25),
+      child: PopupMenuButton<String>(
+        icon: Icon(Icons.sort, color: Theme.of(context).colorScheme.primary),
+        tooltip: 'Ordenar por',
+        onSelected: (String value) {
+          setState(() {
+            _expandedItems.clear(); // Reset expanded items
+            switch (value) {
+              case 'fecha':
+                _cachedMovements.sort((a, b) => a.day.compareTo(b.day));
+                break;
+              case 'alfabetico':
+                _cachedMovements.sort(
+                  (a, b) => a.description.toLowerCase().compareTo(
+                    b.description.toLowerCase(),
+                  ),
+                );
+                break;
+              case 'valor':
+                _cachedMovements.sort((a, b) => b.amount.compareTo(a.amount));
+                break;
+            }
+          });
+        },
+        itemBuilder:
+            (BuildContext context) => [
+              PopupMenuItem<String>(
+                value: 'fecha',
+                child: Row(
+                  children: [
+                    Icon(
+                      Icons.calendar_today,
+                      color: Theme.of(context).colorScheme.primary,
+                    ),
+                    SizedBox(width: 12),
+                    Text('Por fecha'),
+                  ],
+                ),
+              ),
+              PopupMenuItem<String>(
+                value: 'alfabetico',
+                child: Row(
+                  children: [
+                    Icon(
+                      Icons.sort_by_alpha,
+                      color: Theme.of(context).colorScheme.primary,
+                    ),
+                    SizedBox(width: 12),
+                    Text('Alfabético'),
+                  ],
+                ),
+              ),
+              PopupMenuItem<String>(
+                value: 'valor',
+                child: Row(
+                  children: [
+                    Icon(
+                      Icons.attach_money,
+                      color: Theme.of(context).colorScheme.primary,
+                    ),
+                    SizedBox(width: 12),
+                    Text('Por valor'),
+                  ],
+                ),
+              ),
+            ],
+      ),
+    );
+  }
+
+  Widget _buildGenerateTagsButton() {
+    return Card(
+      color: Theme.of(context).colorScheme.secondary.withAlpha(25),
+      child: IconButton(
+        icon: Icon(
+          Icons.auto_awesome,
+          color: Theme.of(context).colorScheme.primary,
+        ),
+        tooltip: 'Generar etiquetas automáticamente',
+        onPressed: () async {
+          await _autoGenerateTags();
+          await _loadMovements();
+        },
+      ),
+    );
+  }
+
+  Widget _buildTotalIndicator(List<MovementValue> movements, String moneda) {
+    if (movements.isEmpty) return const SizedBox.shrink();
+
+    final totalAmount = movements.fold<double>(
+      0,
+      (sum, movement) =>
+          sum + (movement.isExpense ? -movement.amount : movement.amount),
+    );
+    final totalCount = movements.length;
+    final hasFilters =
+        _selectedDate != null ||
+        _selectedCategory != null ||
+        _searchQuery.isNotEmpty;
+
+    return Container(
+      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+      decoration: BoxDecoration(
+        color: Theme.of(context).colorScheme.primaryContainer.withOpacity(0.3),
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(
+          color: Theme.of(context).colorScheme.primary.withOpacity(0.2),
+          width: 1,
+        ),
+      ),
+      child: Row(
+        children: [
+          Icon(
+            hasFilters ? Icons.filter_list : Icons.analytics,
+            color: Theme.of(context).colorScheme.primary,
+            size: 20,
+          ),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text(
+                  hasFilters ? 'Movimientos filtrados' : 'Total de movimientos',
+                  style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                    color: Theme.of(context).colorScheme.onPrimaryContainer,
+                  ),
+                ),
+                const SizedBox(height: 2),
+                Row(
+                  children: [
+                    Text(
+                      '$totalCount ${_showExpenses ? "gastos" : "ingresos"}',
+                      style: Theme.of(context).textTheme.titleSmall?.copyWith(
+                        color: Theme.of(context).colorScheme.onPrimaryContainer,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    const SizedBox(width: 16),
+                    Text(
+                      '${totalAmount >= 0 ? '+' : ''}${totalAmount.toStringAsFixed(2)}$moneda',
+                      style: Theme.of(context).textTheme.titleSmall?.copyWith(
+                        color:
+                            totalAmount >= 0
+                                ? Theme.of(context).colorScheme.primary
+                                : Theme.of(context).colorScheme.error,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
   Widget _buildFilters() {
     final bool isFiltersExpanded = _expandedItems['filters'] ?? false;
 
@@ -419,76 +583,151 @@ class _MovementsScreenState extends State<MovementsScreen>
             });
           },
         ),
-        hiddenWidget: Column(
-          children: [
-            Row(
-              children: [
-                Expanded(
-                  child: FilledButton.tonal(
-                    onPressed: () => _selectDate(context),
-                    child: Text(
-                      _selectedDate != null
-                          ? 'Día ${_selectedDate!.day}'
-                          : 'Seleccionar día',
+        hiddenWidget: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 8.0),
+          child: Column(
+            children: [
+              Row(
+                children: [
+                  Expanded(
+                    child: FilledButton.tonal(
+                      onPressed: () => _selectDate(context),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Icon(
+                            Icons.date_range,
+                            color: Theme.of(context).colorScheme.primary,
+                          ),
+                          const SizedBox(width: 4),
+                          Expanded(
+                            child: Text(
+                              _selectedDate != null
+                                  ? _selectedDate!.day.toString()
+                                  : 'Todos',
+                              textAlign: TextAlign.center,
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                          ),
+                          if (_selectedDate != null) ...[
+                            const SizedBox(width: 4),
+                            GestureDetector(
+                              onTap: () {
+                                setState(() {
+                                  _selectedDate = null;
+                                });
+                              },
+                              child: Icon(
+                                Icons.clear,
+                                size: 16,
+                                color: Theme.of(context).colorScheme.error,
+                              ),
+                            ),
+                          ],
+                        ],
+                      ),
                     ),
                   ),
-                ),
-                const SizedBox(width: 8),
-                Expanded(
-                  child: FutureBuilder<List<MovementValue>>(
-                    future: _financeService.getCurrentMonthMovements(),
-                    builder: (context, snapshot) {
-                      final categories = _getAvailableCategories(
-                        snapshot.data ?? [],
-                      );
-                      return FilledButton.tonal(
-                        onPressed: () => _selectCategory(context, categories),
-                        child: Text(
-                          _selectedCategory ?? 'Categoría: Todas',
-                          overflow: TextOverflow.ellipsis,
-                          maxLines: 1,
-                        ),
-                      );
-                    },
-                  ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 8),
-            Row(
-              children: [
-                Expanded(
-                  child: TextField(
-                    controller: _searchController,
-                    decoration: InputDecoration(
-                      labelText: 'Buscar',
-                      prefixIcon: const Icon(Icons.abc),
-                      suffixIcon:
-                          _searchQuery.isNotEmpty
-                              ? IconButton(
-                                icon: const Icon(Icons.clear),
-                                onPressed: () {
-                                  setState(() {
-                                    _searchQuery = '';
-                                    _searchController.clear();
-                                  });
-                                },
-                              )
-                              : null,
+                  const SizedBox(width: 8),
+                  Expanded(
+                    child: FutureBuilder<List<MovementValue>>(
+                      future: _financeService.getCurrentMonthMovements(),
+                      builder: (context, snapshot) {
+                        final categories = _getAvailableCategories(
+                          snapshot.data ?? [],
+                        );
+                        return FilledButton.tonal(
+                          onPressed: () => _selectCategory(context, categories),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Icon(
+                                Icons.category,
+                                color: Theme.of(context).colorScheme.primary,
+                              ),
+                              const SizedBox(width: 4),
+                              Expanded(
+                                child: Text(
+                                  _selectedCategory ?? 'Todas',
+                                  overflow: TextOverflow.ellipsis,
+                                  maxLines: 1,
+                                  textAlign: TextAlign.center,
+                                ),
+                              ),
+                              if (_selectedCategory != null) ...[
+                                const SizedBox(width: 4),
+                                GestureDetector(
+                                  onTap: () {
+                                    setState(() {
+                                      _selectedCategory = null;
+                                    });
+                                  },
+                                  child: Icon(
+                                    Icons.clear,
+                                    size: 16,
+                                    color: Theme.of(context).colorScheme.error,
+                                  ),
+                                ),
+                              ],
+                            ],
+                          ),
+                        );
+                      },
                     ),
                   ),
-                ),
-                const SizedBox(width: 8),
-                ElevatedButton.icon(
-                  onPressed:
-                      () =>
-                          setState(() => _searchQuery = _searchController.text),
-                  label: Text('Buscar'),
-                  icon: Icon(Icons.search),
-                ),
-              ],
-            ),
-          ],
+                ],
+              ),
+              const SizedBox(height: 8),
+              Row(
+                children: [
+                  Expanded(
+                    child: TextField(
+                      controller: _searchController,
+                      decoration: InputDecoration(
+                        labelText: 'Buscar',
+                        prefixIcon: const Icon(Icons.abc),
+                        suffixIcon:
+                            _searchQuery.isNotEmpty
+                                ? IconButton(
+                                  icon: const Icon(Icons.clear),
+                                  onPressed: () {
+                                    setState(() {
+                                      _searchQuery = '';
+                                      _searchController.clear();
+                                    });
+                                  },
+                                )
+                                : null,
+                      ),
+                    ),
+                  ),
+                  const SizedBox(width: 8),
+                  Card(
+                    color: Colors.transparent,
+                    shape: const CircleBorder().copyWith(
+                      side: BorderSide(
+                        color: Theme.of(
+                          context,
+                        ).colorScheme.primary.withAlpha(35),
+                        width: 2,
+                      ),
+                    ),
+                    child: IconButton(
+                      onPressed: () {
+                        setState(() {
+                          _searchQuery = _searchController.text;
+                        });
+                      },
+                      icon: Icon(
+                        Icons.search,
+                        color: Theme.of(context).colorScheme.primary,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ],
+          ),
         ),
       ),
     );
@@ -719,7 +958,7 @@ class _MovementsScreenState extends State<MovementsScreen>
                         ),
                         validator: (value) {
                           if (value == null || value.isEmpty) {
-                            return 'Por favor ingresa una descripción';
+                            return 'Por favor, ingresa una descripción.';
                           }
                           return null;
                         },
@@ -737,11 +976,11 @@ class _MovementsScreenState extends State<MovementsScreen>
                         ),
                         validator: (value) {
                           if (value == null || value.isEmpty) {
-                            return 'Por favor ingresa una cantidad';
+                            return 'Por favor, ingresa una cantidad.';
                           }
                           if (double.tryParse(value.replaceAll(',', '.')) ==
                               null) {
-                            return 'Por favor ingresa un número válido';
+                            return 'Por favor, ingresa un número válido.';
                           }
                           return null;
                         },
@@ -825,7 +1064,7 @@ class _MovementsScreenState extends State<MovementsScreen>
                               ScaffoldMessenger.of(context).showSnackBar(
                                 const SnackBar(
                                   content: Text(
-                                    'Movimiento actualizado con éxito',
+                                    'Movimiento actualizado con éxito.',
                                   ),
                                   behavior: SnackBarBehavior.floating,
                                 ),
@@ -962,7 +1201,7 @@ class _MovementsScreenState extends State<MovementsScreen>
                             ScaffoldMessenger.of(context).showSnackBar(
                               SnackBar(
                                 content: Text(
-                                  'Categoría actualizada: ${updatedMovement.category}',
+                                  'Categoría actualizada: ${updatedMovement.category}.',
                                 ),
                                 behavior: SnackBarBehavior.floating,
                               ),

@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_markdown/flutter_markdown.dart';
+import 'package:google_fonts/google_fonts.dart';
 
 class FirstStartupScreen extends StatefulWidget {
   const FirstStartupScreen({Key? key, required this.onTermsAccepted})
@@ -66,7 +67,14 @@ class _FirstStartupScreenState extends State<FirstStartupScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Términos y Condiciones'),
+        title: Text(
+          'Términos y Condiciones',
+          style: GoogleFonts.pacifico(
+            fontSize: 20,
+            fontWeight: FontWeight.bold,
+            color: Theme.of(context).colorScheme.onSurface,
+          ),
+        ),
         centerTitle: true,
       ),
       body: Padding(

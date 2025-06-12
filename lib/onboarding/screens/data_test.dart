@@ -3,6 +3,7 @@ import 'package:cashly/data/models/movement_value.dart';
 import 'package:cashly/data/services/shared_preferences_service.dart';
 import 'package:cashly/data/services/sqlite_service.dart';
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 
 class DataTestPage extends StatefulWidget {
   const DataTestPage({super.key});
@@ -120,6 +121,11 @@ class _DataTestPageState extends State<DataTestPage> {
           _selectedMonth != null
               ? '${_selectedMonth!.month}/${_selectedMonth!.year} - ${_showExpenses! ? "Gastos" : "Ingresos"}'
               : 'Selecciona un mes',
+          style: GoogleFonts.pacifico(
+            fontSize: 18,
+            fontWeight: FontWeight.bold,
+            color: Theme.of(context).colorScheme.onSurface,
+          ),
         ),
         actions: [
           IconButton(

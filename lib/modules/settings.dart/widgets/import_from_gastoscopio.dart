@@ -154,9 +154,15 @@ class _ImportFromGastoscopioScreenState
                             height: 20,
                             child: CircularProgressIndicator(strokeWidth: 2),
                           )
-                          : Icon(Icons.folder_open),
-                  label: Text(
-                    _isLoading ? 'Procesando...' : 'Seleccionar archivo JSON',
+                          : Padding(
+                            padding: const EdgeInsets.only(left: 16.0),
+                            child: Icon(Icons.folder_open),
+                          ),
+                  label: Padding(
+                    padding: const EdgeInsets.only(right: 16.0),
+                    child: Text(
+                      _isLoading ? 'Procesando...' : 'Seleccionar archivo JSON',
+                    ),
                   ),
                   style: ElevatedButton.styleFrom(
                     padding: EdgeInsets.symmetric(vertical: 16),

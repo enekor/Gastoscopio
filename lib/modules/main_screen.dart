@@ -6,9 +6,9 @@ import 'package:cashly/modules/gastoscopio/screens/movements_screen.dart';
 import 'package:cashly/modules/gastoscopio/screens/summary_screen.dart';
 import 'package:cashly/modules/gastoscopio/widgets/month_grid_selector.dart';
 import 'package:cashly/modules/settings.dart/settings.dart';
-import 'package:cashly/modules/gastoscopio/screens/fixed_movements_screen.dart';
 import 'package:cashly/onboarding/onboarding.dart';
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 
 class MainScreen extends StatefulWidget {
   const MainScreen({Key? key}) : super(key: key);
@@ -221,20 +221,12 @@ class _MainScreenState extends State<MainScreen>
         return Scaffold(
           extendBody: _selectedIndex != 2,
           appBar: AppBar(
-            title: const Text('Gastoscopio'),
+            centerTitle: true,
+            title: Text(
+              'Gastoscopio',
+              style: GoogleFonts.pacifico(fontSize: 24, letterSpacing: 1.2),
+            ),
             actions: [
-              IconButton(
-                icon: const Icon(Icons.repeat),
-                tooltip: 'Movimientos Fijos',
-                onPressed: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => const FixedMovementsScreen(),
-                    ),
-                  );
-                },
-              ),
               IconButton(
                 icon: const Icon(Icons.settings),
                 onPressed: () {

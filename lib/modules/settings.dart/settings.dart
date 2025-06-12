@@ -9,6 +9,7 @@ import 'package:cashly/modules/settings.dart/widgets/import_from_gastoscopio.dar
 import 'package:flutter/material.dart';
 import 'package:flutter_colorpicker/flutter_colorpicker.dart';
 import 'package:svg_flutter/svg.dart';
+import 'package:google_fonts/google_fonts.dart';
 
 class SettingsScreen extends StatefulWidget {
   const SettingsScreen({super.key});
@@ -236,7 +237,14 @@ class _SettingsScreenState extends State<SettingsScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Configuración'),
+        title: Text(
+          'Configuración',
+          style: GoogleFonts.pacifico(
+            fontSize: 20,
+            fontWeight: FontWeight.bold,
+            color: Theme.of(context).colorScheme.onSurface,
+          ),
+        ),
         centerTitle: true,
         backgroundColor: Theme.of(context).colorScheme.surface,
         foregroundColor: Theme.of(context).colorScheme.onSurface,
@@ -251,7 +259,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
               _buildSectionHeader(
                 context,
                 'Personalización',
-                'Configura tu experiencia en la aplicación',
+                'Configura tu experiencia en la aplicación.',
                 Icons.palette_outlined,
               ),
               const SizedBox(height: 20),
@@ -262,13 +270,15 @@ class _SettingsScreenState extends State<SettingsScreen> {
 
               // Logo Card
               _buildLogoCard(context),
-              const SizedBox(height: 32),
+              const SizedBox(height: 10),
+              const Divider(),
+              const SizedBox(height: 10),
 
               // API Section
               _buildSectionHeader(
                 context,
                 'Inteligencia Artificial',
-                'Configuración para funciones avanzadas con IA',
+                'Configuración para funciones avanzadas con IA.',
                 Icons.smart_toy_outlined,
               ),
               const SizedBox(height: 20),
@@ -276,12 +286,14 @@ class _SettingsScreenState extends State<SettingsScreen> {
               // API Key Card
               const ApiKeyGenerator(),
 
-              const SizedBox(height: 20),
+              const SizedBox(height: 10),
+              const Divider(),
+              const SizedBox(height: 10),
 
               _buildSectionHeader(
                 context,
                 'Gestión de Datos',
-                'Importar y gestionar tus datos financieros',
+                'Importar y gestionar tus datos financieros.',
                 Icons.storage_outlined,
               ),
               const SizedBox(height: 20),
@@ -374,7 +386,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
             ),
             const SizedBox(height: 8),
             Text(
-              'Selecciona la moneda que se mostrará en toda la aplicación',
+              'Selecciona la moneda que se mostrará en toda la aplicación.',
               style: Theme.of(context).textTheme.bodySmall?.copyWith(
                 color: Theme.of(context).colorScheme.onSurfaceVariant,
               ),
@@ -453,7 +465,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 ),
                 const SizedBox(width: 8),
                 Text(
-                  'Personalización del Logo',
+                  'Personalización del Logo.',
                   style: Theme.of(context).textTheme.titleMedium?.copyWith(
                     fontWeight: FontWeight.w600,
                   ),
@@ -462,7 +474,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
             ),
             const SizedBox(height: 8),
             Text(
-              'Elige entre PNG estático o SVG personalizable con color',
+              'Elige entre PNG estático o SVG personalizable con color.',
               style: Theme.of(context).textTheme.bodySmall?.copyWith(
                 color: Theme.of(context).colorScheme.onSurfaceVariant,
               ),
@@ -516,7 +528,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   ),
                   const SizedBox(width: 8),
                   Text(
-                    'Color del Logo SVG',
+                    'Color del Logo SVG.',
                     style: Theme.of(context).textTheme.titleSmall?.copyWith(
                       fontWeight: FontWeight.w600,
                     ),
@@ -586,7 +598,10 @@ class _SettingsScreenState extends State<SettingsScreen> {
               width: 60,
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(8),
-                color: Theme.of(context).colorScheme.surfaceContainerHighest,
+                color:
+                    !isPng
+                        ? Theme.of(context).colorScheme.surfaceContainerHighest
+                        : Colors.transparent,
               ),
               child: Center(
                 child:

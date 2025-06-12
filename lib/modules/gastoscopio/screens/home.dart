@@ -4,6 +4,7 @@ import 'package:cashly/data/services/sqlite_service.dart';
 import 'package:cashly/data/services/login_service.dart';
 import 'package:cashly/modules/gastoscopio/logic/finance_service.dart';
 import 'package:cashly/modules/gastoscopio/screens/movement_form_screen.dart';
+import 'package:cashly/modules/gastoscopio/screens/fixed_movements_screen.dart';
 import 'package:cashly/modules/gastoscopio/widgets/finance_widgets.dart';
 import 'package:cashly/data/models/movement_value.dart';
 import 'package:cashly/common/tag_list.dart';
@@ -97,13 +98,13 @@ class _GastoscopioHomeScreenState extends State<GastoscopioHomeScreen> {
     setState(() {
       if (hour < 12) {
         _greeting =
-            '¡Buenos días$nameGreeting! ✨\nComienza el día con energía renovada';
+            '¡Buenos días$nameGreeting! ✨\nComienza el día con energía renovada.';
       } else if (hour < 18) {
         _greeting =
-            '¡Buenas tardes$nameGreeting! ☀️\nSigue construyendo tu futuro financiero';
+            '¡Buenas tardes$nameGreeting! ☀️\nSigue construyendo tu futuro financiero.';
       } else {
         _greeting =
-            '¡Buenas noches$nameGreeting! 🌟\nMomento perfecto para revisar tus finanzas';
+            '¡Buenas noches$nameGreeting! 🌟\nMomento perfecto para revisar tus finanzas.';
       }
     });
   }
@@ -118,7 +119,13 @@ class _GastoscopioHomeScreenState extends State<GastoscopioHomeScreen> {
         child: Container(
           width: 45,
           height: 45,
-          decoration: const BoxDecoration(shape: BoxShape.circle),
+          decoration: BoxDecoration(
+            shape: BoxShape.circle,
+            border: Border.all(
+              color: Theme.of(context).colorScheme.primary.withOpacity(0.3),
+              width: 2,
+            ),
+          ),
           child: FloatingActionButton.small(
             backgroundColor: Colors.transparent,
             elevation: 0,
@@ -131,7 +138,10 @@ class _GastoscopioHomeScreenState extends State<GastoscopioHomeScreen> {
                 builder: (BuildContext context) => const MovementFormScreen(),
               );
             },
-            child: const Icon(Icons.add),
+            child: Icon(
+              Icons.add,
+              color: Theme.of(context).colorScheme.primary,
+            ),
             heroTag: 'home_fab',
           ),
         ),
@@ -143,7 +153,7 @@ class _GastoscopioHomeScreenState extends State<GastoscopioHomeScreen> {
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
               _buildGreetingsPart(),
-              const SizedBox(height: 24),
+              const SizedBox(height: 30),
               SizedBox(
                 height: 200,
                 child: Row(
@@ -153,6 +163,8 @@ class _GastoscopioHomeScreenState extends State<GastoscopioHomeScreen> {
                   ],
                 ),
               ),
+              const SizedBox(height: 16),
+              _buildFixedMovementsButton(),
               const SizedBox(height: 8),
               _ChartPart(_moneda),
             ],
@@ -165,18 +177,14 @@ class _GastoscopioHomeScreenState extends State<GastoscopioHomeScreen> {
   Widget _buildGreetingsPart() {
     return Row(
       children: [
-        Expanded(
-          flex: 3,
-          child:
-              _isSvg
-                  ? SvgPicture.asset(
-                    height: 120,
-                    width: 120,
-                    'assets/logo.svg',
-                    color: Color.fromARGB(255, _r, _g, _b),
-                  )
-                  : Image.asset('assets/logo.png'),
-        ),
+        _isSvg
+            ? SvgPicture.asset(
+              height: 140,
+              width: 140,
+              'assets/logo.svg',
+              color: Color.fromARGB(255, _r, _g, _b),
+            )
+            : Image.asset('assets/logo.png', height: 140, width: 140),
         Expanded(
           flex: 7,
           child: Column(
@@ -193,6 +201,53 @@ class _GastoscopioHomeScreenState extends State<GastoscopioHomeScreen> {
           ),
         ),
       ],
+    );
+  }
+
+  Widget _buildFixedMovementsButton() {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 6.0),
+      child: Center(
+        child: SizedBox(
+          width: double.infinity,
+          child: ElevatedButton.icon(
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => const FixedMovementsScreen(),
+                ),
+              );
+            },
+            icon: Icon(
+              Icons.repeat,
+              color: Theme.of(context).colorScheme.primary,
+            ),
+            label: Text(
+              'Gestionar Movimientos Recurrentes',
+              style: TextStyle(
+                color: Theme.of(context).colorScheme.primary,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: Theme.of(
+                context,
+              ).colorScheme.secondary.withAlpha(25),
+              foregroundColor: Theme.of(context).colorScheme.primary,
+              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(12),
+                side: BorderSide(
+                  color: Theme.of(context).colorScheme.primary.withOpacity(0.3),
+                  width: 1,
+                ),
+              ),
+              elevation: 1,
+            ),
+          ),
+        ),
+      ),
     );
   }
 
@@ -224,45 +279,48 @@ class _GastoscopioHomeScreenState extends State<GastoscopioHomeScreen> {
                     color: Theme.of(context).colorScheme.primary.withAlpha(90),
                   ),
                 ),
-                child: SingleChildScrollView(
-                  child: Column(
-                    children: [
-                      if (movements.isEmpty) ...[
-                        Padding(
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 16.0,
-                            vertical: 60,
-                          ),
-                          child: Center(
-                            child: Text(
-                              'No hay movimientos para mostrar',
-                              textAlign: TextAlign.center,
-                              style: Theme.of(
-                                context,
-                              ).textTheme.bodyMedium?.copyWith(
-                                color: Theme.of(context).colorScheme.secondary,
+                child: Center(
+                  child: SingleChildScrollView(
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        if (movements.isEmpty) ...[
+                          Padding(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 16.0,
+                            ),
+                            child: Center(
+                              child: Text(
+                                'No hay movimientos para mostrar.',
+                                textAlign: TextAlign.center,
+                                style: Theme.of(
+                                  context,
+                                ).textTheme.bodyMedium?.copyWith(
+                                  color:
+                                      Theme.of(context).colorScheme.secondary,
+                                ),
                               ),
                             ),
                           ),
-                        ),
-                      ] else ...[
-                        ListView.builder(
-                          physics: const NeverScrollableScrollPhysics(),
-                          shrinkWrap: true,
-                          itemCount: movements.length,
-                          itemBuilder: (context, index) {
-                            final movement = movements[index];
-                            return MovementCard(
-                              description: movement.description,
-                              amount: movement.amount,
-                              isExpense: movement.isExpense,
-                              category: movement.category,
-                              moneda: _moneda,
-                            );
-                          },
-                        ),
+                        ] else ...[
+                          ListView.builder(
+                            physics: const NeverScrollableScrollPhysics(),
+                            shrinkWrap: true,
+                            itemCount: movements.length,
+                            itemBuilder: (context, index) {
+                              final movement = movements[index];
+                              return MovementCard(
+                                description: movement.description,
+                                amount: movement.amount,
+                                isExpense: movement.isExpense,
+                                category: movement.category,
+                                moneda: _moneda,
+                              );
+                            },
+                          ),
+                        ],
                       ],
-                    ],
+                    ),
                   ),
                 ),
               ),
