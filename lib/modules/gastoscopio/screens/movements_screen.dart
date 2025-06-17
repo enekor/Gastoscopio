@@ -101,15 +101,18 @@ class _MovementsScreenState extends State<MovementsScreen>
 
   Future<void> _loadMovements() async {
     try {
-      final movements = await _financeService.getCurrentMonthMovements();
+      var movements = await _financeService.getCurrentMonthMovements();
 
       // Animar la transición de la lista
       if (_cachedMovements.isNotEmpty) {
         await _listAnimationController.reverse();
       }
 
+      movements.sort((a, b) => a.day.compareTo(b.day));
+      movements = movements.reversed.toList();
+
       setState(() {
-        _cachedMovements = movements;
+        _cachedMovements = movements; //aqui
         _isLoading = false;
       });
 

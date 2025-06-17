@@ -107,8 +107,8 @@ class _MovementFormScreenState extends State<MovementFormScreen> {
             ),
           );
         }
-        return;
       }
+
       _category = generatedCategory;
     }
 
