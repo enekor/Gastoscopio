@@ -7,7 +7,6 @@ import 'package:cashly/common/tag_list.dart';
 import 'package:flutter/material.dart';
 import 'package:cashly/data/models/movement_value.dart';
 import 'package:cashly/modules/gastoscopio/logic/finance_service.dart';
-import 'package:google_fonts/google_fonts.dart';
 
 class MovementsScreen extends StatefulWidget {
   final int year;
@@ -30,6 +29,10 @@ class _MovementsScreenState extends State<MovementsScreen>
   late String _moneda;
   late FinanceService _financeService;
   final TextEditingController _searchController = TextEditingController();
+
+  // Variables para el orden
+  String? _currentSortType;
+  bool _isAscending = true;
 
   // Cache para los movimientos y estado de carga
   List<MovementValue> _cachedMovements = [];
@@ -111,6 +114,8 @@ class _MovementsScreenState extends State<MovementsScreen>
       setState(() {
         _cachedMovements = movements;
         _isLoading = false;
+        // Aplicar ordenamiento si existe
+        _applySorting();
       });
 
       await _listAnimationController.forward();
@@ -288,7 +293,6 @@ class _MovementsScreenState extends State<MovementsScreen>
         children: [
           _buildFilters(),
           _buildTotalIndicator(movements, moneda),
-          const SizedBox(height: 16),
           Expanded(child: _buildList(movements, moneda)),
         ],
       ),
@@ -376,26 +380,36 @@ class _MovementsScreenState extends State<MovementsScreen>
     return Card(
       color: Theme.of(context).colorScheme.secondary.withAlpha(25),
       child: PopupMenuButton<String>(
-        icon: Icon(Icons.sort, color: Theme.of(context).colorScheme.primary),
+        icon: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(Icons.sort, color: Theme.of(context).colorScheme.primary),
+            if (_currentSortType != null) ...[
+              const SizedBox(width: 4),
+              Icon(
+                _isAscending
+                    ? Icons.keyboard_arrow_up
+                    : Icons.keyboard_arrow_down,
+                color: Theme.of(context).colorScheme.primary,
+                size: 16,
+              ),
+            ],
+          ],
+        ),
         tooltip: 'Ordenar por',
         onSelected: (String value) {
           setState(() {
             _expandedItems.clear(); // Reset expanded items
-            switch (value) {
-              case 'fecha':
-                _cachedMovements.sort((a, b) => a.day.compareTo(b.day));
-                break;
-              case 'alfabetico':
-                _cachedMovements.sort(
-                  (a, b) => a.description.toLowerCase().compareTo(
-                    b.description.toLowerCase(),
-                  ),
-                );
-                break;
-              case 'valor':
-                _cachedMovements.sort((a, b) => b.amount.compareTo(a.amount));
-                break;
+
+            // Si se selecciona el mismo tipo de orden, cambiar dirección
+            if (_currentSortType == value) {
+              _isAscending = !_isAscending;
+            } else {
+              _currentSortType = value;
+              _isAscending = true; // Por defecto ascendente para nuevo tipo
             }
+
+            _applySorting();
           });
         },
         itemBuilder:
@@ -408,8 +422,17 @@ class _MovementsScreenState extends State<MovementsScreen>
                       Icons.calendar_today,
                       color: Theme.of(context).colorScheme.primary,
                     ),
-                    SizedBox(width: 12),
+                    const SizedBox(width: 12),
                     Text('Por fecha'),
+                    const Spacer(),
+                    if (_currentSortType == 'fecha')
+                      Icon(
+                        _isAscending
+                            ? Icons.keyboard_arrow_up
+                            : Icons.keyboard_arrow_down,
+                        color: Theme.of(context).colorScheme.primary,
+                        size: 16,
+                      ),
                   ],
                 ),
               ),
@@ -421,8 +444,17 @@ class _MovementsScreenState extends State<MovementsScreen>
                       Icons.sort_by_alpha,
                       color: Theme.of(context).colorScheme.primary,
                     ),
-                    SizedBox(width: 12),
+                    const SizedBox(width: 12),
                     Text('Alfabético'),
+                    const Spacer(),
+                    if (_currentSortType == 'alfabetico')
+                      Icon(
+                        _isAscending
+                            ? Icons.keyboard_arrow_up
+                            : Icons.keyboard_arrow_down,
+                        color: Theme.of(context).colorScheme.primary,
+                        size: 16,
+                      ),
                   ],
                 ),
               ),
@@ -434,11 +466,48 @@ class _MovementsScreenState extends State<MovementsScreen>
                       Icons.attach_money,
                       color: Theme.of(context).colorScheme.primary,
                     ),
-                    SizedBox(width: 12),
+                    const SizedBox(width: 12),
                     Text('Por valor'),
+                    const Spacer(),
+                    if (_currentSortType == 'valor')
+                      Icon(
+                        _isAscending
+                            ? Icons.keyboard_arrow_up
+                            : Icons.keyboard_arrow_down,
+                        color: Theme.of(context).colorScheme.primary,
+                        size: 16,
+                      ),
                   ],
                 ),
               ),
+              if (_currentSortType != null) ...[
+                const PopupMenuDivider(),
+                PopupMenuItem<String>(
+                  value: 'reset',
+                  child: Row(
+                    children: [
+                      Icon(
+                        Icons.clear,
+                        color: Theme.of(context).colorScheme.error,
+                      ),
+                      const SizedBox(width: 12),
+                      Text(
+                        'Limpiar orden',
+                        style: TextStyle(
+                          color: Theme.of(context).colorScheme.error,
+                        ),
+                      ),
+                    ],
+                  ),
+                  onTap: () {
+                    setState(() {
+                      _currentSortType = null;
+                      _isAscending = true;
+                      _loadMovements(); // Recargar en orden original
+                    });
+                  },
+                ),
+              ],
             ],
       ),
     );
@@ -486,7 +555,7 @@ class _MovementsScreenState extends State<MovementsScreen>
           width: 1,
         ),
       ),
-      child: Row(
+      child: Wrap(
         children: [
           Icon(
             hasFilters ? Icons.filter_list : Icons.analytics,
@@ -494,41 +563,35 @@ class _MovementsScreenState extends State<MovementsScreen>
             size: 20,
           ),
           const SizedBox(width: 12),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Text(
-                  hasFilters ? 'Movimientos filtrados' : 'Total de movimientos',
-                  style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                    color: Theme.of(context).colorScheme.onPrimaryContainer,
-                  ),
-                ),
-                const SizedBox(height: 2),
-                Row(
-                  children: [
-                    Text(
-                      '$totalCount ${_showExpenses ? "gastos" : "ingresos"}',
-                      style: Theme.of(context).textTheme.titleSmall?.copyWith(
-                        color: Theme.of(context).colorScheme.onPrimaryContainer,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                    const SizedBox(width: 16),
-                    Text(
-                      '${totalAmount >= 0 ? '+' : ''}${totalAmount.toStringAsFixed(2)}$moneda',
-                      style: Theme.of(context).textTheme.titleSmall?.copyWith(
-                        color:
-                            totalAmount >= 0
-                                ? Theme.of(context).colorScheme.primary
-                                : Theme.of(context).colorScheme.error,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                  ],
-                ),
-              ],
+          Text(
+            hasFilters ? 'Movimientos filtrados:' : 'Total de movimientos:',
+            style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+              color: Theme.of(context).colorScheme.onPrimaryContainer,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+          const SizedBox(width: 6),
+          Text(
+            '$totalCount ${_showExpenses ? "gastos" : "ingresos"}',
+            style: Theme.of(context).textTheme.titleSmall?.copyWith(
+              color: Theme.of(context).colorScheme.onPrimaryContainer,
+            ),
+          ),
+          const SizedBox(width: 8),
+          Container(
+            width: 1,
+            height: 20,
+            color: Theme.of(context).colorScheme.primary,
+          ),
+          const SizedBox(width: 8),
+          Text(
+            '${totalAmount >= 0 ? '+' : ''}${totalAmount.toStringAsFixed(2)}$moneda',
+            style: Theme.of(context).textTheme.titleSmall?.copyWith(
+              color:
+                  totalAmount >= 0
+                      ? Theme.of(context).colorScheme.primary
+                      : Theme.of(context).colorScheme.error,
+              fontWeight: FontWeight.bold,
             ),
           ),
         ],
@@ -779,6 +842,33 @@ class _MovementsScreenState extends State<MovementsScreen>
         ),
       ],
     );
+  }
+
+  void _applySorting() {
+    if (_currentSortType == null) return;
+
+    switch (_currentSortType) {
+      case 'fecha':
+        _cachedMovements.sort((a, b) {
+          final comparison = a.day.compareTo(b.day);
+          return _isAscending ? comparison : -comparison;
+        });
+        break;
+      case 'alfabetico':
+        _cachedMovements.sort((a, b) {
+          final comparison = a.description.toLowerCase().compareTo(
+            b.description.toLowerCase(),
+          );
+          return _isAscending ? comparison : -comparison;
+        });
+        break;
+      case 'valor':
+        _cachedMovements.sort((a, b) {
+          final comparison = a.amount.compareTo(b.amount);
+          return _isAscending ? comparison : -comparison;
+        });
+        break;
+    }
   }
 
   List<MovementValue> _filterMovements(List<MovementValue> movements) {
