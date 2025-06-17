@@ -290,6 +290,11 @@ class _GoogleLoginScreenState extends State<GoogleLoginScreen> {
                 ),
                 textAlign: TextAlign.center,
               ),
+              const SizedBox(height: 12),
+              TextButton(
+                child: Text('Continuar sin iniciar sesion'),
+                onPressed: widget.onLoginOk,
+              )
             ] else ...[
               // Opciones cuando está conectado
               ElevatedButton.icon(
