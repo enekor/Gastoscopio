@@ -6,6 +6,7 @@ import 'package:cashly/data/services/shared_preferences_service.dart';
 import 'package:cashly/data/services/sqlite_service.dart';
 import 'package:cashly/modules/settings.dart/widgets/apikey-generator.dart';
 import 'package:cashly/modules/settings.dart/widgets/import_from_gastoscopio.dart';
+import 'package:cashly/modules/settings.dart/widgets/backup_restore_widget.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_colorpicker/flutter_colorpicker.dart';
 import 'package:svg_flutter/svg.dart';
@@ -297,10 +298,13 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 Icons.storage_outlined,
               ),
               const SizedBox(height: 20),
-
               ImportFromGastoscopioScreen(
                 onImportSuccess: _handleImportSuccess,
               ),
+              const SizedBox(height: 20),
+
+              // Backup & Restore Section
+              const BackupRestoreWidget(),
             ],
           ),
         ),

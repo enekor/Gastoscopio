@@ -1,9 +1,7 @@
-import 'package:cashly/data/services/shared_preferences_service.dart';
 import 'package:cashly/data/services/sqlite_service.dart';
 import 'package:cashly/modules/gastoscopio/logic/finance_service.dart';
 import 'package:cashly/modules/main_screen.dart';
-import 'package:cashly/onboarding/onboarding.dart';
-import 'package:cashly/modules/settings.dart/settings.dart';
+import 'package:cashly/data/services/backup_reminder_service.dart';
 import 'package:flutter/material.dart';
 
 class App extends StatefulWidget {
@@ -13,13 +11,44 @@ class App extends StatefulWidget {
   State<App> createState() => _AppState();
 }
 
-class _AppState extends State<App> {
+class _AppState extends State<App> with WidgetsBindingObserver {
   late Future<bool> _initializationFuture;
+  bool _isInForeground = true;
 
   @override
   void initState() {
     super.initState();
     _initializationFuture = init();
+    WidgetsBinding.instance.addObserver(this);
+  }
+
+  @override
+  void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
+    super.dispose();
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    switch (state) {
+      case AppLifecycleState.resumed:
+        if (!_isInForeground) {
+          _isInForeground = true;
+          // Verificar recordatorio de backup cuando la app vuelve al foreground
+          WidgetsBinding.instance.addPostFrameCallback((_) {
+            if (mounted) {
+              BackupReminderService.checkAndShowBackupReminder(context);
+            }
+          });
+        }
+        break;
+      case AppLifecycleState.inactive:
+      case AppLifecycleState.paused:
+      case AppLifecycleState.detached:
+      case AppLifecycleState.hidden:
+        _isInForeground = false;
+        break;
+    }
   }
 
   Future<bool> init() async {

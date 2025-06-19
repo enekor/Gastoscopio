@@ -33,6 +33,7 @@ class GeminiService {
     String prompt,
     BuildContext context,
   ) async {
+    await initializeGemini();
     if (_apiKey == null || _apiKey == "" || _apiKey!.isEmpty) {
       await showDialog(
         context: context,
@@ -97,7 +98,8 @@ class GeminiService {
         'Elige una de las siguientes categorías: ${TagList.join(', ')}. '
         'Si no encuentras una categoría adecuada, responde con la ultima categoria.';
 
-    return await _initGenerateContent(prompt, context);
+    String response = await _initGenerateContent(prompt, context);
+    return response;
   }
 
   Future<List<String>> generateTags(String names, BuildContext context) async {

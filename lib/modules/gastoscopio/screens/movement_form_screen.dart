@@ -106,6 +106,15 @@ class _MovementFormScreenState extends State<MovementFormScreen> {
               behavior: SnackBarBehavior.floating,
             ),
           );
+
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text(
+                'Si el problema persiste, por favor revisa tu conexión a internet o la api key proporcionada en ajustes.',
+              ),
+              behavior: SnackBarBehavior.floating,
+            ),
+          );
         }
       }
 

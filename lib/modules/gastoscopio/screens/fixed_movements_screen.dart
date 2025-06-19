@@ -29,24 +29,50 @@ class _FixedMovementsScreenState extends State<FixedMovementsScreen> {
   }
 
   Future<void> _loadFixedMovements() async {
-    final movements =
-        await SqliteService().database.fixedMovementDao.findAllFixedMovements();
-    setState(() {
-      _fixedMovements = movements;
-    });
+    try {
+      final movements =
+          await SqliteService().database.fixedMovementDao
+              .findAllFixedMovements();
+      if (mounted) {
+        setState(() {
+          _fixedMovements = movements;
+        });
+      }
+    } catch (e) {
+      // En caso de error, mantener la lista actual y mostrar mensaje
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Error al cargar movimientos: $e'),
+            behavior: SnackBarBehavior.floating,
+          ),
+        );
+      }
+    }
   }
 
   Future<void> _addFixedMovement() async {
-    final result = await showDialog<FixedMovement>(
-      context: context,
-      builder: (context) => _FixedMovementDialog(),
-    );
-
-    if (result != null) {
-      await SqliteService().database.fixedMovementDao.insertFixedMovement(
-        result,
+    try {
+      final result = await showDialog<FixedMovement>(
+        context: context,
+        builder: (context) => _FixedMovementDialog(),
       );
-      await _loadFixedMovements();
+
+      if (result != null) {
+        await SqliteService().database.fixedMovementDao.insertFixedMovement(
+          result,
+        );
+        await _loadFixedMovements();
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Error al crear movimiento: $e'),
+            behavior: SnackBarBehavior.floating,
+          ),
+        );
+      }
     }
   }
 
@@ -199,40 +225,49 @@ class _FixedMovementsScreenState extends State<FixedMovementsScreen> {
       itemCount: _fixedMovements.length,
       itemBuilder: (context, index) {
         final movement = _fixedMovements[index];
-        return Container(
-          margin: const EdgeInsets.only(bottom: 12),
-          child: Dismissible(
-            key: Key(movement.id.toString()),
-            background: Container(
-              decoration: BoxDecoration(
-                color: Theme.of(context).colorScheme.error,
-                borderRadius: BorderRadius.circular(12),
-              ),
-              alignment: Alignment.centerRight,
-              padding: const EdgeInsets.only(right: 20),
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  const Icon(Icons.delete, color: Colors.white, size: 28),
-                  const SizedBox(height: 4),
-                  Text(
-                    'Eliminar',
-                    style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                      color: Colors.white,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-            direction: DismissDirection.endToStart,
-            onDismissed: (_) async {
-              await SqliteService().database.fixedMovementDao
-                  .deleteFixedMovement(movement);
-              setState(() {
-                _fixedMovements.removeAt(index);
-              });
+        return _buildMovementCard(movement, index);
+      },
+    );
+  }
 
+  Widget _buildMovementCard(FixedMovement movement, int index) {
+    return Container(
+      margin: const EdgeInsets.only(bottom: 12),
+      child: Dismissible(
+        key: Key('fixed_movement_${movement.id ?? index}'),
+        background: Container(
+          decoration: BoxDecoration(
+            color: Theme.of(context).colorScheme.error,
+            borderRadius: BorderRadius.circular(12),
+          ),
+          alignment: Alignment.centerRight,
+          padding: const EdgeInsets.only(right: 20),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              const Icon(Icons.delete, color: Colors.white, size: 28),
+              const SizedBox(height: 4),
+              Text(
+                'Eliminar',
+                style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                  color: Colors.white,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            ],
+          ),
+        ),
+        direction: DismissDirection.endToStart,
+        onDismissed: (_) async {
+          try {
+            await SqliteService().database.fixedMovementDao.deleteFixedMovement(
+              movement,
+            );
+            setState(() {
+              _fixedMovements.removeAt(index);
+            });
+
+            if (mounted) {
               ScaffoldMessenger.of(context).showSnackBar(
                 SnackBar(
                   content: Text(
@@ -241,136 +276,152 @@ class _FixedMovementsScreenState extends State<FixedMovementsScreen> {
                   behavior: SnackBarBehavior.floating,
                 ),
               );
-            },
-            child: Card(
-              elevation: 0,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(12),
-                side: BorderSide(color: Colors.grey.withOpacity(0.2), width: 1),
-              ),
-              child: InkWell(
-                borderRadius: BorderRadius.circular(12),
-                onTap: () async {
-                  final result = await showDialog<FixedMovement>(
-                    context: context,
-                    builder:
-                        (context) => _FixedMovementDialog(movement: movement),
+            }
+          } catch (e) {
+            // Si falla la eliminación, recargar la lista para restaurar el estado
+            await _loadFixedMovements();
+            if (mounted) {
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(
+                  content: Text('Error al eliminar movimiento: $e'),
+                  behavior: SnackBarBehavior.floating,
+                ),
+              );
+            }
+          }
+        },
+        child: Card(
+          elevation: 0,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(12),
+            side: BorderSide(color: Colors.grey.withOpacity(0.2), width: 1),
+          ),
+          child: InkWell(
+            borderRadius: BorderRadius.circular(12),
+            onTap: () async {
+              try {
+                final result = await showDialog<FixedMovement>(
+                  context: context,
+                  builder:
+                      (context) => _FixedMovementDialog(movement: movement),
+                );
+
+                if (result != null) {
+                  await SqliteService().database.fixedMovementDao
+                      .updateFixedMovement(result);
+                  await _loadFixedMovements();
+                }
+              } catch (e) {
+                if (mounted) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      content: Text('Error al actualizar movimiento: $e'),
+                      behavior: SnackBarBehavior.floating,
+                    ),
                   );
+                }
+              }
+            },
+            child: _buildMovementContent(movement),
+          ),
+        ),
+      ),
+    );
+  }
 
-                  if (result != null) {
-                    await SqliteService().database.fixedMovementDao
-                        .updateFixedMovement(result);
-                    await _loadFixedMovements();
-                  }
-                },
-                child: Padding(
-                  padding: const EdgeInsets.all(16),
-                  child: Row(
+  Widget _buildMovementContent(FixedMovement movement) {
+    return Padding(
+      padding: const EdgeInsets.all(16),
+      child: Row(
+        children: [
+          // Icon
+          Container(
+            padding: const EdgeInsets.all(8),
+            decoration: BoxDecoration(
+              color:
+                  movement.isExpense
+                      ? Colors.red.withOpacity(0.1)
+                      : Colors.green.withOpacity(0.1),
+              borderRadius: BorderRadius.circular(8),
+            ),
+            child: Icon(
+              movement.isExpense ? Icons.arrow_upward : Icons.arrow_downward,
+              color: movement.isExpense ? Colors.red : Colors.green,
+              size: 20,
+            ),
+          ),
+          const SizedBox(width: 12),
+
+          // Content
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  movement.description,
+                  style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+                const SizedBox(height: 4),
+                if (movement.category != null &&
+                    movement.category!.isNotEmpty) ...[
+                  Row(
                     children: [
-                      // Icon
-                      Container(
-                        padding: const EdgeInsets.all(8),
-                        decoration: BoxDecoration(
-                          color:
-                              movement.isExpense
-                                  ? Colors.red.withOpacity(0.1)
-                                  : Colors.green.withOpacity(0.1),
-                          borderRadius: BorderRadius.circular(8),
+                      Icon(Icons.tag, size: 14, color: Colors.grey[600]),
+                      const SizedBox(width: 4),
+                      Text(
+                        movement.category!,
+                        style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                          color: Colors.grey[600],
                         ),
-                        child: Icon(
-                          movement.isExpense
-                              ? Icons.arrow_upward
-                              : Icons.arrow_downward,
-                          color: movement.isExpense ? Colors.red : Colors.green,
-                          size: 20,
-                        ),
-                      ),
-                      const SizedBox(width: 12),
-
-                      // Content
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              movement.description,
-                              style: Theme.of(context).textTheme.titleMedium
-                                  ?.copyWith(fontWeight: FontWeight.w600),
-                            ),
-                            const SizedBox(height: 4),
-                            Row(
-                              children: [
-                                Icon(
-                                  Icons.tag,
-                                  size: 14,
-                                  color: Colors.grey[600],
-                                ),
-                                const SizedBox(width: 4),
-                                Text(
-                                  movement.category!,
-                                  style: Theme.of(context).textTheme.bodySmall
-                                      ?.copyWith(color: Colors.grey[600]),
-                                ),
-                              ],
-                            ),
-                            const SizedBox(height: 4),
-                            Row(
-                              children: [
-                                Icon(
-                                  Icons.calendar_today,
-                                  size: 14,
-                                  color: Colors.grey[600],
-                                ),
-                                const SizedBox(width: 4),
-                                Text(
-                                  'Día ${movement.day} de cada mes',
-                                  style: Theme.of(context).textTheme.bodySmall
-                                      ?.copyWith(color: Colors.grey[600]),
-                                ),
-                              ],
-                            ),
-                          ],
-                        ),
-                      ),
-
-                      // Amount
-                      Column(
-                        crossAxisAlignment: CrossAxisAlignment.end,
-                        children: [
-                          Text(
-                            '${movement.isExpense ? '-' : '+'}${movement.amount.toStringAsFixed(2)}$_moneda',
-                            style: Theme.of(
-                              context,
-                            ).textTheme.titleMedium?.copyWith(
-                              fontWeight: FontWeight.bold,
-                              color:
-                                  movement.isExpense
-                                      ? Colors.red
-                                      : Colors.green,
-                            ),
-                          ),
-                          Text(
-                            movement.isExpense ? 'Gasto' : 'Ingreso',
-                            style: Theme.of(
-                              context,
-                            ).textTheme.bodySmall?.copyWith(
-                              color:
-                                  movement.isExpense
-                                      ? Colors.red
-                                      : Colors.green,
-                              fontWeight: FontWeight.w500,
-                            ),
-                          ),
-                        ],
                       ),
                     ],
                   ),
+                  const SizedBox(height: 4),
+                ],
+                Row(
+                  children: [
+                    Icon(
+                      Icons.calendar_today,
+                      size: 14,
+                      color: Colors.grey[600],
+                    ),
+                    const SizedBox(width: 4),
+                    Text(
+                      'Día ${movement.day} de cada mes',
+                      style: Theme.of(
+                        context,
+                      ).textTheme.bodySmall?.copyWith(color: Colors.grey[600]),
+                    ),
+                  ],
                 ),
-              ),
+              ],
             ),
           ),
-        );
-      },
+
+          // Amount
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.end,
+            children: [
+              Text(
+                '${movement.isExpense ? '-' : '+'}${movement.amount.toStringAsFixed(2)}$_moneda',
+                style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                  fontWeight: FontWeight.bold,
+                  color: movement.isExpense ? Colors.red : Colors.green,
+                ),
+              ),
+              Text(
+                movement.isExpense ? 'Gasto' : 'Ingreso',
+                style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                  color: movement.isExpense ? Colors.red : Colors.green,
+                  fontWeight: FontWeight.w500,
+                ),
+              ),
+            ],
+          ),
+        ],
+      ),
     );
   }
 }
@@ -686,16 +737,28 @@ class _FixedMovementDialogState extends State<_FixedMovementDialog> {
         FilledButton(
           onPressed: () {
             if (_formKey.currentState?.validate() == true) {
-              Navigator.of(context).pop(
-                FixedMovement(
-                  widget.movement?.id,
-                  _descriptionController.text.trim(),
-                  double.parse(_amountController.text),
-                  _isExpense,
-                  int.parse(_dayController.text),
-                  _category,
-                ),
-              );
+              try {
+                final amount = double.parse(_amountController.text);
+                final day = int.parse(_dayController.text);
+
+                Navigator.of(context).pop(
+                  FixedMovement(
+                    widget.movement?.id,
+                    _descriptionController.text.trim(),
+                    amount,
+                    _isExpense,
+                    day,
+                    _category,
+                  ),
+                );
+              } catch (e) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(
+                    content: Text('Error en los datos: $e'),
+                    behavior: SnackBarBehavior.floating,
+                  ),
+                );
+              }
             }
           },
           child: Text(widget.movement == null ? 'Crear' : 'Guardar'),

@@ -142,7 +142,18 @@ class _MovementsScreenState extends State<MovementsScreen>
       movements.map((m) => m.description).join(','),
       context,
     );
-    if (tags.isEmpty) return;
+    if (tags.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            'No se pudieron generaron etiquetas para los movimientos. Intente de nuevo mas tarde o revise la api key proporcionada en ajustes.',
+            style: TextStyle(color: Theme.of(context).colorScheme.onError),
+          ),
+          backgroundColor: Theme.of(context).colorScheme.error,
+        ),
+      );
+      return;
+    }
     for (int i = 0; i < movements.length; i++) {
       final movement = movements[i];
       final tag = tags[i % tags.length]; // Asignar etiquetas cíclicamente
