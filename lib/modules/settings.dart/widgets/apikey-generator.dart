@@ -39,6 +39,7 @@ class _ApiKeyGeneratorState extends State<ApiKeyGenerator> {
       });
     }
   }
+
   Future<void> _launchUrl(String url) async {
     if (!await launchUrl(
       Uri.parse(url),
@@ -59,7 +60,7 @@ class _ApiKeyGeneratorState extends State<ApiKeyGenerator> {
     if (_isSaving) return;
 
     final apiKeyText = _apiKeyController.text.trim();
-    
+
     // Validar que no esté vacío
     if (apiKeyText.isEmpty) {
       Fluttertoast.showToast(
@@ -209,7 +210,10 @@ class _ApiKeyGeneratorState extends State<ApiKeyGenerator> {
                       SizedBox(width: 8),
                       Text(
                         'API Key inválida',
-                        style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                        style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                          fontSize: 16,
+                        ),
                       ),
                     ],
                   ),
@@ -264,7 +268,10 @@ class _ApiKeyGeneratorState extends State<ApiKeyGenerator> {
                     SizedBox(width: 8),
                     Text(
                       'Error al guardar API Key',
-                      style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                      style: TextStyle(
+                        fontWeight: FontWeight.bold,
+                        fontSize: 16,
+                      ),
                     ),
                   ],
                 ),
@@ -289,16 +296,18 @@ class _ApiKeyGeneratorState extends State<ApiKeyGenerator> {
       }
     }
   }
+
   Future<bool> _testApiKey(String apiKey) async {
     try {
       // Hacer una prueba simple para verificar que la API Key funciona
       final geminiService = GeminiService();
-      
+
       // Usar generateCategory como prueba con un texto simple
       // Timeout de 10 segundos para la prueba
-      final result = await geminiService.generateCategory('comida', context)
+      final result = await geminiService
+          .generateCategory('comida', context)
           .timeout(const Duration(seconds: 10));
-      
+
       return result.isNotEmpty;
     } catch (e) {
       return false;
@@ -426,17 +435,22 @@ class _ApiKeyGeneratorState extends State<ApiKeyGenerator> {
                 controller: _apiKeyController,
                 decoration: InputDecoration(
                   labelText: 'Clave API de Google',
-                  border: const OutlineInputBorder(),                  suffixIcon: IconButton(
-                    icon: _isSaving 
-                        ? const SizedBox(
-                            width: 16,
-                            height: 16,
-                            child: CircularProgressIndicator(strokeWidth: 2),
-                          )
-                        : const Icon(Icons.save),
-                    onPressed: _isSaving ? null : () async {
-                      await _saveApiKey();
-                    },
+                  border: const OutlineInputBorder(),
+                  suffixIcon: IconButton(
+                    icon:
+                        _isSaving
+                            ? const SizedBox(
+                              width: 16,
+                              height: 16,
+                              child: CircularProgressIndicator(strokeWidth: 2),
+                            )
+                            : const Icon(Icons.save),
+                    onPressed:
+                        _isSaving
+                            ? null
+                            : () async {
+                              await _saveApiKey();
+                            },
                   ),
                 ),
               ),
