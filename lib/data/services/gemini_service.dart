@@ -9,7 +9,7 @@ import 'package:google_generative_ai/google_generative_ai.dart';
 class GeminiService {
   static final GeminiService _instance = GeminiService._internal();
   String? _apiKey;
-  late final GenerativeModel model;
+  GenerativeModel? model = null;
 
   factory GeminiService() {
     return _instance;
@@ -22,7 +22,7 @@ class GeminiService {
   Future<String> _generateContent(String prompt, String apiKey) async {
     try {
       final content = [Content.text(prompt)];
-      final response = await model.generateContent(content);
+      final response = await model!.generateContent(content);
       return response.text ?? 'No se pudo generar una respuesta';
     } catch (e) {
       return '';
@@ -86,11 +86,10 @@ class GeminiService {
         ) ??
         '';
 
+    this._apiKey = _apiKey;
+
     if (_apiKey.isNotEmpty) {
-      this._apiKey = _apiKey;
-      if (model == null) {
-        model = GenerativeModel(apiKey: _apiKey, model: 'gemini-2.0-flash');
-      }
+      model ??= GenerativeModel(apiKey: _apiKey, model: 'gemini-2.0-flash');
     }
   }
 
