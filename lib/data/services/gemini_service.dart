@@ -88,7 +88,9 @@ class GeminiService {
 
     if (_apiKey.isNotEmpty) {
       this._apiKey = _apiKey;
-      model = GenerativeModel(apiKey: _apiKey, model: 'gemini-2.0-flash');
+      if (model == null) {
+        model = GenerativeModel(apiKey: _apiKey, model: 'gemini-2.0-flash');
+      }
     }
   }
 
