@@ -205,6 +205,11 @@ class _$MonthDao extends MonthDao {
   }
 
   @override
+  Future<void> deleteAllMonths() async {
+    await _queryAdapter.queryNoReturn('DELETE FROM Month');
+  }
+
+  @override
   Future<void> insertMonth(Month month) async {
     await _monthInsertionAdapter.insert(month, OnConflictStrategy.replace);
   }
@@ -321,6 +326,11 @@ class _$MovementValueDao extends MovementValueDao {
   }
 
   @override
+  Future<void> deleteAllMovements() async {
+    await _queryAdapter.queryNoReturn('DELETE FROM MovementValue');
+  }
+
+  @override
   Future<void> insertMovementValue(MovementValue movementValue) async {
     await _movementValueInsertionAdapter.insert(
         movementValue, OnConflictStrategy.abort);
@@ -428,6 +438,11 @@ class _$FixedMovementDao extends FixedMovementDao {
             row['day'] as int,
             row['category'] as String?),
         arguments: [isExpense ? 1 : 0]);
+  }
+
+  @override
+  Future<void> deleteAllFixedMovements() async {
+    await _queryAdapter.queryNoReturn('DELETE FROM FixedMovement');
   }
 
   @override

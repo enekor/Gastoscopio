@@ -17,7 +17,9 @@ abstract class FixedMovementDao {
 
   @update
   Future<void> updateFixedMovement(FixedMovement fixedMovement);
-
   @delete
   Future<void> deleteFixedMovement(FixedMovement fixedMovement);
+
+  @Query('DELETE FROM FixedMovement')
+  Future<void> deleteAllFixedMovements();
 }

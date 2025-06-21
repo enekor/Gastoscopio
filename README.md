@@ -153,6 +153,33 @@ flutter build apk --release
 3. Introduce la clave en el campo correspondiente
 4. ¡Disfruta de las funciones de IA!
 
+## 🔧 Opciones de Desarrollador
+
+La aplicación incluye un menú de opciones de desarrollador que permite acceso a funciones avanzadas:
+
+### 📥 Importar desde JSON
+- Importa datos desde archivos JSON de Gastoscopio
+- Funcionalidad oculta en opciones de desarrollador para evitar uso accidental
+- Preserva la estructura de datos y categorías
+
+### 🗑️ Limpiar Base de Datos
+- **⚠️ PELIGRO**: Borra TODOS los datos de la aplicación permanentemente
+- Incluye confirmación múltiple para prevenir borrado accidental
+- Limpia: movimientos, categorías, movimientos fijos, configuraciones
+- Requiere reinicio de la app después del borrado
+
+### Acceso a Opciones de Desarrollador
+1. Ve a Configuración
+2. Busca la sección "Opciones de Desarrollador" 
+3. Toca para expandir el menú
+4. Usa las funciones con precaución
+
+### Medidas de Seguridad
+- Múltiples confirmaciones para operaciones destructivas
+- Advertencias claras sobre irreversibilidad
+- Recomendación de backup antes de limpiar datos
+- Feedback visual claro para todas las operaciones
+
 ## 🤝 Contribuir
 
 ¡Las contribuciones son bienvenidas! Por favor:

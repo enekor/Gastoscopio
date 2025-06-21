@@ -17,7 +17,9 @@ abstract class MonthDao {
 
   @update
   Future<void> updateMonth(Month month);
-
   @delete
   Future<void> deleteMonth(Month month);
+
+  @Query('DELETE FROM Month')
+  Future<void> deleteAllMonths();
 }

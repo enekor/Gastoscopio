@@ -27,7 +27,9 @@ abstract class MovementValueDao {
 
   @update
   Future<void> updateMovementValue(MovementValue movementValue);
-
   @delete
   Future<void> deleteMovementValue(MovementValue movementValue);
+
+  @Query('DELETE FROM MovementValue')
+  Future<void> deleteAllMovements();
 }
