@@ -13,9 +13,8 @@ abstract class MovementValueDao {
     int monthId,
     bool isExpense,
   );
-
   @Query(
-    'SELECT SUM(amount) FROM MovementValue WHERE monthId = :monthId AND isExpense = :isExpense',
+    'SELECT COALESCE(SUM(amount), 0.0) FROM MovementValue WHERE monthId = :monthId AND isExpense = :isExpense',
   )
   Future<double?> sumMovementValuesByMonthIdAndType(
     int monthId,

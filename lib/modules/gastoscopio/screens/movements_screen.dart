@@ -167,6 +167,8 @@ class _MovementsScreenState extends State<MovementsScreen>
         tag, // Actualizar la categoría con la etiqueta generada
       );
       await _financeService.updateMovement(updatedMovement);
+      // Call haveToUpload() after updating movement tag
+      await SharedPreferencesService().haveToUpload();
     }
   }
 
@@ -1141,7 +1143,6 @@ class _MovementsScreenState extends State<MovementsScreen>
                                       child: CircularProgressIndicator(),
                                     ),
                               );
-
                               final updatedMovement = MovementValue(
                                 movement.id,
                                 movement.monthId,
@@ -1157,6 +1158,9 @@ class _MovementsScreenState extends State<MovementsScreen>
                               await _financeService.updateMovement(
                                 updatedMovement,
                               );
+
+                              // Call haveToUpload() after updating movement
+                              await SharedPreferencesService().haveToUpload();
 
                               // Close both dialogs
                               if (!context.mounted) return;
@@ -1290,10 +1294,12 @@ class _MovementsScreenState extends State<MovementsScreen>
                                     child: CircularProgressIndicator(),
                                   ),
                             );
-
                             await _financeService.updateMovement(
                               updatedMovement,
                             );
+
+                            // Call haveToUpload() after updating movement category
+                            await SharedPreferencesService().haveToUpload();
 
                             // Close loading dialog and bottom sheet
                             if (!context.mounted) return;

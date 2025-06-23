@@ -1,3 +1,4 @@
+import 'package:cashly/data/services/login_service.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class SharedPreferencesService {
@@ -45,6 +46,26 @@ class SharedPreferencesService {
     var ret = prefs.getBool(key.toString());
     return ret;
   }
+
+  Future<void> haveToUpload() async {
+    final prefs = await SharedPreferences.getInstance();
+    var ret = prefs.getInt(SharedPreferencesKeys.numberOfMovements.toString());
+    if (ret == null || ret <= 4) {
+      ret ??= 0;
+      ret++;
+
+      await prefs.setInt(
+        SharedPreferencesKeys.numberOfMovements.toString(),
+        ret,
+      );
+
+      return;
+    }
+
+    await LoginService().uploadDatabase();
+
+    await prefs.setInt(SharedPreferencesKeys.numberOfMovements.toString(), 1);
+  }
 }
 
 enum SharedPreferencesKeys {
@@ -52,7 +73,8 @@ enum SharedPreferencesKeys {
   apiKey('api_key'),
   currency('currency'),
   avatarColor('avatar_color'),
-  isSvgAvatar('is_svg_avatar');
+  isSvgAvatar('is_svg_avatar'),
+  numberOfMovements('number_of_movements');
 
   final String value;
   const SharedPreferencesKeys(this.value);

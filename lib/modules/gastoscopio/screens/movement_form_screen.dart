@@ -215,6 +215,9 @@ class _MovementFormScreenState extends State<MovementFormScreen> {
         await db.movementValueDao.insertMovementValue(movement);
       }
 
+      // Call haveToUpload() after any movement creation or update
+      await SharedPreferencesService().haveToUpload();
+
       // Update FinanceService singleton
       if (mounted) {
         final financeService = FinanceService.getInstance(

@@ -320,7 +320,7 @@ class _$MovementValueDao extends MovementValueDao {
     bool isExpense,
   ) async {
     return _queryAdapter.query(
-        'SELECT SUM(amount) FROM MovementValue WHERE monthId = ?1 AND isExpense = ?2',
+        'SELECT COALESCE(SUM(amount), 0.0) FROM MovementValue WHERE monthId = ?1 AND isExpense = ?2',
         mapper: (Map<String, Object?> row) => row.values.first as double,
         arguments: [monthId, isExpense ? 1 : 0]);
   }

@@ -1,6 +1,8 @@
+import 'package:cashly/data/models/month.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:cashly/data/services/sqlite_service.dart';
+import 'package:cashly/data/services/shared_preferences_service.dart';
 import 'package:cashly/modules/settings.dart/widgets/import_from_gastoscopio.dart';
 
 class DeveloperOptionsWidget extends StatefulWidget {
@@ -100,10 +102,13 @@ class _DeveloperOptionsWidgetState extends State<DeveloperOptionsWidget> {
       await db.movementValueDao.deleteAllMovements();
 
       // Limpiar tabla de movimientos fijos
-      await db.fixedMovementDao.deleteAllFixedMovements();
-
-      // Limpiar tabla de meses
+      await db.fixedMovementDao
+          .deleteAllFixedMovements(); // Limpiar tabla de meses
       await db.monthDao.deleteAllMonths();
+
+      await db.monthDao.insertMonth(
+        Month(DateTime.now().month, DateTime.now().year),
+      );
 
       if (mounted) {
         // Toast de éxito

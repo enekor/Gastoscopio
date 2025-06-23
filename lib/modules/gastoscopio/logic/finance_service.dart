@@ -4,6 +4,7 @@ import 'package:cashly/data/dao/fixed_movement_dao.dart';
 import 'package:cashly/data/models/month.dart';
 import 'package:cashly/data/models/movement_value.dart';
 import 'package:cashly/data/models/fixed_movement.dart';
+import 'package:cashly/data/services/shared_preferences_service.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
@@ -53,14 +54,19 @@ class FinanceService extends ChangeNotifier {
       // Create new month if it doesn't exist
       final newMonth = Month(month, year);
       await _monthDao.insertMonth(newMonth);
-      _currentMonth = await _monthDao.findMonthByMonthAndYear(month, year);
-
-      // Copy fixed movements to new month
+      _currentMonth = await _monthDao.findMonthByMonthAndYear(
+        month,
+        year,
+      ); // Copy fixed movements to new month
       if (_currentMonth != null) {
         final fixedMovements = await _fixedMovementDao.findAllFixedMovements();
         for (final movement in fixedMovements) {
           final movementValue = movement.toMovementValue(_currentMonth!.id!);
           await _movementValueDao.insertMovementValue(movementValue);
+        }
+        // Call haveToUpload() after copying fixed movements to new month
+        if (fixedMovements.isNotEmpty) {
+          await SharedPreferencesService().haveToUpload();
         }
       }
     } else {
@@ -342,10 +348,12 @@ class FinanceService extends ChangeNotifier {
         barrierDismissible: false,
         builder: (context) => const Center(child: CircularProgressIndicator()),
       );
-
       await _movementValueDao.deleteMovementValue(movement);
       await _updateMonthData();
       notifyListeners();
+
+      // Call haveToUpload() after deleting movement
+      await SharedPreferencesService().haveToUpload();
 
       // Close loading dialog
       if (!context.mounted) return true;
@@ -487,6 +495,8 @@ class FinanceService extends ChangeNotifier {
     await _movementValueDao.updateMovementValue(movement);
     await _updateMonthData();
     notifyListeners();
+    // Call haveToUpload() after updating movement
+    await SharedPreferencesService().haveToUpload();
   }
 
   /// Gets all movements for a specific month and year

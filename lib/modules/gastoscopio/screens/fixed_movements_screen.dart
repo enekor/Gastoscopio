@@ -57,11 +57,12 @@ class _FixedMovementsScreenState extends State<FixedMovementsScreen> {
         context: context,
         builder: (context) => _FixedMovementDialog(),
       );
-
       if (result != null) {
         await SqliteService().database.fixedMovementDao.insertFixedMovement(
           result,
         );
+        // Call haveToUpload() after creating fixed movement
+        await SharedPreferencesService().haveToUpload();
         await _loadFixedMovements();
       }
     } catch (e) {
@@ -263,6 +264,8 @@ class _FixedMovementsScreenState extends State<FixedMovementsScreen> {
             await SqliteService().database.fixedMovementDao.deleteFixedMovement(
               movement,
             );
+            // Call haveToUpload() after deleting fixed movement
+            await SharedPreferencesService().haveToUpload();
             setState(() {
               _fixedMovements.removeAt(index);
             });
@@ -305,10 +308,11 @@ class _FixedMovementsScreenState extends State<FixedMovementsScreen> {
                   builder:
                       (context) => _FixedMovementDialog(movement: movement),
                 );
-
                 if (result != null) {
                   await SqliteService().database.fixedMovementDao
                       .updateFixedMovement(result);
+                  // Call haveToUpload() after updating fixed movement
+                  await SharedPreferencesService().haveToUpload();
                   await _loadFixedMovements();
                 }
               } catch (e) {
