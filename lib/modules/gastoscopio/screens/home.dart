@@ -28,6 +28,7 @@ class GastoscopioHomeScreen extends StatefulWidget {
 class _GastoscopioHomeScreenState extends State<GastoscopioHomeScreen> {
   String _greeting = '';
   bool _isSvg = false;
+  bool _isOpaqueBottomNav = false;
   int _r = 255;
   int _g = 255;
   int _b = 255;
@@ -45,6 +46,15 @@ class _GastoscopioHomeScreenState extends State<GastoscopioHomeScreen> {
         .then(
           (currency) => setState(() {
             _moneda = currency ?? '€'; // Valor por defecto si no se encuentra
+          }),
+        );
+
+    // Load bottom navigation style configuration
+    SharedPreferencesService()
+        .getBoolValue(SharedPreferencesKeys.isOpaqueBottomNav)
+        .then(
+          (isOpaque) => setState(() {
+            _isOpaqueBottomNav = isOpaque ?? false;
           }),
         );
     SharedPreferencesService()
@@ -113,18 +123,36 @@ class _GastoscopioHomeScreenState extends State<GastoscopioHomeScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       floatingActionButton: Card(
-        color: Theme.of(context).colorScheme.secondary.withAlpha(25),
-        elevation: 8,
-        shape: const CircleBorder(),
+        color:
+            _isOpaqueBottomNav
+                ? Theme.of(context).colorScheme.primary.withAlpha(200)
+                : Theme.of(context).colorScheme.secondary.withAlpha(25),
+        elevation: _isOpaqueBottomNav ? 4 : 8,
+        shape: CircleBorder(
+          side:
+              _isOpaqueBottomNav
+                  ? BorderSide.none
+                  : BorderSide(
+                    color: Theme.of(
+                      context,
+                    ).colorScheme.primary.withOpacity(0.3),
+                    width: 2,
+                  ),
+        ),
         child: Container(
           width: 45,
           height: 45,
           decoration: BoxDecoration(
             shape: BoxShape.circle,
-            border: Border.all(
-              color: Theme.of(context).colorScheme.primary.withOpacity(0.3),
-              width: 2,
-            ),
+            border:
+                _isOpaqueBottomNav
+                    ? null
+                    : Border.all(
+                      color: Theme.of(
+                        context,
+                      ).colorScheme.primary.withOpacity(0.3),
+                      width: 2,
+                    ),
           ),
           child: FloatingActionButton.small(
             backgroundColor: Colors.transparent,
@@ -140,7 +168,10 @@ class _GastoscopioHomeScreenState extends State<GastoscopioHomeScreen> {
             },
             child: Icon(
               Icons.add,
-              color: Theme.of(context).colorScheme.primary,
+              color:
+                  _isOpaqueBottomNav
+                      ? Theme.of(context).colorScheme.onPrimary
+                      : Theme.of(context).colorScheme.primary,
             ),
             heroTag: 'home_fab',
           ),

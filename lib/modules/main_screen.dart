@@ -25,6 +25,7 @@ class _MainScreenState extends State<MainScreen>
   int _year = DateTime.now().year;
   int _month = DateTime.now().month;
   late Future<bool> _initializationFuture;
+  bool _isOpaqueBottomNav = false;
 
   final List<NavigationDestination> _destinations = const [
     NavigationDestination(
@@ -81,6 +82,19 @@ class _MainScreenState extends State<MainScreen>
           SharedPreferencesKeys.isFirstStartup,
         ) ??
         true;
+
+    // Load bottom navigation style configuration
+    final isOpaqueBottomNav =
+        await SharedPreferencesService().getBoolValue(
+          SharedPreferencesKeys.isOpaqueBottomNav,
+        ) ??
+        false;
+
+    if (mounted) {
+      setState(() {
+        _isOpaqueBottomNav = isOpaqueBottomNav;
+      });
+    }
 
     if (!isFirstStartup) {
       await SqliteService().initializeDatabase();
@@ -179,6 +193,20 @@ class _MainScreenState extends State<MainScreen>
     );
   }
 
+  Future<void> _reloadBottomNavConfig() async {
+    final isOpaqueBottomNav =
+        await SharedPreferencesService().getBoolValue(
+          SharedPreferencesKeys.isOpaqueBottomNav,
+        ) ??
+        false;
+
+    if (mounted) {
+      setState(() {
+        _isOpaqueBottomNav = isOpaqueBottomNav;
+      });
+    }
+  }
+
   List<Widget> get _screens => [
     GastoscopioHomeScreen(
       key: const ValueKey('home'),
@@ -229,13 +257,15 @@ class _MainScreenState extends State<MainScreen>
             actions: [
               IconButton(
                 icon: const Icon(Icons.settings),
-                onPressed: () {
-                  Navigator.push(
+                onPressed: () async {
+                  await Navigator.push(
                     context,
                     MaterialPageRoute(
                       builder: (context) => const SettingsScreen(),
                     ),
                   );
+                  // Reload configuration when returning from settings
+                  await _reloadBottomNavConfig();
                 },
               ),
               if (_selectedIndex != 2)
@@ -257,20 +287,57 @@ class _MainScreenState extends State<MainScreen>
               bottom: 16.0,
             ),
             child: Card(
-              color: Theme.of(context).colorScheme.secondary.withAlpha(25),
-              elevation: 8,
+              color:
+                  _isOpaqueBottomNav
+                      ? Theme.of(context).colorScheme.primary.withAlpha(200)
+                      : Theme.of(context).colorScheme.secondary.withAlpha(25),
+              elevation: _isOpaqueBottomNav ? 4 : 8,
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(24),
+                side:
+                    _isOpaqueBottomNav
+                        ? BorderSide.none
+                        : BorderSide(
+                          color: Theme.of(
+                            context,
+                          ).colorScheme.outline.withAlpha(50),
+                          width: 1,
+                        ),
               ),
               child: NavigationBar(
                 selectedIndex: _tabController.index,
                 onDestinationSelected: _onDestinationSelected,
-                destinations: _destinations,
+                destinations:
+                    _destinations.map((destination) {
+                      return NavigationDestination(
+                        icon: Icon(
+                          (destination.icon as Icon).icon,
+                          color:
+                              _isOpaqueBottomNav
+                                  ? Theme.of(
+                                    context,
+                                  ).colorScheme.onPrimary.withAlpha(150)
+                                  : null,
+                        ),
+                        selectedIcon: Icon(
+                          (destination.selectedIcon as Icon).icon,
+                          color:
+                              _isOpaqueBottomNav
+                                  ? Theme.of(context).colorScheme.onPrimary
+                                  : Theme.of(context).colorScheme.primary,
+                        ),
+                        label: destination.label,
+                      );
+                    }).toList(),
                 backgroundColor: Colors.transparent,
                 elevation: 0,
                 height: 48,
                 labelBehavior: NavigationDestinationLabelBehavior.alwaysHide,
                 animationDuration: const Duration(milliseconds: 500),
+                indicatorColor:
+                    _isOpaqueBottomNav
+                        ? Theme.of(context).colorScheme.onPrimary.withAlpha(50)
+                        : Theme.of(context).colorScheme.primary.withAlpha(50),
               ),
             ),
           ),

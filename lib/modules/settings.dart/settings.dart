@@ -22,6 +22,7 @@ class SettingsScreen extends StatefulWidget {
 class _SettingsScreenState extends State<SettingsScreen> {
   String _currentCurrency = '€';
   bool _isSvg = false;
+  bool _isOpaqueBottomNav = false;
   int _r = 255;
   int _g = 255;
   int _b = 255;
@@ -182,6 +183,15 @@ class _SettingsScreenState extends State<SettingsScreen> {
         _b = int.tryParse(avatarColor.split(",")[2]) ?? 255;
       });
     }
+
+    final isOpaqueBottomNav = await SharedPreferencesService().getBoolValue(
+      SharedPreferencesKeys.isOpaqueBottomNav,
+    );
+    if (isOpaqueBottomNav != null && mounted) {
+      setState(() {
+        _isOpaqueBottomNav = isOpaqueBottomNav;
+      });
+    }
   }
 
   Future<void> _saveCurrency(String currency) async {
@@ -232,6 +242,26 @@ class _SettingsScreenState extends State<SettingsScreen> {
     }
   }
 
+  Future<void> _saveBottomNavStyle(bool isOpaque) async {
+    await SharedPreferencesService().setBoolValue(
+      SharedPreferencesKeys.isOpaqueBottomNav,
+      isOpaque,
+    );
+    if (mounted) {
+      setState(() {
+        _isOpaqueBottomNav = isOpaque;
+      });
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            'Navegación inferior ${isOpaque ? 'opaca' : 'transparente'} aplicada',
+          ),
+          behavior: SnackBarBehavior.floating,
+        ),
+      );
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -269,6 +299,10 @@ class _SettingsScreenState extends State<SettingsScreen> {
 
               // Logo Card
               _buildLogoCard(context),
+              const SizedBox(height: 20),
+
+              // Bottom Navigation Style Card
+              _buildBottomNavCard(context),
               const SizedBox(height: 10),
               const Divider(),
               const SizedBox(height: 10),
@@ -715,5 +749,218 @@ class _SettingsScreenState extends State<SettingsScreen> {
     double luminance =
         (0.299 * color.red + 0.587 * color.green + 0.114 * color.blue) / 255;
     return luminance > 0.5 ? Colors.black : Colors.white;
+  }
+
+  Widget _buildBottomNavCard(BuildContext context) {
+    return Card(
+      color: Theme.of(context).colorScheme.secondary.withAlpha(25),
+      elevation: 0,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(16),
+        side: BorderSide(
+          color: Theme.of(context).colorScheme.outline.withAlpha(50),
+        ),
+      ),
+      child: Padding(
+        padding: const EdgeInsets.all(20.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                Icon(
+                  Icons.navigation_outlined,
+                  color: Theme.of(context).colorScheme.primary,
+                  size: 20,
+                ),
+                const SizedBox(width: 8),
+                Text(
+                  'Estilo de Navegación',
+                  style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 8),
+            Text(
+              'Personaliza la apariencia de la barra de navegación inferior.',
+              style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                color: Theme.of(context).colorScheme.onSurfaceVariant,
+              ),
+            ),
+            const SizedBox(height: 20),
+            Row(
+              children: [
+                // Transparent Option
+                Expanded(
+                  child: _buildNavOption(
+                    context,
+                    isOpaque: false,
+                    isSelected: !_isOpaqueBottomNav,
+                    onTap: () => _saveBottomNavStyle(false),
+                  ),
+                ),
+                const SizedBox(width: 16),
+                // Opaque Option
+                Expanded(
+                  child: _buildNavOption(
+                    context,
+                    isOpaque: true,
+                    isSelected: _isOpaqueBottomNav,
+                    onTap: () => _saveBottomNavStyle(true),
+                  ),
+                ),
+              ],
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildNavOption(
+    BuildContext context, {
+    required bool isOpaque,
+    required bool isSelected,
+    required VoidCallback onTap,
+  }) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        padding: const EdgeInsets.all(16),
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(12),
+          border: Border.all(
+            color:
+                isSelected
+                    ? Theme.of(context).colorScheme.primary
+                    : Theme.of(context).colorScheme.outline.withAlpha(100),
+            width: isSelected ? 2 : 1,
+          ),
+          color:
+              isSelected
+                  ? Theme.of(context).colorScheme.primary.withAlpha(25)
+                  : Theme.of(context).colorScheme.surface,
+        ),
+        child: Column(
+          children: [
+            Container(
+              height: 60,
+              width: double.infinity,
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(8),
+                color: Theme.of(context).colorScheme.surfaceContainerHighest,
+              ),
+              child: Stack(
+                children: [
+                  // Simulated screen content
+                  Container(
+                    width: double.infinity,
+                    height: double.infinity,
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(8),
+                      color: Theme.of(context).colorScheme.surface,
+                    ),
+                  ),
+                  // Simulated bottom nav
+                  Positioned(
+                    bottom: 4,
+                    left: 8,
+                    right: 8,
+                    child: Container(
+                      height: 20,
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(12),
+                        color:
+                            isOpaque
+                                ? Theme.of(
+                                  context,
+                                ).colorScheme.primary.withAlpha(200)
+                                : Theme.of(
+                                  context,
+                                ).colorScheme.primary.withAlpha(60),
+                        border:
+                            isOpaque
+                                ? null
+                                : Border.all(
+                                  color: Theme.of(
+                                    context,
+                                  ).colorScheme.primary.withAlpha(100),
+                                  width: 1,
+                                ),
+                      ),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                        children: [
+                          Icon(
+                            Icons.home,
+                            size: 12,
+                            color:
+                                isOpaque
+                                    ? Theme.of(context).colorScheme.onPrimary
+                                    : Theme.of(context).colorScheme.primary,
+                          ),
+                          Icon(
+                            Icons.receipt,
+                            size: 12,
+                            color:
+                                isOpaque
+                                    ? Theme.of(
+                                      context,
+                                    ).colorScheme.onPrimary.withAlpha(150)
+                                    : Theme.of(
+                                      context,
+                                    ).colorScheme.primary.withAlpha(150),
+                          ),
+                          Icon(
+                            Icons.bar_chart,
+                            size: 12,
+                            color:
+                                isOpaque
+                                    ? Theme.of(
+                                      context,
+                                    ).colorScheme.onPrimary.withAlpha(150)
+                                    : Theme.of(
+                                      context,
+                                    ).colorScheme.primary.withAlpha(150),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(height: 12),
+            Text(
+              isOpaque ? 'Opaca' : 'Transparente',
+              style: Theme.of(context).textTheme.titleSmall?.copyWith(
+                fontWeight: FontWeight.w600,
+                color:
+                    isSelected
+                        ? Theme.of(context).colorScheme.primary
+                        : Theme.of(context).colorScheme.onSurface,
+              ),
+            ),
+            const SizedBox(height: 4),
+            Text(
+              isOpaque ? 'Fondo sólido' : 'Efecto cristal',
+              style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                color: Theme.of(context).colorScheme.onSurfaceVariant,
+              ),
+            ),
+            if (isSelected) ...[
+              const SizedBox(height: 8),
+              Icon(
+                Icons.check_circle,
+                color: Theme.of(context).colorScheme.primary,
+                size: 20,
+              ),
+            ],
+          ],
+        ),
+      ),
+    );
   }
 }

@@ -29,6 +29,7 @@ class _MovementsScreenState extends State<MovementsScreen>
   late String _moneda;
   late FinanceService _financeService;
   final TextEditingController _searchController = TextEditingController();
+  bool _isOpaqueBottomNav = false;
 
   // Variables para el orden
   String? _currentSortType;
@@ -88,6 +89,16 @@ class _MovementsScreenState extends State<MovementsScreen>
             _moneda = currency ?? '€';
           }),
         );
+
+    // Cargar configuración de opacidad de navegación inferior
+    SharedPreferencesService()
+        .getBoolValue(SharedPreferencesKeys.isOpaqueBottomNav)
+        .then(
+          (isOpaque) => setState(() {
+            _isOpaqueBottomNav = isOpaque ?? false;
+          }),
+        );
+
     _searchController.text = _searchQuery;
     // Cargar datos iniciales
     _loadMovements();
@@ -182,6 +193,22 @@ class _MovementsScreenState extends State<MovementsScreen>
   }
 
   @override
+  void didUpdateWidget(MovementsScreen oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.year != widget.year || oldWidget.month != widget.month) {
+      _loadMovements();
+      // También recargar configuración de opacidad por si cambió
+      SharedPreferencesService()
+          .getBoolValue(SharedPreferencesKeys.isOpaqueBottomNav)
+          .then(
+            (isOpaque) => setState(() {
+              _isOpaqueBottomNav = isOpaque ?? false;
+            }),
+          );
+    }
+  }
+
+  @override
   Widget build(BuildContext context) {
     if (_isLoading) {
       return const Scaffold(body: Center(child: CircularProgressIndicator()));
@@ -209,18 +236,34 @@ class _MovementsScreenState extends State<MovementsScreen>
 
   Widget _buildFAB() {
     return Card(
-      color: Theme.of(context).colorScheme.secondary.withAlpha(25),
-      elevation: 8,
-      shape: const CircleBorder(),
+      color:
+          _isOpaqueBottomNav
+              ? Theme.of(context).colorScheme.primary.withAlpha(200)
+              : Theme.of(context).colorScheme.secondary.withAlpha(25),
+      elevation: _isOpaqueBottomNav ? 4 : 8,
+      shape: CircleBorder(
+        side:
+            _isOpaqueBottomNav
+                ? BorderSide.none
+                : BorderSide(
+                  color: Theme.of(context).colorScheme.primary.withOpacity(0.3),
+                  width: 2,
+                ),
+      ),
       child: Container(
         width: 45,
         height: 45,
         decoration: BoxDecoration(
           shape: BoxShape.circle,
-          border: Border.all(
-            color: Theme.of(context).colorScheme.primary.withOpacity(0.3),
-            width: 2,
-          ),
+          border:
+              _isOpaqueBottomNav
+                  ? null
+                  : Border.all(
+                    color: Theme.of(
+                      context,
+                    ).colorScheme.primary.withOpacity(0.3),
+                    width: 2,
+                  ),
         ),
         child: FloatingActionButton.small(
           backgroundColor: Colors.transparent,
@@ -239,7 +282,13 @@ class _MovementsScreenState extends State<MovementsScreen>
               await _loadMovements();
             }
           },
-          child: Icon(Icons.add, color: Theme.of(context).colorScheme.primary),
+          child: Icon(
+            Icons.add,
+            color:
+                _isOpaqueBottomNav
+                    ? Theme.of(context).colorScheme.onPrimary
+                    : Theme.of(context).colorScheme.primary,
+          ),
           heroTag: 'movements_fab',
         ),
       ),

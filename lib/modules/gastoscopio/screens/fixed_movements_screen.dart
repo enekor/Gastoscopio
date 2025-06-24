@@ -14,6 +14,7 @@ class FixedMovementsScreen extends StatefulWidget {
 class _FixedMovementsScreenState extends State<FixedMovementsScreen> {
   late String _moneda = 'loading...';
   List<FixedMovement> _fixedMovements = [];
+  bool _isOpaqueBottomNav = false;
 
   @override
   void initState() {
@@ -25,6 +26,16 @@ class _FixedMovementsScreenState extends State<FixedMovementsScreen> {
             _moneda = currency ?? '€';
           }),
         );
+
+    // Cargar configuración de opacidad de navegación inferior
+    SharedPreferencesService()
+        .getBoolValue(SharedPreferencesKeys.isOpaqueBottomNav)
+        .then(
+          (isOpaque) => setState(() {
+            _isOpaqueBottomNav = isOpaque ?? false;
+          }),
+        );
+
     _loadFixedMovements();
   }
 
@@ -156,22 +167,39 @@ class _FixedMovementsScreenState extends State<FixedMovementsScreen> {
       ),
       floatingActionButton: FloatingActionButton.extended(
         onPressed: _addFixedMovement,
-        icon: Icon(Icons.add, color: Theme.of(context).colorScheme.primary),
+        icon: Icon(
+          Icons.add,
+          color:
+              _isOpaqueBottomNav
+                  ? Theme.of(context).colorScheme.onPrimary
+                  : Theme.of(context).colorScheme.primary,
+        ),
         label: Text(
           'Añadir',
           style: TextStyle(
-            color: Theme.of(context).colorScheme.primary,
+            color:
+                _isOpaqueBottomNav
+                    ? Theme.of(context).colorScheme.onPrimary
+                    : Theme.of(context).colorScheme.primary,
             fontWeight: FontWeight.w600,
           ),
         ),
-        backgroundColor: Theme.of(context).colorScheme.primary.withOpacity(0.1),
-        elevation: 4,
+        backgroundColor:
+            _isOpaqueBottomNav
+                ? Theme.of(context).colorScheme.primary.withAlpha(200)
+                : Theme.of(context).colorScheme.primary.withOpacity(0.1),
+        elevation: _isOpaqueBottomNav ? 4 : 4,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(16),
-          side: BorderSide(
-            color: Theme.of(context).colorScheme.primary.withOpacity(0.3),
-            width: 1.5,
-          ),
+          side:
+              _isOpaqueBottomNav
+                  ? BorderSide.none
+                  : BorderSide(
+                    color: Theme.of(
+                      context,
+                    ).colorScheme.primary.withOpacity(0.3),
+                    width: 1.5,
+                  ),
         ),
       ),
     );
