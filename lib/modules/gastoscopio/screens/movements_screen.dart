@@ -872,12 +872,18 @@ class _MovementsScreenState extends State<MovementsScreen>
               child: Padding(
                 padding: const EdgeInsets.only(right: 8.0),
                 child: ElevatedButton.icon(
-                  onPressed: () {},
+                  onPressed: () => _showDatePicker(context, movement),
                   label: Text(
                     '${movement.day}/${widget.month}/${widget.year}',
                     style: Theme.of(context).textTheme.bodyMedium,
                   ),
                   icon: const Icon(Icons.calendar_month),
+                  style: ElevatedButton.styleFrom(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 8,
+                      vertical: 4,
+                    ),
+                  ),
                 ),
               ),
             ),
@@ -1377,5 +1383,72 @@ class _MovementsScreenState extends State<MovementsScreen>
         );
       },
     );
+  }
+
+  Future<void> _showDatePicker(
+    BuildContext context,
+    MovementValue movement,
+  ) async {
+    final DateTime initialDate = DateTime(
+      widget.year,
+      widget.month,
+      movement.day,
+    );
+    final DateTime firstDate = DateTime(widget.year, widget.month, 1);
+    final DateTime lastDate = DateTime(
+      widget.year,
+      widget.month + 1,
+      0,
+    ); // Último día del mes
+
+    final DateTime? selectedDate = await showDatePicker(
+      context: context,
+      initialDate: initialDate,
+      firstDate: firstDate,
+      lastDate: lastDate,
+      helpText: 'Seleccionar fecha',
+      cancelText: 'Cancelar',
+      confirmText: 'Aceptar',
+    );
+
+    if (selectedDate != null && selectedDate.day != movement.day) {
+      await _updateMovementDate(movement, selectedDate.day);
+    }
+  }
+
+  Future<void> _updateMovementDate(MovementValue movement, int newDay) async {
+    try {
+      // Crear una copia del movimiento con la nueva fecha usando copyWith
+      final updatedMovement = movement.copyWith(day: newDay);
+
+      // Actualizar en la base de datos
+      await SqliteService().database.movementValueDao.updateMovementValue(
+        updatedMovement,
+      );
+
+      // Mostrar mensaje de confirmación
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Fecha actualizada al día $newDay'),
+            behavior: SnackBarBehavior.floating,
+            duration: const Duration(seconds: 2),
+          ),
+        );
+      }
+
+      // Recargar los movimientos para reflejar el cambio
+      await _loadMovements();
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Error al actualizar la fecha: $e'),
+            behavior: SnackBarBehavior.floating,
+            backgroundColor: Theme.of(context).colorScheme.error,
+          ),
+        );
+      }
+    }
   }
 }

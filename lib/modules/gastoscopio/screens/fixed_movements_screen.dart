@@ -1,6 +1,8 @@
 import 'package:cashly/data/models/fixed_movement.dart';
+import 'package:cashly/data/models/movement_value.dart';
 import 'package:cashly/data/services/shared_preferences_service.dart';
 import 'package:cashly/data/services/sqlite_service.dart';
+import 'package:cashly/modules/gastoscopio/logic/finance_service.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
@@ -64,17 +66,36 @@ class _FixedMovementsScreenState extends State<FixedMovementsScreen> {
 
   Future<void> _addFixedMovement() async {
     try {
-      final result = await showDialog<FixedMovement>(
+      final result = await showDialog<List<dynamic>>(
         context: context,
         builder: (context) => _FixedMovementDialog(),
       );
       if (result != null) {
         await SqliteService().database.fixedMovementDao.insertFixedMovement(
-          result,
+          result[0],
         );
         // Call haveToUpload() after creating fixed movement
         await SharedPreferencesService().haveToUpload();
         await _loadFixedMovements();
+
+        if (result[1] == true) {
+          await SqliteService().database.movementValueDao.insertMovementValue(
+            MovementValue(
+              DateTime.now().millisecondsSinceEpoch,
+              FinanceService.getInstance(
+                    SqliteService().database.monthDao,
+                    SqliteService().database.movementValueDao,
+                    SqliteService().database.fixedMovementDao,
+                  ).currentMonth?.id ??
+                  -1,
+              result[0].description,
+              result[0].amount,
+              result[0].isExpense,
+              result[0].day,
+              (result[0].category as String).trim(),
+            ),
+          );
+        }
       }
     } catch (e) {
       if (mounted) {
@@ -475,6 +496,7 @@ class _FixedMovementDialogState extends State<_FixedMovementDialog> {
   late bool _isExpense;
   late String? _category;
   String _moneda = '€';
+  bool _saveInCurrentMonth = false;
 
   @override
   void initState() {
@@ -756,6 +778,28 @@ class _FixedMovementDialogState extends State<_FixedMovementDialog> {
                     ),
                   ],
                 ),
+
+                const SizedBox(height: 20),
+                Center(
+                  child: Row(
+                    children: [
+                      Text(
+                        "Guadar gasto en mes actual: ",
+                        style: Theme.of(context).textTheme.labelMedium
+                            ?.copyWith(fontWeight: FontWeight.w600),
+                      ),
+                      Switch(
+                        value: _saveInCurrentMonth,
+                        onChanged: (value) {
+                          setState(() {
+                            _saveInCurrentMonth = value;
+                          });
+                        },
+                        activeColor: Theme.of(context).colorScheme.primary,
+                      ),
+                    ],
+                  ),
+                ),
               ],
             ),
           ),
@@ -773,7 +817,7 @@ class _FixedMovementDialogState extends State<_FixedMovementDialog> {
                 final amount = double.parse(_amountController.text);
                 final day = int.parse(_dayController.text);
 
-                Navigator.of(context).pop(
+                Navigator.of(context).pop([
                   FixedMovement(
                     widget.movement?.id,
                     _descriptionController.text.trim(),
@@ -782,7 +826,8 @@ class _FixedMovementDialogState extends State<_FixedMovementDialog> {
                     day,
                     _category,
                   ),
-                );
+                  _saveInCurrentMonth,
+                ]);
               } catch (e) {
                 ScaffoldMessenger.of(context).showSnackBar(
                   SnackBar(

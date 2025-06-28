@@ -210,7 +210,7 @@ class _MovementFormScreenState extends State<MovementFormScreen> {
           amount,
           _isExpense,
           _selectedDate.day,
-          _category,
+          _category?.trim(),
         );
         await db.movementValueDao.insertMovementValue(movement);
       }

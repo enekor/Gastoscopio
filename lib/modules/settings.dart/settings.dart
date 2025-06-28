@@ -84,6 +84,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
 
       // Then import movements
       for (MovementValue movement in result['Movements']) {
+        movement.category = movement.category?.trim();
         await SqliteService().db.movementValueDao.insertMovementValue(movement);
       } // Finalmente, importa los movimientos fijos si existen
       if (result.containsKey('FixedMovements')) {

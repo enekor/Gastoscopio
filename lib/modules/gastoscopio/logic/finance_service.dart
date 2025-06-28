@@ -62,6 +62,7 @@ class FinanceService extends ChangeNotifier {
         final fixedMovements = await _fixedMovementDao.findAllFixedMovements();
         for (final movement in fixedMovements) {
           final movementValue = movement.toMovementValue(_currentMonth!.id!);
+          movementValue.category = movementValue.category?.trim();
           await _movementValueDao.insertMovementValue(movementValue);
         }
         // Call haveToUpload() after copying fixed movements to new month
