@@ -246,5 +246,41 @@
   "december": "December",
   "name": "Name",
   "nameRequired": "Name is required",
-  "invalidAmount": "Invalid amount"
+  "invalidAmount": "Invalid amount",
+  "loginRequired": "Login Required",
+  "@loginRequired": {
+    "description": "Message when login is required"
+  },
+  "loginToAccess": "Sign in to access this feature",
+  "@loginToAccess": {
+    "description": "Explanatory message of why login is needed"
+  },
+  "login": "Sign in",
+  "@login": {
+    "description": "Login button"
+  },
+  "logout": "Sign out",
+  "@logout": {
+    "description": "Logout button"
+  },
+  "loggedOutSuccessfully": "Signed out successfully",
+  "@loggedOutSuccessfully": {
+    "description": "Success message when signing out"
+  },
+  "loggedInSuccessfully": "Signed in successfully",
+  "@loggedInSuccessfully": {
+    "description": "Success message when signing in"
+  },
+  "loginError": "Sign in error",
+  "@loginError": {
+    "description": "Error message when signing in fails"
+  },
+  "accountSection": "Account",
+  "@accountSection": {
+    "description": "Account section title in settings"
+  },
+  "accountDescription": "Manage your account and sign-in options",
+  "@accountDescription": {
+    "description": "Account section description"
+  }
 }

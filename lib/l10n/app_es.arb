@@ -1088,5 +1088,41 @@
   "invalidAmount": "Monto inválido",
   "@invalidAmount": {
     "description": "Mensaje de error cuando el monto es inválido"
+  },
+  "loginRequired": "Inicio de sesión requerido",
+  "@loginRequired": {
+    "description": "Mensaje cuando se requiere iniciar sesión"
+  },
+  "loginToAccess": "Inicia sesión para acceder a esta función",
+  "@loginToAccess": {
+    "description": "Mensaje explicativo de por qué se necesita iniciar sesión"
+  },
+  "login": "Iniciar sesión",
+  "@login": {
+    "description": "Botón de inicio de sesión"
+  },
+  "logout": "Cerrar sesión",
+  "@logout": {
+    "description": "Botón de cerrar sesión"
+  },
+  "loggedOutSuccessfully": "Sesión cerrada correctamente",
+  "@loggedOutSuccessfully": {
+    "description": "Mensaje de éxito al cerrar sesión"
+  },
+  "loggedInSuccessfully": "Sesión iniciada correctamente",
+  "@loggedInSuccessfully": {
+    "description": "Mensaje de éxito al iniciar sesión"
+  },
+  "loginError": "Error al iniciar sesión",
+  "@loginError": {
+    "description": "Mensaje de error al iniciar sesión"
+  },
+  "accountSection": "Cuenta",
+  "@accountSection": {
+    "description": "Título de la sección de cuenta en ajustes"
+  },
+  "accountDescription": "Gestiona tu cuenta y las opciones de inicio de sesión",
+  "@accountDescription": {
+    "description": "Descripción de la sección de cuenta"
   }
 }

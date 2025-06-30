@@ -777,4 +777,31 @@ class AppLocalizationsEs extends AppLocalizations {
 
   @override
   String get invalidAmount => 'Monto inválido';
+
+  @override
+  String get loginRequired => 'Inicio de sesión requerido';
+
+  @override
+  String get loginToAccess => 'Inicia sesión para acceder a esta función';
+
+  @override
+  String get login => 'Iniciar sesión';
+
+  @override
+  String get logout => 'Cerrar sesión';
+
+  @override
+  String get loggedOutSuccessfully => 'Sesión cerrada correctamente';
+
+  @override
+  String get loggedInSuccessfully => 'Sesión iniciada correctamente';
+
+  @override
+  String get loginError => 'Error al iniciar sesión';
+
+  @override
+  String get accountSection => 'Cuenta';
+
+  @override
+  String get accountDescription => 'Gestiona tu cuenta y las opciones de inicio de sesión';
 }

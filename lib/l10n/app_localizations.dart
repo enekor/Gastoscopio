@@ -1570,6 +1570,60 @@ abstract class AppLocalizations {
   /// In es, this message translates to:
   /// **'Monto inválido'**
   String get invalidAmount;
+
+  /// Mensaje cuando se requiere iniciar sesión
+  ///
+  /// In es, this message translates to:
+  /// **'Inicio de sesión requerido'**
+  String get loginRequired;
+
+  /// Mensaje explicativo de por qué se necesita iniciar sesión
+  ///
+  /// In es, this message translates to:
+  /// **'Inicia sesión para acceder a esta función'**
+  String get loginToAccess;
+
+  /// Botón de inicio de sesión
+  ///
+  /// In es, this message translates to:
+  /// **'Iniciar sesión'**
+  String get login;
+
+  /// Botón de cerrar sesión
+  ///
+  /// In es, this message translates to:
+  /// **'Cerrar sesión'**
+  String get logout;
+
+  /// Mensaje de éxito al cerrar sesión
+  ///
+  /// In es, this message translates to:
+  /// **'Sesión cerrada correctamente'**
+  String get loggedOutSuccessfully;
+
+  /// Mensaje de éxito al iniciar sesión
+  ///
+  /// In es, this message translates to:
+  /// **'Sesión iniciada correctamente'**
+  String get loggedInSuccessfully;
+
+  /// Mensaje de error al iniciar sesión
+  ///
+  /// In es, this message translates to:
+  /// **'Error al iniciar sesión'**
+  String get loginError;
+
+  /// Título de la sección de cuenta en ajustes
+  ///
+  /// In es, this message translates to:
+  /// **'Cuenta'**
+  String get accountSection;
+
+  /// Descripción de la sección de cuenta
+  ///
+  /// In es, this message translates to:
+  /// **'Gestiona tu cuenta y las opciones de inicio de sesión'**
+  String get accountDescription;
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {

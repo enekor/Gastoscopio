@@ -777,4 +777,31 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get invalidAmount => 'Invalid amount';
+
+  @override
+  String get loginRequired => 'Login Required';
+
+  @override
+  String get loginToAccess => 'Sign in to access this feature';
+
+  @override
+  String get login => 'Sign in';
+
+  @override
+  String get logout => 'Sign out';
+
+  @override
+  String get loggedOutSuccessfully => 'Signed out successfully';
+
+  @override
+  String get loggedInSuccessfully => 'Signed in successfully';
+
+  @override
+  String get loginError => 'Sign in error';
+
+  @override
+  String get accountSection => 'Account';
+
+  @override
+  String get accountDescription => 'Manage your account and sign-in options';
 }
