@@ -1,0 +1,663 @@
+// ignore: unused_import
+import 'package:intl/intl.dart' as intl;
+import 'app_localizations.dart';
+
+// ignore_for_file: type=lint
+
+/// The translations for Spanish Castilian (`es`).
+class AppLocalizationsEs extends AppLocalizations {
+  AppLocalizationsEs([String locale = 'es']) : super(locale);
+
+  @override
+  String get appTitle => 'Gastoscopio';
+
+  @override
+  String get home => 'Inicio';
+
+  @override
+  String get movements => 'Movimientos';
+
+  @override
+  String get summary => 'Resumen';
+
+  @override
+  String get settings => 'Configuración';
+
+  @override
+  String get newExpense => 'Nuevo Gasto';
+
+  @override
+  String get newIncome => 'Nuevo Ingreso';
+
+  @override
+  String get expense => 'Gasto';
+
+  @override
+  String get income => 'Ingreso';
+
+  @override
+  String get description => 'Descripción';
+
+  @override
+  String get amount => 'Monto';
+
+  @override
+  String get date => 'Fecha';
+
+  @override
+  String get save => 'Guardar';
+
+  @override
+  String get cancel => 'Cancelar';
+
+  @override
+  String get accept => 'Aceptar';
+
+  @override
+  String get edit => 'Editar';
+
+  @override
+  String get delete => 'Eliminar';
+
+  @override
+  String get add => 'Añadir';
+
+  @override
+  String get selectDate => 'Seleccionar fecha';
+
+  @override
+  String get language => 'Idioma';
+
+  @override
+  String get systemLanguage => 'Idioma del sistema';
+
+  @override
+  String get spanish => 'Español';
+
+  @override
+  String get english => 'English';
+
+  @override
+  String get currency => 'Moneda Preferida';
+
+  @override
+  String get navigationStyle => 'Estilo de Navegación';
+
+  @override
+  String get transparentNavigation => 'Transparente';
+
+  @override
+  String get opaqueNavigation => 'Opaca';
+
+  @override
+  String get pleaseEnterDescription => 'Por favor ingrese una descripción';
+
+  @override
+  String get pleaseEnterAmount => 'Por favor ingrese un monto';
+
+  @override
+  String get pleaseEnterValidAmount => 'Por favor ingrese un monto válido';
+
+  @override
+  String dateUpdatedToDay(int day) {
+    return 'Fecha actualizada al día $day';
+  }
+
+  @override
+  String errorUpdatingDate(String error) {
+    return 'Error al actualizar la fecha: $error';
+  }
+
+  @override
+  String get movementSaved => '✅ Movimiento guardado';
+
+  @override
+  String get movementUpdated => '✅ Movimiento actualizado';
+
+  @override
+  String get saving => 'Guardando...';
+
+  @override
+  String get sortByDate => 'Por fecha';
+
+  @override
+  String get sortByAmount => 'Por monto';
+
+  @override
+  String get sortByCategory => 'Por categoría';
+
+  @override
+  String get personalization => 'Personalización';
+
+  @override
+  String get personalizationSubtitle => 'Configura tu experiencia en la aplicación.';
+
+  @override
+  String get languageDescription => 'Selecciona el idioma de la aplicación. Al elegir \"Idioma del sistema\", la app usará el idioma configurado en Android.';
+
+  @override
+  String get currencyDescription => 'Selecciona la moneda que se mostrará en toda la aplicación.';
+
+  @override
+  String get logoPersonalization => 'Personalización del Logo.';
+
+  @override
+  String get logoDescription => 'Elige entre PNG estático o SVG personalizable con color.';
+
+  @override
+  String get navigationStyleDescription => 'Personaliza la apariencia de la barra de navegación inferior.';
+
+  @override
+  String get artificialIntelligence => 'Inteligencia Artificial';
+
+  @override
+  String get aiDescription => 'Configuración para funciones avanzadas con IA.';
+
+  @override
+  String get backupManagement => 'Gestión de copia de seguridad';
+
+  @override
+  String get backupDescription => 'Importa y exporta tus datos.';
+
+  @override
+  String get languageUpdated => 'Idioma actualizado correctamente';
+
+  @override
+  String errorChangingLanguage(String error) {
+    return 'Error al cambiar idioma: $error';
+  }
+
+  @override
+  String get currencyUpdated => 'Moneda actualizada correctamente';
+
+  @override
+  String get logoUpdated => 'Logo actualizado correctamente';
+
+  @override
+  String get avatarColorUpdated => 'Color de avatar actualizado correctamente';
+
+  @override
+  String get transparentBottomNav => 'Navegación inferior transparente aplicada';
+
+  @override
+  String get opaqueBottomNav => 'Navegación inferior opaca aplicada';
+
+  @override
+  String get staticLabel => 'Estático';
+
+  @override
+  String get customizableLabel => 'Personalizable';
+
+  @override
+  String get svgColorLabel => 'Color del Logo SVG.';
+
+  @override
+  String get selectColor => 'Selecciona un Color';
+
+  @override
+  String get apply => 'Aplicar';
+
+  @override
+  String get solidBackground => 'Fondo sólido';
+
+  @override
+  String get glassEffect => 'Efecto cristal';
+
+  @override
+  String get loading => 'Cargando...';
+
+  @override
+  String get manageRecurringMovements => 'Gestionar Movimientos Recurrentes';
+
+  @override
+  String get noMovementsToShow => 'No hay movimientos para mostrar.';
+
+  @override
+  String get total => 'Total';
+
+  @override
+  String get incomes => 'Ingresos';
+
+  @override
+  String get expenses => 'Gastos';
+
+  @override
+  String get monthBalance => 'Balance del mes';
+
+  @override
+  String get expensesByCategory => 'Gastos por Categoría';
+
+  @override
+  String get noTagsGenerated => 'No se pudieron generar etiquetas para los movimientos. Intente de nuevo más tarde o revise la API key proporcionada en ajustes.';
+
+  @override
+  String get sortBy => 'Ordenar por';
+
+  @override
+  String get byDate => 'Por fecha';
+
+  @override
+  String get alphabetical => 'Alfabético';
+
+  @override
+  String get byValue => 'Por valor';
+
+  @override
+  String get clearSort => 'Limpiar orden';
+
+  @override
+  String get generateTagsAutomatically => 'Generar etiquetas automáticamente';
+
+  @override
+  String get filteredMovements => 'Movimientos filtrados:';
+
+  @override
+  String get totalMovements => 'Total de movimientos:';
+
+  @override
+  String get noExpenses => 'No hay gastos.';
+
+  @override
+  String get noIncomes => 'No hay ingresos.';
+
+  @override
+  String get pleaseEnterValidAmountGreaterThanZero => 'Por favor, introduce un monto válido mayor que 0';
+
+  @override
+  String get categoryNotGenerated => 'No se pudo generar la categoría, se guardará con categoría vacía. Puedes asignarla manualmente más tarde.';
+
+  @override
+  String get errorGeneratingCategory => 'Error al generar categoría. Se guardará sin categoría.';
+
+  @override
+  String get movementUpdatedSuccessfully => 'Movimiento actualizado con éxito';
+
+  @override
+  String get movementSavedSuccessfully => 'Movimiento guardado con éxito';
+
+  @override
+  String get unknownError => 'Error desconocido';
+
+  @override
+  String get generalError => 'Error general';
+
+  @override
+  String get databaseError => 'Error de base de datos';
+
+  @override
+  String get databaseErrorMessage => 'No se pudo acceder a la base de datos. Verifica que tengas espacio suficiente en el dispositivo.';
+
+  @override
+  String get formatError => 'Error de formato';
+
+  @override
+  String get formatErrorMessage => 'El formato del monto no es válido. Usa números con punto o coma como decimal.';
+
+  @override
+  String get connectionError => 'Error de conexión';
+
+  @override
+  String get connectionErrorMessage => 'Sin conexión a internet. El movimiento se guardará sin categoría automática.';
+
+  @override
+  String get permissionError => 'Error de permisos';
+
+  @override
+  String get permissionErrorMessage => 'La aplicación no tiene permisos para guardar datos. Verifica los permisos de la app.';
+
+  @override
+  String get error => 'Error';
+
+  @override
+  String get noDataToImport => 'No hay datos para importar';
+
+  @override
+  String get importingData => 'Importando datos...';
+
+  @override
+  String savingMovements(int count) {
+    return 'Guardando $count movimientos';
+  }
+
+  @override
+  String get ok => 'Ok';
+
+  @override
+  String get dataImportedSuccessfully => 'Los datos se han importado correctamente';
+
+  @override
+  String get errorSavingData => 'Ocurrió un error al guardar los datos';
+
+  @override
+  String get databaseInitializationError => 'Error al inicializar la base de datos. Por favor, intenta de nuevo.';
+
+  @override
+  String get dataFormatError => 'Error al guardar los datos. Verifica que el formato del archivo sea correcto.';
+
+  @override
+  String get importError => 'Error al importar';
+
+  @override
+  String get continueWithoutImporting => 'Continuar sin importar';
+
+  @override
+  String get tryAgain => 'Intentar de nuevo';
+
+  @override
+  String get euroSymbol => 'Euro (€)';
+
+  @override
+  String get dollarSymbol => 'Dólar Estadounidense (\$)';
+
+  @override
+  String get poundSymbol => 'Libra Esterlina (£)';
+
+  @override
+  String get yenSymbol => 'Yen Japonés (¥)';
+
+  @override
+  String get swissFrancSymbol => 'Franco Suizo (CHF)';
+
+  @override
+  String get png => 'PNG';
+
+  @override
+  String get svg => 'SVG';
+
+  @override
+  String get fixedMovements => 'Movimientos Fijos';
+
+  @override
+  String get automaticMovements => 'Movimientos Automáticos';
+
+  @override
+  String get addedAutomaticallyEachMonth => 'Se añaden automáticamente cada mes nuevo.';
+
+  @override
+  String get noFixedMovements => 'Sin movimientos fijos';
+
+  @override
+  String get createRecurringMovements => 'Crea movimientos que se repitan automáticamente cada mes, como salarios, alquileres o suscripciones.';
+
+  @override
+  String get createFirstMovement => 'Crear primer movimiento.';
+
+  @override
+  String dayOfEachMonth(int day) {
+    return 'Día $day de cada mes';
+  }
+
+  @override
+  String movementDeleted(String description) {
+    return 'Movimiento \"$description\" eliminado.';
+  }
+
+  @override
+  String errorLoadingMovements(String error) {
+    return 'Error al cargar movimientos: $error';
+  }
+
+  @override
+  String errorCreatingMovement(String error) {
+    return 'Error al crear movimiento: $error';
+  }
+
+  @override
+  String errorDeletingMovement(String error) {
+    return 'Error al eliminar movimiento: $error';
+  }
+
+  @override
+  String errorUpdatingMovement(String error) {
+    return 'Error al actualizar movimiento: $error';
+  }
+
+  @override
+  String get newFixedMovement => 'Nuevo Movimiento Fijo';
+
+  @override
+  String get editMovement => 'Editar Movimiento';
+
+  @override
+  String get descriptionRequired => 'La descripción es obligatoria';
+
+  @override
+  String get amountRequired => 'La cantidad es obligatoria.';
+
+  @override
+  String get enterValidNumber => 'Introduce un número válido.';
+
+  @override
+  String get amountMustBeGreaterThanZero => 'La cantidad debe ser mayor que 0.';
+
+  @override
+  String get quantity => 'Cantidad';
+
+  @override
+  String get dayOfMonth => 'Día del mes';
+
+  @override
+  String get from1To31 => 'Del 1 al 31';
+
+  @override
+  String get dayRequired => 'El día es obligatorio';
+
+  @override
+  String get dayMustBeBetween1And31 => 'El día debe estar entre 1 y 31.';
+
+  @override
+  String get movementType => 'Tipo de movimiento';
+
+  @override
+  String get saveInCurrentMonth => 'Guardar gasto en mes actual: ';
+
+  @override
+  String get create => 'Crear';
+
+  @override
+  String errorInData(String error) {
+    return 'Error en los datos: $error';
+  }
+
+  @override
+  String get exampleSalaryRentNetflix => 'Ej: Salario, Alquiler, Netflix...';
+
+  @override
+  String get goodMorning => 'Buenos días';
+
+  @override
+  String get goodAfternoon => 'Buenas tardes';
+
+  @override
+  String get goodEvening => 'Buenas noches';
+
+  @override
+  String get startDayWithEnergy => 'Comienza el día con energía renovada.';
+
+  @override
+  String get keepBuildingFinancialFuture => 'Sigue construyendo tu futuro financiero.';
+
+  @override
+  String get perfectTimeToReviewFinances => 'Momento perfecto para revisar tus finanzas.';
+
+  @override
+  String get filters => 'Filtros';
+
+  @override
+  String get lastMovements => 'Últimos movimientos';
+
+  @override
+  String get all => 'Todos';
+
+  @override
+  String get search => 'Buscar';
+
+  @override
+  String get allCategories => 'Todas las categorías';
+
+  @override
+  String get pleaseEnterValidNumber => 'Por favor, ingresa un número válido.';
+
+  @override
+  String get dateLabel => 'Fecha:';
+
+  @override
+  String get deleteMovement => '¿Eliminar movimiento?';
+
+  @override
+  String confirmDeleteMovement(String description) {
+    return '¿Estás seguro de que quieres eliminar \"$description\"?';
+  }
+
+  @override
+  String get changeCategory => 'Cambiar categoría';
+
+  @override
+  String get selectCategory => 'Selecciona una categoría';
+
+  @override
+  String categoryUpdated(String category) {
+    return 'Categoría actualizada: $category.';
+  }
+
+  @override
+  String get eliminatedSuccessfully => 'eliminado con éxito';
+
+  @override
+  String get elimError => 'Error al eliminar ';
+
+  @override
+  String get currencyChangedSuccessfully => 'Moneda actualizada correctamente';
+
+  @override
+  String get logoChangedSuccessfully => 'Logo actualizado correctamente';
+
+  @override
+  String get avatarColorChangedSuccessfully => 'Color de avatar actualizado correctamente';
+
+  @override
+  String get transparentBottomNavApplied => 'Navegación inferior transparente aplicada';
+
+  @override
+  String get opaqueBottomNavApplied => 'Navegación inferior opaca aplicada';
+
+  @override
+  String get languageChangedSuccessfully => 'Idioma actualizado correctamente';
+
+  @override
+  String get cantOpenUrl => 'No se puede abrir el enlace';
+
+  @override
+  String get apiKeyCantBeEmpty => '❌ El API Key no puede estar vacío';
+
+  @override
+  String get apiKeySavedSuccessfully => '✅ API Key guardada correctamente';
+
+  @override
+  String get apiKeySaved => 'API Key guardada';
+
+  @override
+  String get importantRestart => 'IMPORTANTE: Para que la IA funcione correctamente, debes reiniciar completamente la aplicación.';
+
+  @override
+  String get appRestartAdvice => '💡 Cierra la app completamente y vuelve a abrirla.';
+
+  @override
+  String get aiFeaturesActivation => 'Para activar las funciones de inteligencia artificial, necesitas obtener una clave API de Google. Te guiamos paso a paso:';
+
+  @override
+  String get step1 => '1. Accede a Google AI Studio e inicia sesión con tu cuenta';
+
+  @override
+  String get step2 => '2. Haz clic en \"Crear clave de API\" y copia la clave generada';
+
+  @override
+  String get step2_1 => '2.1. Si aparece esta ventana emergente, ciérrala con la X';
+
+  @override
+  String get step2_2 => '2.2. Desplázate hacia abajo hasta encontrar la tabla de claves';
+
+  @override
+  String get step2_3 => '2.3. Haz clic en el enlace azul para acceder a la clave';
+
+  @override
+  String get step3 => '3. Pega la clave API en el campo de texto de la aplicación';
+
+  @override
+  String get step4 => '4. Presiona el botón guardar para completar la configuración';
+
+  @override
+  String get goToGoogleAiStudio => 'Ir a Google AI Studio';
+
+  @override
+  String get googleApiKey => 'Clave API de Google';
+
+  @override
+  String get deleteDatabase => 'Borrar base de datos';
+
+  @override
+  String get dbDeleteWarning => 'ATENCIÓN: Esta acción eliminará TODOS los datos de la aplicación:';
+
+  @override
+  String get dbDeleteList1 => '• Todos los movimientos registrados';
+
+  @override
+  String get dbDeleteList2 => '• Todas las categorías personalizadas';
+
+  @override
+  String get dbDeleteList3 => '• Todos los movimientos fijos';
+
+  @override
+  String get dbDeleteList4 => '• Configuración de colores y preferencias';
+
+  @override
+  String get dbDeleteUnrecoverable => 'Esta acción NO se puede deshacer.';
+
+  @override
+  String get dbDeleteRecomendation => '💡 Recomendación: Haz un backup antes de continuar.';
+
+  @override
+  String get deleteAll => 'Eliminar Todo';
+
+  @override
+  String get dbDeletedSuccesfully => '✅ Base de datos limpiada correctamente';
+
+  @override
+  String get dbDeleted => 'Base de datos limpiada';
+
+  @override
+  String get deDeletedSubtitle => 'Todos los datos se han eliminado correctamente.';
+
+  @override
+  String get dbDeleteAppRestart => 'IMPORTANTE: Para que los cambios se apliquen completamente, es recomendable reiniciar la aplicación.';
+
+  @override
+  String get dbDeleteAppRestartAdvice => '💡 Cierra la app completamente y vuelve a abrirla.';
+
+  @override
+  String get errorCleaningDatabase => '❌ Error al limpiar la base de datos';
+
+  @override
+  String get developerOptions => 'Opciones de Desarrollador';
+
+  @override
+  String get developerOptionsSubtitle => 'Acceso a funciones avanzadas y de desarrollo.';
+
+  @override
+  String get importFromJson => 'Importar desde JSON';
+
+  @override
+  String get importFromJsonSubtitle => 'Importa datos desde un archivo JSON de Gastoscopio.';
+
+  @override
+  String get deleteDatabaseSubtitle => '⚠️ PELIGRO: Borra TODOS los datos de la aplicación de forma permanente. Esta acción no se puede deshacer.';
+
+  @override
+  String get cleaning => 'Limpiando...';
+
+  @override
+  String get cleanAllData => 'Limpiar Todos los Datos';
+
+  @override
+  String get errorSavingApiKey => 'No se ha podido guardar la API Key';
+}

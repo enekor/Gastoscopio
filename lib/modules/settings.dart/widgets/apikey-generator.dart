@@ -1,5 +1,6 @@
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:cashly/data/services/shared_preferences_service.dart';
+import 'package:cashly/l10n/app_localizations.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -46,8 +47,8 @@ class _ApiKeyGeneratorState extends State<ApiKeyGenerator> {
     )) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('No se pudo abrir el enlace'),
+          SnackBar(
+            content: Text(AppLocalizations.of(context)!.cantOpenUrl),
             behavior: SnackBarBehavior.floating,
           ),
         );
@@ -63,7 +64,7 @@ class _ApiKeyGeneratorState extends State<ApiKeyGenerator> {
     // Solo validar que no esté vacío
     if (apiKeyText.isEmpty) {
       Fluttertoast.showToast(
-        msg: "❌ El API Key no puede estar vacío",
+        msg: AppLocalizations.of(context)!.apiKeyCantBeEmpty,
         toastLength: Toast.LENGTH_SHORT,
         gravity: ToastGravity.TOP,
         timeInSecForIosWeb: 3,
@@ -88,7 +89,7 @@ class _ApiKeyGeneratorState extends State<ApiKeyGenerator> {
       if (mounted) {
         // Mostrar éxito y aviso de reinicio
         Fluttertoast.showToast(
-          msg: "✅ API Key guardada correctamente",
+          msg: AppLocalizations.of(context)!.apiKeySavedSuccessfully,
           toastLength: Toast.LENGTH_SHORT,
           gravity: ToastGravity.TOP,
           timeInSecForIosWeb: 3,
@@ -103,28 +104,26 @@ class _ApiKeyGeneratorState extends State<ApiKeyGenerator> {
           barrierDismissible: false,
           builder: (BuildContext context) {
             return AlertDialog(
-              title: const Row(
+              title: Row(
                 children: [
                   Icon(Icons.check_circle, color: Colors.green, size: 28),
                   SizedBox(width: 8),
-                  Text('API Key Guardada'),
+                  Text(AppLocalizations.of(context)!.apiKeySaved),
                 ],
               ),
-              content: const Column(
+              content: Column(
                 mainAxisSize: MainAxisSize.min,
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    'Tu API Key se ha guardado correctamente.',
+                    AppLocalizations.of(context)!.apiKeySavedSuccessfully,
                     style: TextStyle(fontWeight: FontWeight.bold),
                   ),
                   SizedBox(height: 12),
-                  Text(
-                    'IMPORTANTE: Para que la IA funcione correctamente, debes reiniciar completamente la aplicación.',
-                  ),
+                  Text(AppLocalizations.of(context)!.importantRestart),
                   SizedBox(height: 8),
                   Text(
-                    '💡 Cierra la app completamente y vuelve a abrirla.',
+                    AppLocalizations.of(context)!.appRestartAdvice,
                     style: TextStyle(
                       fontSize: 12,
                       fontStyle: FontStyle.italic,
@@ -136,7 +135,7 @@ class _ApiKeyGeneratorState extends State<ApiKeyGenerator> {
               actions: [
                 TextButton(
                   onPressed: () => Navigator.of(context).pop(),
-                  child: const Text('Entendido'),
+                  child: Text(AppLocalizations.of(context)!.ok),
                 ),
               ],
             );
@@ -147,7 +146,7 @@ class _ApiKeyGeneratorState extends State<ApiKeyGenerator> {
       // Error al guardar
       if (mounted) {
         Fluttertoast.showToast(
-          msg: "❌ Error al guardar API Key",
+          msg: AppLocalizations.of(context)!.errorSavingApiKey,
           toastLength: Toast.LENGTH_SHORT,
           gravity: ToastGravity.TOP,
           timeInSecForIosWeb: 3,
@@ -162,12 +161,12 @@ class _ApiKeyGeneratorState extends State<ApiKeyGenerator> {
               mainAxisSize: MainAxisSize.min,
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const Row(
+                Row(
                   children: [
                     Icon(Icons.error, color: Colors.white, size: 20),
                     SizedBox(width: 8),
                     Text(
-                      'Error al guardar API Key',
+                      AppLocalizations.of(context)!.errorSavingApiKey,
                       style: TextStyle(
                         fontWeight: FontWeight.bold,
                         fontSize: 16,
@@ -227,9 +226,9 @@ class _ApiKeyGeneratorState extends State<ApiKeyGenerator> {
         padding: const EdgeInsets.all(16.0),
         child: Column(
           children: [
-            const Text(
-              'Para activar las funciones de inteligencia artificial, necesitas obtener una clave API de Google. Te guiamos paso a paso:',
-              style: TextStyle(fontSize: 16),
+            Text(
+              AppLocalizations.of(context)!.aiFeaturesActivation,
+              style: const TextStyle(fontSize: 16),
               textAlign: TextAlign.center,
             ),
             SizedBox(
@@ -252,31 +251,31 @@ class _ApiKeyGeneratorState extends State<ApiKeyGenerator> {
                 items: [
                   _buildCarouselItem(
                     'assets/guide/step1.jpg',
-                    '1. Accede a Google AI Studio e inicia sesión con tu cuenta',
+                    AppLocalizations.of(context)!.step1,
                   ),
                   _buildCarouselItem(
                     'assets/guide/step2.jpg',
-                    '2. Haz clic en "Crear clave de API" y copia la clave generada',
+                    AppLocalizations.of(context)!.step2,
                   ),
                   _buildCarouselItem(
                     'assets/guide/step2b.jpg',
-                    '2.1. Si aparece esta ventana emergente, ciérrala con la X',
+                    AppLocalizations.of(context)!.step2_1,
                   ),
                   _buildCarouselItem(
                     'assets/guide/step2c.jpg',
-                    '2.2. Desplázate hacia abajo hasta encontrar la tabla de claves',
+                    AppLocalizations.of(context)!.step2_2,
                   ),
                   _buildCarouselItem(
                     'assets/guide/step2d.jpg',
-                    '2.3. Haz clic en el enlace azul para acceder a la clave',
+                    AppLocalizations.of(context)!.step2_3,
                   ),
                   _buildCarouselItem(
                     'assets/guide/step3.jpg',
-                    '3. Pega la clave API en el campo de texto de la aplicación',
+                    AppLocalizations.of(context)!.step3,
                   ),
                   _buildCarouselItem(
                     'assets/guide/step4.jpg',
-                    '4. Presiona el botón guardar para completar la configuración',
+                    AppLocalizations.of(context)!.step4,
                   ),
                 ],
               ),
@@ -308,7 +307,7 @@ class _ApiKeyGeneratorState extends State<ApiKeyGenerator> {
                     () =>
                         _launchUrl('https://makersuite.google.com/app/apikey'),
                 icon: const Icon(Icons.open_in_new),
-                label: const Text('Ir a Google AI Studio'),
+                label: Text(AppLocalizations.of(context)!.goToGoogleAiStudio),
               ),
             ),
             const SizedBox(height: 48),
@@ -317,7 +316,7 @@ class _ApiKeyGeneratorState extends State<ApiKeyGenerator> {
               child: TextFormField(
                 controller: _apiKeyController,
                 decoration: InputDecoration(
-                  labelText: 'Clave API de Google',
+                  labelText: AppLocalizations.of(context)!.googleApiKey,
                   border: const OutlineInputBorder(),
                   suffixIcon: IconButton(
                     icon:

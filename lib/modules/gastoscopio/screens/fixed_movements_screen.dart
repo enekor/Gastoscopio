@@ -5,6 +5,7 @@ import 'package:cashly/data/services/sqlite_service.dart';
 import 'package:cashly/modules/gastoscopio/logic/finance_service.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:cashly/l10n/app_localizations.dart';
 
 class FixedMovementsScreen extends StatefulWidget {
   const FixedMovementsScreen({super.key});
@@ -14,7 +15,7 @@ class FixedMovementsScreen extends StatefulWidget {
 }
 
 class _FixedMovementsScreenState extends State<FixedMovementsScreen> {
-  late String _moneda = 'loading...';
+  late String _moneda = '';
   List<FixedMovement> _fixedMovements = [];
   bool _isOpaqueBottomNav = false;
 
@@ -56,7 +57,9 @@ class _FixedMovementsScreenState extends State<FixedMovementsScreen> {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('Error al cargar movimientos: $e'),
+            content: Text(
+              AppLocalizations.of(context)!.errorLoadingMovements(e.toString()),
+            ),
             behavior: SnackBarBehavior.floating,
           ),
         );
@@ -101,7 +104,9 @@ class _FixedMovementsScreenState extends State<FixedMovementsScreen> {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('Error al crear movimiento: $e'),
+            content: Text(
+              AppLocalizations.of(context)!.errorCreatingMovement(e.toString()),
+            ),
             behavior: SnackBarBehavior.floating,
           ),
         );
@@ -114,7 +119,7 @@ class _FixedMovementsScreenState extends State<FixedMovementsScreen> {
     return Scaffold(
       appBar: AppBar(
         title: Text(
-          'Movimientos Fijos',
+          AppLocalizations.of(context)!.fixedMovements,
           style: GoogleFonts.pacifico(
             fontSize: 20,
             fontWeight: FontWeight.bold,
@@ -157,7 +162,7 @@ class _FixedMovementsScreenState extends State<FixedMovementsScreen> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        'Movimientos Automáticos',
+                        AppLocalizations.of(context)!.automaticMovements,
                         style: Theme.of(context).textTheme.titleSmall?.copyWith(
                           fontWeight: FontWeight.bold,
                           color: Colors.blue[800],
@@ -165,7 +170,9 @@ class _FixedMovementsScreenState extends State<FixedMovementsScreen> {
                       ),
                       const SizedBox(height: 4),
                       Text(
-                        'Se añaden automáticamente cada mes nuevo.',
+                        AppLocalizations.of(
+                          context,
+                        )!.addedAutomaticallyEachMonth,
                         style: Theme.of(context).textTheme.bodySmall?.copyWith(
                           color: Colors.blue[700],
                         ),
@@ -196,7 +203,7 @@ class _FixedMovementsScreenState extends State<FixedMovementsScreen> {
                   : Theme.of(context).colorScheme.primary,
         ),
         label: Text(
-          'Añadir',
+          AppLocalizations.of(context)!.add,
           style: TextStyle(
             color:
                 _isOpaqueBottomNav
@@ -243,7 +250,7 @@ class _FixedMovementsScreenState extends State<FixedMovementsScreen> {
             ),
             const SizedBox(height: 24),
             Text(
-              'Sin movimientos fijos',
+              AppLocalizations.of(context)!.noFixedMovements,
               style: Theme.of(context).textTheme.headlineSmall?.copyWith(
                 fontWeight: FontWeight.bold,
                 color: Colors.grey[700],
@@ -251,7 +258,7 @@ class _FixedMovementsScreenState extends State<FixedMovementsScreen> {
             ),
             const SizedBox(height: 12),
             Text(
-              'Crea movimientos que se repitan automáticamente cada mes, como salarios, alquileres o suscripciones.',
+              AppLocalizations.of(context)!.createRecurringMovements,
               textAlign: TextAlign.center,
               style: Theme.of(
                 context,
@@ -261,7 +268,7 @@ class _FixedMovementsScreenState extends State<FixedMovementsScreen> {
             FilledButton.icon(
               onPressed: _addFixedMovement,
               icon: const Icon(Icons.add),
-              label: const Text('Crear primer movimiento.'),
+              label: Text(AppLocalizations.of(context)!.createFirstMovement),
             ),
           ],
         ),
@@ -298,7 +305,7 @@ class _FixedMovementsScreenState extends State<FixedMovementsScreen> {
               const Icon(Icons.delete, color: Colors.white, size: 28),
               const SizedBox(height: 4),
               Text(
-                'Eliminar',
+                AppLocalizations.of(context)!.delete,
                 style: Theme.of(context).textTheme.bodySmall?.copyWith(
                   color: Colors.white,
                   fontWeight: FontWeight.bold,
@@ -323,7 +330,9 @@ class _FixedMovementsScreenState extends State<FixedMovementsScreen> {
               ScaffoldMessenger.of(context).showSnackBar(
                 SnackBar(
                   content: Text(
-                    'Movimiento "${movement.description}" eliminado.',
+                    AppLocalizations.of(
+                      context,
+                    )!.movementDeleted(movement.description),
                   ),
                   behavior: SnackBarBehavior.floating,
                 ),
@@ -335,7 +344,11 @@ class _FixedMovementsScreenState extends State<FixedMovementsScreen> {
             if (mounted) {
               ScaffoldMessenger.of(context).showSnackBar(
                 SnackBar(
-                  content: Text('Error al eliminar movimiento: $e'),
+                  content: Text(
+                    AppLocalizations.of(
+                      context,
+                    )!.errorDeletingMovement(e.toString()),
+                  ),
                   behavior: SnackBarBehavior.floating,
                 ),
               );
@@ -368,7 +381,11 @@ class _FixedMovementsScreenState extends State<FixedMovementsScreen> {
                 if (mounted) {
                   ScaffoldMessenger.of(context).showSnackBar(
                     SnackBar(
-                      content: Text('Error al actualizar movimiento: $e'),
+                      content: Text(
+                        AppLocalizations.of(
+                          context,
+                        )!.errorUpdatingMovement(e.toString()),
+                      ),
                       behavior: SnackBarBehavior.floating,
                     ),
                   );
@@ -442,7 +459,9 @@ class _FixedMovementsScreenState extends State<FixedMovementsScreen> {
                     ),
                     const SizedBox(width: 4),
                     Text(
-                      'Día ${movement.day} de cada mes',
+                      AppLocalizations.of(
+                        context,
+                      )!.dayOfEachMonth(movement.day),
                       style: Theme.of(
                         context,
                       ).textTheme.bodySmall?.copyWith(color: Colors.grey[600]),
@@ -465,7 +484,9 @@ class _FixedMovementsScreenState extends State<FixedMovementsScreen> {
                 ),
               ),
               Text(
-                movement.isExpense ? 'Gasto' : 'Ingreso',
+                movement.isExpense
+                    ? AppLocalizations.of(context)!.expense
+                    : AppLocalizations.of(context)!.income,
                 style: Theme.of(context).textTheme.bodySmall?.copyWith(
                   color: movement.isExpense ? Colors.red : Colors.green,
                   fontWeight: FontWeight.w500,
@@ -554,8 +575,8 @@ class _FixedMovementDialogState extends State<_FixedMovementDialog> {
           const SizedBox(width: 12),
           Text(
             widget.movement == null
-                ? 'Nuevo Movimiento Fijo'
-                : 'Editar Movimiento',
+                ? AppLocalizations.of(context)!.newFixedMovement
+                : AppLocalizations.of(context)!.editMovement,
             style: Theme.of(
               context,
             ).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold),
@@ -574,7 +595,7 @@ class _FixedMovementDialogState extends State<_FixedMovementDialog> {
               children: [
                 // Description Field
                 Text(
-                  'Descripción',
+                  AppLocalizations.of(context)!.description,
                   style: Theme.of(context).textTheme.labelMedium?.copyWith(
                     fontWeight: FontWeight.w600,
                   ),
@@ -583,7 +604,8 @@ class _FixedMovementDialogState extends State<_FixedMovementDialog> {
                 TextFormField(
                   controller: _descriptionController,
                   decoration: InputDecoration(
-                    hintText: 'Ej: Salario, Alquiler, Netflix...',
+                    hintText:
+                        AppLocalizations.of(context)!.exampleSalaryRentNetflix,
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(12),
                     ),
@@ -592,7 +614,9 @@ class _FixedMovementDialogState extends State<_FixedMovementDialog> {
                   validator:
                       (value) =>
                           value?.isEmpty == true
-                              ? 'La descripción es obligatoria'
+                              ? AppLocalizations.of(
+                                context,
+                              )!.descriptionRequired
                               : null,
                 ),
 
@@ -600,7 +624,7 @@ class _FixedMovementDialogState extends State<_FixedMovementDialog> {
 
                 // Amount Field
                 Text(
-                  'Cantidad',
+                  AppLocalizations.of(context)!.quantity,
                   style: Theme.of(context).textTheme.labelMedium?.copyWith(
                     fontWeight: FontWeight.w600,
                   ),
@@ -621,11 +645,13 @@ class _FixedMovementDialogState extends State<_FixedMovementDialog> {
                   ),
                   validator: (value) {
                     if (value?.isEmpty == true)
-                      return 'La cantidad es obligatoria.';
+                      return AppLocalizations.of(context)!.amountRequired;
                     if (double.tryParse(value!) == null)
-                      return 'Introduce un número válido.';
+                      return AppLocalizations.of(context)!.enterValidNumber;
                     if (double.parse(value) <= 0)
-                      return 'La cantidad debe ser mayor que 0.';
+                      return AppLocalizations.of(
+                        context,
+                      )!.amountMustBeGreaterThanZero;
                     return null;
                   },
                 ),
@@ -634,7 +660,7 @@ class _FixedMovementDialogState extends State<_FixedMovementDialog> {
 
                 // Day Field
                 Text(
-                  'Día del mes',
+                  AppLocalizations.of(context)!.dayOfMonth,
                   style: Theme.of(context).textTheme.labelMedium?.copyWith(
                     fontWeight: FontWeight.w600,
                   ),
@@ -643,7 +669,7 @@ class _FixedMovementDialogState extends State<_FixedMovementDialog> {
                 TextFormField(
                   controller: _dayController,
                   decoration: InputDecoration(
-                    hintText: 'Del 1 al 31',
+                    hintText: AppLocalizations.of(context)!.from1To31,
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(12),
                     ),
@@ -651,11 +677,15 @@ class _FixedMovementDialogState extends State<_FixedMovementDialog> {
                   ),
                   keyboardType: TextInputType.number,
                   validator: (value) {
-                    if (value?.isEmpty == true) return 'El día es obligatorio';
+                    if (value?.isEmpty == true)
+                      return AppLocalizations.of(context)!.dayRequired;
                     final day = int.tryParse(value!);
-                    if (day == null) return 'Introduce un número válido';
+                    if (day == null)
+                      return AppLocalizations.of(context)!.enterValidNumber;
                     if (day < 1 || day > 31)
-                      return 'El día debe estar entre 1 y 31.';
+                      return AppLocalizations.of(
+                        context,
+                      )!.dayMustBeBetween1And31;
                     return null;
                   },
                 ),
@@ -664,7 +694,7 @@ class _FixedMovementDialogState extends State<_FixedMovementDialog> {
 
                 // Type Selection
                 Text(
-                  'Tipo de movimiento',
+                  AppLocalizations.of(context)!.movementType,
                   style: Theme.of(context).textTheme.labelMedium?.copyWith(
                     fontWeight: FontWeight.w600,
                   ),
@@ -706,7 +736,7 @@ class _FixedMovementDialogState extends State<_FixedMovementDialog> {
                                 ),
                                 const SizedBox(height: 8),
                                 Text(
-                                  'Gasto',
+                                  AppLocalizations.of(context)!.expense,
                                   style: TextStyle(
                                     color:
                                         _isExpense ? Colors.red : Colors.grey,
@@ -758,7 +788,7 @@ class _FixedMovementDialogState extends State<_FixedMovementDialog> {
                                 ),
                                 const SizedBox(height: 8),
                                 Text(
-                                  'Ingreso',
+                                  AppLocalizations.of(context)!.income,
                                   style: TextStyle(
                                     color:
                                         !_isExpense
@@ -784,7 +814,7 @@ class _FixedMovementDialogState extends State<_FixedMovementDialog> {
                   child: Row(
                     children: [
                       Text(
-                        "Guadar gasto en mes actual: ",
+                        AppLocalizations.of(context)!.saveInCurrentMonth,
                         style: Theme.of(context).textTheme.labelMedium
                             ?.copyWith(fontWeight: FontWeight.w600),
                       ),
@@ -808,7 +838,7 @@ class _FixedMovementDialogState extends State<_FixedMovementDialog> {
       actions: [
         TextButton(
           onPressed: () => Navigator.of(context).pop(),
-          child: const Text('Cancelar'),
+          child: Text(AppLocalizations.of(context)!.cancel),
         ),
         FilledButton(
           onPressed: () {
@@ -831,14 +861,20 @@ class _FixedMovementDialogState extends State<_FixedMovementDialog> {
               } catch (e) {
                 ScaffoldMessenger.of(context).showSnackBar(
                   SnackBar(
-                    content: Text('Error en los datos: $e'),
+                    content: Text(
+                      AppLocalizations.of(context)!.errorInData(e.toString()),
+                    ),
                     behavior: SnackBarBehavior.floating,
                   ),
                 );
               }
             }
           },
-          child: Text(widget.movement == null ? 'Crear' : 'Guardar'),
+          child: Text(
+            widget.movement == null
+                ? AppLocalizations.of(context)!.create
+                : AppLocalizations.of(context)!.save,
+          ),
         ),
       ],
     );

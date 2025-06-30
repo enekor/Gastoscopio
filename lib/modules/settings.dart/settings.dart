@@ -1,6 +1,7 @@
 import 'package:cashly/data/models/fixed_movement.dart';
 import 'package:cashly/data/models/month.dart';
 import 'package:cashly/data/models/movement_value.dart';
+import 'package:cashly/data/services/locale_service.dart';
 import 'package:cashly/data/services/login_service.dart';
 import 'package:cashly/data/services/shared_preferences_service.dart';
 import 'package:cashly/data/services/sqlite_service.dart';
@@ -8,6 +9,7 @@ import 'package:cashly/modules/settings.dart/widgets/apikey-generator.dart';
 import 'package:cashly/modules/settings.dart/widgets/developer_options_widget.dart';
 import 'package:cashly/modules/settings.dart/widgets/backup_restore_widget.dart';
 import 'package:flutter/material.dart';
+import 'package:cashly/l10n/app_localizations.dart';
 import 'package:flutter_colorpicker/flutter_colorpicker.dart';
 import 'package:svg_flutter/svg.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -23,6 +25,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
   String _currentCurrency = '€';
   bool _isSvg = false;
   bool _isOpaqueBottomNav = false;
+  String _selectedLanguage = 'system';
   int _r = 255;
   int _g = 255;
   int _b = 255;
@@ -39,14 +42,14 @@ class _SettingsScreenState extends State<SettingsScreen> {
         context: context,
         builder: (BuildContext context) {
           return AlertDialog(
-            title: Text('Error'),
-            content: Text('No hay datos para importar'),
+            title: Text(AppLocalizations.of(context)!.error),
+            content: Text(AppLocalizations.of(context)!.noDataToImport),
             actions: [
               TextButton(
                 onPressed: () {
                   Navigator.pop(context);
                 },
-                child: Text('Aceptar'),
+                child: Text(AppLocalizations.of(context)!.accept),
               ),
             ],
           );
@@ -60,16 +63,18 @@ class _SettingsScreenState extends State<SettingsScreen> {
         barrierDismissible: false,
         builder: (BuildContext context) {
           return AlertDialog(
-            title: Text('Importando datos...'),
+            title: Text(AppLocalizations.of(context)!.importingData),
             content: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
-                CircularProgressIndicator(),
-                SizedBox(height: 16),
-                Text('Guardando ${result['Movements'].length} movimientos'),
+                const CircularProgressIndicator(),
+                const SizedBox(height: 16),
+                Text(
+                  '${AppLocalizations.of(context)!.saving} ${result['Movements'].length} ${AppLocalizations.of(context)!.movements.toLowerCase()}',
+                ),
                 ElevatedButton(
                   onPressed: () => Navigator.pop(context),
-                  child: Text('Ok'),
+                  child: Text(AppLocalizations.of(context)!.ok),
                 ),
               ],
             ),
@@ -105,10 +110,10 @@ class _SettingsScreenState extends State<SettingsScreen> {
 
       // Show success message and navigate
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Los datos se han importado correctamente'),
+        SnackBar(
+          content: Text(AppLocalizations.of(context)!.dataImportedSuccessfully),
           behavior: SnackBarBehavior.floating,
-          duration: Duration(seconds: 2),
+          duration: const Duration(seconds: 2),
         ),
       );
     } catch (e) {
@@ -122,31 +127,34 @@ class _SettingsScreenState extends State<SettingsScreen> {
       }
 
       // Show error dialog with more specific messages
-      String errorMessage = 'Ocurrió un error al guardar los datos';
+      String errorMessage = AppLocalizations.of(context)!.errorSavingData;
       if (e.toString().contains('database')) {
         errorMessage =
-            'Error al inicializar la base de datos. Por favor, intenta de nuevo.';
+            AppLocalizations.of(context)!.databaseInitializationError;
       } else if (e.toString().contains('insert')) {
-        errorMessage =
-            'Error al guardar los datos. Verifica que el formato del archivo sea correcto.';
+        errorMessage = AppLocalizations.of(context)!.dataFormatError;
       }
 
       showDialog(
         context: context,
         builder: (BuildContext context) {
           return AlertDialog(
-            title: Text('Error al importar'),
-            content: Text('$errorMessage\n\nDetalles: ${e.toString()}'),
+            title: Text(AppLocalizations.of(context)!.importError),
+            content: Text(
+              '$errorMessage\n\n${AppLocalizations.of(context)!.error}: ${e.toString()}',
+            ),
             actions: [
               TextButton(
                 onPressed: () {
                   Navigator.pop(context);
                 },
-                child: Text('Continuar sin importar'),
+                child: Text(
+                  AppLocalizations.of(context)!.continueWithoutImporting,
+                ),
               ),
               TextButton(
                 onPressed: () => Navigator.pop(context),
-                child: Text('Intentar de nuevo'),
+                child: Text(AppLocalizations.of(context)!.tryAgain),
               ),
             ],
           );
@@ -193,6 +201,15 @@ class _SettingsScreenState extends State<SettingsScreen> {
         _isOpaqueBottomNav = isOpaqueBottomNav;
       });
     }
+
+    final selectedLanguage = await SharedPreferencesService().getStringValue(
+      SharedPreferencesKeys.selectedLanguage,
+    );
+    if (mounted) {
+      setState(() {
+        _selectedLanguage = selectedLanguage ?? 'system';
+      });
+    }
   }
 
   Future<void> _saveCurrency(String currency) async {
@@ -205,8 +222,10 @@ class _SettingsScreenState extends State<SettingsScreen> {
         _currentCurrency = currency;
       });
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Moneda actualizada correctamente'),
+        SnackBar(
+          content: Text(
+            AppLocalizations.of(context)!.currencyChangedSuccessfully,
+          ),
           behavior: SnackBarBehavior.floating,
         ),
       );
@@ -220,8 +239,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
     );
     if (mounted) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Logo actualizado correctamente'),
+        SnackBar(
+          content: Text(AppLocalizations.of(context)!.logoChangedSuccessfully),
           behavior: SnackBarBehavior.floating,
         ),
       );
@@ -235,8 +254,10 @@ class _SettingsScreenState extends State<SettingsScreen> {
     );
     if (mounted) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Color de avatar actualizado correctamente'),
+        SnackBar(
+          content: Text(
+            AppLocalizations.of(context)!.avatarColorChangedSuccessfully,
+          ),
           behavior: SnackBarBehavior.floating,
         ),
       );
@@ -255,11 +276,46 @@ class _SettingsScreenState extends State<SettingsScreen> {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text(
-            'Navegación inferior ${isOpaque ? 'opaca' : 'transparente'} aplicada',
+            isOpaque
+                ? AppLocalizations.of(context)!.opaqueBottomNavApplied
+                : AppLocalizations.of(context)!.transparentBottomNavApplied,
           ),
           behavior: SnackBarBehavior.floating,
         ),
       );
+    }
+  }
+
+  Future<void> _saveLanguageSetting(String languageCode) async {
+    try {
+      final localeService = LocaleService();
+      await localeService.setLocale(
+        languageCode == 'system' ? null : languageCode,
+      );
+
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+              AppLocalizations.of(context)!.languageChangedSuccessfully,
+            ),
+            behavior: SnackBarBehavior.floating,
+            backgroundColor: Colors.green.shade700,
+          ),
+        );
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+              AppLocalizations.of(context)!.errorChangingLanguage(e.toString()),
+            ),
+            behavior: SnackBarBehavior.floating,
+            backgroundColor: Colors.red.shade700,
+          ),
+        );
+      }
     }
   }
 
@@ -268,7 +324,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
     return Scaffold(
       appBar: AppBar(
         title: Text(
-          'Configuración',
+          AppLocalizations.of(context)!.settings,
           style: GoogleFonts.pacifico(
             fontSize: 20,
             fontWeight: FontWeight.bold,
@@ -288,10 +344,14 @@ class _SettingsScreenState extends State<SettingsScreen> {
               // Header
               _buildSectionHeader(
                 context,
-                'Personalización',
-                'Configura tu experiencia en la aplicación.',
+                AppLocalizations.of(context)!.personalization,
+                AppLocalizations.of(context)!.personalizationSubtitle,
                 Icons.palette_outlined,
               ),
+              const SizedBox(height: 20),
+
+              // Language Card
+              _buildLanguageCard(context),
               const SizedBox(height: 20),
 
               // Currency Card
@@ -311,8 +371,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
               // API Section
               _buildSectionHeader(
                 context,
-                'Inteligencia Artificial',
-                'Configuración para funciones avanzadas con IA.',
+                AppLocalizations.of(context)!.artificialIntelligence,
+                AppLocalizations.of(context)!.aiDescription,
                 Icons.smart_toy_outlined,
               ),
               const SizedBox(height: 20),
@@ -325,8 +385,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
               // Developer Options Section
               _buildSectionHeader(
                 context,
-                'Gestión de copia de seguridad',
-                'Importa y exporta tus datos.',
+                AppLocalizations.of(context)!.backupManagement,
+                AppLocalizations.of(context)!.backupDescription,
                 Icons.backup_outlined,
               ),
               const SizedBox(height: 20),
@@ -413,7 +473,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 ),
                 const SizedBox(width: 8),
                 Text(
-                  'Moneda Preferida',
+                  AppLocalizations.of(context)!.currency,
                   style: Theme.of(context).textTheme.titleMedium?.copyWith(
                     fontWeight: FontWeight.w600,
                   ),
@@ -422,7 +482,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
             ),
             const SizedBox(height: 8),
             Text(
-              'Selecciona la moneda que se mostrará en toda la aplicación.',
+              AppLocalizations.of(context)!.currencyDescription,
               style: Theme.of(context).textTheme.bodySmall?.copyWith(
                 color: Theme.of(context).colorScheme.onSurfaceVariant,
               ),
@@ -448,20 +508,26 @@ class _SettingsScreenState extends State<SettingsScreen> {
                     color: Theme.of(context).colorScheme.primary,
                   ),
                 ),
-                items: const [
-                  DropdownMenuItem(value: '€', child: Text('Euro (€)')),
+                items: [
+                  DropdownMenuItem(
+                    value: '€',
+                    child: Text(AppLocalizations.of(context)!.euroSymbol),
+                  ),
                   DropdownMenuItem(
                     value: '\$',
-                    child: Text('Dólar Estadounidense (\$)'),
+                    child: Text(AppLocalizations.of(context)!.dollarSymbol),
                   ),
                   DropdownMenuItem(
                     value: '£',
-                    child: Text('Libra Esterlina (£)'),
+                    child: Text(AppLocalizations.of(context)!.poundSymbol),
                   ),
-                  DropdownMenuItem(value: '¥', child: Text('Yen Japonés (¥)')),
+                  DropdownMenuItem(
+                    value: '¥',
+                    child: Text(AppLocalizations.of(context)!.yenSymbol),
+                  ),
                   DropdownMenuItem(
                     value: 'CHF',
-                    child: Text('Franco Suizo (CHF)'),
+                    child: Text(AppLocalizations.of(context)!.swissFrancSymbol),
                   ),
                 ],
                 onChanged: (value) {
@@ -501,7 +567,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 ),
                 const SizedBox(width: 8),
                 Text(
-                  'Personalización del Logo.',
+                  AppLocalizations.of(context)!.logoPersonalization,
                   style: Theme.of(context).textTheme.titleMedium?.copyWith(
                     fontWeight: FontWeight.w600,
                   ),
@@ -510,7 +576,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
             ),
             const SizedBox(height: 8),
             Text(
-              'Elige entre PNG estático o SVG personalizable con color.',
+              AppLocalizations.of(context)!.logoDescription,
               style: Theme.of(context).textTheme.bodySmall?.copyWith(
                 color: Theme.of(context).colorScheme.onSurfaceVariant,
               ),
@@ -564,7 +630,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   ),
                   const SizedBox(width: 8),
                   Text(
-                    'Color del Logo SVG.',
+                    AppLocalizations.of(context)!.svgColorLabel,
                     style: Theme.of(context).textTheme.titleSmall?.copyWith(
                       fontWeight: FontWeight.w600,
                     ),
@@ -661,7 +727,9 @@ class _SettingsScreenState extends State<SettingsScreen> {
             ),
             const SizedBox(height: 12),
             Text(
-              isPng ? 'PNG' : 'SVG',
+              isPng
+                  ? AppLocalizations.of(context)!.png
+                  : AppLocalizations.of(context)!.svg,
               style: Theme.of(context).textTheme.titleSmall?.copyWith(
                 fontWeight: FontWeight.w600,
                 color:
@@ -672,7 +740,9 @@ class _SettingsScreenState extends State<SettingsScreen> {
             ),
             const SizedBox(height: 4),
             Text(
-              isPng ? 'Estático' : 'Personalizable',
+              isPng
+                  ? AppLocalizations.of(context)!.staticLabel
+                  : AppLocalizations.of(context)!.customizableLabel,
               style: Theme.of(context).textTheme.bodySmall?.copyWith(
                 color: Theme.of(context).colorScheme.onSurfaceVariant,
               ),
@@ -700,7 +770,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
             children: [
               Icon(Icons.palette, color: Theme.of(context).colorScheme.primary),
               const SizedBox(width: 8),
-              const Text('Selecciona un Color'),
+              Text(AppLocalizations.of(context)!.selectColor),
             ],
           ),
           content: SingleChildScrollView(
@@ -722,7 +792,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
             TextButton(
               onPressed: () => Navigator.of(context).pop(),
               child: Text(
-                'Cancelar',
+                AppLocalizations.of(context)!.cancel,
                 style: TextStyle(
                   color: Theme.of(context).colorScheme.onSurfaceVariant,
                 ),
@@ -737,7 +807,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 backgroundColor: Theme.of(context).colorScheme.primary,
                 foregroundColor: Theme.of(context).colorScheme.onPrimary,
               ),
-              child: const Text('Aplicar'),
+              child: Text(AppLocalizations.of(context)!.apply),
             ),
           ],
         );
@@ -776,7 +846,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 ),
                 const SizedBox(width: 8),
                 Text(
-                  'Estilo de Navegación',
+                  AppLocalizations.of(context)!.navigationStyle,
                   style: Theme.of(context).textTheme.titleMedium?.copyWith(
                     fontWeight: FontWeight.w600,
                   ),
@@ -785,7 +855,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
             ),
             const SizedBox(height: 8),
             Text(
-              'Personaliza la apariencia de la barra de navegación inferior.',
+              AppLocalizations.of(context)!.navigationStyleDescription,
               style: Theme.of(context).textTheme.bodySmall?.copyWith(
                 color: Theme.of(context).colorScheme.onSurfaceVariant,
               ),
@@ -935,7 +1005,9 @@ class _SettingsScreenState extends State<SettingsScreen> {
             ),
             const SizedBox(height: 12),
             Text(
-              isOpaque ? 'Opaca' : 'Transparente',
+              isOpaque
+                  ? AppLocalizations.of(context)!.opaqueNavigation
+                  : AppLocalizations.of(context)!.transparentNavigation,
               style: Theme.of(context).textTheme.titleSmall?.copyWith(
                 fontWeight: FontWeight.w600,
                 color:
@@ -946,7 +1018,9 @@ class _SettingsScreenState extends State<SettingsScreen> {
             ),
             const SizedBox(height: 4),
             Text(
-              isOpaque ? 'Fondo sólido' : 'Efecto cristal',
+              isOpaque
+                  ? AppLocalizations.of(context)!.solidBackground
+                  : AppLocalizations.of(context)!.glassEffect,
               style: Theme.of(context).textTheme.bodySmall?.copyWith(
                 color: Theme.of(context).colorScheme.onSurfaceVariant,
               ),
@@ -959,6 +1033,97 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 size: 20,
               ),
             ],
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildLanguageCard(BuildContext context) {
+    return Card(
+      color: Theme.of(context).colorScheme.secondary.withAlpha(25),
+      elevation: 0,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(16),
+        side: BorderSide(
+          color: Theme.of(context).colorScheme.outline.withAlpha(50),
+        ),
+      ),
+      child: Padding(
+        padding: const EdgeInsets.all(20.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                Icon(
+                  Icons.language,
+                  color: Theme.of(context).colorScheme.primary,
+                  size: 20,
+                ),
+                const SizedBox(width: 8),
+                Text(
+                  AppLocalizations.of(context)!.language,
+                  style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 8),
+            Text(
+              AppLocalizations.of(context)!.languageDescription,
+              style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                color: Theme.of(context).colorScheme.onSurfaceVariant,
+              ),
+            ),
+            const SizedBox(height: 16),
+            Container(
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(12),
+                border: Border.all(
+                  color: Theme.of(context).colorScheme.outline.withAlpha(100),
+                ),
+              ),
+              child: DropdownButtonFormField<String>(
+                value: _selectedLanguage,
+                decoration: InputDecoration(
+                  border: InputBorder.none,
+                  contentPadding: const EdgeInsets.symmetric(
+                    horizontal: 16,
+                    vertical: 12,
+                  ),
+                  prefixIcon: Icon(
+                    Icons.translate,
+                    color: Theme.of(context).colorScheme.primary,
+                  ),
+                ),
+                items: [
+                  DropdownMenuItem(
+                    value: 'system',
+                    child: Text(AppLocalizations.of(context)!.systemLanguage),
+                  ),
+                  DropdownMenuItem(
+                    value: 'es',
+                    child: Text(AppLocalizations.of(context)!.spanish),
+                  ),
+                  DropdownMenuItem(
+                    value: 'en',
+                    child: Text(AppLocalizations.of(context)!.english),
+                  ),
+                ],
+                onChanged: (String? newValue) async {
+                  if (newValue != null) {
+                    setState(() {
+                      _selectedLanguage = newValue;
+                    });
+
+                    // Aplicar el cambio de idioma
+                    await _saveLanguageSetting(newValue);
+                  }
+                },
+              ),
+            ),
           ],
         ),
       ),

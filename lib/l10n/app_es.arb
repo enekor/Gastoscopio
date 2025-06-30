@@ -1,0 +1,918 @@
+{
+  "@@locale": "es",
+  "appTitle": "Gastoscopio",
+  "@appTitle": {
+    "description": "El título de la aplicación"
+  },
+  "home": "Inicio",
+  "@home": {
+    "description": "Pestaña de inicio"
+  },
+  "movements": "Movimientos",
+  "@movements": {
+    "description": "Pestaña de movimientos"
+  },
+  "summary": "Resumen",
+  "@summary": {
+    "description": "Pestaña de resumen"
+  },
+  "settings": "Configuración",
+  "@settings": {
+    "description": "Pantalla de ajustes"
+  },
+  "newExpense": "Nuevo Gasto",
+  "@newExpense": {
+    "description": "Título para nuevo gasto"
+  },
+  "newIncome": "Nuevo Ingreso",
+  "@newIncome": {
+    "description": "Título para nuevo ingreso"
+  },
+  "expense": "Gasto",
+  "@expense": {
+    "description": "Etiqueta para gasto"
+  },
+  "income": "Ingreso",
+  "@income": {
+    "description": "Etiqueta para ingreso"
+  },
+  "description": "Descripción",
+  "@description": {
+    "description": "Campo de descripción"
+  },
+  "amount": "Monto",
+  "@amount": {
+    "description": "Campo de monto"
+  },
+  "date": "Fecha",
+  "@date": {
+    "description": "Campo de fecha"
+  },
+  "save": "Guardar",
+  "@save": {
+    "description": "Botón guardar"
+  },
+  "cancel": "Cancelar",
+  "@cancel": {
+    "description": "Botón cancelar"
+  },
+  "accept": "Aceptar",
+  "@accept": {
+    "description": "Botón aceptar"
+  },
+  "edit": "Editar",
+  "@edit": {
+    "description": "Botón editar"
+  },
+  "delete": "Eliminar",
+  "@delete": {
+    "description": "Botón eliminar"
+  },
+  "add": "Añadir",
+  "@add": {
+    "description": "Botón añadir"
+  },
+  "selectDate": "Seleccionar fecha",
+  "@selectDate": {
+    "description": "Título del selector de fecha"
+  },
+  "language": "Idioma",
+  "@language": {
+    "description": "Configuración de idioma"
+  },
+  "systemLanguage": "Idioma del sistema",
+  "@systemLanguage": {
+    "description": "Opción para usar idioma del sistema"
+  },
+  "spanish": "Español",
+  "@spanish": {
+    "description": "Idioma español"
+  },
+  "english": "English",
+  "@english": {
+    "description": "Idioma inglés"
+  },
+  "currency": "Moneda Preferida",
+  "@currency": {
+    "description": "Configuración de moneda"
+  },
+  "navigationStyle": "Estilo de Navegación",
+  "@navigationStyle": {
+    "description": "Configuración del estilo de navegación"
+  },
+  "transparentNavigation": "Transparente",
+  "@transparentNavigation": {
+    "description": "Opción de navegación transparente"
+  },
+  "opaqueNavigation": "Opaca",
+  "@opaqueNavigation": {
+    "description": "Opción de navegación opaca"
+  },
+  "pleaseEnterDescription": "Por favor ingrese una descripción",
+  "@pleaseEnterDescription": {
+    "description": "Mensaje de validación para descripción"
+  },
+  "pleaseEnterAmount": "Por favor ingrese un monto",
+  "@pleaseEnterAmount": {
+    "description": "Mensaje de validación para monto"
+  },
+  "pleaseEnterValidAmount": "Por favor ingrese un monto válido",
+  "@pleaseEnterValidAmount": {
+    "description": "Mensaje de validación para monto válido"
+  },
+  "dateUpdatedToDay": "Fecha actualizada al día {day}",
+  "@dateUpdatedToDay": {
+    "description": "Mensaje de confirmación de actualización de fecha",
+    "placeholders": {
+      "day": {
+        "type": "int",
+        "example": "15"
+      }
+    }
+  },
+  "errorUpdatingDate": "Error al actualizar la fecha: {error}",
+  "@errorUpdatingDate": {
+    "description": "Mensaje de error al actualizar fecha",
+    "placeholders": {
+      "error": {
+        "type": "String",
+        "example": "Error de conexión"
+      }
+    }
+  },
+  "movementSaved": "✅ Movimiento guardado",
+  "@movementSaved": {
+    "description": "Mensaje de éxito al guardar movimiento"
+  },
+  "movementUpdated": "✅ Movimiento actualizado",
+  "@movementUpdated": {
+    "description": "Mensaje de éxito al actualizar movimiento"
+  },
+  "saving": "Guardando...",
+  "@saving": {
+    "description": "Texto mostrado mientras se guarda"
+  },
+  "sortByDate": "Por fecha",
+  "@sortByDate": {
+    "description": "Opción de ordenar por fecha"
+  },
+  "sortByAmount": "Por monto",
+  "@sortByAmount": {
+    "description": "Opción de ordenar por monto"
+  },
+  "sortByCategory": "Por categoría",
+  "@sortByCategory": {
+    "description": "Opción de ordenar por categoría"
+  },
+  "personalization": "Personalización",
+  "@personalization": {
+    "description": "Sección de personalización"
+  },
+  "personalizationSubtitle": "Configura tu experiencia en la aplicación.",
+  "@personalizationSubtitle": {
+    "description": "Subtítulo de personalización"
+  },
+  "languageDescription": "Selecciona el idioma de la aplicación. Al elegir \"Idioma del sistema\", la app usará el idioma configurado en Android.",
+  "@languageDescription": {
+    "description": "Descripción de configuración de idioma"
+  },
+  "currencyDescription": "Selecciona la moneda que se mostrará en toda la aplicación.",
+  "@currencyDescription": {
+    "description": "Descripción de configuración de moneda"
+  },
+  "logoPersonalization": "Personalización del Logo.",
+  "@logoPersonalization": {
+    "description": "Título de personalización de logo"
+  },
+  "logoDescription": "Elige entre PNG estático o SVG personalizable con color.",
+  "@logoDescription": {
+    "description": "Descripción de configuración de logo"
+  },
+  "navigationStyleDescription": "Personaliza la apariencia de la barra de navegación inferior.",
+  "@navigationStyleDescription": {
+    "description": "Descripción de estilo de navegación"
+  },
+  "artificialIntelligence": "Inteligencia Artificial",
+  "@artificialIntelligence": {
+    "description": "Sección de IA"
+  },
+  "aiDescription": "Configuración para funciones avanzadas con IA.",
+  "@aiDescription": {
+    "description": "Descripción de IA"
+  },
+  "backupManagement": "Gestión de copia de seguridad",
+  "@backupManagement": {
+    "description": "Sección de backup"
+  },
+  "backupDescription": "Importa y exporta tus datos.",
+  "@backupDescription": {
+    "description": "Descripción de backup"
+  },
+  "languageUpdated": "Idioma actualizado correctamente",
+  "@languageUpdated": {
+    "description": "Mensaje de éxito al cambiar idioma"
+  },
+  "errorChangingLanguage": "Error al cambiar idioma: {error}",
+  "@errorChangingLanguage": {
+    "description": "Mensaje de error al cambiar idioma",
+    "placeholders": {
+      "error": {
+        "type": "String",
+        "example": "Error de conexión"
+      }
+    }
+  },
+  "currencyUpdated": "Moneda actualizada correctamente",
+  "@currencyUpdated": {
+    "description": "Mensaje de éxito al cambiar moneda"
+  },
+  "logoUpdated": "Logo actualizado correctamente",
+  "@logoUpdated": {
+    "description": "Mensaje de éxito al cambiar logo"
+  },
+  "avatarColorUpdated": "Color de avatar actualizado correctamente",
+  "@avatarColorUpdated": {
+    "description": "Mensaje de éxito al cambiar color"
+  },
+  "transparentBottomNav": "Navegación inferior transparente aplicada",
+  "@transparentBottomNav": {
+    "description": "Mensaje de navegación transparente"
+  },
+  "opaqueBottomNav": "Navegación inferior opaca aplicada",
+  "@opaqueBottomNav": {
+    "description": "Mensaje de navegación opaca"
+  },
+  "staticLabel": "Estático",
+  "@staticLabel": {
+    "description": "Etiqueta para PNG estático"
+  },
+  "customizableLabel": "Personalizable",
+  "@customizableLabel": {
+    "description": "Etiqueta para SVG personalizable"
+  },
+  "svgColorLabel": "Color del Logo SVG.",
+  "@svgColorLabel": {
+    "description": "Etiqueta para color de SVG"
+  },
+  "selectColor": "Selecciona un Color",
+  "@selectColor": {
+    "description": "Título del selector de color"
+  },
+  "apply": "Aplicar",
+  "@apply": {
+    "description": "Botón aplicar"
+  },
+  "solidBackground": "Fondo sólido",
+  "@solidBackground": {
+    "description": "Descripción de fondo sólido"
+  },
+  "glassEffect": "Efecto cristal",
+  "@glassEffect": {
+    "description": "Descripción de efecto cristal"
+  },
+  "loading": "Cargando...",
+  "@loading": {
+    "description": "Texto de carga"
+  },
+  "manageRecurringMovements": "Gestionar Movimientos Recurrentes",
+  "@manageRecurringMovements": {
+    "description": "Título para gestionar movimientos recurrentes"
+  },
+  "noMovementsToShow": "No hay movimientos para mostrar.",
+  "@noMovementsToShow": {
+    "description": "Mensaje cuando no hay movimientos"
+  },
+  "total": "Total",
+  "@total": {
+    "description": "Etiqueta para total"
+  },
+  "incomes": "Ingresos",
+  "@incomes": {
+    "description": "Etiqueta para ingresos"
+  },
+  "expenses": "Gastos",
+  "@expenses": {
+    "description": "Etiqueta para gastos"
+  },
+  "monthBalance": "Balance del mes",
+  "@monthBalance": {
+    "description": "Título del balance del mes"
+  },
+  "expensesByCategory": "Gastos por Categoría",
+  "@expensesByCategory": {
+    "description": "Título de gastos por categoría"
+  },
+  "noTagsGenerated": "No se pudieron generar etiquetas para los movimientos. Intente de nuevo más tarde o revise la API key proporcionada en ajustes.",
+  "@noTagsGenerated": {
+    "description": "Error al generar etiquetas automáticamente"
+  },
+  "sortBy": "Ordenar por",
+  "@sortBy": {
+    "description": "Tooltip para ordenar"
+  },
+  "byDate": "Por fecha",
+  "@byDate": {
+    "description": "Ordenar por fecha"
+  },
+  "alphabetical": "Alfabético",
+  "@alphabetical": {
+    "description": "Ordenar alfabéticamente"
+  },
+  "byValue": "Por valor",
+  "@byValue": {
+    "description": "Ordenar por valor"
+  },
+  "clearSort": "Limpiar orden",
+  "@clearSort": {
+    "description": "Limpiar ordenamiento"
+  },
+  "generateTagsAutomatically": "Generar etiquetas automáticamente",
+  "@generateTagsAutomatically": {
+    "description": "Tooltip para generar etiquetas"
+  },
+  "filteredMovements": "Movimientos filtrados:",
+  "@filteredMovements": {
+    "description": "Texto para movimientos filtrados"
+  },
+  "totalMovements": "Total de movimientos:",
+  "@totalMovements": {
+    "description": "Texto para total de movimientos"
+  },
+  "noExpenses": "No hay gastos.",
+  "@noExpenses": {
+    "description": "Mensaje cuando no hay gastos"
+  },
+  "noIncomes": "No hay ingresos.",
+  "@noIncomes": {
+    "description": "Mensaje cuando no hay ingresos"
+  },
+  "pleaseEnterValidAmountGreaterThanZero": "Por favor, introduce un monto válido mayor que 0",
+  "@pleaseEnterValidAmountGreaterThanZero": {
+    "description": "Validación de monto mayor que cero"
+  },
+  "categoryNotGenerated": "No se pudo generar la categoría, se guardará con categoría vacía. Puedes asignarla manualmente más tarde.",
+  "@categoryNotGenerated": {
+    "description": "Error al generar categoría"
+  },
+  "errorGeneratingCategory": "Error al generar categoría. Se guardará sin categoría.",
+  "@errorGeneratingCategory": {
+    "description": "Error general al generar categoría"
+  },
+  "movementUpdatedSuccessfully": "Movimiento actualizado con éxito",
+  "@movementUpdatedSuccessfully": {
+    "description": "Movimiento actualizado exitosamente"
+  },
+  "movementSavedSuccessfully": "Movimiento guardado con éxito",
+  "@movementSavedSuccessfully": {
+    "description": "Movimiento guardado exitosamente"
+  },
+  "unknownError": "Error desconocido",
+  "@unknownError": {
+    "description": "Error desconocido"
+  },
+  "generalError": "Error general",
+  "@generalError": {
+    "description": "Error general"
+  },
+  "databaseError": "Error de base de datos",
+  "@databaseError": {
+    "description": "Error de base de datos"
+  },
+  "databaseErrorMessage": "No se pudo acceder a la base de datos. Verifica que tengas espacio suficiente en el dispositivo.",
+  "@databaseErrorMessage": {
+    "description": "Mensaje de error de base de datos"
+  },
+  "formatError": "Error de formato",
+  "@formatError": {
+    "description": "Error de formato"
+  },
+  "formatErrorMessage": "El formato del monto no es válido. Usa números con punto o coma como decimal.",
+  "@formatErrorMessage": {
+    "description": "Mensaje de error de formato"
+  },
+  "connectionError": "Error de conexión",
+  "@connectionError": {
+    "description": "Error de conexión"
+  },
+  "connectionErrorMessage": "Sin conexión a internet. El movimiento se guardará sin categoría automática.",
+  "@connectionErrorMessage": {
+    "description": "Mensaje de error de conexión"
+  },
+  "permissionError": "Error de permisos",
+  "@permissionError": {
+    "description": "Error de permisos"
+  },
+  "permissionErrorMessage": "La aplicación no tiene permisos para guardar datos. Verifica los permisos de la app.",
+  "@permissionErrorMessage": {
+    "description": "Mensaje de error de permisos"
+  },
+  "error": "Error",
+  "@error": {
+    "description": "Título de error"
+  },
+  "noDataToImport": "No hay datos para importar",
+  "@noDataToImport": {
+    "description": "Error cuando no hay datos para importar"
+  },
+  "importingData": "Importando datos...",
+  "@importingData": {
+    "description": "Título de diálogo de importación"
+  },
+  "savingMovements": "Guardando {count} movimientos",
+  "@savingMovements": {
+    "description": "Texto de guardando movimientos",
+    "placeholders": {
+      "count": {
+        "type": "int",
+        "example": "150"
+      }
+    }
+  },
+  "ok": "Ok",
+  "@ok": {
+    "description": "Botón Ok"
+  },
+  "dataImportedSuccessfully": "Los datos se han importado correctamente",
+  "@dataImportedSuccessfully": {
+    "description": "Mensaje de éxito al importar"
+  },
+  "errorSavingData": "Ocurrió un error al guardar los datos",
+  "@errorSavingData": {
+    "description": "Error al guardar datos"
+  },
+  "databaseInitializationError": "Error al inicializar la base de datos. Por favor, intenta de nuevo.",
+  "@databaseInitializationError": {
+    "description": "Error de inicialización de base de datos"
+  },
+  "dataFormatError": "Error al guardar los datos. Verifica que el formato del archivo sea correcto.",
+  "@dataFormatError": {
+    "description": "Error de formato de datos"
+  },
+  "importError": "Error al importar",
+  "@importError": {
+    "description": "Título de error de importación"
+  },
+  "continueWithoutImporting": "Continuar sin importar",
+  "@continueWithoutImporting": {
+    "description": "Opción de continuar sin importar"
+  },
+  "tryAgain": "Intentar de nuevo",
+  "@tryAgain": {
+    "description": "Opción de intentar de nuevo"
+  },
+  "euroSymbol": "Euro (€)",
+  "@euroSymbol": {
+    "description": "Moneda Euro"
+  },
+  "dollarSymbol": "Dólar Estadounidense ($)",
+  "@dollarSymbol": {
+    "description": "Moneda Dólar"
+  },
+  "poundSymbol": "Libra Esterlina (£)",
+  "@poundSymbol": {
+    "description": "Moneda Libra"
+  },
+  "yenSymbol": "Yen Japonés (¥)",
+  "@yenSymbol": {
+    "description": "Moneda Yen"
+  },
+  "swissFrancSymbol": "Franco Suizo (CHF)",
+  "@swissFrancSymbol": {
+    "description": "Moneda Franco Suizo"
+  },
+  "png": "PNG",
+  "@png": {
+    "description": "Tipo de imagen PNG"
+  },
+  "svg": "SVG",
+  "@svg": {
+    "description": "Tipo de imagen SVG"
+  },
+  "fixedMovements": "Movimientos Fijos",
+  "@fixedMovements": {
+    "description": "Título de movimientos fijos"
+  },
+  "automaticMovements": "Movimientos Automáticos",
+  "@automaticMovements": {
+    "description": "Título de movimientos automáticos"
+  },
+  "addedAutomaticallyEachMonth": "Se añaden automáticamente cada mes nuevo.",
+  "@addedAutomaticallyEachMonth": {
+    "description": "Descripción de movimientos automáticos"
+  },
+  "noFixedMovements": "Sin movimientos fijos",
+  "@noFixedMovements": {
+    "description": "Título cuando no hay movimientos fijos"
+  },
+  "createRecurringMovements": "Crea movimientos que se repitan automáticamente cada mes, como salarios, alquileres o suscripciones.",
+  "@createRecurringMovements": {
+    "description": "Descripción para crear movimientos recurrentes"
+  },
+  "createFirstMovement": "Crear primer movimiento.",
+  "@createFirstMovement": {
+    "description": "Botón para crear primer movimiento"
+  },
+  "dayOfEachMonth": "Día {day} de cada mes",
+  "@dayOfEachMonth": {
+    "description": "Texto del día de cada mes",
+    "placeholders": {
+      "day": {
+        "type": "int",
+        "example": "15"
+      }
+    }
+  },
+  "movementDeleted": "Movimiento \"{description}\" eliminado.",
+  "@movementDeleted": {
+    "description": "Mensaje de movimiento eliminado",
+    "placeholders": {
+      "description": {
+        "type": "String",
+        "example": "Salario"
+      }
+    }
+  },
+  "errorLoadingMovements": "Error al cargar movimientos: {error}",
+  "@errorLoadingMovements": {
+    "description": "Error al cargar movimientos",
+    "placeholders": {
+      "error": {
+        "type": "String",
+        "example": "Error de conexión"
+      }
+    }
+  },
+  "errorCreatingMovement": "Error al crear movimiento: {error}",
+  "@errorCreatingMovement": {
+    "description": "Error al crear movimiento",
+    "placeholders": {
+      "error": {
+        "type": "String",
+        "example": "Error de base de datos"
+      }
+    }
+  },
+  "errorDeletingMovement": "Error al eliminar movimiento: {error}",
+  "@errorDeletingMovement": {
+    "description": "Error al eliminar movimiento",
+    "placeholders": {
+      "error": {
+        "type": "String",
+        "example": "Error de base de datos"
+      }
+    }
+  },
+  "errorUpdatingMovement": "Error al actualizar movimiento: {error}",
+  "@errorUpdatingMovement": {
+    "description": "Error al actualizar movimiento",
+    "placeholders": {
+      "error": {
+        "type": "String",
+        "example": "Error de base de datos"
+      }
+    }
+  },
+  "newFixedMovement": "Nuevo Movimiento Fijo",
+  "@newFixedMovement": {
+    "description": "Título de nuevo movimiento fijo"
+  },
+  "editMovement": "Editar Movimiento",
+  "@editMovement": {
+    "description": "Título de editar movimiento"
+  },
+  "descriptionRequired": "La descripción es obligatoria",
+  "@descriptionRequired": {
+    "description": "Validación de descripción requerida"
+  },
+  "amountRequired": "La cantidad es obligatoria.",
+  "@amountRequired": {
+    "description": "Validación de cantidad requerida"
+  },
+  "enterValidNumber": "Introduce un número válido.",
+  "@enterValidNumber": {
+    "description": "Validación de número válido"
+  },
+  "amountMustBeGreaterThanZero": "La cantidad debe ser mayor que 0.",
+  "@amountMustBeGreaterThanZero": {
+    "description": "Validación de cantidad mayor que cero"
+  },
+  "quantity": "Cantidad",
+  "@quantity": {
+    "description": "Etiqueta de cantidad"
+  },
+  "dayOfMonth": "Día del mes",
+  "@dayOfMonth": {
+    "description": "Etiqueta del día del mes"
+  },
+  "from1To31": "Del 1 al 31",
+  "@from1To31": {
+    "description": "Placeholder para días del mes"
+  },
+  "dayRequired": "El día es obligatorio",
+  "@dayRequired": {
+    "description": "Validación de día requerido"
+  },
+  "dayMustBeBetween1And31": "El día debe estar entre 1 y 31.",
+  "@dayMustBeBetween1And31": {
+    "description": "Validación de día válido"
+  },
+  "movementType": "Tipo de movimiento",
+  "@movementType": {
+    "description": "Etiqueta de tipo de movimiento"
+  },
+  "saveInCurrentMonth": "Guardar gasto en mes actual: ",
+  "@saveInCurrentMonth": {
+    "description": "Etiqueta para guardar en mes actual"
+  },
+  "create": "Crear",
+  "@create": {
+    "description": "Botón crear"
+  },
+  "errorInData": "Error en los datos: {error}",
+  "@errorInData": {
+    "description": "Error en los datos",
+    "placeholders": {
+      "error": {
+        "type": "String",
+        "example": "Formato inválido"
+      }
+    }
+  },
+  "exampleSalaryRentNetflix": "Ej: Salario, Alquiler, Netflix...",
+  "@exampleSalaryRentNetflix": {
+    "description": "Placeholder para descripción de movimientos fijos"
+  },
+  "goodMorning": "Buenos días",
+  "@goodMorning": {
+    "description": "Saludo de buenos días"
+  },
+  "goodAfternoon": "Buenas tardes",
+  "@goodAfternoon": {
+    "description": "Saludo de buenas tardes"
+  },
+  "goodEvening": "Buenas noches",
+  "@goodEvening": {
+    "description": "Saludo de buenas noches"
+  },
+  "startDayWithEnergy": "Comienza el día con energía renovada.",
+  "@startDayWithEnergy": {
+    "description": "Mensaje de buenos días"
+  },
+  "keepBuildingFinancialFuture": "Sigue construyendo tu futuro financiero.",
+  "@keepBuildingFinancialFuture": {
+    "description": "Mensaje de buenas tardes"
+  },
+  "perfectTimeToReviewFinances": "Momento perfecto para revisar tus finanzas.",
+  "@perfectTimeToReviewFinances": {
+    "description": "Mensaje de buenas noches"
+  },
+  "filters": "Filtros",
+  "@filters": {
+    "description": "Título de filtros"
+  },
+  "lastMovements": "Últimos movimientos",
+  "@lastMovements": {
+    "description": "Título de últimos movimientos"
+  },
+  "all": "Todos",
+  "@all": {
+    "description": "Texto para mostrar todos los elementos"
+  },
+  "search": "Buscar",
+  "@search": {
+    "description": "Texto del campo de búsqueda"
+  },
+  "allCategories": "Todas las categorías",
+  "@allCategories": {
+    "description": "Texto para todas las categorías"
+  },
+  "pleaseEnterValidNumber": "Por favor, ingresa un número válido.",
+  "@pleaseEnterValidNumber": {
+    "description": "Validación de número válido"
+  },
+  "dateLabel": "Fecha:",
+  "@dateLabel": {
+    "description": "Etiqueta de fecha en el botón"
+  },
+  "deleteMovement": "¿Eliminar movimiento?",
+  "@deleteMovement": {
+    "description": "Título del diálogo de confirmación de eliminación"
+  },
+  "confirmDeleteMovement": "¿Estás seguro de que quieres eliminar \"{description}\"?",
+  "@confirmDeleteMovement": {
+    "description": "Mensaje de confirmación de eliminación",
+    "placeholders": {
+      "description": {
+        "type": "String",
+        "example": "Compra supermercado"
+      }
+    }
+  },
+  "changeCategory": "Cambiar categoría",
+  "@changeCategory": {
+    "description": "Título del diálogo de cambio de categoría"
+  },
+  "selectCategory": "Selecciona una categoría",
+  "@selectCategory": {
+    "description": "Título del selector de categorías"
+  },
+  "categoryUpdated": "Categoría actualizada: {category}.",
+  "@categoryUpdated": {
+    "description": "Mensaje de éxito al actualizar categoría",
+    "placeholders": {
+      "category": {
+        "type": "String",
+        "example": "Alimentación"
+      }
+    }
+  },
+  
+  "eliminatedSuccessfully": "eliminado con éxito",
+  "@eliminatedSuccessfully": {
+    "description": "Mensaje de éxito al eliminar"
+  },
+  "elimError": "Error al eliminar ",
+  "@elimError": {
+    "description": "Mensaje de error al eliminar"
+  },
+  "currencyChangedSuccessfully": "Moneda actualizada correctamente",
+  "@currencyChangedSuccessfully": {
+    "description": "Mensaje de éxito al cambiar la moneda"
+  },
+  "logoChangedSuccessfully": "Logo actualizado correctamente",
+  "@logoChangedSuccessfully": {
+    "description": "Mensaje de éxito al cambiar el logo"
+  },
+  "avatarColorChangedSuccessfully": "Color de avatar actualizado correctamente",
+  "@avatarColorChangedSuccessfully": {
+    "description": "Mensaje de éxito al cambiar el color del avatar"
+  },
+  "transparentBottomNavApplied": "Navegación inferior transparente aplicada",
+  "@transparentBottomNavApplied": {
+    "description": "Mensaje de navegación inferior transparente aplicada"
+  },
+  "opaqueBottomNavApplied": "Navegación inferior opaca aplicada",
+  "@opaqueBottomNavApplied": {
+    "description": "Mensaje de navegación inferior opaca aplicada"
+  },
+  "languageChangedSuccessfully": "Idioma actualizado correctamente",
+  "@languageChangedSuccessfully": {
+    "description": "Mensaje de éxito al cambiar el idioma"
+  },
+  "cantOpenUrl": "No se puede abrir el enlace",
+  "@cantOpenUrl": {
+    "description": "Mensaje de error al intentar abrir un enlace"
+  },
+  "apiKeyCantBeEmpty": "❌ El API Key no puede estar vacío",
+  "@apiKeyCantBeEmpty": {
+    "description": "Mensaje de error cuando el API Key está vacío"
+  },
+  "apiKeySavedSuccessfully": "✅ API Key guardada correctamente",
+  "@apiKeySavedSuccessfully": {
+    "description": "Mensaje de éxito al guardar el API Key"
+  },
+  "apiKeySaved": "API Key guardada",
+  "@apiKeySaved": {
+    "description": "Mensaje de éxito al guardar el API Key"
+  },
+  "importantRestart": "IMPORTANTE: Para que la IA funcione correctamente, debes reiniciar completamente la aplicación.",
+  "@importantRestart": {
+    "description": "Mensaje importante sobre reinicio de la aplicación"
+  },
+  "appRestartAdvice": "💡 Cierra la app completamente y vuelve a abrirla.",
+  "@appRestartAdvice": {
+    "description": "Consejo sobre reinicio de la aplicación"
+  },
+  "aiFeaturesActivation": "Para activar las funciones de inteligencia artificial, necesitas obtener una clave API de Google. Te guiamos paso a paso:",
+  "@aiFeaturesActivation": {
+    "description": "Instrucciones para activar funciones de IA"
+  },
+  "step1": "1. Accede a Google AI Studio e inicia sesión con tu cuenta",
+  "@step1": {
+    "description": "Primer paso para activar funciones de IA"
+  },
+  "step2": "2. Haz clic en \"Crear clave de API\" y copia la clave generada",
+  "@step2": {
+    "description": "Segundo paso para activar funciones de IA"
+  },
+  "step2_1": "2.1. Si aparece esta ventana emergente, ciérrala con la X",
+  "@step2_1": {
+    "description": "Instrucciones para cerrar la ventana emergente"
+  },
+  "step2_2":"2.2. Desplázate hacia abajo hasta encontrar la tabla de claves",
+  "@step2_2": {
+    "description": "Instrucciones para encontrar la tabla de claves"
+  },
+  "step2_3": "2.3. Haz clic en el enlace azul para acceder a la clave",
+  "@step2_3": {
+    "description": "Instrucciones para acceder a la clave"
+  },
+  "step3": "3. Pega la clave API en el campo de texto de la aplicación",
+  "@step3": {
+    "description": "Tercer paso para activar funciones de IA"
+  },
+  "step4": "4. Presiona el botón guardar para completar la configuración",
+  "@step4": {
+    "description": "Cuarto paso para activar funciones de IA"
+  },
+  "goToGoogleAiStudio": "Ir a Google AI Studio",
+  "@goToGoogleAiStudio": {
+    "description": "Enlace para ir a Google AI Studio"
+  },
+  "googleApiKey": "Clave API de Google",
+  "@googleApiKey": {
+    "description": "Etiqueta para la clave API de Google"
+  },
+  "deleteDatabase": "Borrar base de datos",
+  "@deleteDatabase": {
+    "description": "Etiqueta para borrar la base de datos"
+  },
+  "dbDeleteWarning": "ATENCIÓN: Esta acción eliminará TODOS los datos de la aplicación:",
+  "@dbDeleteWarning": {
+    "description": "Advertencia al borrar la base de datos"
+  },
+  "dbDeleteList1": "• Todos los movimientos registrados",
+  "@dbDeleteList1": {
+    "description": "Lista de datos que se eliminarán al borrar la base de datos"
+  },
+  "dbDeleteList2": "• Todas las categorías personalizadas",
+  "@dbDeleteList2": {
+    "description": "Lista de datos que se eliminarán al borrar la base de datos"
+  },
+  "dbDeleteList3": "• Todos los movimientos fijos",
+  "@dbDeleteList3": {
+    "description": "Lista de datos que se eliminarán al borrar la base de datos"
+  },
+  "dbDeleteList4": "• Configuración de colores y preferencias",
+  "@dbDeleteList4": {
+    "description": "Lista de datos que se eliminarán al borrar la base de datos"
+  },
+  "dbDeleteUnrecoverable": "Esta acción NO se puede deshacer.",
+  "@dbDeleteUnrecoverable": {
+    "description": "Mensaje de que la acción de borrar la base de datos no se puede deshacer"
+  },
+  "dbDeleteRecomendation": "💡 Recomendación: Haz un backup antes de continuar.",
+  "@dbDeleteRecomendation": {
+    "description": "Recomendación de hacer un backup antes de borrar la base de datos"
+  },
+  "deleteAll": "Eliminar Todo",
+  "@deleteAll": {
+    "description": "Botón para eliminar todos los datos"
+  },
+  "dbDeletedSuccesfully":"✅ Base de datos limpiada correctamente",
+  "@dbDeletedSuccesfully": {
+    "description": "Mensaje de éxito al limpiar la base de datos"
+  },
+  "dbDeleted": "Base de datos limpiada",
+  "@dbDeleted": {
+    "description": "Mensaje de éxito al limpiar la base de datos"
+  },
+  "deDeletedSubtitle": "Todos los datos se han eliminado correctamente.",
+  "@deDeletedSubtitle": {
+    "description": "Subtítulo de éxito al limpiar la base de datos"
+  },
+  "dbDeleteAppRestart": "IMPORTANTE: Para que los cambios se apliquen completamente, es recomendable reiniciar la aplicación.",
+  "@dbDeleteAppRestart": {
+    "description": "Mensaje importante sobre reinicio de la aplicación tras borrar la base de datos"
+  },
+  "dbDeleteAppRestartAdvice": "💡 Cierra la app completamente y vuelve a abrirla.",
+  "@dbDeleteAppRestartAdvice": {
+    "description": "Consejo sobre el reinicio de la aplicación tras borrar la base de datos"
+  },
+  "errorCleaningDatabase": "❌ Error al limpiar la base de datos",
+  "@errorCleaningDatabase": {
+    "description": "Mensaje de error al limpiar la base de datos"
+  },
+  "developerOptions": "Opciones de Desarrollador",
+  "@developerOptions": {
+    "description": "Título de opciones de desarrollador"
+  },
+  "developerOptionsSubtitle": "Acceso a funciones avanzadas y de desarrollo.",
+  "@developerOptionsSubtitle": {
+    "description": "Subtítulo de opciones de desarrollador"
+  },
+  "importFromJson": "Importar desde JSON",
+  "@importFromJson": {
+    "description": "Título para importar desde JSON"
+  },
+  "importFromJsonSubtitle": "Importa datos desde un archivo JSON de Gastoscopio.",
+  "@importFromJsonSubtitle": {
+    "description": "Subtítulo para importar desde JSON"
+  },
+  "deleteDatabaseSubtitle": "⚠️ PELIGRO: Borra TODOS los datos de la aplicación de forma permanente. Esta acción no se puede deshacer.",
+  "@deleteDatabaseSubtitle": {
+    "description": "Subtítulo para borrar la base de datos"
+  },
+  "cleaning": "Limpiando...",
+  "@cleaning": {
+    "description": "Texto mostrado mientras se limpia la base de datos"
+  },
+  "cleanAllData": "Limpiar Todos los Datos",
+  "@cleanAllData": {
+    "description": "Botón para limpiar todos los datos"
+  },
+  "errorSavingApiKey": "No se ha podido guardar la API Key",
+  "@errorSavingApiKey": {
+    "description": "Mensaje de error al guardar la API Key"
+  }
+}

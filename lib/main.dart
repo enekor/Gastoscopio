@@ -1,7 +1,10 @@
 import 'package:cashly/app.dart';
 import 'package:cashly/data/services/gemini_service.dart';
+import 'package:cashly/data/services/locale_service.dart';
 import 'package:dynamic_color/dynamic_color.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
+import 'package:cashly/l10n/app_localizations.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -9,11 +12,37 @@ void main() async {
   // Inicializar servicio de Gemini para cargar API Key existente
   await GeminiService().initializeGemini();
 
+  // Inicializar servicio de localización
+  await LocaleService().initialize();
+
   runApp(const MyApp());
 }
 
-class MyApp extends StatelessWidget {
+class MyApp extends StatefulWidget {
   const MyApp({super.key});
+
+  @override
+  State<MyApp> createState() => _MyAppState();
+}
+
+class _MyAppState extends State<MyApp> {
+  final LocaleService _localeService = LocaleService();
+
+  @override
+  void initState() {
+    super.initState();
+    _localeService.addListener(_onLocaleChanged);
+  }
+
+  @override
+  void dispose() {
+    _localeService.removeListener(_onLocaleChanged);
+    super.dispose();
+  }
+
+  void _onLocaleChanged() {
+    setState(() {});
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -21,6 +50,17 @@ class MyApp extends StatelessWidget {
       builder: (ColorScheme? lightDynamic, ColorScheme? darkDynamic) {
         return MaterialApp(
           title: 'Gastoscopio',
+
+          // Configuración de localizaciones
+          localizationsDelegates: const [
+            AppLocalizations.delegate,
+            GlobalMaterialLocalizations.delegate,
+            GlobalWidgetsLocalizations.delegate,
+            GlobalCupertinoLocalizations.delegate,
+          ],
+          supportedLocales: LocaleService.supportedLocales,
+          locale: _localeService.currentLocale,
+
           theme: ThemeData(
             useMaterial3: true,
             colorScheme:
@@ -37,7 +77,7 @@ class MyApp extends StatelessWidget {
                 ),
           ),
           themeMode: ThemeMode.system,
-          home: App(),
+          home: const App(),
         );
       },
     );

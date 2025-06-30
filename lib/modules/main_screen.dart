@@ -9,6 +9,7 @@ import 'package:cashly/modules/settings.dart/settings.dart';
 import 'package:cashly/onboarding/onboarding.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:cashly/l10n/app_localizations.dart';
 
 class MainScreen extends StatefulWidget {
   const MainScreen({Key? key}) : super(key: key);
@@ -251,7 +252,7 @@ class _MainScreenState extends State<MainScreen>
           appBar: AppBar(
             centerTitle: true,
             title: Text(
-              'Gastoscopio',
+              AppLocalizations.of(context)!.appTitle,
               style: GoogleFonts.pacifico(fontSize: 24, letterSpacing: 1.2),
             ),
             actions: [

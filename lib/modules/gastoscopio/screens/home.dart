@@ -9,6 +9,7 @@ import 'package:cashly/modules/gastoscopio/widgets/finance_widgets.dart';
 import 'package:cashly/data/models/movement_value.dart';
 import 'package:cashly/common/tag_list.dart';
 import 'package:flutter/material.dart';
+import 'package:cashly/l10n/app_localizations.dart';
 
 import 'package:svg_flutter/svg.dart';
 
@@ -32,14 +33,13 @@ class _GastoscopioHomeScreenState extends State<GastoscopioHomeScreen> {
   int _r = 255;
   int _g = 255;
   int _b = 255;
-  late String _moneda = 'loading...';
+  late String _moneda = '';
   final CarouselSliderController _carouselController =
       CarouselSliderController();
 
   @override
   void initState() {
     super.initState();
-    _updateGreeting();
     _loadInitialData();
     SharedPreferencesService()
         .getStringValue(SharedPreferencesKeys.currency)
@@ -85,6 +85,12 @@ class _GastoscopioHomeScreenState extends State<GastoscopioHomeScreen> {
     }
   }
 
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    _updateGreeting();
+  }
+
   Future<void> _loadInitialData() async {
     try {
       // Establecer el mes actual y cargar sus datos
@@ -105,18 +111,20 @@ class _GastoscopioHomeScreenState extends State<GastoscopioHomeScreen> {
         LoginService().currentUser?.displayName?.split(' ')[0] ?? '';
     final nameGreeting = userName.isNotEmpty ? ', $userName' : '';
 
-    setState(() {
-      if (hour < 12) {
-        _greeting =
-            '¡Buenos días$nameGreeting! ✨\nComienza el día con energía renovada.';
-      } else if (hour < 18) {
-        _greeting =
-            '¡Buenas tardes$nameGreeting! ☀️\nSigue construyendo tu futuro financiero.';
-      } else {
-        _greeting =
-            '¡Buenas noches$nameGreeting! 🌟\nMomento perfecto para revisar tus finanzas.';
-      }
-    });
+    if (mounted) {
+      setState(() {
+        if (hour < 12) {
+          _greeting =
+              '¡${AppLocalizations.of(context)!.goodMorning}$nameGreeting! ✨\n${AppLocalizations.of(context)!.startDayWithEnergy}';
+        } else if (hour < 18) {
+          _greeting =
+              '¡${AppLocalizations.of(context)!.goodAfternoon}$nameGreeting! ☀️\n${AppLocalizations.of(context)!.keepBuildingFinancialFuture}';
+        } else {
+          _greeting =
+              '¡${AppLocalizations.of(context)!.goodEvening}$nameGreeting! 🌟\n${AppLocalizations.of(context)!.perfectTimeToReviewFinances}';
+        }
+      });
+    }
   }
 
   @override
@@ -255,7 +263,7 @@ class _GastoscopioHomeScreenState extends State<GastoscopioHomeScreen> {
               color: Theme.of(context).colorScheme.primary,
             ),
             label: Text(
-              'Gestionar Movimientos Recurrentes',
+              AppLocalizations.of(context)!.manageRecurringMovements,
               style: TextStyle(
                 color: Theme.of(context).colorScheme.primary,
                 fontWeight: FontWeight.w600,
@@ -297,7 +305,7 @@ class _GastoscopioHomeScreenState extends State<GastoscopioHomeScreen> {
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
             Text(
-              'Últimos movimientos',
+              AppLocalizations.of(context)!.lastMovements,
               style: Theme.of(context).textTheme.titleMedium,
               textAlign: TextAlign.center,
             ),
@@ -322,7 +330,7 @@ class _GastoscopioHomeScreenState extends State<GastoscopioHomeScreen> {
                             ),
                             child: Center(
                               child: Text(
-                                'No hay movimientos para mostrar.',
+                                AppLocalizations.of(context)!.noMovementsToShow,
                                 textAlign: TextAlign.center,
                                 style: Theme.of(
                                   context,
@@ -375,7 +383,7 @@ class _GastoscopioHomeScreenState extends State<GastoscopioHomeScreen> {
         Text(service.currentMonthName()),
 
         Text(
-          'Total: ${total < 0 ? '-' : ''}${total.abs().toStringAsFixed(2)}${_moneda}',
+          '${AppLocalizations.of(context)!.total}: ${total < 0 ? '-' : ''}${total.abs().toStringAsFixed(2)}${_moneda}',
           style: Theme.of(context).textTheme.titleLarge?.copyWith(
             color:
                 isPositive
@@ -414,7 +422,7 @@ class _GastoscopioHomeScreenState extends State<GastoscopioHomeScreen> {
           ),
         ),
         Text(
-          'Ingresos: ${incomes.abs().toStringAsFixed(2)}${_moneda}',
+          '${AppLocalizations.of(context)!.incomes}: ${incomes.abs().toStringAsFixed(2)}${_moneda}',
           style: Theme.of(context).textTheme.titleMedium?.copyWith(
             color: Theme.of(context).colorScheme.primary,
             fontWeight: FontWeight.bold,
@@ -422,7 +430,7 @@ class _GastoscopioHomeScreenState extends State<GastoscopioHomeScreen> {
         ),
         const SizedBox(height: 8),
         Text(
-          'Gastos: -${expenses.abs().toStringAsFixed(2)}${_moneda}',
+          '${AppLocalizations.of(context)!.expenses}: -${expenses.abs().toStringAsFixed(2)}${_moneda}',
           style: Theme.of(context).textTheme.titleMedium?.copyWith(
             color: Theme.of(context).colorScheme.error,
             fontWeight: FontWeight.bold,
@@ -443,7 +451,7 @@ class _GastoscopioHomeScreenState extends State<GastoscopioHomeScreen> {
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
             Text(
-              'Balance del mes',
+              AppLocalizations.of(context)!.monthBalance,
               style: Theme.of(context).textTheme.titleMedium,
               textAlign: TextAlign.center,
             ),
@@ -538,7 +546,7 @@ class _ChartPart extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      'Gastos por Categoría',
+                      AppLocalizations.of(context)!.expensesByCategory,
                       style: Theme.of(context).textTheme.titleLarge,
                     ),
                     const SizedBox(height: 16),

@@ -5,6 +5,7 @@ import 'package:cashly/data/models/month.dart';
 import 'package:cashly/data/models/movement_value.dart';
 import 'package:cashly/modules/gastoscopio/logic/finance_service.dart';
 import 'package:flutter/material.dart';
+import 'package:cashly/l10n/app_localizations.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 
 class MovementFormScreen extends StatefulWidget {
@@ -23,7 +24,7 @@ class _MovementFormScreenState extends State<MovementFormScreen> {
   late final _descriptionController = TextEditingController();
   late final _amountController = TextEditingController();
   late DateTime _selectedDate = DateTime.now();
-  late String _moneda = 'loading...';
+  late String _moneda = '';
   String? _category;
 
   @override
@@ -112,14 +113,16 @@ class _MovementFormScreenState extends State<MovementFormScreen> {
 
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
-              content: const Row(
+              content: Row(
                 children: [
-                  Icon(Icons.warning, color: Colors.white, size: 20),
-                  SizedBox(width: 8),
+                  const Icon(Icons.warning, color: Colors.white, size: 20),
+                  const SizedBox(width: 8),
                   Expanded(
                     child: Text(
-                      'Por favor, introduce un monto válido mayor que 0',
-                      style: TextStyle(fontSize: 14),
+                      AppLocalizations.of(
+                        context,
+                      )!.pleaseEnterValidAmountGreaterThanZero,
+                      style: const TextStyle(fontSize: 14),
                     ),
                   ),
                 ],
@@ -161,9 +164,9 @@ class _MovementFormScreenState extends State<MovementFormScreen> {
           if (generatedCategory.isEmpty) {
             if (mounted) {
               ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(
+                SnackBar(
                   content: Text(
-                    'No se pudo generar la categoría, se guardará con categoría vacía. Puedes asignarla manualmente más tarde.',
+                    AppLocalizations.of(context)!.categoryNotGenerated,
                   ),
                   behavior: SnackBarBehavior.floating,
                 ),
@@ -177,9 +180,9 @@ class _MovementFormScreenState extends State<MovementFormScreen> {
           _category = '';
           if (mounted) {
             ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(
+              SnackBar(
                 content: Text(
-                  'Error al generar categoría. Se guardará sin categoría.',
+                  AppLocalizations.of(context)!.errorGeneratingCategory,
                 ),
                 behavior: SnackBarBehavior.floating,
               ),
@@ -233,8 +236,8 @@ class _MovementFormScreenState extends State<MovementFormScreen> {
         Fluttertoast.showToast(
           msg:
               widget.movement != null
-                  ? "✅ Movimiento actualizado"
-                  : "✅ Movimiento guardado",
+                  ? AppLocalizations.of(context)!.movementUpdated
+                  : AppLocalizations.of(context)!.movementSaved,
           toastLength: Toast.LENGTH_SHORT,
           gravity: ToastGravity.TOP,
           timeInSecForIosWeb: 2,
@@ -251,8 +254,10 @@ class _MovementFormScreenState extends State<MovementFormScreen> {
                 const SizedBox(width: 8),
                 Text(
                   widget.movement != null
-                      ? 'Movimiento actualizado con éxito'
-                      : 'Movimiento guardado con éxito',
+                      ? AppLocalizations.of(
+                        context,
+                      )!.movementUpdatedSuccessfully
+                      : AppLocalizations.of(context)!.movementSavedSuccessfully,
                 ),
               ],
             ),
@@ -266,27 +271,23 @@ class _MovementFormScreenState extends State<MovementFormScreen> {
       }
     } catch (e) {
       // Manejo de errores específicos con mensajes informativos
-      String errorMessage = 'Error desconocido';
-      String errorType = 'Error general';
+      String errorMessage = AppLocalizations.of(context)!.unknownError;
+      String errorType = AppLocalizations.of(context)!.generalError;
 
       if (e.toString().contains('database')) {
-        errorType = 'Error de base de datos';
-        errorMessage =
-            'No se pudo acceder a la base de datos. Verifica que tengas espacio suficiente en el dispositivo.';
+        errorType = AppLocalizations.of(context)!.databaseError;
+        errorMessage = AppLocalizations.of(context)!.databaseErrorMessage;
       } else if (e.toString().contains('parse') ||
           e.toString().contains('format')) {
-        errorType = 'Error de formato';
-        errorMessage =
-            'El formato del monto no es válido. Usa números con punto o coma como decimal.';
+        errorType = AppLocalizations.of(context)!.formatError;
+        errorMessage = AppLocalizations.of(context)!.formatErrorMessage;
       } else if (e.toString().contains('network') ||
           e.toString().contains('connection')) {
-        errorType = 'Error de conexión';
-        errorMessage =
-            'Sin conexión a internet. El movimiento se guardará sin categoría automática.';
+        errorType = AppLocalizations.of(context)!.connectionError;
+        errorMessage = AppLocalizations.of(context)!.connectionErrorMessage;
       } else if (e.toString().contains('permission')) {
-        errorType = 'Error de permisos';
-        errorMessage =
-            'La aplicación no tiene permisos para guardar datos. Verifica los permisos de la app.';
+        errorType = AppLocalizations.of(context)!.permissionError;
+        errorMessage = AppLocalizations.of(context)!.permissionErrorMessage;
       } else if (e.toString().contains('space') ||
           e.toString().contains('storage')) {
         errorType = 'Error de almacenamiento';
@@ -339,8 +340,8 @@ class _MovementFormScreenState extends State<MovementFormScreen> {
                       onPressed: () {
                         ScaffoldMessenger.of(context).hideCurrentSnackBar();
                       },
-                      child: const Text(
-                        'Entendido',
+                      child: Text(
+                        AppLocalizations.of(context)!.ok,
                         style: TextStyle(color: Colors.white),
                       ),
                     ),

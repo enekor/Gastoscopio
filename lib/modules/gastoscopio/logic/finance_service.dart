@@ -5,6 +5,7 @@ import 'package:cashly/data/models/month.dart';
 import 'package:cashly/data/models/movement_value.dart';
 import 'package:cashly/data/models/fixed_movement.dart';
 import 'package:cashly/data/services/shared_preferences_service.dart';
+import 'package:cashly/l10n/app_localizations.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
@@ -364,7 +365,9 @@ class FinanceService extends ChangeNotifier {
       if (!context.mounted) return true;
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text('${movement.description} eliminado con éxito'),
+          content: Text(
+            '${movement.description} ${AppLocalizations.of(context)!.eliminatedSuccessfully}',
+          ),
           behavior: SnackBarBehavior.floating,
         ),
       );
@@ -376,7 +379,9 @@ class FinanceService extends ChangeNotifier {
         Navigator.of(context).pop();
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('Error al eliminar ${movement.description}'),
+            content: Text(
+              '${AppLocalizations.of(context)!.elimError} ${movement.description}',
+            ),
             behavior: SnackBarBehavior.floating,
           ),
         );

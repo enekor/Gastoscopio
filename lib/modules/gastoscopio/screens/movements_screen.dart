@@ -5,6 +5,7 @@ import 'package:cashly/modules/gastoscopio/screens/movement_form_screen.dart';
 import 'package:cashly/modules/gastoscopio/widgets/main_screen_widgets.dart';
 import 'package:cashly/common/tag_list.dart';
 import 'package:flutter/material.dart';
+import 'package:cashly/l10n/app_localizations.dart';
 import 'package:cashly/data/models/movement_value.dart';
 import 'package:cashly/modules/gastoscopio/logic/finance_service.dart';
 
@@ -157,7 +158,7 @@ class _MovementsScreenState extends State<MovementsScreen>
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text(
-            'No se pudieron generaron etiquetas para los movimientos. Intente de nuevo mas tarde o revise la api key proporcionada en ajustes.',
+            AppLocalizations.of(context)!.noTagsGenerated,
             style: TextStyle(color: Theme.of(context).colorScheme.onError),
           ),
           backgroundColor: Theme.of(context).colorScheme.error,
@@ -229,7 +230,9 @@ class _MovementsScreenState extends State<MovementsScreen>
   Widget _buildEmptyScreen() {
     return Scaffold(
       appBar: _buildAppBar(),
-      body: const Center(child: Text('No hay movimientos para mostrar.')),
+      body: Center(
+        child: Text(AppLocalizations.of(context)!.noMovementsToShow),
+      ),
       floatingActionButton: _buildFAB(),
     );
   }
@@ -327,7 +330,7 @@ class _MovementsScreenState extends State<MovementsScreen>
               }
             },
             icon: const Icon(Icons.money),
-            label: const Text('Ingresos'),
+            label: Text(AppLocalizations.of(context)!.incomes),
           ),
           TextButton.icon(
             onPressed: () async {
@@ -340,7 +343,7 @@ class _MovementsScreenState extends State<MovementsScreen>
               }
             },
             icon: const Icon(Icons.money_off),
-            label: const Text('Gastos'),
+            label: Text(AppLocalizations.of(context)!.expenses),
           ),
         ],
       ),
@@ -370,7 +373,9 @@ class _MovementsScreenState extends State<MovementsScreen>
         opacity: _toggleAnimation,
         child: Center(
           child: Text(
-            _showExpenses ? 'No hay gastos.' : 'No hay ingresos.',
+            _showExpenses
+                ? AppLocalizations.of(context)!.noExpenses
+                : AppLocalizations.of(context)!.noIncomes,
             style: TextStyle(color: Theme.of(context).colorScheme.secondary),
           ),
         ),
@@ -461,7 +466,7 @@ class _MovementsScreenState extends State<MovementsScreen>
             ],
           ],
         ),
-        tooltip: 'Ordenar por',
+        tooltip: AppLocalizations.of(context)!.sortBy,
         onSelected: (String value) {
           setState(() {
             _expandedItems.clear(); // Reset expanded items
@@ -488,7 +493,7 @@ class _MovementsScreenState extends State<MovementsScreen>
                       color: Theme.of(context).colorScheme.primary,
                     ),
                     const SizedBox(width: 12),
-                    Text('Por fecha'),
+                    Text(AppLocalizations.of(context)!.byDate),
                     const Spacer(),
                     if (_currentSortType == 'fecha')
                       Icon(
@@ -510,7 +515,7 @@ class _MovementsScreenState extends State<MovementsScreen>
                       color: Theme.of(context).colorScheme.primary,
                     ),
                     const SizedBox(width: 12),
-                    Text('Alfabético'),
+                    Text(AppLocalizations.of(context)!.alphabetical),
                     const Spacer(),
                     if (_currentSortType == 'alfabetico')
                       Icon(
@@ -532,7 +537,7 @@ class _MovementsScreenState extends State<MovementsScreen>
                       color: Theme.of(context).colorScheme.primary,
                     ),
                     const SizedBox(width: 12),
-                    Text('Por valor'),
+                    Text(AppLocalizations.of(context)!.byValue),
                     const Spacer(),
                     if (_currentSortType == 'valor')
                       Icon(
@@ -557,7 +562,7 @@ class _MovementsScreenState extends State<MovementsScreen>
                       ),
                       const SizedBox(width: 12),
                       Text(
-                        'Limpiar orden',
+                        AppLocalizations.of(context)!.clearSort,
                         style: TextStyle(
                           color: Theme.of(context).colorScheme.error,
                         ),
@@ -586,7 +591,7 @@ class _MovementsScreenState extends State<MovementsScreen>
           Icons.auto_awesome,
           color: Theme.of(context).colorScheme.primary,
         ),
-        tooltip: 'Generar etiquetas automáticamente',
+        tooltip: AppLocalizations.of(context)!.generateTagsAutomatically,
         onPressed: () async {
           await _autoGenerateTags();
           await _loadMovements();
@@ -629,7 +634,9 @@ class _MovementsScreenState extends State<MovementsScreen>
           ),
           const SizedBox(width: 12),
           Text(
-            hasFilters ? 'Movimientos filtrados:' : 'Total de movimientos:',
+            hasFilters
+                ? AppLocalizations.of(context)!.filteredMovements
+                : AppLocalizations.of(context)!.totalMovements,
             style: Theme.of(context).textTheme.bodyMedium?.copyWith(
               color: Theme.of(context).colorScheme.onPrimaryContainer,
               fontWeight: FontWeight.bold,
@@ -637,7 +644,7 @@ class _MovementsScreenState extends State<MovementsScreen>
           ),
           const SizedBox(width: 6),
           Text(
-            '$totalCount ${_showExpenses ? "gastos" : "ingresos"}',
+            '$totalCount ${_showExpenses ? AppLocalizations.of(context)!.expenses.toLowerCase() : AppLocalizations.of(context)!.incomes.toLowerCase()}',
             style: Theme.of(context).textTheme.titleSmall?.copyWith(
               color: Theme.of(context).colorScheme.onPrimaryContainer,
             ),
@@ -676,7 +683,10 @@ class _MovementsScreenState extends State<MovementsScreen>
             children: [
               const Icon(Icons.filter_list),
               const SizedBox(width: 8),
-              Text('Filtros', style: Theme.of(context).textTheme.titleMedium),
+              Text(
+                AppLocalizations.of(context)!.filters,
+                style: Theme.of(context).textTheme.titleMedium,
+              ),
               if (_selectedDate != null ||
                   _selectedCategory != null ||
                   _searchQuery.isNotEmpty) ...[
@@ -732,7 +742,7 @@ class _MovementsScreenState extends State<MovementsScreen>
                             child: Text(
                               _selectedDate != null
                                   ? _selectedDate!.day.toString()
-                                  : 'Todos',
+                                  : AppLocalizations.of(context)!.all,
                               textAlign: TextAlign.center,
                               overflow: TextOverflow.ellipsis,
                             ),
@@ -776,7 +786,8 @@ class _MovementsScreenState extends State<MovementsScreen>
                               const SizedBox(width: 4),
                               Expanded(
                                 child: Text(
-                                  _selectedCategory ?? 'Todas',
+                                  _selectedCategory ??
+                                      AppLocalizations.of(context)!.all,
                                   overflow: TextOverflow.ellipsis,
                                   maxLines: 1,
                                   textAlign: TextAlign.center,
@@ -812,7 +823,7 @@ class _MovementsScreenState extends State<MovementsScreen>
                     child: TextField(
                       controller: _searchController,
                       decoration: InputDecoration(
-                        labelText: 'Buscar',
+                        labelText: AppLocalizations.of(context)!.search,
                         prefixIcon: const Icon(Icons.abc),
                         suffixIcon:
                             _searchQuery.isNotEmpty
@@ -953,9 +964,7 @@ class _MovementsScreenState extends State<MovementsScreen>
       }
 
       // Filter by category if selected
-      if (_selectedCategory != null &&
-          _selectedCategory != 'Todas' &&
-          movement.category != _selectedCategory) {
+      if (_selectedCategory != null && movement.category != _selectedCategory) {
         return false;
       }
 
@@ -1029,7 +1038,9 @@ class _MovementsScreenState extends State<MovementsScreen>
                     controller: scrollController,
                     children: [
                       ListTile(
-                        title: const Text('Todas las categorías'),
+                        title: Text(
+                          AppLocalizations.of(context)!.allCategories,
+                        ),
                         leading:
                             _selectedCategory == null
                                 ? Icon(
@@ -1181,7 +1192,7 @@ class _MovementsScreenState extends State<MovementsScreen>
                         children: [
                           TextButton(
                             onPressed: () => Navigator.pop(context),
-                            child: const Text('Cancelar'),
+                            child: Text(AppLocalizations.of(context)!.cancel),
                           ),
                           const SizedBox(width: 8),
                           FilledButton(
@@ -1225,15 +1236,17 @@ class _MovementsScreenState extends State<MovementsScreen>
                               // Show success message
                               if (!context.mounted) return;
                               ScaffoldMessenger.of(context).showSnackBar(
-                                const SnackBar(
+                                SnackBar(
                                   content: Text(
-                                    'Movimiento actualizado con éxito.',
+                                    AppLocalizations.of(
+                                      context,
+                                    )!.movementUpdatedSuccessfully,
                                   ),
                                   behavior: SnackBarBehavior.floating,
                                 ),
                               );
                             },
-                            child: const Text('Guardar'),
+                            child: Text(AppLocalizations.of(context)!.save),
                           ),
                         ],
                       ),
@@ -1251,18 +1264,20 @@ class _MovementsScreenState extends State<MovementsScreen>
       context: context,
       builder:
           (context) => AlertDialog(
-            title: const Text('¿Eliminar movimiento?'),
+            title: Text(AppLocalizations.of(context)!.deleteMovement),
             content: Text(
-              '¿Estás seguro de que quieres eliminar "${movement.description}"?',
+              AppLocalizations.of(
+                context,
+              )!.confirmDeleteMovement(movement.description),
             ),
             actions: [
               TextButton(
                 onPressed: () => Navigator.pop(context, false),
-                child: const Text('Cancelar'),
+                child: Text(AppLocalizations.of(context)!.cancel),
               ),
               TextButton(
                 onPressed: () => Navigator.pop(context, true),
-                child: const Text('Eliminar'),
+                child: Text(AppLocalizations.of(context)!.delete),
               ),
             ],
           ),
@@ -1308,7 +1323,7 @@ class _MovementsScreenState extends State<MovementsScreen>
                       const Icon(Icons.category),
                       const SizedBox(width: 16),
                       Text(
-                        'Cambiar categoría',
+                        AppLocalizations.of(context)!.changeCategory,
                         style: Theme.of(context).textTheme.titleLarge,
                       ),
                     ],
@@ -1366,7 +1381,9 @@ class _MovementsScreenState extends State<MovementsScreen>
                             ScaffoldMessenger.of(context).showSnackBar(
                               SnackBar(
                                 content: Text(
-                                  'Categoría actualizada: ${updatedMovement.category}.',
+                                  AppLocalizations.of(context)!.categoryUpdated(
+                                    updatedMovement.category ?? "",
+                                  ),
                                 ),
                                 behavior: SnackBarBehavior.floating,
                               ),
@@ -1406,9 +1423,9 @@ class _MovementsScreenState extends State<MovementsScreen>
       initialDate: initialDate,
       firstDate: firstDate,
       lastDate: lastDate,
-      helpText: 'Seleccionar fecha',
-      cancelText: 'Cancelar',
-      confirmText: 'Aceptar',
+      helpText: AppLocalizations.of(context)!.selectDate,
+      cancelText: AppLocalizations.of(context)!.cancel,
+      confirmText: AppLocalizations.of(context)!.accept,
     );
 
     if (selectedDate != null && selectedDate.day != movement.day) {
@@ -1430,7 +1447,9 @@ class _MovementsScreenState extends State<MovementsScreen>
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('Fecha actualizada al día $newDay'),
+            content: Text(
+              AppLocalizations.of(context)!.dateUpdatedToDay(newDay),
+            ),
             behavior: SnackBarBehavior.floating,
             duration: const Duration(seconds: 2),
           ),
@@ -1443,7 +1462,9 @@ class _MovementsScreenState extends State<MovementsScreen>
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('Error al actualizar la fecha: $e'),
+            content: Text(
+              AppLocalizations.of(context)!.errorUpdatingDate(e.toString()),
+            ),
             behavior: SnackBarBehavior.floating,
             backgroundColor: Theme.of(context).colorScheme.error,
           ),

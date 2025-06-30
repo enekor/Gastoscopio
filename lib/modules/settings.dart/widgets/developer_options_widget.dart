@@ -1,4 +1,5 @@
 import 'package:cashly/data/models/month.dart';
+import 'package:cashly/l10n/app_localizations.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:cashly/data/services/sqlite_service.dart';
@@ -25,32 +26,32 @@ class _DeveloperOptionsWidgetState extends State<DeveloperOptionsWidget> {
       barrierDismissible: false,
       builder: (BuildContext context) {
         return AlertDialog(
-          title: const Row(
+          title: Row(
             children: [
               Icon(Icons.warning, color: Colors.red, size: 28),
               SizedBox(width: 8),
-              Text('Borrar Base de Datos'),
+              Text(AppLocalizations.of(context)!.deleteDatabase),
             ],
           ),
-          content: const Column(
+          content: Column(
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                'ATENCIÓN: Esta acción eliminará TODOS los datos de la aplicación:',
+                AppLocalizations.of(context)!.dbDeleteWarning,
                 style: TextStyle(
                   fontWeight: FontWeight.bold,
                   color: Colors.red,
                 ),
               ),
               SizedBox(height: 12),
-              Text('• Todos los movimientos registrados'),
-              Text('• Todas las categorías personalizadas'),
-              Text('• Todos los movimientos fijos'),
-              Text('• Configuración de colores y preferencias'),
+              Text(AppLocalizations.of(context)!.dbDeleteList1),
+              Text(AppLocalizations.of(context)!.dbDeleteList2),
+              Text(AppLocalizations.of(context)!.dbDeleteList3),
+              Text(AppLocalizations.of(context)!.dbDeleteList4),
               SizedBox(height: 12),
               Text(
-                'Esta acción NO se puede deshacer.',
+                AppLocalizations.of(context)!.dbDeleteUnrecoverable,
                 style: TextStyle(
                   fontWeight: FontWeight.bold,
                   fontSize: 16,
@@ -59,7 +60,7 @@ class _DeveloperOptionsWidgetState extends State<DeveloperOptionsWidget> {
               ),
               SizedBox(height: 8),
               Text(
-                '💡 Recomendación: Haz un backup antes de continuar.',
+                AppLocalizations.of(context)!.dbDeleteRecomendation,
                 style: TextStyle(
                   fontSize: 12,
                   fontStyle: FontStyle.italic,
@@ -71,7 +72,7 @@ class _DeveloperOptionsWidgetState extends State<DeveloperOptionsWidget> {
           actions: [
             TextButton(
               onPressed: () => Navigator.of(context).pop(false),
-              child: const Text('Cancelar'),
+              child: Text(AppLocalizations.of(context)!.cancel),
             ),
             ElevatedButton(
               onPressed: () => Navigator.of(context).pop(true),
@@ -79,7 +80,7 @@ class _DeveloperOptionsWidgetState extends State<DeveloperOptionsWidget> {
                 backgroundColor: Colors.red,
                 foregroundColor: Colors.white,
               ),
-              child: const Text('Borrar Todo'),
+              child: Text(AppLocalizations.of(context)!.deleteAll),
             ),
           ],
         );
@@ -113,7 +114,7 @@ class _DeveloperOptionsWidgetState extends State<DeveloperOptionsWidget> {
       if (mounted) {
         // Toast de éxito
         Fluttertoast.showToast(
-          msg: "✅ Base de datos limpiada correctamente",
+          msg: AppLocalizations.of(context)!.dbDeletedSuccesfully,
           toastLength: Toast.LENGTH_LONG,
           gravity: ToastGravity.TOP,
           timeInSecForIosWeb: 4,
@@ -128,28 +129,26 @@ class _DeveloperOptionsWidgetState extends State<DeveloperOptionsWidget> {
           barrierDismissible: false,
           builder: (BuildContext context) {
             return AlertDialog(
-              title: const Row(
+              title: Row(
                 children: [
                   Icon(Icons.check_circle, color: Colors.green, size: 28),
                   SizedBox(width: 8),
-                  Text('Base de Datos Limpiada'),
+                  Text(AppLocalizations.of(context)!.dbDeleted),
                 ],
               ),
-              content: const Column(
+              content: Column(
                 mainAxisSize: MainAxisSize.min,
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    'Todos los datos se han eliminado correctamente.',
+                    AppLocalizations.of(context)!.deleteDatabaseSubtitle,
                     style: TextStyle(fontWeight: FontWeight.bold),
                   ),
                   SizedBox(height: 12),
-                  Text(
-                    'IMPORTANTE: Para que los cambios se apliquen completamente, es recomendable reiniciar la aplicación.',
-                  ),
+                  Text(AppLocalizations.of(context)!.dbDeleteAppRestart),
                   SizedBox(height: 8),
                   Text(
-                    '💡 Cierra la app completamente y vuelve a abrirla.',
+                    AppLocalizations.of(context)!.dbDeleteAppRestartAdvice,
                     style: TextStyle(
                       fontSize: 12,
                       fontStyle: FontStyle.italic,
@@ -161,7 +160,7 @@ class _DeveloperOptionsWidgetState extends State<DeveloperOptionsWidget> {
               actions: [
                 TextButton(
                   onPressed: () => Navigator.of(context).pop(),
-                  child: const Text('Entendido'),
+                  child: Text(AppLocalizations.of(context)!.ok),
                 ),
               ],
             );
@@ -172,7 +171,7 @@ class _DeveloperOptionsWidgetState extends State<DeveloperOptionsWidget> {
       if (mounted) {
         // Toast de error
         Fluttertoast.showToast(
-          msg: "❌ Error al limpiar la base de datos",
+          msg: AppLocalizations.of(context)!.errorCleaningDatabase,
           toastLength: Toast.LENGTH_SHORT,
           gravity: ToastGravity.TOP,
           timeInSecForIosWeb: 3,
@@ -188,12 +187,12 @@ class _DeveloperOptionsWidgetState extends State<DeveloperOptionsWidget> {
               mainAxisSize: MainAxisSize.min,
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const Row(
+                Row(
                   children: [
                     Icon(Icons.error, color: Colors.white, size: 20),
                     SizedBox(width: 8),
                     Text(
-                      'Error al limpiar base de datos',
+                      AppLocalizations.of(context)!.errorCleaningDatabase,
                       style: TextStyle(
                         fontWeight: FontWeight.bold,
                         fontSize: 16,
@@ -243,13 +242,13 @@ class _DeveloperOptionsWidgetState extends State<DeveloperOptionsWidget> {
               size: 20,
             ),
             title: Text(
-              'Opciones de Desarrollador',
+              AppLocalizations.of(context)!.developerOptions,
               style: Theme.of(
                 context,
               ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w600),
             ),
             subtitle: Text(
-              'Funciones avanzadas para desarrollo y depuración',
+              AppLocalizations.of(context)!.developerOptionsSubtitle,
               style: Theme.of(context).textTheme.bodySmall?.copyWith(
                 color: Theme.of(context).colorScheme.onSurfaceVariant,
               ),
@@ -296,7 +295,7 @@ class _DeveloperOptionsWidgetState extends State<DeveloperOptionsWidget> {
                             ),
                             const SizedBox(width: 8),
                             Text(
-                              'Importar desde JSON',
+                              AppLocalizations.of(context)!.importFromJson,
                               style: Theme.of(context).textTheme.titleSmall
                                   ?.copyWith(fontWeight: FontWeight.w600),
                             ),
@@ -304,7 +303,7 @@ class _DeveloperOptionsWidgetState extends State<DeveloperOptionsWidget> {
                         ),
                         const SizedBox(height: 8),
                         Text(
-                          'Importa datos desde un archivo JSON de Gastoscopio',
+                          AppLocalizations.of(context)!.importFromJsonSubtitle,
                           style: Theme.of(
                             context,
                           ).textTheme.bodySmall?.copyWith(
@@ -350,7 +349,7 @@ class _DeveloperOptionsWidgetState extends State<DeveloperOptionsWidget> {
                             ),
                             const SizedBox(width: 8),
                             Text(
-                              'Limpiar Base de Datos',
+                              AppLocalizations.of(context)!.deleteDatabase,
                               style: Theme.of(
                                 context,
                               ).textTheme.titleSmall?.copyWith(
@@ -362,7 +361,7 @@ class _DeveloperOptionsWidgetState extends State<DeveloperOptionsWidget> {
                         ),
                         const SizedBox(height: 8),
                         Text(
-                          '⚠️ PELIGRO: Borra TODOS los datos de la aplicación de forma permanente',
+                          AppLocalizations.of(context)!.deleteDatabaseSubtitle,
                           style: Theme.of(
                             context,
                           ).textTheme.bodySmall?.copyWith(
@@ -394,7 +393,9 @@ class _DeveloperOptionsWidgetState extends State<DeveloperOptionsWidget> {
                               const SizedBox(width: 8),
                               Expanded(
                                 child: Text(
-                                  'Recomendación: Haz un backup antes de continuar',
+                                  AppLocalizations.of(
+                                    context,
+                                  )!.dbDeleteRecomendation,
                                   style: Theme.of(
                                     context,
                                   ).textTheme.bodySmall?.copyWith(
@@ -430,8 +431,8 @@ class _DeveloperOptionsWidgetState extends State<DeveloperOptionsWidget> {
                                     : const Icon(Icons.delete_forever),
                             label: Text(
                               _isClearing
-                                  ? 'Limpiando...'
-                                  : 'Limpiar Todos los Datos',
+                                  ? AppLocalizations.of(context)!.cleaning
+                                  : AppLocalizations.of(context)!.cleanAllData,
                             ),
                             style: ElevatedButton.styleFrom(
                               backgroundColor:
