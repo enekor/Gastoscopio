@@ -30,7 +30,7 @@ class AppLocalizationsEs extends AppLocalizations {
   String get balance => 'Balance';
 
   @override
-  String youSpentPercent(Object percent) {
+  String youSpentPercent(int percent) {
     return 'Has gastado el $percent% de tus ingresos';
   }
 
@@ -459,7 +459,7 @@ class AppLocalizationsEs extends AppLocalizations {
   String get descriptionRequired => 'La descripción es obligatoria';
 
   @override
-  String get amountRequired => 'El monto es requerido';
+  String get amountRequired => 'La cantidad es obligatoria.';
 
   @override
   String get enterValidNumber => 'Introduce un número válido.';
@@ -697,6 +697,77 @@ class AppLocalizationsEs extends AppLocalizations {
 
   @override
   String get errorSavingApiKey => 'No se ha podido guardar la API Key';
+
+  @override
+  String get configureApiKey => 'Configurar API Key';
+
+  @override
+  String get enterApiKeyMessage => 'Para utilizar las funciones de IA, por favor ingrese su API Key:';
+
+  @override
+  String get later => 'Más tarde';
+
+  @override
+  String get letsGo => 'Vamos allá';
+
+  @override
+  String get noResponseGenerated => 'No se pudo generar una respuesta';
+
+  @override
+  String get apiKeyNotConfigured => 'API Key no configurada';
+
+  @override
+  String get noMonthSelected => 'Mes no seleccionado';
+
+  @override
+  String get createNewMonth => 'Crear nuevo mes';
+
+  @override
+  String monthDoesNotExist(String month, String year) {
+    return 'El mes $month de $year no existe. ¿Deseas crearlo?';
+  }
+
+  @override
+  String get yes => 'Sí';
+
+  @override
+  String get no => 'No';
+
+  @override
+  String get january => 'Enero';
+
+  @override
+  String get february => 'Febrero';
+
+  @override
+  String get march => 'Marzo';
+
+  @override
+  String get april => 'Abril';
+
+  @override
+  String get may => 'Mayo';
+
+  @override
+  String get june => 'Junio';
+
+  @override
+  String get july => 'Julio';
+
+  @override
+  String get august => 'Agosto';
+
+  @override
+  String get september => 'Septiembre';
+
+  @override
+  String get october => 'Octubre';
+
+  @override
+  String get november => 'Noviembre';
+
+  @override
+  String get december => 'Diciembre';
 
   @override
   String get name => 'Nombre';

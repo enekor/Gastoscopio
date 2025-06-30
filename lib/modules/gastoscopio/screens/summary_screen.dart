@@ -1,4 +1,4 @@
-import 'package:cashly/common/tag_list.dart';
+import 'package:cashly/common/tag_list.dart' show getTagList;
 import 'package:cashly/data/models/movement_value.dart';
 import 'package:cashly/data/models/month.dart';
 import 'package:cashly/data/services/gemini_service.dart';
@@ -352,7 +352,7 @@ class _SummaryScreenState extends State<SummaryScreen>
               const SizedBox(height: 16),
               Text(
                 (localizations?.youSpentPercent(
-                      expenseRatio.toStringAsFixed(1),
+                      int.parse(expenseRatio.toStringAsFixed(1)),
                     ) ??
                     'Has gastado el $expenseRatio% de tus ingresos'),
                 style: Theme.of(context).textTheme.bodyMedium,
@@ -521,6 +521,8 @@ class _SummaryScreenState extends State<SummaryScreen>
   Map<String, double> _calculateCategoryPercentages(
     List<MovementValue> expenses,
   ) {
+    final locale = AppLocalizations.of(context).localeName;
+    final localizedTags = getTagList(locale);
     final categoryTotals = <String, double>{};
     final total = expenses.fold<double>(
       0,
@@ -528,7 +530,7 @@ class _SummaryScreenState extends State<SummaryScreen>
     );
 
     // Initialize all categories to 0
-    for (var tag in TagList) {
+    for (var tag in localizedTags) {
       categoryTotals[tag] = 0;
     }
 

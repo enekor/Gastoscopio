@@ -141,7 +141,7 @@ abstract class AppLocalizations {
   ///
   /// In es, this message translates to:
   /// **'Has gastado el {percent}% de tus ingresos'**
-  String youSpentPercent(Object percent);
+  String youSpentPercent(int percent);
 
   /// Título de distribución de gastos por categoría
   ///
@@ -950,7 +950,7 @@ abstract class AppLocalizations {
   /// Validación de cantidad requerida
   ///
   /// In es, this message translates to:
-  /// **'El monto es requerido'**
+  /// **'La cantidad es obligatoria.'**
   String get amountRequired;
 
   /// Validación de número válido
@@ -1415,19 +1415,157 @@ abstract class AppLocalizations {
   /// **'No se ha podido guardar la API Key'**
   String get errorSavingApiKey;
 
-  /// No description provided for @name.
+  /// Título del diálogo para configurar la API Key
+  ///
+  /// In es, this message translates to:
+  /// **'Configurar API Key'**
+  String get configureApiKey;
+
+  /// Mensaje que solicita al usuario ingresar su API Key
+  ///
+  /// In es, this message translates to:
+  /// **'Para utilizar las funciones de IA, por favor ingrese su API Key:'**
+  String get enterApiKeyMessage;
+
+  /// Botón para posponer una acción
+  ///
+  /// In es, this message translates to:
+  /// **'Más tarde'**
+  String get later;
+
+  /// Botón para proceder con una acción
+  ///
+  /// In es, this message translates to:
+  /// **'Vamos allá'**
+  String get letsGo;
+
+  /// Mensaje cuando la IA no puede generar una respuesta
+  ///
+  /// In es, this message translates to:
+  /// **'No se pudo generar una respuesta'**
+  String get noResponseGenerated;
+
+  /// Mensaje de error cuando la API Key no está configurada
+  ///
+  /// In es, this message translates to:
+  /// **'API Key no configurada'**
+  String get apiKeyNotConfigured;
+
+  /// Mensaje de error cuando no se ha seleccionado un mes
+  ///
+  /// In es, this message translates to:
+  /// **'Mes no seleccionado'**
+  String get noMonthSelected;
+
+  /// Título del diálogo para crear un nuevo mes
+  ///
+  /// In es, this message translates to:
+  /// **'Crear nuevo mes'**
+  String get createNewMonth;
+
+  /// No description provided for @monthDoesNotExist.
+  ///
+  /// In es, this message translates to:
+  /// **'El mes {month} de {year} no existe. ¿Deseas crearlo?'**
+  String monthDoesNotExist(String month, String year);
+
+  /// Botón Sí
+  ///
+  /// In es, this message translates to:
+  /// **'Sí'**
+  String get yes;
+
+  /// Botón No
+  ///
+  /// In es, this message translates to:
+  /// **'No'**
+  String get no;
+
+  /// Mes de enero
+  ///
+  /// In es, this message translates to:
+  /// **'Enero'**
+  String get january;
+
+  /// Mes de febrero
+  ///
+  /// In es, this message translates to:
+  /// **'Febrero'**
+  String get february;
+
+  /// Mes de marzo
+  ///
+  /// In es, this message translates to:
+  /// **'Marzo'**
+  String get march;
+
+  /// Mes de abril
+  ///
+  /// In es, this message translates to:
+  /// **'Abril'**
+  String get april;
+
+  /// Mes de mayo
+  ///
+  /// In es, this message translates to:
+  /// **'Mayo'**
+  String get may;
+
+  /// Mes de junio
+  ///
+  /// In es, this message translates to:
+  /// **'Junio'**
+  String get june;
+
+  /// Mes de julio
+  ///
+  /// In es, this message translates to:
+  /// **'Julio'**
+  String get july;
+
+  /// Mes de agosto
+  ///
+  /// In es, this message translates to:
+  /// **'Agosto'**
+  String get august;
+
+  /// Mes de septiembre
+  ///
+  /// In es, this message translates to:
+  /// **'Septiembre'**
+  String get september;
+
+  /// Mes de octubre
+  ///
+  /// In es, this message translates to:
+  /// **'Octubre'**
+  String get october;
+
+  /// Mes de noviembre
+  ///
+  /// In es, this message translates to:
+  /// **'Noviembre'**
+  String get november;
+
+  /// Mes de diciembre
+  ///
+  /// In es, this message translates to:
+  /// **'Diciembre'**
+  String get december;
+
+  /// Etiqueta para nombre
   ///
   /// In es, this message translates to:
   /// **'Nombre'**
   String get name;
 
-  /// No description provided for @nameRequired.
+  /// Mensaje de error cuando el nombre es requerido
   ///
   /// In es, this message translates to:
   /// **'El nombre es requerido'**
   String get nameRequired;
 
-  /// No description provided for @invalidAmount.
+  /// Mensaje de error cuando el monto es inválido
   ///
   /// In es, this message translates to:
   /// **'Monto inválido'**

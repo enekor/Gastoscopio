@@ -3,7 +3,7 @@ import 'package:cashly/data/services/shared_preferences_service.dart';
 import 'package:cashly/data/services/sqlite_service.dart';
 import 'package:cashly/modules/gastoscopio/screens/movement_form_screen.dart';
 import 'package:cashly/modules/gastoscopio/widgets/main_screen_widgets.dart';
-import 'package:cashly/common/tag_list.dart';
+import 'package:cashly/common/tag_list.dart' show getTagList;
 import 'package:flutter/material.dart';
 import 'package:cashly/l10n/app_localizations.dart';
 import 'package:cashly/data/models/movement_value.dart';
@@ -1001,9 +1001,11 @@ class _MovementsScreenState extends State<MovementsScreen>
   }
 
   void _selectCategory(BuildContext context, Set<String> existingCategories) {
-    // Combinar categorías existentes con TagList y ordenar alfabéticamente
+    // Combinar categorías existentes con TagList localizado y ordenar alfabéticamente
+    final locale = AppLocalizations.of(context).localeName;
+    final localizedTags = getTagList(locale);
     final allCategories =
-        {...existingCategories, ...TagList}.toList()
+        {...existingCategories, ...localizedTags}.toList()
           ..sort((a, b) => a.compareTo(b));
 
     showModalBottomSheet(
@@ -1302,11 +1304,13 @@ class _MovementsScreenState extends State<MovementsScreen>
     BuildContext context,
     MovementValue movement,
   ) async {
-    // Combine existing categories with TagList and sort alphabetically
+    // Combine existing categories with localized TagList and sort alphabetically
     final movements = await _financeService.getCurrentMonthMovements();
     final existingCategories = _getAvailableCategories(movements);
+    final locale = AppLocalizations.of(context).localeName;
+    final localizedTags = getTagList(locale);
     final allCategories =
-        {...existingCategories, ...TagList}.toList()
+        {...existingCategories, ...localizedTags}.toList()
           ..sort((a, b) => a.compareTo(b));
 
     await showModalBottomSheet(

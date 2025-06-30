@@ -27,7 +27,13 @@
   },
   "youSpentPercent": "Has gastado el {percent}% de tus ingresos",
   "@youSpentPercent": {
-    "description": "Mensaje de porcentaje de gastos"
+    "description": "Mensaje de porcentaje de gastos",
+    "placeholders": {
+      "percent": {
+        "type": "int",
+        "example": "50"
+      }
+    }
   },
   "categoryDistribution": "Distribución de Gastos por Categoría",
   "@categoryDistribution": {
@@ -969,8 +975,118 @@
   "@errorSavingApiKey": {
     "description": "Mensaje de error al guardar la API Key"
   },
+  "configureApiKey": "Configurar API Key",
+  "@configureApiKey": {
+    "description": "Título del diálogo para configurar la API Key"
+  },
+  "enterApiKeyMessage": "Para utilizar las funciones de IA, por favor ingrese su API Key:",
+  "@enterApiKeyMessage": {
+    "description": "Mensaje que solicita al usuario ingresar su API Key"
+  },
+  "later": "Más tarde",
+  "@later": {
+    "description": "Botón para posponer una acción"
+  },
+  "letsGo": "Vamos allá",
+  "@letsGo": {
+    "description": "Botón para proceder con una acción"
+  },
+  "noResponseGenerated": "No se pudo generar una respuesta",
+  "@noResponseGenerated": {
+    "description": "Mensaje cuando la IA no puede generar una respuesta"
+  },
+  "apiKeyNotConfigured": "API Key no configurada",
+  "@apiKeyNotConfigured": {
+    "description": "Mensaje de error cuando la API Key no está configurada"
+  },
+  "noMonthSelected": "Mes no seleccionado",
+  "@noMonthSelected": {
+    "description": "Mensaje de error cuando no se ha seleccionado un mes"
+  },
+  "createNewMonth": "Crear nuevo mes",
+  "@createNewMonth": {
+    "description": "Título del diálogo para crear un nuevo mes"
+  },
+  "monthDoesNotExist": "El mes {month} de {year} no existe. ¿Deseas crearlo?",
+  "@monthDoesNotExist": {
+    "placeholders": {
+      "month": {
+        "type": "String",
+        "example": "Enero"
+      },
+      "year": {
+        "type": "String",
+        "example": "2023"
+      }
+    }
+  },
+  "yes": "Sí",
+  "@yes": {
+    "description": "Botón Sí"
+  },
+  "no": "No",
+  "@no": {
+    "description": "Botón No"
+  },
+
+  "january": "Enero",
+  "@january": {
+    "description": "Mes de enero"
+  },
+  "february": "Febrero",
+  "@february": {
+    "description": "Mes de febrero"
+  },
+  "march": "Marzo",
+  "@march": {
+    "description": "Mes de marzo"
+  },
+  "april": "Abril",
+  "@april": {
+    "description": "Mes de abril"
+  },
+  "may": "Mayo",
+  "@may": {
+    "description": "Mes de mayo"
+  },
+  "june": "Junio",
+  "@june": {
+    "description": "Mes de junio"
+  },
+  "july": "Julio",
+  "@july": {
+    "description": "Mes de julio"
+  },
+  "august": "Agosto",
+  "@august": {
+    "description": "Mes de agosto"
+  },
+  "september": "Septiembre",
+  "@september": {
+    "description": "Mes de septiembre"
+  },
+  "october": "Octubre",
+  "@october": {
+    "description": "Mes de octubre"
+  },
+  "november": "Noviembre",
+  "@november": {
+    "description": "Mes de noviembre"
+  },
+  "december": "Diciembre",
+  "@december": {
+    "description": "Mes de diciembre"
+  },
   "name": "Nombre",
+  "@name": {
+    "description": "Etiqueta para nombre"
+  },
   "nameRequired": "El nombre es requerido",
-  "amountRequired": "El monto es requerido",
-  "invalidAmount": "Monto inválido"
+  "@nameRequired": {
+    "description": "Mensaje de error cuando el nombre es requerido"
+  },
+  "invalidAmount": "Monto inválido",
+  "@invalidAmount": {
+    "description": "Mensaje de error cuando el monto es inválido"
+  }
 }

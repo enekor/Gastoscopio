@@ -492,9 +492,12 @@ class _ChartPart extends StatelessWidget {
 
   Map<String, double> _calculateCategoryPercentages(
     List<MovementValue> expenses,
+    BuildContext context,
   ) {
+    final locale = AppLocalizations.of(context).localeName;
+    final localizedTags = getTagList(locale);
     final categoryTotals = <String, double>{};
-    for (var tag in TagList) {
+    for (var tag in localizedTags) {
       categoryTotals[tag] = 0;
     }
 
@@ -504,7 +507,8 @@ class _ChartPart extends StatelessWidget {
         categoryTotals[movement.category!] =
             (categoryTotals[movement.category!] ?? 0) + movement.amount;
       }
-    } // Ordenar por monto en lugar de porcentaje
+    }
+
     final sortedEntries =
         categoryTotals.entries.where((e) => e.value > 0).toList()
           ..sort((a, b) => b.value.compareTo(a.value));
@@ -536,7 +540,10 @@ class _ChartPart extends StatelessWidget {
 
             final movements = snapshot.data!;
             final expenses = movements.where((m) => m.isExpense).toList();
-            final categoryData = _calculateCategoryPercentages(expenses);
+            final categoryData = _calculateCategoryPercentages(
+              expenses,
+              context,
+            );
 
             return Card(
               color: Theme.of(context).colorScheme.secondary.withAlpha(25),
@@ -546,7 +553,7 @@ class _ChartPart extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      AppLocalizations.of(context)!.expensesByCategory,
+                      AppLocalizations.of(context).expensesByCategory,
                       style: Theme.of(context).textTheme.titleLarge,
                     ),
                     const SizedBox(height: 16),

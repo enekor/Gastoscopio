@@ -37,16 +37,16 @@ List<String> EnglishTagList = [
   'Food (Grocery)',
   'Leisure and Entertainment',
   'Restaurants and Bars',
-  'Household Utilities (Water, Electricity, Gas, Internet)',
+  'Home Utilities (Water, Electricity, Gas, Internet)',
   'Transportation (Fuel, Vehicle Maintenance, Public Transport)',
   'Health (Medical, Pharmacy, Insurance)',
   'Education (Courses, Books, Tuition)',
   'Clothing and Footwear',
-  'Personal Care (Haircuts, Cosmetics)',
+  'Personal Care (Hairdresser, Cosmetics)',
   'Pets',
   'Travel and Vacations',
   'Gifts and Celebrations',
-  'Furniture and Decor',
+  'Furniture and Decoration',
   'Home Repairs and Improvements',
   'Electronics and Appliances',
   'Debts and Loans',
@@ -66,5 +66,11 @@ List<String> EnglishTagList = [
 
 // Function to get the appropriate tag list based on locale
 List<String> getTagList(String languageCode) {
-  return languageCode == 'en' ? EnglishTagList : SpanishTagList;
+  switch (languageCode.toLowerCase()) {
+    case 'es':
+      return SpanishTagList;
+    case 'en':
+    default:
+      return EnglishTagList;
+  }
 }
