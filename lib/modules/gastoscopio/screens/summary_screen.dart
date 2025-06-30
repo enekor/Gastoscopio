@@ -252,23 +252,27 @@ class _SummaryScreenState extends State<SummaryScreen>
                       context,
                     ).colorScheme.secondary.withAlpha(25),
                     margin: const EdgeInsets.all(16),
-                    child: LayoutBuilder(
-                      builder:
-                          (context, constraints) => SizedBox(
-                            width: constraints.maxWidth,
-                            child: Markdown(
-                              data:
-                                  _aiAnalysis.isEmpty
-                                      ? (localizations?.generateAnalysisHint ??
-                                          'Pulsa el botón "Generar Análisis" para obtener un análisis detallado de tus gastos e ingresos de este mes.')
-                                      : _aiAnalysis,
-                              styleSheet: MarkdownStyleSheet(
-                                h1: Theme.of(context).textTheme.titleLarge,
-                                h2: Theme.of(context).textTheme.titleMedium,
-                                p: Theme.of(context).textTheme.bodyMedium,
-                              ),
-                            ),
-                          ),
+                    child: SingleChildScrollView(
+                      padding: const EdgeInsets.all(16),
+                      child: MarkdownBody(
+                        data:
+                            _aiAnalysis.isEmpty
+                                ? (localizations?.generateAnalysisHint ??
+                                    'Pulsa el botón "Generar Análisis" para obtener un análisis detallado de tus gastos e ingresos de este mes.')
+                                : _aiAnalysis,
+                        styleSheet: MarkdownStyleSheet(
+                          h1: Theme.of(context).textTheme.titleLarge,
+                          h2: Theme.of(context).textTheme.titleMedium,
+                          p: Theme.of(
+                            context,
+                          ).textTheme.bodyMedium?.copyWith(height: 1.5),
+                          listBullet: Theme.of(context).textTheme.bodyMedium,
+                          strong: Theme.of(context).textTheme.bodyMedium
+                              ?.copyWith(fontWeight: FontWeight.bold),
+                        ),
+                        selectable: true,
+                        softLineBreak: true,
+                      ),
                     ),
                   ),
                 ),

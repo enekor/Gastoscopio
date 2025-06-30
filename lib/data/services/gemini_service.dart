@@ -129,17 +129,55 @@ class GeminiService {
     final language = locale == 'es' ? 'español' : 'english';
 
     String prompt =
-        'Quiero que me des un resumen de la contabilidad de mi usuario para el mes de ${month.month}/${month.year}. '
-        'Quiero que me des solo el resultado de tu analisis en formato markdown, sin que me digas nada mas, solo el markdown, ya que tu respuesta se decodifica desde markdown directramente en la aplicacion'
-        'Genera la respuesta en $language. '
-        'Para el analisis quiero que me digas en que me he gastado mas, en que menos, como podria mejorar, cuales han sido potencialmente gastos inutiles...todo tipo de información que me de información sobre como ha ido el mes financieramente. '
-        'Te paso en modo json los datos de los gastos e ingresos de mi usuario: '
+        'Genera un análisis financiero usando SOLO los siguientes elementos de markdown:\n'
+        '- Encabezados con ## (no uses #)\n'
+        '- Listas con guiones (-)\n'
+        '- Texto en negrita con **texto**\n'
+        '- Párrafos simples\n\n'
+        'Estructura requerida:\n'
+        '## Resumen General\n'
+        '(análisis general)\n\n'
+        '## Análisis de Gastos\n'
+        '(detalles de gastos)\n\n'
+        '## Recomendaciones\n'
+        '(recomendaciones)\n\n'
+        'La respuesta debe estar en $language y analizar:\n'
+        '- Balance general y tendencias\n'
+        '- Principales categorías de gasto\n'
+        '- Patrones de gasto destacables\n'
+        '- Gastos potencialmente innecesarios\n'
+        '- Sugerencias de mejora\n\n'
+        'Datos (mes ${month.month}/${month.year}):\n'
         '${movements.map((m) => m.toJson()).toList()}';
 
     String response = await GeminiService()._initGenerateContent(
       prompt,
       context,
     );
+
+    if (response.isEmpty) {
+      return '## Error\n\nNo se pudo generar el análisis. Por favor, intenta de nuevo.';
+    }
+
+    // Asegurarse de que la respuesta esté en formato markdown válido
+    if (!response.contains('##')) {
+      response = '## Análisis Financiero\n\n' + response;
+    }
+
+    // Limpiar cualquier bloque de código o formato extra que pueda interferir
+    response = response.replaceAll('```markdown', '');
+    response = response.replaceAll('```', '');
+
+    if (response.isEmpty) {
+      return '## ${AppLocalizations.of(context).error}\n\n${AppLocalizations.of(context).noResponseGenerated}';
+    }
+
+    // Asegurarnos de que la respuesta comience con un encabezado markdown
+    if (!response.trim().startsWith('#')) {
+      response =
+          '## ${AppLocalizations.of(context).aiAnalysisTitle}\n\n' + response;
+    }
+
     return response;
   }
 }
