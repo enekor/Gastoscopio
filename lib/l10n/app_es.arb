@@ -13,6 +13,60 @@
     "description": "Pestaña de movimientos"
   },
   "summary": "Resumen",
+  "aiAnalysis": "Análisis IA",
+  "@aiAnalysis": {
+    "description": "Pestaña de análisis IA"
+  },
+  "monthlySummary": "Resumen del Mes",
+  "@monthlySummary": {
+    "description": "Título del resumen mensual"
+  },
+  "balance": "Balance",
+  "@balance": {
+    "description": "Etiqueta para balance"
+  },
+  "youSpentPercent": "Has gastado el {percent}% de tus ingresos",
+  "@youSpentPercent": {
+    "description": "Mensaje de porcentaje de gastos"
+  },
+  "categoryDistribution": "Distribución de Gastos por Categoría",
+  "@categoryDistribution": {
+    "description": "Título de distribución de gastos por categoría"
+  },
+  "dailyExpenses": "Gastos Diarios",
+  "@dailyExpenses": {
+    "description": "Título de gastos diarios"
+  },
+  "aiAnalysisTitle": "Análisis de Gastos",
+  "@aiAnalysisTitle": {
+    "description": "Título del análisis de gastos"
+  },
+  "generate": "Generar",
+  "@generate": {
+    "description": "Botón para generar análisis"
+  },
+  "generateAnalysisHint": "Pulsa el botón \"Generar Análisis\" para obtener un análisis detallado de tus gastos e ingresos de este mes.",
+  "@generateAnalysisHint": {
+    "description": "Instrucción para generar análisis"
+  },
+  "noDataForMonth": "No hay datos para {month} {year}",
+  "@noDataForMonth": {
+    "description": "Mensaje cuando no hay datos para un mes específico",
+    "placeholders": {
+      "month": {
+        "type": "String",
+        "example": "Enero"
+      },
+      "year": {
+        "type": "int",
+        "example": "2023"
+      }
+    }
+  },
+  "dataWillAppear": "Los datos aparecerán aquí cuando agregues movimientos",
+  "@dataWillAppear": {
+    "description": "Mensaje cuando no hay datos"
+  },
   "@summary": {
     "description": "Pestaña de resumen"
   },
@@ -914,5 +968,9 @@
   "errorSavingApiKey": "No se ha podido guardar la API Key",
   "@errorSavingApiKey": {
     "description": "Mensaje de error al guardar la API Key"
-  }
+  },
+  "name": "Nombre",
+  "nameRequired": "El nombre es requerido",
+  "amountRequired": "El monto es requerido",
+  "invalidAmount": "Monto inválido"
 }

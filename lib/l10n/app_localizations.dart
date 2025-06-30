@@ -119,6 +119,72 @@ abstract class AppLocalizations {
   /// **'Resumen'**
   String get summary;
 
+  /// Pestaña de análisis IA
+  ///
+  /// In es, this message translates to:
+  /// **'Análisis IA'**
+  String get aiAnalysis;
+
+  /// Título del resumen mensual
+  ///
+  /// In es, this message translates to:
+  /// **'Resumen del Mes'**
+  String get monthlySummary;
+
+  /// Etiqueta para balance
+  ///
+  /// In es, this message translates to:
+  /// **'Balance'**
+  String get balance;
+
+  /// Mensaje de porcentaje de gastos
+  ///
+  /// In es, this message translates to:
+  /// **'Has gastado el {percent}% de tus ingresos'**
+  String youSpentPercent(Object percent);
+
+  /// Título de distribución de gastos por categoría
+  ///
+  /// In es, this message translates to:
+  /// **'Distribución de Gastos por Categoría'**
+  String get categoryDistribution;
+
+  /// Título de gastos diarios
+  ///
+  /// In es, this message translates to:
+  /// **'Gastos Diarios'**
+  String get dailyExpenses;
+
+  /// Título del análisis de gastos
+  ///
+  /// In es, this message translates to:
+  /// **'Análisis de Gastos'**
+  String get aiAnalysisTitle;
+
+  /// Botón para generar análisis
+  ///
+  /// In es, this message translates to:
+  /// **'Generar'**
+  String get generate;
+
+  /// Instrucción para generar análisis
+  ///
+  /// In es, this message translates to:
+  /// **'Pulsa el botón \"Generar Análisis\" para obtener un análisis detallado de tus gastos e ingresos de este mes.'**
+  String get generateAnalysisHint;
+
+  /// Mensaje cuando no hay datos para un mes específico
+  ///
+  /// In es, this message translates to:
+  /// **'No hay datos para {month} {year}'**
+  String noDataForMonth(String month, int year);
+
+  /// Mensaje cuando no hay datos
+  ///
+  /// In es, this message translates to:
+  /// **'Los datos aparecerán aquí cuando agregues movimientos'**
+  String get dataWillAppear;
+
   /// Pantalla de ajustes
   ///
   /// In es, this message translates to:
@@ -884,7 +950,7 @@ abstract class AppLocalizations {
   /// Validación de cantidad requerida
   ///
   /// In es, this message translates to:
-  /// **'La cantidad es obligatoria.'**
+  /// **'El monto es requerido'**
   String get amountRequired;
 
   /// Validación de número válido
@@ -1348,6 +1414,24 @@ abstract class AppLocalizations {
   /// In es, this message translates to:
   /// **'No se ha podido guardar la API Key'**
   String get errorSavingApiKey;
+
+  /// No description provided for @name.
+  ///
+  /// In es, this message translates to:
+  /// **'Nombre'**
+  String get name;
+
+  /// No description provided for @nameRequired.
+  ///
+  /// In es, this message translates to:
+  /// **'El nombre es requerido'**
+  String get nameRequired;
+
+  /// No description provided for @invalidAmount.
+  ///
+  /// In es, this message translates to:
+  /// **'Monto inválido'**
+  String get invalidAmount;
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {

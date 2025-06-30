@@ -21,6 +21,43 @@ class AppLocalizationsEs extends AppLocalizations {
   String get summary => 'Resumen';
 
   @override
+  String get aiAnalysis => 'Análisis IA';
+
+  @override
+  String get monthlySummary => 'Resumen del Mes';
+
+  @override
+  String get balance => 'Balance';
+
+  @override
+  String youSpentPercent(Object percent) {
+    return 'Has gastado el $percent% de tus ingresos';
+  }
+
+  @override
+  String get categoryDistribution => 'Distribución de Gastos por Categoría';
+
+  @override
+  String get dailyExpenses => 'Gastos Diarios';
+
+  @override
+  String get aiAnalysisTitle => 'Análisis de Gastos';
+
+  @override
+  String get generate => 'Generar';
+
+  @override
+  String get generateAnalysisHint => 'Pulsa el botón \"Generar Análisis\" para obtener un análisis detallado de tus gastos e ingresos de este mes.';
+
+  @override
+  String noDataForMonth(String month, int year) {
+    return 'No hay datos para $month $year';
+  }
+
+  @override
+  String get dataWillAppear => 'Los datos aparecerán aquí cuando agregues movimientos';
+
+  @override
   String get settings => 'Configuración';
 
   @override
@@ -422,7 +459,7 @@ class AppLocalizationsEs extends AppLocalizations {
   String get descriptionRequired => 'La descripción es obligatoria';
 
   @override
-  String get amountRequired => 'La cantidad es obligatoria.';
+  String get amountRequired => 'El monto es requerido';
 
   @override
   String get enterValidNumber => 'Introduce un número válido.';
@@ -660,4 +697,13 @@ class AppLocalizationsEs extends AppLocalizations {
 
   @override
   String get errorSavingApiKey => 'No se ha podido guardar la API Key';
+
+  @override
+  String get name => 'Nombre';
+
+  @override
+  String get nameRequired => 'El nombre es requerido';
+
+  @override
+  String get invalidAmount => 'Monto inválido';
 }

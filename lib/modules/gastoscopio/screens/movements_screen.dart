@@ -1026,7 +1026,7 @@ class _MovementsScreenState extends State<MovementsScreen>
                       const Icon(Icons.category),
                       const SizedBox(width: 16),
                       Text(
-                        'Selecciona una categoría',
+                        AppLocalizations.of(context).selectCategory,
                         style: Theme.of(context).textTheme.titleLarge,
                       ),
                     ],
@@ -1116,7 +1116,7 @@ class _MovementsScreenState extends State<MovementsScreen>
                           const Icon(Icons.edit),
                           const SizedBox(width: 16),
                           Text(
-                            'Editar movimiento',
+                            AppLocalizations.of(context).editMovement,
                             style: Theme.of(context).textTheme.titleLarge,
                           ),
                         ],
@@ -1124,13 +1124,15 @@ class _MovementsScreenState extends State<MovementsScreen>
                       const SizedBox(height: 16),
                       TextFormField(
                         controller: descriptionController,
-                        decoration: const InputDecoration(
-                          labelText: 'Descripción',
-                          prefixIcon: Icon(Icons.description),
+                        decoration: InputDecoration(
+                          labelText: AppLocalizations.of(context).description,
+                          prefixIcon: const Icon(Icons.description),
                         ),
                         validator: (value) {
                           if (value == null || value.isEmpty) {
-                            return 'Por favor, ingresa una descripción.';
+                            return AppLocalizations.of(
+                              context,
+                            ).pleaseEnterDescription;
                           }
                           return null;
                         },
@@ -1139,7 +1141,7 @@ class _MovementsScreenState extends State<MovementsScreen>
                       TextFormField(
                         controller: amountController,
                         decoration: InputDecoration(
-                          labelText: 'Cantidad',
+                          labelText: AppLocalizations.of(context).amount,
                           prefixIcon: const Icon(Icons.attach_money),
                           suffixText: _moneda,
                         ),
@@ -1148,11 +1150,15 @@ class _MovementsScreenState extends State<MovementsScreen>
                         ),
                         validator: (value) {
                           if (value == null || value.isEmpty) {
-                            return 'Por favor, ingresa una cantidad.';
+                            return AppLocalizations.of(
+                              context,
+                            ).pleaseEnterAmount;
                           }
                           if (double.tryParse(value.replaceAll(',', '.')) ==
                               null) {
-                            return 'Por favor, ingresa un número válido.';
+                            return AppLocalizations.of(
+                              context,
+                            ).pleaseEnterValidAmount;
                           }
                           return null;
                         },
@@ -1182,7 +1188,7 @@ class _MovementsScreenState extends State<MovementsScreen>
                               },
                               icon: const Icon(Icons.calendar_today),
                               label: Text(
-                                'Fecha: ${selectedDate.day}/${selectedDate.month}/${selectedDate.year}',
+                                '${AppLocalizations.of(context).date}: \\${selectedDate.day}/${selectedDate.month}/${selectedDate.year}',
                               ),
                             ),
                       ),
@@ -1323,7 +1329,7 @@ class _MovementsScreenState extends State<MovementsScreen>
                       const Icon(Icons.category),
                       const SizedBox(width: 16),
                       Text(
-                        AppLocalizations.of(context)!.changeCategory,
+                        AppLocalizations.of(context).changeCategory,
                         style: Theme.of(context).textTheme.titleLarge,
                       ),
                     ],

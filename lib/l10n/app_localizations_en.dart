@@ -21,6 +21,43 @@ class AppLocalizationsEn extends AppLocalizations {
   String get summary => 'Summary';
 
   @override
+  String get aiAnalysis => 'AI Analysis';
+
+  @override
+  String get monthlySummary => 'Monthly Summary';
+
+  @override
+  String get balance => 'Balance';
+
+  @override
+  String youSpentPercent(Object percent) {
+    return 'You have spent $percent% of your income';
+  }
+
+  @override
+  String get categoryDistribution => 'Expense Distribution by Category';
+
+  @override
+  String get dailyExpenses => 'Daily Expenses';
+
+  @override
+  String get aiAnalysisTitle => 'Expense Analysis';
+
+  @override
+  String get generate => 'Generate';
+
+  @override
+  String get generateAnalysisHint => 'Press the \"Generate Analysis\" button to get a detailed analysis of your expenses and income for this month.';
+
+  @override
+  String noDataForMonth(String month, int year) {
+    return 'No data for $month $year';
+  }
+
+  @override
+  String get dataWillAppear => 'Data will appear here when you add movements.';
+
+  @override
   String get settings => 'Settings';
 
   @override
@@ -422,7 +459,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get descriptionRequired => 'Description is required';
 
   @override
-  String get amountRequired => 'Amount is required.';
+  String get amountRequired => 'Amount is required';
 
   @override
   String get enterValidNumber => 'Enter a valid number.';
@@ -660,4 +697,13 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get errorSavingApiKey => '❌ Error saving API Key';
+
+  @override
+  String get name => 'Name';
+
+  @override
+  String get nameRequired => 'Name is required';
+
+  @override
+  String get invalidAmount => 'Invalid amount';
 }

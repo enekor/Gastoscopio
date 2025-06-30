@@ -319,21 +319,23 @@ class FinanceService extends ChangeNotifier {
           context: context,
           builder:
               (context) => AlertDialog(
-                title: const Text('Confirmar eliminación'),
+                title: Text(AppLocalizations.of(context).deleteMovement),
                 content: Text(
-                  '¿Estás seguro de que quieres eliminar "${movement.description}"?',
+                  AppLocalizations.of(
+                    context,
+                  ).confirmDeleteMovement(movement.description),
                 ),
                 actions: [
                   TextButton(
                     onPressed: () => Navigator.of(context).pop(false),
-                    child: const Text('Cancelar'),
+                    child: Text(AppLocalizations.of(context).cancel),
                   ),
                   FilledButton(
                     onPressed: () => Navigator.of(context).pop(true),
                     style: FilledButton.styleFrom(
                       backgroundColor: Theme.of(context).colorScheme.error,
                     ),
-                    child: const Text('Eliminar'),
+                    child: Text(AppLocalizations.of(context).delete),
                   ),
                 ],
               ),
@@ -399,12 +401,13 @@ class FinanceService extends ChangeNotifier {
     final amountController = TextEditingController(
       text: movement.amount.toStringAsFixed(2),
     );
+    final localizations = AppLocalizations.of(context)!;
 
     await showDialog(
       context: context,
       builder:
           (context) => AlertDialog(
-            title: const Text('Editar movimiento'),
+            title: Text(localizations.editMovement),
             content: Form(
               key: formKey,
               child: Column(
@@ -412,22 +415,24 @@ class FinanceService extends ChangeNotifier {
                 children: [
                   TextFormField(
                     controller: nameController,
-                    decoration: const InputDecoration(labelText: 'Nombre'),
+                    decoration: InputDecoration(labelText: localizations.name),
                     validator:
                         (value) =>
                             value?.isEmpty == true
-                                ? 'El nombre es requerido'
+                                ? localizations.nameRequired
                                 : null,
                   ),
                   TextFormField(
                     controller: amountController,
-                    decoration: const InputDecoration(labelText: 'Monto'),
+                    decoration: InputDecoration(
+                      labelText: localizations.amount,
+                    ),
                     keyboardType: TextInputType.number,
                     validator: (value) {
                       if (value?.isEmpty == true)
-                        return 'El monto es requerido';
+                        return localizations.amountRequired;
                       if (double.tryParse(value!) == null)
-                        return 'Monto inválido';
+                        return localizations.invalidAmount;
                       return null;
                     },
                   ),
@@ -437,7 +442,7 @@ class FinanceService extends ChangeNotifier {
             actions: [
               TextButton(
                 onPressed: () => Navigator.pop(context),
-                child: const Text('Cancelar'),
+                child: Text(localizations.cancel),
               ),
               FilledButton(
                 onPressed: () async {
@@ -458,7 +463,7 @@ class FinanceService extends ChangeNotifier {
                     Navigator.pop(context);
                   }
                 },
-                child: const Text('Guardar'),
+                child: Text(localizations.save),
               ),
             ],
           ),
