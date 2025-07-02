@@ -605,7 +605,8 @@ class HomeCategoryChart extends StatelessWidget {
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      Text(category),
+                      Expanded(child: Text(category)),
+                      SizedBox(width: 8),
                       Row(
                         children: [
                           Text(
