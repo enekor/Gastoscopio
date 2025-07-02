@@ -13,7 +13,7 @@ plugins {
 
 android {
     namespace = "com.N3k0chan.cashly"
-    compileSdk = flutter.compileSdkVersion
+    compileSdk = 35
     ndkVersion = "27.0.12077973"
 
     compileOptions {
@@ -30,7 +30,7 @@ android {
         applicationId = "com.N3k0chan.cashly"        // You can update the following values to match your application needs.
         // For more information, see: https://flutter.dev/to/review-gradle-config.
         minSdk = flutter.minSdkVersion
-        targetSdk = 34
+        targetSdk = 35
         versionCode = flutter.versionCode
         versionName = flutter.versionName
 
