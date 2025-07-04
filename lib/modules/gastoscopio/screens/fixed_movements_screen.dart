@@ -365,14 +365,14 @@ class _FixedMovementsScreenState extends State<FixedMovementsScreen> {
             borderRadius: BorderRadius.circular(12),
             onTap: () async {
               try {
-                final result = await showDialog<FixedMovement>(
+                final result = await showDialog<List<dynamic>>(
                   context: context,
                   builder:
                       (context) => _FixedMovementDialog(movement: movement),
                 );
                 if (result != null) {
                   await SqliteService().database.fixedMovementDao
-                      .updateFixedMovement(result);
+                      .updateFixedMovement(result[0] as FixedMovement);
                   // Call haveToUpload() after updating fixed movement
                   await SharedPreferencesService().haveToUpload();
                   await _loadFixedMovements();
@@ -415,7 +415,7 @@ class _FixedMovementsScreenState extends State<FixedMovementsScreen> {
               borderRadius: BorderRadius.circular(8),
             ),
             child: Icon(
-              movement.isExpense ? Icons.arrow_upward : Icons.arrow_downward,
+              movement.isExpense ? Icons.arrow_downward : Icons.arrow_upward,
               color: movement.isExpense ? Colors.red : Colors.green,
               size: 20,
             ),
@@ -730,7 +730,7 @@ class _FixedMovementDialogState extends State<_FixedMovementDialog> {
                             child: Column(
                               children: [
                                 Icon(
-                                  Icons.arrow_upward,
+                                  Icons.arrow_downward,
                                   color: _isExpense ? Colors.red : Colors.grey,
                                   size: 24,
                                 ),
@@ -781,7 +781,7 @@ class _FixedMovementDialogState extends State<_FixedMovementDialog> {
                             child: Column(
                               children: [
                                 Icon(
-                                  Icons.arrow_downward,
+                                  Icons.arrow_upward,
                                   color:
                                       !_isExpense ? Colors.green : Colors.grey,
                                   size: 24,
