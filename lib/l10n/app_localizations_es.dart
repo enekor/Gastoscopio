@@ -804,4 +804,7 @@ class AppLocalizationsEs extends AppLocalizations {
 
   @override
   String get accountDescription => 'Gestiona tu cuenta y las opciones de inicio de sesión';
+
+  @override
+  String get futureMovements => 'Movimientos futuros';
 }

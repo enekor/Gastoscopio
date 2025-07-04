@@ -1624,6 +1624,12 @@ abstract class AppLocalizations {
   /// In es, this message translates to:
   /// **'Gestiona tu cuenta y las opciones de inicio de sesión'**
   String get accountDescription;
+
+  /// Título de movimientos futuros
+  ///
+  /// In es, this message translates to:
+  /// **'Movimientos futuros'**
+  String get futureMovements;
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {

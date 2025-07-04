@@ -94,8 +94,27 @@ class _FixedMovementsScreenState extends State<FixedMovementsScreen> {
               result[0].description,
               result[0].amount,
               result[0].isExpense,
-              result[0].day,
-              (result[0].category as String).trim(),
+              // Si el día es mayor que el último día del mes actual, usar el último día del mes
+              DateTime.now().day > result[0].day &&
+                      DateTime.now().month == DateTime.now().month
+                  ? DateTime(
+                    DateTime.now().year,
+                    DateTime.now().month + 1,
+                    0,
+                  ).day
+                  : result[0].day <=
+                      DateTime(
+                        DateTime.now().year,
+                        DateTime.now().month + 1,
+                        0,
+                      ).day
+                  ? result[0].day
+                  : DateTime(
+                    DateTime.now().year,
+                    DateTime.now().month + 1,
+                    0,
+                  ).day,
+              null,
             ),
           );
         }

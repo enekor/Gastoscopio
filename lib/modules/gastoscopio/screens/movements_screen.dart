@@ -354,15 +354,195 @@ class _MovementsScreenState extends State<MovementsScreen>
   }
 
   Widget _buildContent(List<MovementValue> movements, String moneda) {
+    bool showFutureMovements =
+        _financeService.currentMonth!.month == DateTime.now().month;
     return Scaffold(
       appBar: _buildAppBar(),
       floatingActionButton: _buildFAB(),
       body: Column(
         children: [
-          _buildFilters(),
           _buildTotalIndicator(movements, moneda),
-          Expanded(child: _buildList(movements, moneda)),
+          _buildFilters(),
+          if (showFutureMovements)
+            _buildFutureMovementsList(
+              movements.where((mov) => mov.day > DateTime.now().day).toList(),
+              moneda,
+            ),
+          Expanded(
+            child: _buildList(
+              showFutureMovements
+                  ? movements
+                      .where((mov) => mov.day <= DateTime.now().day)
+                      .toList()
+                  : movements,
+              moneda,
+            ),
+          ),
         ],
+      ),
+    );
+  }
+
+  Widget _buildFutureMovementsList(
+    List<MovementValue> movements,
+    String moneda,
+  ) {
+    if (movements.isEmpty) {
+      return const SizedBox.shrink();
+    }
+
+    final bool isFutureExpanded = _expandedItems['future_movements'] ?? false;
+
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 16.0),
+      child: AnimatedCard(
+        isExpanded: isFutureExpanded,
+        leadingWidget: ListTile(
+          contentPadding: EdgeInsets.zero,
+          title: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16.0),
+            child: Row(
+              children: [
+                Icon(
+                  Icons.upcoming,
+                  color: Theme.of(context).colorScheme.primary,
+                  size: 20,
+                ),
+                const SizedBox(width: 8),
+                Text(
+                  AppLocalizations.of(context).futureMovements,
+                  style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                const SizedBox(width: 8),
+                Container(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 8,
+                    vertical: 2,
+                  ),
+                  decoration: BoxDecoration(
+                    color: Theme.of(context).colorScheme.primaryContainer,
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: Text(
+                    movements.length.toString(),
+                    style: TextStyle(
+                      color: Theme.of(context).colorScheme.onPrimaryContainer,
+                      fontSize: 12,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+          trailing: Padding(
+            padding: const EdgeInsets.only(right: 16.0),
+            child: Icon(
+              isFutureExpanded ? Icons.expand_less : Icons.expand_more,
+              color: Theme.of(context).colorScheme.primary,
+            ),
+          ),
+          onTap: () {
+            setState(() {
+              _expandedItems['future_movements'] = !isFutureExpanded;
+            });
+          },
+        ),
+        hiddenWidget: Card(
+          color: Theme.of(context).colorScheme.secondary.withAlpha(25),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(12),
+            side: BorderSide(
+              color: Theme.of(context).colorScheme.primary.withOpacity(0.2),
+              width: 1,
+            ),
+          ),
+          child: Column(
+            children:
+                movements.map((mov) {
+                  final isExpanded =
+                      _expandedItems['future_${mov.id}'] ?? false;
+
+                  return AnimatedCard(
+                    isExpanded: isExpanded,
+                    onTap: () {
+                      setState(() {
+                        _expandedItems['future_${mov.id}'] = !isExpanded;
+                      });
+                    },
+                    leadingWidget: ListTile(
+                      contentPadding: const EdgeInsets.symmetric(
+                        horizontal: 16.0,
+                        vertical: 4.0,
+                      ),
+                      title: Text(
+                        mov.description,
+                        style: Theme.of(context).textTheme.titleSmall?.copyWith(
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ),
+                      subtitle:
+                          mov.category != null
+                              ? Padding(
+                                padding: const EdgeInsets.only(top: 4.0),
+                                child: Row(
+                                  children: [
+                                    Icon(
+                                      Icons.label_outline,
+                                      size: 16,
+                                      color:
+                                          Theme.of(
+                                            context,
+                                          ).colorScheme.secondary,
+                                    ),
+                                    const SizedBox(width: 4),
+                                    Text(
+                                      mov.category!,
+                                      style: TextStyle(
+                                        color:
+                                            Theme.of(
+                                              context,
+                                            ).colorScheme.secondary,
+                                        fontSize: 12,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              )
+                              : null,
+                      trailing: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        crossAxisAlignment: CrossAxisAlignment.end,
+                        children: [
+                          Text(
+                            '${mov.amount.toStringAsFixed(2)} $moneda',
+                            style: Theme.of(
+                              context,
+                            ).textTheme.titleSmall?.copyWith(
+                              fontWeight: FontWeight.bold,
+                              color:
+                                  mov.isExpense
+                                      ? Theme.of(context).colorScheme.error
+                                      : Theme.of(context).colorScheme.primary,
+                            ),
+                          ),
+                          Text(
+                            '${mov.day}/${widget.month}',
+                            style: Theme.of(
+                              context,
+                            ).textTheme.bodySmall?.copyWith(
+                              color: Theme.of(context).colorScheme.secondary,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    hiddenWidget: _buildExpandedContent(context, mov),
+                  );
+                }).toList(),
+          ),
+        ),
       ),
     );
   }

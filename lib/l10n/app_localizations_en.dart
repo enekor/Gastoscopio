@@ -804,4 +804,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get accountDescription => 'Manage your account and sign-in options';
+
+  @override
+  String get futureMovements => 'Future Movements';
 }

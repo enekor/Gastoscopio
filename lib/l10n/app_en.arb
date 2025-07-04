@@ -282,5 +282,6 @@
   "accountDescription": "Manage your account and sign-in options",
   "@accountDescription": {
     "description": "Account section description"
-  }
+  },
+  "futureMovements": "Future Movements"
 }
