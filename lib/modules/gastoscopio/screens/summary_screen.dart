@@ -29,6 +29,7 @@ class _SummaryScreenState extends State<SummaryScreen>
   int _month = DateTime.now().month;
   String _aiAnalysis = '';
   bool _isLoadingAnalysis = false;
+  bool _hasData = false;
 
   @override
   void initState() {
@@ -51,6 +52,7 @@ class _SummaryScreenState extends State<SummaryScreen>
   Future<void> _loadInitialData() async {
     _availableYears = await _financeService.getAvailableYears();
     _availableMonths = await _financeService.getAvailableMonths(_year);
+    _hasData = await _financeService.getMonthMovementsCount(_month, _year) <= 5;
     setState(() {}); // Update UI with loaded data
   }
 
@@ -70,6 +72,7 @@ class _SummaryScreenState extends State<SummaryScreen>
 
   Future<void> _setNewDate(int month, int year) async {
     await _financeService.updateSelectedDate(month, year);
+    _hasData = await _financeService.getMonthMovementsCount(month, year) <= 5;
     setState(() {
       _month = month;
       _year = year;
@@ -243,7 +246,9 @@ class _SummaryScreenState extends State<SummaryScreen>
                   ],
                 ),
               ),
-              if (_isLoadingAnalysis)
+              if (_hasData)
+                _buildEmptyState()
+              else if (_isLoadingAnalysis)
                 const Center(child: CircularProgressIndicator())
               else
                 Expanded(
@@ -281,28 +286,32 @@ class _SummaryScreenState extends State<SummaryScreen>
   }
 
   Widget _buildEmptyState() {
-    return Center(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Icon(
-            Icons.folder_open,
-            size: 64,
-            color: Theme.of(context).colorScheme.secondary,
-          ),
-          const SizedBox(height: 16),
-          Text(
-            AppLocalizations.of(
-              context,
-            ).noDataForMonth(_month.toString(), _year),
-            style: Theme.of(context).textTheme.titleMedium,
-          ),
-          const SizedBox(height: 8),
-          Text(
-            AppLocalizations.of(context).dataWillAppear,
-            style: Theme.of(context).textTheme.bodyMedium,
-          ),
-        ],
+    return Padding(
+      padding: const EdgeInsets.all(16.0),
+      child: Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(
+              Icons.folder_open,
+              size: 64,
+              color: Theme.of(context).colorScheme.secondary,
+            ),
+            const SizedBox(height: 16),
+            Text(
+              AppLocalizations.of(
+                context,
+              ).noDataForMonth(_month.toString(), _year),
+              style: Theme.of(context).textTheme.titleMedium,
+            ),
+            const SizedBox(height: 8),
+            Text(
+              AppLocalizations.of(context).dataWillAppear,
+              style: Theme.of(context).textTheme.bodyMedium,
+              textAlign: TextAlign.center,
+            ),
+          ],
+        ),
       ),
     );
   }

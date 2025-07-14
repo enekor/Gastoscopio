@@ -542,4 +542,10 @@ class FinanceService extends ChangeNotifier {
     if (monthData == null) return [];
     return _movementValueDao.findMovementValuesByMonthId(monthData.id!);
   }
+
+  Future<int> getMonthMovementsCount(int month, int year) async {
+    int val =
+        await _movementValueDao.countMovementValuesByMonth(month, year) ?? 0;
+    return val;
+  }
 }

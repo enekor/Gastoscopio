@@ -21,8 +21,8 @@
   "aiAnalysisTitle": "Expense Analysis",
   "generate": "Generate",
   "generateAnalysisHint": "Press the \"Generate Analysis\" button to get a detailed analysis of your expenses and income for this month.",
-  "noDataForMonth": "No data for {month} {year}",
-  "dataWillAppear": "Data will appear here when you add movements.",
+  "noDataForMonth": "No data for {year} - {month} ",
+  "dataWillAppear": "Data will appear here when you add at least 5 movements.",
   "settings": "Settings",
   "newExpense": "New Expense",
   "newIncome": "New Income",
@@ -130,6 +130,7 @@
   "poundSymbol": "British Pound (£)",
   "yenSymbol": "Japanese Yen (¥)",
   "swissFrancSymbol": "Swiss Franc (CHF)",
+  "colombianPesoSymbol": "Colombian Peso (COP)",
   "png": "PNG",
   "svg": "SVG",
   "fixedMovements": "Fixed Movements",
@@ -283,5 +284,9 @@
   "@accountDescription": {
     "description": "Account section description"
   },
-  "futureMovements": "Future Movements"
+  "futureMovements": "Future Movements",
+  "noIaFeaturesHomeTitle": "Activate AI features!",
+  "noIaFeaturesHomeSubtitle": "Discover smart analysis, recommendations and more. Tap to learn how to enable AI features.",
+  "iaFeaturesText": "You are missing out on the app's smart features!\n\nEnable AI to get automatic analysis, personalized suggestions and much more.",
+  "a":"flutter gen-l10n"
 }

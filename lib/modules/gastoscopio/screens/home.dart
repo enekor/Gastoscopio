@@ -8,6 +8,7 @@ import 'package:cashly/modules/gastoscopio/screens/fixed_movements_screen.dart';
 import 'package:cashly/modules/gastoscopio/widgets/finance_widgets.dart';
 import 'package:cashly/data/models/movement_value.dart';
 import 'package:cashly/common/tag_list.dart';
+import 'package:cashly/modules/settings.dart/settings.dart';
 import 'package:flutter/material.dart';
 import 'package:cashly/l10n/app_localizations.dart';
 
@@ -36,6 +37,7 @@ class _GastoscopioHomeScreenState extends State<GastoscopioHomeScreen> {
   late String _moneda = '';
   final CarouselSliderController _carouselController =
       CarouselSliderController();
+  bool _showIaBanner = false;
 
   @override
   void initState() {
@@ -45,11 +47,9 @@ class _GastoscopioHomeScreenState extends State<GastoscopioHomeScreen> {
         .getStringValue(SharedPreferencesKeys.currency)
         .then(
           (currency) => setState(() {
-            _moneda = currency ?? '€'; // Valor por defecto si no se encuentra
+            _moneda = currency ?? '€';
           }),
         );
-
-    // Load bottom navigation style configuration
     SharedPreferencesService()
         .getBoolValue(SharedPreferencesKeys.isOpaqueBottomNav)
         .then(
@@ -68,11 +68,17 @@ class _GastoscopioHomeScreenState extends State<GastoscopioHomeScreen> {
         .getStringValue(SharedPreferencesKeys.avatarColor)
         .then((value) {
           setState(() {
-            _r =
-                int.tryParse(value?.split(",")[0] ?? "255") ??
-                255; // Valor por defecto si no se encuentra
+            _r = int.tryParse(value?.split(",")[0] ?? "255") ?? 255;
             _g = int.tryParse(value?.split(",")[1] ?? "255") ?? 255;
             _b = int.tryParse(value?.split(",")[2] ?? "255") ?? 255;
+          });
+        });
+    // IA API KEY
+    SharedPreferencesService()
+        .getStringValue(SharedPreferencesKeys.apiKey)
+        .then((apiKey) {
+          setState(() {
+            _showIaBanner = (apiKey == null || apiKey.trim().isEmpty);
           });
         });
   }
@@ -191,6 +197,7 @@ class _GastoscopioHomeScreenState extends State<GastoscopioHomeScreen> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
+              if (_showIaBanner) _buildIaBanner(context),
               _buildGreetingsPart(),
               const SizedBox(height: 30),
               SizedBox(
@@ -210,6 +217,106 @@ class _GastoscopioHomeScreenState extends State<GastoscopioHomeScreen> {
           ),
         ),
       ),
+    );
+  }
+
+  Widget _buildIaBanner(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 18.0),
+      child: GestureDetector(
+        onTap: () => _showIaInfoDialog(context),
+        child: Card(
+          color: Colors.amber.shade100,
+          elevation: 4,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(16),
+            side: BorderSide(color: Colors.amber.shade400, width: 2),
+          ),
+          child: Padding(
+            padding: const EdgeInsets.all(18.0),
+            child: Row(
+              children: [
+                Icon(Icons.flash_on, color: Colors.amber.shade800, size: 32),
+                const SizedBox(width: 16),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        '¡Activa las funciones IA!',
+                        style: Theme.of(
+                          context,
+                        ).textTheme.titleMedium?.copyWith(
+                          color: Colors.amber.shade900,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                const Icon(
+                  Icons.arrow_forward_ios,
+                  color: Colors.amber,
+                  size: 20,
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  void _showIaInfoDialog(BuildContext context) {
+    showDialog(
+      context: context,
+      builder:
+          (ctx) => AlertDialog(
+            title: Row(
+              children: [
+                Icon(Icons.flash_on, color: Colors.amber.shade800),
+                const SizedBox(width: 8),
+                Text(AppLocalizations.of(context)!.iaFeaturesText),
+              ],
+            ),
+            content: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  AppLocalizations.of(context)!.noIaFeaturesHomeTitle,
+                  style: Theme.of(context).textTheme.bodyMedium,
+                ),
+                const SizedBox(height: 16),
+                Text(
+                  AppLocalizations.of(context)!.noIaFeaturesHomeSubtitle,
+                  style: Theme.of(
+                    context,
+                  ).textTheme.bodySmall?.copyWith(color: Colors.amber.shade900),
+                ),
+              ],
+            ),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.of(ctx).pop(),
+                child: Text(AppLocalizations.of(context)!.later),
+              ),
+              TextButton(
+                onPressed: () {
+                  Navigator.of(ctx).pop();
+                  // Navegar a ajustes (puedes cambiar esto por tu ruta de settings)
+                  Navigator.of(context).push(
+                    MaterialPageRoute(
+                      builder: (context) {
+                        return const SettingsScreen();
+                      },
+                    ),
+                  );
+                },
+                child: Text(AppLocalizations.of(context)!.letsGo),
+              ),
+            ],
+          ),
     );
   }
 

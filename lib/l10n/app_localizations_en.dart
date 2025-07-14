@@ -51,11 +51,11 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String noDataForMonth(String month, int year) {
-    return 'No data for $month $year';
+    return 'No data for $year - $month ';
   }
 
   @override
-  String get dataWillAppear => 'Data will appear here when you add movements.';
+  String get dataWillAppear => 'Data will appear here when you add at least 5 movements.';
 
   @override
   String get settings => 'Settings';
@@ -394,6 +394,9 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get swissFrancSymbol => 'Swiss Franc (CHF)';
+
+  @override
+  String get colombianPesoSymbol => 'Colombian Peso (COP)';
 
   @override
   String get png => 'PNG';
@@ -807,4 +810,16 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get futureMovements => 'Future Movements';
+
+  @override
+  String get noIaFeaturesHomeTitle => 'Activate AI features!';
+
+  @override
+  String get noIaFeaturesHomeSubtitle => 'Discover smart analysis, recommendations and more. Tap to learn how to enable AI features.';
+
+  @override
+  String get iaFeaturesText => 'You are missing out on the app\'s smart features!\n\nEnable AI to get automatic analysis, personalized suggestions and much more.';
+
+  @override
+  String get a => 'flutter gen-l10n';
 }

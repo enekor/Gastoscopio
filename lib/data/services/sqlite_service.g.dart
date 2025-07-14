@@ -331,6 +331,17 @@ class _$MovementValueDao extends MovementValueDao {
   }
 
   @override
+  Future<int?> countMovementValuesByMonth(
+    int month,
+    int year,
+  ) async {
+    return _queryAdapter.query(
+        'SELECT COUNT(*) FROM MovementValue WHERE monthId = (SELECT id FROM Month WHERE month = ?1 AND year = ?2)',
+        mapper: (Map<String, Object?> row) => row.values.first as int,
+        arguments: [month, year]);
+  }
+
+  @override
   Future<void> insertMovementValue(MovementValue movementValue) async {
     await _movementValueInsertionAdapter.insert(
         movementValue, OnConflictStrategy.abort);

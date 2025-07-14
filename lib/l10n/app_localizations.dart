@@ -176,13 +176,13 @@ abstract class AppLocalizations {
   /// Mensaje cuando no hay datos para un mes específico
   ///
   /// In es, this message translates to:
-  /// **'No hay datos para {month} {year}'**
+  /// **'No hay datos para {month} - {year}'**
   String noDataForMonth(String month, int year);
 
   /// Mensaje cuando no hay datos
   ///
   /// In es, this message translates to:
-  /// **'Los datos aparecerán aquí cuando agregues movimientos'**
+  /// **'Los datos aparecerán aquí cuando agregues mínimo 5 movimientos.'**
   String get dataWillAppear;
 
   /// Pantalla de ajustes
@@ -844,6 +844,12 @@ abstract class AppLocalizations {
   /// In es, this message translates to:
   /// **'Franco Suizo (CHF)'**
   String get swissFrancSymbol;
+
+  /// Moneda Peso Colombiano
+  ///
+  /// In es, this message translates to:
+  /// **'Peso Colombiano (COP)'**
+  String get colombianPesoSymbol;
 
   /// Tipo de imagen PNG
   ///
@@ -1630,6 +1636,30 @@ abstract class AppLocalizations {
   /// In es, this message translates to:
   /// **'Movimientos futuros'**
   String get futureMovements;
+
+  /// Título para la pantalla de inicio cuando las funciones de IA no están activadas
+  ///
+  /// In es, this message translates to:
+  /// **'¡Estás perdiendo acceso a las funciones inteligentes de la app!\n\nActiva la IA para obtener análisis automáticos, sugerencias personalizadas y mucho más. Es gratuito y muy facil de configurar.'**
+  String get noIaFeaturesHomeTitle;
+
+  /// Subtítulo para la pantalla de inicio cuando las funciones de IA no están activadas
+  ///
+  /// In es, this message translates to:
+  /// **'Para activar las funciones IA, ve a Ajustes > Sección IA y sigue los pasos para introducir tu API Key.'**
+  String get noIaFeaturesHomeSubtitle;
+
+  /// Texto para las funciones de IA
+  ///
+  /// In es, this message translates to:
+  /// **'Funciones de IA'**
+  String get iaFeaturesText;
+
+  /// No description provided for @a.
+  ///
+  /// In es, this message translates to:
+  /// **'flutter gen-l10n'**
+  String get a;
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {

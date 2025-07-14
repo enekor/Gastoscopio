@@ -596,6 +596,12 @@ class _SettingsScreenState extends State<SettingsScreen> {
                     value: 'CHF',
                     child: Text(AppLocalizations.of(context)!.swissFrancSymbol),
                   ),
+                  DropdownMenuItem(
+                    value: 'COP',
+                    child: Text(
+                      AppLocalizations.of(context)!.colombianPesoSymbol,
+                    ),
+                  ),
                 ],
                 onChanged: (value) {
                   if (value != null) {

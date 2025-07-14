@@ -40,40 +40,6 @@ class GeminiService {
   ) async {
     await initializeGemini();
     if (_apiKey == null || _apiKey == "" || _apiKey!.isEmpty) {
-      await showDialog(
-        context: context,
-        builder: (context) {
-          return AlertDialog(
-            title: Text(AppLocalizations.of(context).configureApiKey),
-            content: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [Text(AppLocalizations.of(context).enterApiKeyMessage)],
-            ),
-            actions: [
-              TextButton.icon(
-                onPressed: () => Navigator.pop(context),
-                label: Text(AppLocalizations.of(context).later),
-                icon: const Icon(Icons.close),
-              ),
-              TextButton.icon(
-                onPressed: () {
-                  Navigator.pop(context);
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) {
-                        return const SettingsScreen();
-                      },
-                    ),
-                  );
-                },
-                label: Text(AppLocalizations.of(context).letsGo),
-                icon: const Icon(Icons.settings),
-              ),
-            ],
-          );
-        },
-      );
       return '';
     } else {
       return await _generateContent(prompt, _apiKey!, context);
@@ -180,13 +146,4 @@ class GeminiService {
 
     return response;
   }
-}
-
-class NoApiKeyException implements Exception {
-  final BuildContext context;
-
-  NoApiKeyException(this.context);
-
-  @override
-  String toString() => AppLocalizations.of(context).apiKeyNotConfigured;
 }

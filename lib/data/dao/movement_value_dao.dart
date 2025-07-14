@@ -31,4 +31,9 @@ abstract class MovementValueDao {
 
   @Query('DELETE FROM MovementValue')
   Future<void> deleteAllMovements();
+
+  @Query(
+    'SELECT COUNT(*) FROM MovementValue WHERE monthId = (SELECT id FROM Month WHERE month = :month AND year = :year)',
+  )
+  Future<int?> countMovementValuesByMonth(int month, int year);
 }

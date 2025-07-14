@@ -55,7 +55,7 @@
   "@generateAnalysisHint": {
     "description": "Instrucción para generar análisis"
   },
-  "noDataForMonth": "No hay datos para {month} {year}",
+  "noDataForMonth": "No hay datos para {month} - {year}",
   "@noDataForMonth": {
     "description": "Mensaje cuando no hay datos para un mes específico",
     "placeholders": {
@@ -69,7 +69,7 @@
       }
     }
   },
-  "dataWillAppear": "Los datos aparecerán aquí cuando agregues movimientos",
+  "dataWillAppear": "Los datos aparecerán aquí cuando agregues mínimo 5 movimientos.",
   "@dataWillAppear": {
     "description": "Mensaje cuando no hay datos"
   },
@@ -539,6 +539,10 @@
   "swissFrancSymbol": "Franco Suizo (CHF)",
   "@swissFrancSymbol": {
     "description": "Moneda Franco Suizo"
+  },
+  "colombianPesoSymbol": "Peso Colombiano (COP)",
+  "@colombianPesoSymbol": {
+    "description": "Moneda Peso Colombiano"
   },
   "png": "PNG",
   "@png": {
@@ -1128,5 +1132,18 @@
   "futureMovements": "Movimientos futuros",
   "@futureMovements": {
     "description": "Título de movimientos futuros"
-  }
+  },
+  "noIaFeaturesHomeTitle": "¡Estás perdiendo acceso a las funciones inteligentes de la app!\n\nActiva la IA para obtener análisis automáticos, sugerencias personalizadas y mucho más. Es gratuito y muy facil de configurar.",
+  "@noIaFeaturesHomeTitle": {
+    "description": "Título para la pantalla de inicio cuando las funciones de IA no están activadas"
+  },
+  "noIaFeaturesHomeSubtitle": "Para activar las funciones IA, ve a Ajustes > Sección IA y sigue los pasos para introducir tu API Key.",
+  "@noIaFeaturesHomeSubtitle": {
+    "description": "Subtítulo para la pantalla de inicio cuando las funciones de IA no están activadas"
+  },
+  "iaFeaturesText": "Funciones de IA",
+  "@iaFeaturesText": {
+    "description": "Texto para las funciones de IA"
+  },
+  "a":"flutter gen-l10n"
 }

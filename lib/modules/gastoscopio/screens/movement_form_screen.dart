@@ -468,7 +468,7 @@ class _MovementFormScreenState extends State<MovementFormScreen> {
                     onPressed: () => _selectDate(context),
                     icon: const Icon(Icons.calendar_today),
                     label: Text(
-                      '${localizations.date}: \\${_selectedDate.day}/${_selectedDate.month}/${_selectedDate.year}',
+                      '${localizations.date}: ${_selectedDate.day}/${_selectedDate.month}/${_selectedDate.year}',
                     ),
                   ),
                   const SizedBox(height: 16), // Botón de guardar
