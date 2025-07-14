@@ -45,8 +45,18 @@ class FixedMovement {
       description ?? this.description,
       amount ?? this.amount,
       isExpense ?? this.isExpense,
-      day ?? this.day,
+      _adjustDayForMonth(day ?? this.day),
       category ?? this.category,
     );
+  }
+
+  int _adjustDayForMonth(int day) {
+    // Ensure day is within valid range (1-28 to be safe for all months)
+    return DateTime.now().day > day &&
+            DateTime.now().month == DateTime.now().month
+        ? DateTime(DateTime.now().year, DateTime.now().month + 1, 0).day
+        : day <= DateTime(DateTime.now().year, DateTime.now().month + 1, 0).day
+        ? day
+        : DateTime(DateTime.now().year, DateTime.now().month + 1, 0).day;
   }
 }

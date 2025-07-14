@@ -13,6 +13,66 @@
     "description": "Pestaña de movimientos"
   },
   "summary": "Resumen",
+  "aiAnalysis": "Análisis IA",
+  "@aiAnalysis": {
+    "description": "Pestaña de análisis IA"
+  },
+  "monthlySummary": "Resumen del Mes",
+  "@monthlySummary": {
+    "description": "Título del resumen mensual"
+  },
+  "balance": "Balance",
+  "@balance": {
+    "description": "Etiqueta para balance"
+  },
+  "youSpentPercent": "Has gastado el {percent}% de tus ingresos",
+  "@youSpentPercent": {
+    "description": "Mensaje de porcentaje de gastos",
+    "placeholders": {
+      "percent": {
+        "type": "int",
+        "example": "50"
+      }
+    }
+  },
+  "categoryDistribution": "Distribución de Gastos por Categoría",
+  "@categoryDistribution": {
+    "description": "Título de distribución de gastos por categoría"
+  },
+  "dailyExpenses": "Gastos Diarios",
+  "@dailyExpenses": {
+    "description": "Título de gastos diarios"
+  },
+  "aiAnalysisTitle": "Análisis de Gastos",
+  "@aiAnalysisTitle": {
+    "description": "Título del análisis de gastos"
+  },
+  "generate": "Generar",
+  "@generate": {
+    "description": "Botón para generar análisis"
+  },
+  "generateAnalysisHint": "Pulsa el botón \"Generar Análisis\" para obtener un análisis detallado de tus gastos e ingresos de este mes.",
+  "@generateAnalysisHint": {
+    "description": "Instrucción para generar análisis"
+  },
+  "noDataForMonth": "No hay datos para {month} {year}",
+  "@noDataForMonth": {
+    "description": "Mensaje cuando no hay datos para un mes específico",
+    "placeholders": {
+      "month": {
+        "type": "String",
+        "example": "Enero"
+      },
+      "year": {
+        "type": "int",
+        "example": "2023"
+      }
+    }
+  },
+  "dataWillAppear": "Los datos aparecerán aquí cuando agregues movimientos",
+  "@dataWillAppear": {
+    "description": "Mensaje cuando no hay datos"
+  },
   "@summary": {
     "description": "Pestaña de resumen"
   },
@@ -914,5 +974,159 @@
   "errorSavingApiKey": "No se ha podido guardar la API Key",
   "@errorSavingApiKey": {
     "description": "Mensaje de error al guardar la API Key"
+  },
+  "configureApiKey": "Configurar API Key",
+  "@configureApiKey": {
+    "description": "Título del diálogo para configurar la API Key"
+  },
+  "enterApiKeyMessage": "Para utilizar las funciones de IA, por favor ingrese su API Key:",
+  "@enterApiKeyMessage": {
+    "description": "Mensaje que solicita al usuario ingresar su API Key"
+  },
+  "later": "Más tarde",
+  "@later": {
+    "description": "Botón para posponer una acción"
+  },
+  "letsGo": "Vamos allá",
+  "@letsGo": {
+    "description": "Botón para proceder con una acción"
+  },
+  "noResponseGenerated": "No se pudo generar una respuesta",
+  "@noResponseGenerated": {
+    "description": "Mensaje cuando la IA no puede generar una respuesta"
+  },
+  "apiKeyNotConfigured": "API Key no configurada",
+  "@apiKeyNotConfigured": {
+    "description": "Mensaje de error cuando la API Key no está configurada"
+  },
+  "noMonthSelected": "Mes no seleccionado",
+  "@noMonthSelected": {
+    "description": "Mensaje de error cuando no se ha seleccionado un mes"
+  },
+  "createNewMonth": "Crear nuevo mes",
+  "@createNewMonth": {
+    "description": "Título del diálogo para crear un nuevo mes"
+  },
+  "monthDoesNotExist": "El mes {month} de {year} no existe. ¿Deseas crearlo?",
+  "@monthDoesNotExist": {
+    "placeholders": {
+      "month": {
+        "type": "String",
+        "example": "Enero"
+      },
+      "year": {
+        "type": "String",
+        "example": "2023"
+      }
+    }
+  },
+  "yes": "Sí",
+  "@yes": {
+    "description": "Botón Sí"
+  },
+  "no": "No",
+  "@no": {
+    "description": "Botón No"
+  },
+
+  "january": "Enero",
+  "@january": {
+    "description": "Mes de enero"
+  },
+  "february": "Febrero",
+  "@february": {
+    "description": "Mes de febrero"
+  },
+  "march": "Marzo",
+  "@march": {
+    "description": "Mes de marzo"
+  },
+  "april": "Abril",
+  "@april": {
+    "description": "Mes de abril"
+  },
+  "may": "Mayo",
+  "@may": {
+    "description": "Mes de mayo"
+  },
+  "june": "Junio",
+  "@june": {
+    "description": "Mes de junio"
+  },
+  "july": "Julio",
+  "@july": {
+    "description": "Mes de julio"
+  },
+  "august": "Agosto",
+  "@august": {
+    "description": "Mes de agosto"
+  },
+  "september": "Septiembre",
+  "@september": {
+    "description": "Mes de septiembre"
+  },
+  "october": "Octubre",
+  "@october": {
+    "description": "Mes de octubre"
+  },
+  "november": "Noviembre",
+  "@november": {
+    "description": "Mes de noviembre"
+  },
+  "december": "Diciembre",
+  "@december": {
+    "description": "Mes de diciembre"
+  },
+  "name": "Nombre",
+  "@name": {
+    "description": "Etiqueta para nombre"
+  },
+  "nameRequired": "El nombre es requerido",
+  "@nameRequired": {
+    "description": "Mensaje de error cuando el nombre es requerido"
+  },
+  "invalidAmount": "Monto inválido",
+  "@invalidAmount": {
+    "description": "Mensaje de error cuando el monto es inválido"
+  },
+  "loginRequired": "Inicio de sesión requerido",
+  "@loginRequired": {
+    "description": "Mensaje cuando se requiere iniciar sesión"
+  },
+  "loginToAccess": "Inicia sesión para acceder a esta función",
+  "@loginToAccess": {
+    "description": "Mensaje explicativo de por qué se necesita iniciar sesión"
+  },
+  "login": "Iniciar sesión",
+  "@login": {
+    "description": "Botón de inicio de sesión"
+  },
+  "logout": "Cerrar sesión",
+  "@logout": {
+    "description": "Botón de cerrar sesión"
+  },
+  "loggedOutSuccessfully": "Sesión cerrada correctamente",
+  "@loggedOutSuccessfully": {
+    "description": "Mensaje de éxito al cerrar sesión"
+  },
+  "loggedInSuccessfully": "Sesión iniciada correctamente",
+  "@loggedInSuccessfully": {
+    "description": "Mensaje de éxito al iniciar sesión"
+  },
+  "loginError": "Error al iniciar sesión",
+  "@loginError": {
+    "description": "Mensaje de error al iniciar sesión"
+  },
+  "accountSection": "Cuenta",
+  "@accountSection": {
+    "description": "Título de la sección de cuenta en ajustes"
+  },
+  "accountDescription": "Gestiona tu cuenta y las opciones de inicio de sesión",
+  "@accountDescription": {
+    "description": "Descripción de la sección de cuenta"
+  },
+  "futureMovements": "Movimientos futuros",
+  "@futureMovements": {
+    "description": "Título de movimientos futuros"
   }
 }

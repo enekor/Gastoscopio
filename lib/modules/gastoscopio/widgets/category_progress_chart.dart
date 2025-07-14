@@ -21,7 +21,8 @@ class CategoryProgressChart extends StatelessWidget {
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      Text(category),
+                      Expanded(child: Text(category)),
+                      SizedBox(width: 8),
                       Text('${percentage.toStringAsFixed(1)}%'),
                     ],
                   ),

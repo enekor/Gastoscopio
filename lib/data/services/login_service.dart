@@ -426,4 +426,14 @@ class LoginService extends ChangeNotifier {
       return null;
     }
   }
+
+  Future<bool> silentLogin() async {
+    try {
+      _currentUser = await _googleSignIn.signInSilently();
+      return _currentUser != null;
+    } catch (e) {
+      debugPrint('Silent login error: $e');
+      return false;
+    }
+  }
 }

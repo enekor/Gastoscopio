@@ -3,6 +3,7 @@ import 'package:cashly/data/models/month.dart';
 import 'package:cashly/data/models/movement_value.dart';
 import 'package:cashly/data/services/shared_preferences_service.dart';
 import 'package:cashly/modules/settings.dart/settings.dart';
+import 'package:cashly/l10n/app_localizations.dart';
 import 'package:flutter/material.dart';
 import 'package:google_generative_ai/google_generative_ai.dart';
 
@@ -19,11 +20,15 @@ class GeminiService {
 
   bool get hasApiKey => _apiKey != null && _apiKey!.isNotEmpty;
 
-  Future<String> _generateContent(String prompt, String apiKey) async {
+  Future<String> _generateContent(
+    String prompt,
+    String apiKey,
+    BuildContext context,
+  ) async {
     try {
       final content = [Content.text(prompt)];
       final response = await model!.generateContent(content);
-      return response.text ?? 'No se pudo generar una respuesta';
+      return response.text ?? AppLocalizations.of(context).noResponseGenerated;
     } catch (e) {
       return '';
     }
@@ -39,19 +44,15 @@ class GeminiService {
         context: context,
         builder: (context) {
           return AlertDialog(
-            title: const Text('Configurar API Key'),
+            title: Text(AppLocalizations.of(context).configureApiKey),
             content: Column(
               mainAxisSize: MainAxisSize.min,
-              children: [
-                const Text(
-                  'Para utilizar las funciones de IA, por favor ingrese su API Key:',
-                ),
-              ],
+              children: [Text(AppLocalizations.of(context).enterApiKeyMessage)],
             ),
             actions: [
               TextButton.icon(
                 onPressed: () => Navigator.pop(context),
-                label: const Text('Más tarde'),
+                label: Text(AppLocalizations.of(context).later),
                 icon: const Icon(Icons.close),
               ),
               TextButton.icon(
@@ -66,7 +67,7 @@ class GeminiService {
                     ),
                   );
                 },
-                label: const Text('Vamos allá'),
+                label: Text(AppLocalizations.of(context).letsGo),
                 icon: const Icon(Icons.settings),
               ),
             ],
@@ -75,7 +76,7 @@ class GeminiService {
       );
       return '';
     } else {
-      return await _generateContent(prompt, _apiKey!);
+      return await _generateContent(prompt, _apiKey!, context);
     }
   }
 
@@ -94,9 +95,12 @@ class GeminiService {
   }
 
   Future<String> generateCategory(String name, BuildContext context) async {
+    final locale = AppLocalizations.of(context).localeName;
+    final categoryList = getTagList(locale);
+
     String prompt =
         'dime la mejor categoria para el siguiente movimiento (solo dime la categoria, nada mas): "$name". '
-        'Elige una de las siguientes categorías: ${TagList.join(', ')}. '
+        'Elige una de las siguientes categorías: ${categoryList.join(', ')}. '
         'Si no encuentras una categoría adecuada, responde con la ultima categoria.';
 
     String response = await _initGenerateContent(prompt, context);
@@ -104,9 +108,12 @@ class GeminiService {
   }
 
   Future<List<String>> generateTags(String names, BuildContext context) async {
+    final locale = AppLocalizations.of(context).localeName;
+    final tagList = getTagList(locale);
+
     String prompt =
         'Dime las mejores etiquetas para los siguientes movimientos (solo dime las etiquetas separadas por comas en el orden de los nombres que te mando, nada mas): "$names". '
-        'Elige entre las siguientes etiquetas: ${TagList.join(', ')}. '
+        'Elige entre las siguientes etiquetas: ${tagList.join(', ')}. '
         'Si no encuentras una etiqueta adecuada, responde con la ultima etiqueta.';
 
     String response = await _initGenerateContent(prompt, context);
@@ -118,22 +125,68 @@ class GeminiService {
     Month month,
     BuildContext context,
   ) async {
+    final locale = AppLocalizations.of(context).localeName;
+    final language = locale == 'es' ? 'español' : 'english';
+
     String prompt =
-        'Quiero que me des un resumen de la contabilidad de mi usuario para el mes de ${month.month}/${month.year}. '
-        'Quieron que me des solo el resultado de tu analisis en formato markdown.'
-        'Para el analisis quiero que me digas en que me he gastado mas, en que menos, como podria mejorar, cuales han sido potencialmente gastos inutiles...todo tipo de información que me de información sobre como ha ido el mes financieramente.'
-        'Te paso en modo json los datos de los gastos e ingresos de mi usuario:'
+        'Genera un análisis financiero usando SOLO los siguientes elementos de markdown:\n'
+        '- Encabezados con ## (no uses #)\n'
+        '- Listas con guiones (-)\n'
+        '- Texto en negrita con **texto**\n'
+        '- Párrafos simples\n\n'
+        'Estructura requerida:\n'
+        '## Resumen General\n'
+        '(análisis general)\n\n'
+        '## Análisis de Gastos\n'
+        '(detalles de gastos)\n\n'
+        '## Recomendaciones\n'
+        '(recomendaciones)\n\n'
+        'La respuesta debe estar en $language y analizar:\n'
+        '- Balance general y tendencias\n'
+        '- Principales categorías de gasto\n'
+        '- Patrones de gasto destacables\n'
+        '- Gastos potencialmente innecesarios\n'
+        '- Sugerencias de mejora\n\n'
+        'Datos (mes ${month.month}/${month.year}):\n'
         '${movements.map((m) => m.toJson()).toList()}';
 
     String response = await GeminiService()._initGenerateContent(
       prompt,
       context,
     );
+
+    if (response.isEmpty) {
+      return '## Error\n\nNo se pudo generar el análisis. Por favor, intenta de nuevo.';
+    }
+
+    // Asegurarse de que la respuesta esté en formato markdown válido
+    if (!response.contains('##')) {
+      response = '## Análisis Financiero\n\n' + response;
+    }
+
+    // Limpiar cualquier bloque de código o formato extra que pueda interferir
+    response = response.replaceAll('```markdown', '');
+    response = response.replaceAll('```', '');
+
+    if (response.isEmpty) {
+      return '## ${AppLocalizations.of(context).error}\n\n${AppLocalizations.of(context).noResponseGenerated}';
+    }
+
+    // Asegurarnos de que la respuesta comience con un encabezado markdown
+    if (!response.trim().startsWith('#')) {
+      response =
+          '## ${AppLocalizations.of(context).aiAnalysisTitle}\n\n' + response;
+    }
+
     return response;
   }
 }
 
 class NoApiKeyException implements Exception {
+  final BuildContext context;
+
+  NoApiKeyException(this.context);
+
   @override
-  String toString() => 'API Key no configurada';
+  String toString() => AppLocalizations.of(context).apiKeyNotConfigured;
 }

@@ -3,7 +3,7 @@ import 'package:cashly/data/services/shared_preferences_service.dart';
 import 'package:cashly/data/services/sqlite_service.dart';
 import 'package:cashly/modules/gastoscopio/screens/movement_form_screen.dart';
 import 'package:cashly/modules/gastoscopio/widgets/main_screen_widgets.dart';
-import 'package:cashly/common/tag_list.dart';
+import 'package:cashly/common/tag_list.dart' show getTagList;
 import 'package:flutter/material.dart';
 import 'package:cashly/l10n/app_localizations.dart';
 import 'package:cashly/data/models/movement_value.dart';
@@ -354,15 +354,195 @@ class _MovementsScreenState extends State<MovementsScreen>
   }
 
   Widget _buildContent(List<MovementValue> movements, String moneda) {
+    bool showFutureMovements =
+        _financeService.currentMonth!.month == DateTime.now().month;
     return Scaffold(
       appBar: _buildAppBar(),
       floatingActionButton: _buildFAB(),
       body: Column(
         children: [
-          _buildFilters(),
           _buildTotalIndicator(movements, moneda),
-          Expanded(child: _buildList(movements, moneda)),
+          _buildFilters(),
+          if (showFutureMovements)
+            _buildFutureMovementsList(
+              movements.where((mov) => mov.day > DateTime.now().day).toList(),
+              moneda,
+            ),
+          Expanded(
+            child: _buildList(
+              showFutureMovements
+                  ? movements
+                      .where((mov) => mov.day <= DateTime.now().day)
+                      .toList()
+                  : movements,
+              moneda,
+            ),
+          ),
         ],
+      ),
+    );
+  }
+
+  Widget _buildFutureMovementsList(
+    List<MovementValue> movements,
+    String moneda,
+  ) {
+    if (movements.isEmpty) {
+      return const SizedBox.shrink();
+    }
+
+    final bool isFutureExpanded = _expandedItems['future_movements'] ?? false;
+
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 16.0),
+      child: AnimatedCard(
+        isExpanded: isFutureExpanded,
+        leadingWidget: ListTile(
+          contentPadding: EdgeInsets.zero,
+          title: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16.0),
+            child: Row(
+              children: [
+                Icon(
+                  Icons.upcoming,
+                  color: Theme.of(context).colorScheme.primary,
+                  size: 20,
+                ),
+                const SizedBox(width: 8),
+                Text(
+                  AppLocalizations.of(context).futureMovements,
+                  style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                const SizedBox(width: 8),
+                Container(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 8,
+                    vertical: 2,
+                  ),
+                  decoration: BoxDecoration(
+                    color: Theme.of(context).colorScheme.primaryContainer,
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: Text(
+                    movements.length.toString(),
+                    style: TextStyle(
+                      color: Theme.of(context).colorScheme.onPrimaryContainer,
+                      fontSize: 12,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+          trailing: Padding(
+            padding: const EdgeInsets.only(right: 16.0),
+            child: Icon(
+              isFutureExpanded ? Icons.expand_less : Icons.expand_more,
+              color: Theme.of(context).colorScheme.primary,
+            ),
+          ),
+          onTap: () {
+            setState(() {
+              _expandedItems['future_movements'] = !isFutureExpanded;
+            });
+          },
+        ),
+        hiddenWidget: Card(
+          color: Theme.of(context).colorScheme.secondary.withAlpha(25),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(12),
+            side: BorderSide(
+              color: Theme.of(context).colorScheme.primary.withOpacity(0.2),
+              width: 1,
+            ),
+          ),
+          child: Column(
+            children:
+                movements.map((mov) {
+                  final isExpanded =
+                      _expandedItems['future_${mov.id}'] ?? false;
+
+                  return AnimatedCard(
+                    isExpanded: isExpanded,
+                    onTap: () {
+                      setState(() {
+                        _expandedItems['future_${mov.id}'] = !isExpanded;
+                      });
+                    },
+                    leadingWidget: ListTile(
+                      contentPadding: const EdgeInsets.symmetric(
+                        horizontal: 16.0,
+                        vertical: 4.0,
+                      ),
+                      title: Text(
+                        mov.description,
+                        style: Theme.of(context).textTheme.titleSmall?.copyWith(
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ),
+                      subtitle:
+                          mov.category != null
+                              ? Padding(
+                                padding: const EdgeInsets.only(top: 4.0),
+                                child: Row(
+                                  children: [
+                                    Icon(
+                                      Icons.label_outline,
+                                      size: 16,
+                                      color:
+                                          Theme.of(
+                                            context,
+                                          ).colorScheme.secondary,
+                                    ),
+                                    const SizedBox(width: 4),
+                                    Text(
+                                      mov.category!,
+                                      style: TextStyle(
+                                        color:
+                                            Theme.of(
+                                              context,
+                                            ).colorScheme.secondary,
+                                        fontSize: 12,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              )
+                              : null,
+                      trailing: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        crossAxisAlignment: CrossAxisAlignment.end,
+                        children: [
+                          Text(
+                            '${mov.amount.toStringAsFixed(2)} $moneda',
+                            style: Theme.of(
+                              context,
+                            ).textTheme.titleSmall?.copyWith(
+                              fontWeight: FontWeight.bold,
+                              color:
+                                  mov.isExpense
+                                      ? Theme.of(context).colorScheme.error
+                                      : Theme.of(context).colorScheme.primary,
+                            ),
+                          ),
+                          Text(
+                            '${mov.day}/${widget.month}',
+                            style: Theme.of(
+                              context,
+                            ).textTheme.bodySmall?.copyWith(
+                              color: Theme.of(context).colorScheme.secondary,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    hiddenWidget: _buildExpandedContent(context, mov),
+                  );
+                }).toList(),
+          ),
+        ),
       ),
     );
   }
@@ -1001,9 +1181,11 @@ class _MovementsScreenState extends State<MovementsScreen>
   }
 
   void _selectCategory(BuildContext context, Set<String> existingCategories) {
-    // Combinar categorías existentes con TagList y ordenar alfabéticamente
+    // Combinar categorías existentes con TagList localizado y ordenar alfabéticamente
+    final locale = AppLocalizations.of(context).localeName;
+    final localizedTags = getTagList(locale);
     final allCategories =
-        {...existingCategories, ...TagList}.toList()
+        {...existingCategories, ...localizedTags}.toList()
           ..sort((a, b) => a.compareTo(b));
 
     showModalBottomSheet(
@@ -1026,7 +1208,7 @@ class _MovementsScreenState extends State<MovementsScreen>
                       const Icon(Icons.category),
                       const SizedBox(width: 16),
                       Text(
-                        'Selecciona una categoría',
+                        AppLocalizations.of(context).selectCategory,
                         style: Theme.of(context).textTheme.titleLarge,
                       ),
                     ],
@@ -1116,7 +1298,7 @@ class _MovementsScreenState extends State<MovementsScreen>
                           const Icon(Icons.edit),
                           const SizedBox(width: 16),
                           Text(
-                            'Editar movimiento',
+                            AppLocalizations.of(context).editMovement,
                             style: Theme.of(context).textTheme.titleLarge,
                           ),
                         ],
@@ -1124,13 +1306,15 @@ class _MovementsScreenState extends State<MovementsScreen>
                       const SizedBox(height: 16),
                       TextFormField(
                         controller: descriptionController,
-                        decoration: const InputDecoration(
-                          labelText: 'Descripción',
-                          prefixIcon: Icon(Icons.description),
+                        decoration: InputDecoration(
+                          labelText: AppLocalizations.of(context).description,
+                          prefixIcon: const Icon(Icons.description),
                         ),
                         validator: (value) {
                           if (value == null || value.isEmpty) {
-                            return 'Por favor, ingresa una descripción.';
+                            return AppLocalizations.of(
+                              context,
+                            ).pleaseEnterDescription;
                           }
                           return null;
                         },
@@ -1139,7 +1323,7 @@ class _MovementsScreenState extends State<MovementsScreen>
                       TextFormField(
                         controller: amountController,
                         decoration: InputDecoration(
-                          labelText: 'Cantidad',
+                          labelText: AppLocalizations.of(context).amount,
                           prefixIcon: const Icon(Icons.attach_money),
                           suffixText: _moneda,
                         ),
@@ -1148,11 +1332,15 @@ class _MovementsScreenState extends State<MovementsScreen>
                         ),
                         validator: (value) {
                           if (value == null || value.isEmpty) {
-                            return 'Por favor, ingresa una cantidad.';
+                            return AppLocalizations.of(
+                              context,
+                            ).pleaseEnterAmount;
                           }
                           if (double.tryParse(value.replaceAll(',', '.')) ==
                               null) {
-                            return 'Por favor, ingresa un número válido.';
+                            return AppLocalizations.of(
+                              context,
+                            ).pleaseEnterValidAmount;
                           }
                           return null;
                         },
@@ -1182,7 +1370,7 @@ class _MovementsScreenState extends State<MovementsScreen>
                               },
                               icon: const Icon(Icons.calendar_today),
                               label: Text(
-                                'Fecha: ${selectedDate.day}/${selectedDate.month}/${selectedDate.year}',
+                                '${AppLocalizations.of(context).date}: \\${selectedDate.day}/${selectedDate.month}/${selectedDate.year}',
                               ),
                             ),
                       ),
@@ -1296,11 +1484,13 @@ class _MovementsScreenState extends State<MovementsScreen>
     BuildContext context,
     MovementValue movement,
   ) async {
-    // Combine existing categories with TagList and sort alphabetically
+    // Combine existing categories with localized TagList and sort alphabetically
     final movements = await _financeService.getCurrentMonthMovements();
     final existingCategories = _getAvailableCategories(movements);
+    final locale = AppLocalizations.of(context).localeName;
+    final localizedTags = getTagList(locale);
     final allCategories =
-        {...existingCategories, ...TagList}.toList()
+        {...existingCategories, ...localizedTags}.toList()
           ..sort((a, b) => a.compareTo(b));
 
     await showModalBottomSheet(
@@ -1323,7 +1513,7 @@ class _MovementsScreenState extends State<MovementsScreen>
                       const Icon(Icons.category),
                       const SizedBox(width: 16),
                       Text(
-                        AppLocalizations.of(context)!.changeCategory,
+                        AppLocalizations.of(context).changeCategory,
                         style: Theme.of(context).textTheme.titleLarge,
                       ),
                     ],

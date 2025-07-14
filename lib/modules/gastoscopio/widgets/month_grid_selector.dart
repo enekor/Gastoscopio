@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:cashly/l10n/app_localizations.dart';
 
 class MonthGridSelector extends StatelessWidget {
   final int selectedYear;
@@ -18,23 +19,40 @@ class MonthGridSelector extends StatelessWidget {
     required this.onMonthChanged,
   }) : super(key: key);
 
+  String _getMonthName(BuildContext context, int month) {
+    final localizations = AppLocalizations.of(context);
+    switch (month) {
+      case 1:
+        return localizations.january;
+      case 2:
+        return localizations.february;
+      case 3:
+        return localizations.march;
+      case 4:
+        return localizations.april;
+      case 5:
+        return localizations.may;
+      case 6:
+        return localizations.june;
+      case 7:
+        return localizations.july;
+      case 8:
+        return localizations.august;
+      case 9:
+        return localizations.september;
+      case 10:
+        return localizations.october;
+      case 11:
+        return localizations.november;
+      case 12:
+        return localizations.december;
+      default:
+        return '';
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
-    final monthNames = [
-      'Enero',
-      'Febrero',
-      'Marzo',
-      'Abril',
-      'Mayo',
-      'Junio',
-      'Julio',
-      'Agosto',
-      'Septiembre',
-      'Octubre',
-      'Noviembre',
-      'Diciembre',
-    ];
-
     return Card(
       color: Theme.of(context).colorScheme.secondary.withAlpha(25),
       child: Padding(
@@ -102,7 +120,7 @@ class MonthGridSelector extends StatelessWidget {
                     ),
                     child: Center(
                       child: Text(
-                        monthNames[index],
+                        _getMonthName(context, month),
                         textAlign: TextAlign.center,
                         style: Theme.of(
                           context,

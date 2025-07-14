@@ -159,9 +159,13 @@ class FinanceService extends ChangeNotifier {
       ..sort();
   }
 
-  String currentMonthName() {
-    if (_currentMonth == null) return 'Mes no seleccionado';
-    return '${_getMonthName(_currentMonth!.month)} ${_currentMonth!.year}';
+  String currentMonthName([BuildContext? context]) {
+    if (_currentMonth == null) {
+      return context != null
+          ? AppLocalizations.of(context).noMonthSelected
+          : 'No month selected';
+    }
+    return '${_getMonthName(_currentMonth!.month, context)} ${_currentMonth!.year}';
   }
 
   /// Verifica si un mes existe en la base de datos
@@ -187,18 +191,21 @@ class FinanceService extends ChangeNotifier {
           context: context,
           builder:
               (context) => AlertDialog(
-                title: const Text('Crear nuevo mes'),
+                title: Text(AppLocalizations.of(context).createNewMonth),
                 content: Text(
-                  'El mes ${_getMonthName(month)} de $year no existe. ¿Deseas crearlo?',
+                  AppLocalizations.of(context).monthDoesNotExist(
+                    _getMonthName(month, context),
+                    year.toString(),
+                  ),
                 ),
                 actions: [
                   TextButton(
                     onPressed: () => Navigator.pop(context, false),
-                    child: const Text('No'),
+                    child: Text(AppLocalizations.of(context).no),
                   ),
                   FilledButton(
                     onPressed: () => Navigator.pop(context, true),
-                    child: const Text('Sí'),
+                    child: Text(AppLocalizations.of(context).yes),
                   ),
                 ],
               ),
@@ -222,20 +229,39 @@ class FinanceService extends ChangeNotifier {
     return lastMonth;
   }
 
-  String _getMonthName(int month) {
+  String _getMonthName(int month, [BuildContext? context]) {
+    if (context != null) {
+      final months = [
+        AppLocalizations.of(context).january,
+        AppLocalizations.of(context).february,
+        AppLocalizations.of(context).march,
+        AppLocalizations.of(context).april,
+        AppLocalizations.of(context).may,
+        AppLocalizations.of(context).june,
+        AppLocalizations.of(context).july,
+        AppLocalizations.of(context).august,
+        AppLocalizations.of(context).september,
+        AppLocalizations.of(context).october,
+        AppLocalizations.of(context).november,
+        AppLocalizations.of(context).december,
+      ];
+      return months[month - 1];
+    }
+
+    // Fallback to English if no context provided
     const monthNames = [
-      'Enero',
-      'Febrero',
-      'Marzo',
-      'Abril',
-      'Mayo',
-      'Junio',
-      'Julio',
-      'Agosto',
-      'Septiembre',
-      'Octubre',
-      'Noviembre',
-      'Diciembre',
+      'January',
+      'February',
+      'March',
+      'April',
+      'May',
+      'June',
+      'July',
+      'August',
+      'September',
+      'October',
+      'November',
+      'December',
     ];
     return monthNames[month - 1];
   }
@@ -319,21 +345,23 @@ class FinanceService extends ChangeNotifier {
           context: context,
           builder:
               (context) => AlertDialog(
-                title: const Text('Confirmar eliminación'),
+                title: Text(AppLocalizations.of(context).deleteMovement),
                 content: Text(
-                  '¿Estás seguro de que quieres eliminar "${movement.description}"?',
+                  AppLocalizations.of(
+                    context,
+                  ).confirmDeleteMovement(movement.description),
                 ),
                 actions: [
                   TextButton(
                     onPressed: () => Navigator.of(context).pop(false),
-                    child: const Text('Cancelar'),
+                    child: Text(AppLocalizations.of(context).cancel),
                   ),
                   FilledButton(
                     onPressed: () => Navigator.of(context).pop(true),
                     style: FilledButton.styleFrom(
                       backgroundColor: Theme.of(context).colorScheme.error,
                     ),
-                    child: const Text('Eliminar'),
+                    child: Text(AppLocalizations.of(context).delete),
                   ),
                 ],
               ),
@@ -366,7 +394,7 @@ class FinanceService extends ChangeNotifier {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text(
-            '${movement.description} ${AppLocalizations.of(context)!.eliminatedSuccessfully}',
+            '${movement.description} ${AppLocalizations.of(context).eliminatedSuccessfully}',
           ),
           behavior: SnackBarBehavior.floating,
         ),
@@ -380,7 +408,7 @@ class FinanceService extends ChangeNotifier {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text(
-              '${AppLocalizations.of(context)!.elimError} ${movement.description}',
+              '${AppLocalizations.of(context).elimError} ${movement.description}',
             ),
             behavior: SnackBarBehavior.floating,
           ),
@@ -399,12 +427,13 @@ class FinanceService extends ChangeNotifier {
     final amountController = TextEditingController(
       text: movement.amount.toStringAsFixed(2),
     );
+    final localizations = AppLocalizations.of(context);
 
     await showDialog(
       context: context,
       builder:
           (context) => AlertDialog(
-            title: const Text('Editar movimiento'),
+            title: Text(localizations.editMovement),
             content: Form(
               key: formKey,
               child: Column(
@@ -412,22 +441,24 @@ class FinanceService extends ChangeNotifier {
                 children: [
                   TextFormField(
                     controller: nameController,
-                    decoration: const InputDecoration(labelText: 'Nombre'),
+                    decoration: InputDecoration(labelText: localizations.name),
                     validator:
                         (value) =>
                             value?.isEmpty == true
-                                ? 'El nombre es requerido'
+                                ? localizations.nameRequired
                                 : null,
                   ),
                   TextFormField(
                     controller: amountController,
-                    decoration: const InputDecoration(labelText: 'Monto'),
+                    decoration: InputDecoration(
+                      labelText: localizations.amount,
+                    ),
                     keyboardType: TextInputType.number,
                     validator: (value) {
                       if (value?.isEmpty == true)
-                        return 'El monto es requerido';
+                        return localizations.amountRequired;
                       if (double.tryParse(value!) == null)
-                        return 'Monto inválido';
+                        return localizations.invalidAmount;
                       return null;
                     },
                   ),
@@ -437,7 +468,7 @@ class FinanceService extends ChangeNotifier {
             actions: [
               TextButton(
                 onPressed: () => Navigator.pop(context),
-                child: const Text('Cancelar'),
+                child: Text(localizations.cancel),
               ),
               FilledButton(
                 onPressed: () async {
@@ -458,7 +489,7 @@ class FinanceService extends ChangeNotifier {
                     Navigator.pop(context);
                   }
                 },
-                child: const Text('Guardar'),
+                child: Text(localizations.save),
               ),
             ],
           ),

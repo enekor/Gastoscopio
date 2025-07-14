@@ -21,6 +21,43 @@ class AppLocalizationsEn extends AppLocalizations {
   String get summary => 'Summary';
 
   @override
+  String get aiAnalysis => 'AI Analysis';
+
+  @override
+  String get monthlySummary => 'Monthly Summary';
+
+  @override
+  String get balance => 'Balance';
+
+  @override
+  String youSpentPercent(int percent) {
+    return 'You have spent $percent% of your income';
+  }
+
+  @override
+  String get categoryDistribution => 'Expense Distribution by Category';
+
+  @override
+  String get dailyExpenses => 'Daily Expenses';
+
+  @override
+  String get aiAnalysisTitle => 'Expense Analysis';
+
+  @override
+  String get generate => 'Generate';
+
+  @override
+  String get generateAnalysisHint => 'Press the \"Generate Analysis\" button to get a detailed analysis of your expenses and income for this month.';
+
+  @override
+  String noDataForMonth(String month, int year) {
+    return 'No data for $month $year';
+  }
+
+  @override
+  String get dataWillAppear => 'Data will appear here when you add movements.';
+
+  @override
   String get settings => 'Settings';
 
   @override
@@ -660,4 +697,114 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get errorSavingApiKey => '❌ Error saving API Key';
+
+  @override
+  String get configureApiKey => 'Configure API Key';
+
+  @override
+  String get enterApiKeyMessage => 'To use AI features, please enter your API Key:';
+
+  @override
+  String get later => 'Later';
+
+  @override
+  String get letsGo => 'Let\'s go';
+
+  @override
+  String get noResponseGenerated => 'Could not generate a response';
+
+  @override
+  String get apiKeyNotConfigured => 'API Key not configured';
+
+  @override
+  String get noMonthSelected => 'No month selected';
+
+  @override
+  String get createNewMonth => 'Create new month';
+
+  @override
+  String monthDoesNotExist(String month, String year) {
+    return 'The month $month of $year does not exist. Would you like to create it?';
+  }
+
+  @override
+  String get yes => 'Yes';
+
+  @override
+  String get no => 'No';
+
+  @override
+  String get january => 'January';
+
+  @override
+  String get february => 'February';
+
+  @override
+  String get march => 'March';
+
+  @override
+  String get april => 'April';
+
+  @override
+  String get may => 'May';
+
+  @override
+  String get june => 'June';
+
+  @override
+  String get july => 'July';
+
+  @override
+  String get august => 'August';
+
+  @override
+  String get september => 'September';
+
+  @override
+  String get october => 'October';
+
+  @override
+  String get november => 'November';
+
+  @override
+  String get december => 'December';
+
+  @override
+  String get name => 'Name';
+
+  @override
+  String get nameRequired => 'Name is required';
+
+  @override
+  String get invalidAmount => 'Invalid amount';
+
+  @override
+  String get loginRequired => 'Login Required';
+
+  @override
+  String get loginToAccess => 'Sign in to access this feature';
+
+  @override
+  String get login => 'Sign in';
+
+  @override
+  String get logout => 'Sign out';
+
+  @override
+  String get loggedOutSuccessfully => 'Signed out successfully';
+
+  @override
+  String get loggedInSuccessfully => 'Signed in successfully';
+
+  @override
+  String get loginError => 'Sign in error';
+
+  @override
+  String get accountSection => 'Account';
+
+  @override
+  String get accountDescription => 'Manage your account and sign-in options';
+
+  @override
+  String get futureMovements => 'Future Movements';
 }

@@ -10,6 +10,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_markdown/flutter_markdown.dart';
 import 'package:cashly/data/services/sqlite_service.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:cashly/l10n/app_localizations.dart';
 
 class SummaryScreen extends StatefulWidget {
   const SummaryScreen({super.key});
@@ -149,9 +150,15 @@ class _SummaryScreenState extends State<SummaryScreen>
         centerTitle: true,
         bottom: TabBar(
           controller: _tabController,
-          tabs: const [
-            Tab(icon: Icon(Icons.analytics), text: 'Resumen'),
-            Tab(icon: Icon(Icons.auto_awesome), text: 'Análisis IA'),
+          tabs: [
+            Tab(
+              icon: Icon(Icons.analytics),
+              text: AppLocalizations.of(context).summary,
+            ),
+            Tab(
+              icon: Icon(Icons.auto_awesome),
+              text: AppLocalizations.of(context).aiAnalysis,
+            ),
           ],
         ),
       ),
@@ -197,7 +204,9 @@ class _SummaryScreenState extends State<SummaryScreen>
                               _buildMonthlyOverview(movements),
                               const SizedBox(height: 24),
                               Text(
-                                'Distribución de Gastos por Categoría',
+                                AppLocalizations.of(
+                                  context,
+                                ).categoryDistribution,
                                 style: Theme.of(context).textTheme.titleLarge,
                               ),
                               const SizedBox(height: 16),
@@ -222,14 +231,14 @@ class _SummaryScreenState extends State<SummaryScreen>
                 child: Row(
                   children: [
                     Text(
-                      'Análisis de Gastos',
+                      AppLocalizations.of(context).aiAnalysisTitle,
                       style: Theme.of(context).textTheme.titleLarge,
                     ),
                     const SizedBox(width: 16),
                     ElevatedButton.icon(
                       onPressed: _loadAiAnalysis,
                       icon: const Icon(Icons.auto_awesome),
-                      label: const Text('Generar'),
+                      label: Text(AppLocalizations.of(context).generate),
                     ),
                   ],
                 ),
@@ -250,7 +259,9 @@ class _SummaryScreenState extends State<SummaryScreen>
                             child: Markdown(
                               data:
                                   _aiAnalysis.isEmpty
-                                      ? 'Pulsa el botón "Generar Análisis" para obtener un análisis detallado de tus gastos e ingresos de este mes.'
+                                      ? AppLocalizations.of(
+                                        context,
+                                      ).generateAnalysisHint
                                       : _aiAnalysis,
                               styleSheet: MarkdownStyleSheet(
                                 h1: Theme.of(context).textTheme.titleLarge,
@@ -281,12 +292,14 @@ class _SummaryScreenState extends State<SummaryScreen>
           ),
           const SizedBox(height: 16),
           Text(
-            'No hay datos para ${_getMonthName(_month)} $_year',
+            AppLocalizations.of(
+              context,
+            ).noDataForMonth(_month.toString(), _year),
             style: Theme.of(context).textTheme.titleMedium,
           ),
           const SizedBox(height: 8),
           Text(
-            'Los datos aparecerán aquí cuando agregues movimientos',
+            AppLocalizations.of(context).dataWillAppear,
             style: Theme.of(context).textTheme.bodyMedium,
           ),
         ],
@@ -312,23 +325,33 @@ class _SummaryScreenState extends State<SummaryScreen>
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              'Resumen del Mes',
+              AppLocalizations.of(context).monthlySummary,
               style: Theme.of(context).textTheme.titleLarge,
             ),
             const SizedBox(height: 16),
-            _buildOverviewRow('Ingresos', incomes, Colors.green),
+            _buildOverviewRow(
+              AppLocalizations.of(context).income,
+              incomes,
+              Colors.green,
+            ),
             const SizedBox(height: 8),
-            _buildOverviewRow('Gastos', expenses, Colors.red),
+            _buildOverviewRow(
+              AppLocalizations.of(context).expenses,
+              expenses,
+              Colors.red,
+            ),
             const Divider(),
             _buildOverviewRow(
-              'Balance',
+              AppLocalizations.of(context).balance,
               balance,
               balance >= 0 ? Colors.green : Colors.red,
             ),
             if (incomes > 0) ...[
               const SizedBox(height: 16),
               Text(
-                'Has gastado el ${expenseRatio.toStringAsFixed(1)}% de tus ingresos',
+                AppLocalizations.of(
+                  context,
+                ).youSpentPercent(expenseRatio.toInt()),
                 style: Theme.of(context).textTheme.bodyMedium,
               ),
               const SizedBox(height: 8),
@@ -381,7 +404,10 @@ class _SummaryScreenState extends State<SummaryScreen>
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text('Gastos Diarios', style: Theme.of(context).textTheme.titleLarge),
+        Text(
+          AppLocalizations.of(context).dailyExpenses,
+          style: Theme.of(context).textTheme.titleLarge,
+        ),
         const SizedBox(height: 16),
         Card(
           color: Theme.of(context).colorScheme.secondary.withAlpha(25),
@@ -496,7 +522,7 @@ class _SummaryScreenState extends State<SummaryScreen>
     );
 
     // Initialize all categories to 0
-    for (var tag in TagList) {
+    for (var tag in getTagList(AppLocalizations.of(context).localeName)) {
       categoryTotals[tag] = 0;
     }
 
@@ -522,18 +548,18 @@ class _SummaryScreenState extends State<SummaryScreen>
 
   String _getMonthName(int month) {
     final months = [
-      'Enero',
-      'Febrero',
-      'Marzo',
-      'Abril',
-      'Mayo',
-      'Junio',
-      'Julio',
-      'Agosto',
-      'Septiembre',
-      'Octubre',
-      'Noviembre',
-      'Diciembre',
+      AppLocalizations.of(context).january,
+      AppLocalizations.of(context).february,
+      AppLocalizations.of(context).march,
+      AppLocalizations.of(context).april,
+      AppLocalizations.of(context).may,
+      AppLocalizations.of(context).june,
+      AppLocalizations.of(context).july,
+      AppLocalizations.of(context).august,
+      AppLocalizations.of(context).september,
+      AppLocalizations.of(context).october,
+      AppLocalizations.of(context).november,
+      AppLocalizations.of(context).december,
     ];
     return months[month - 1];
   }

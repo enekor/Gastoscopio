@@ -6,6 +6,7 @@ import 'package:cashly/modules/gastoscopio/screens/movements_screen.dart';
 import 'package:cashly/modules/gastoscopio/screens/summary_screen.dart';
 import 'package:cashly/modules/gastoscopio/widgets/month_grid_selector.dart';
 import 'package:cashly/modules/settings.dart/settings.dart';
+import 'package:cashly/modules/settings.dart/widgets/custom_navbar.dart';
 import 'package:cashly/onboarding/onboarding.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -28,21 +29,21 @@ class _MainScreenState extends State<MainScreen>
   late Future<bool> _initializationFuture;
   bool _isOpaqueBottomNav = false;
 
-  final List<NavigationDestination> _destinations = const [
-    NavigationDestination(
-      icon: Icon(Icons.home_outlined),
-      selectedIcon: Icon(Icons.home),
-      label: '',
+  final List<CustomNavigationDestination> _destinations = const [
+    CustomNavigationDestination(
+      icon: Icons.home_outlined,
+      selectedIcon: Icons.home,
+      label: 'Home',
     ),
-    NavigationDestination(
-      icon: Icon(Icons.list_outlined),
-      selectedIcon: Icon(Icons.list),
-      label: '',
+    CustomNavigationDestination(
+      icon: Icons.list_outlined,
+      selectedIcon: Icons.list,
+      label: 'List',
     ),
-    NavigationDestination(
-      icon: Icon(Icons.analytics_outlined),
-      selectedIcon: Icon(Icons.analytics),
-      label: '',
+    CustomNavigationDestination(
+      icon: Icons.analytics_outlined,
+      selectedIcon: Icons.analytics,
+      label: 'Analytics',
     ),
   ];
 
@@ -281,66 +282,37 @@ class _MainScreenState extends State<MainScreen>
             physics: const ClampingScrollPhysics(),
             children: _screens,
           ),
-          bottomNavigationBar: Padding(
-            padding: EdgeInsets.only(
+          bottomNavigationBar: CustomBottomNavigationBar(
+            height: 45,
+            selectedIndex: _selectedIndex,
+            onDestinationSelected: _onDestinationSelected,
+            destinations: _destinations,
+            backgroundColor:
+                _isOpaqueBottomNav
+                    ? Theme.of(context).colorScheme.primary.withAlpha(200)
+                    : Theme.of(context).colorScheme.secondary.withAlpha(25),
+            elevation: _isOpaqueBottomNav ? 4 : 8,
+            animationDuration: const Duration(milliseconds: 500),
+            indicatorColor:
+                _isOpaqueBottomNav
+                    ? Theme.of(context).colorScheme.onPrimary.withAlpha(50)
+                    : Theme.of(context).colorScheme.primary.withAlpha(50),
+            isOpaque: _isOpaqueBottomNav,
+            margin: EdgeInsets.only(
               left: 24.0,
               right: _selectedIndex != 2 ? 75.0 : 24.0,
-              bottom: 16.0,
+              bottom: 18.0,
             ),
-            child: Card(
-              color:
-                  _isOpaqueBottomNav
-                      ? Theme.of(context).colorScheme.primary.withAlpha(200)
-                      : Theme.of(context).colorScheme.secondary.withAlpha(25),
-              elevation: _isOpaqueBottomNav ? 4 : 8,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(24),
-                side:
-                    _isOpaqueBottomNav
-                        ? BorderSide.none
-                        : BorderSide(
-                          color: Theme.of(
-                            context,
-                          ).colorScheme.outline.withAlpha(50),
-                          width: 1,
-                        ),
-              ),
-              child: NavigationBar(
-                selectedIndex: _tabController.index,
-                onDestinationSelected: _onDestinationSelected,
-                destinations:
-                    _destinations.map((destination) {
-                      return NavigationDestination(
-                        icon: Icon(
-                          (destination.icon as Icon).icon,
-                          color:
-                              _isOpaqueBottomNav
-                                  ? Theme.of(
-                                    context,
-                                  ).colorScheme.onPrimary.withAlpha(150)
-                                  : null,
-                        ),
-                        selectedIcon: Icon(
-                          (destination.selectedIcon as Icon).icon,
-                          color:
-                              _isOpaqueBottomNav
-                                  ? Theme.of(context).colorScheme.onPrimary
-                                  : Theme.of(context).colorScheme.primary,
-                        ),
-                        label: destination.label,
-                      );
-                    }).toList(),
-                backgroundColor: Colors.transparent,
-                elevation: 0,
-                height: 48,
-                labelBehavior: NavigationDestinationLabelBehavior.alwaysHide,
-                animationDuration: const Duration(milliseconds: 500),
-                indicatorColor:
-                    _isOpaqueBottomNav
-                        ? Theme.of(context).colorScheme.onPrimary.withAlpha(50)
-                        : Theme.of(context).colorScheme.primary.withAlpha(50),
-              ),
-            ),
+            borderRadius: BorderRadius.circular(24),
+            border:
+                _isOpaqueBottomNav
+                    ? null
+                    : Border.all(
+                      color: Theme.of(
+                        context,
+                      ).colorScheme.outline.withAlpha(50),
+                      width: 1,
+                    ),
           ),
         );
       },

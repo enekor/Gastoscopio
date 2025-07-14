@@ -119,6 +119,72 @@ abstract class AppLocalizations {
   /// **'Resumen'**
   String get summary;
 
+  /// Pestaña de análisis IA
+  ///
+  /// In es, this message translates to:
+  /// **'Análisis IA'**
+  String get aiAnalysis;
+
+  /// Título del resumen mensual
+  ///
+  /// In es, this message translates to:
+  /// **'Resumen del Mes'**
+  String get monthlySummary;
+
+  /// Etiqueta para balance
+  ///
+  /// In es, this message translates to:
+  /// **'Balance'**
+  String get balance;
+
+  /// Mensaje de porcentaje de gastos
+  ///
+  /// In es, this message translates to:
+  /// **'Has gastado el {percent}% de tus ingresos'**
+  String youSpentPercent(int percent);
+
+  /// Título de distribución de gastos por categoría
+  ///
+  /// In es, this message translates to:
+  /// **'Distribución de Gastos por Categoría'**
+  String get categoryDistribution;
+
+  /// Título de gastos diarios
+  ///
+  /// In es, this message translates to:
+  /// **'Gastos Diarios'**
+  String get dailyExpenses;
+
+  /// Título del análisis de gastos
+  ///
+  /// In es, this message translates to:
+  /// **'Análisis de Gastos'**
+  String get aiAnalysisTitle;
+
+  /// Botón para generar análisis
+  ///
+  /// In es, this message translates to:
+  /// **'Generar'**
+  String get generate;
+
+  /// Instrucción para generar análisis
+  ///
+  /// In es, this message translates to:
+  /// **'Pulsa el botón \"Generar Análisis\" para obtener un análisis detallado de tus gastos e ingresos de este mes.'**
+  String get generateAnalysisHint;
+
+  /// Mensaje cuando no hay datos para un mes específico
+  ///
+  /// In es, this message translates to:
+  /// **'No hay datos para {month} {year}'**
+  String noDataForMonth(String month, int year);
+
+  /// Mensaje cuando no hay datos
+  ///
+  /// In es, this message translates to:
+  /// **'Los datos aparecerán aquí cuando agregues movimientos'**
+  String get dataWillAppear;
+
   /// Pantalla de ajustes
   ///
   /// In es, this message translates to:
@@ -1348,6 +1414,222 @@ abstract class AppLocalizations {
   /// In es, this message translates to:
   /// **'No se ha podido guardar la API Key'**
   String get errorSavingApiKey;
+
+  /// Título del diálogo para configurar la API Key
+  ///
+  /// In es, this message translates to:
+  /// **'Configurar API Key'**
+  String get configureApiKey;
+
+  /// Mensaje que solicita al usuario ingresar su API Key
+  ///
+  /// In es, this message translates to:
+  /// **'Para utilizar las funciones de IA, por favor ingrese su API Key:'**
+  String get enterApiKeyMessage;
+
+  /// Botón para posponer una acción
+  ///
+  /// In es, this message translates to:
+  /// **'Más tarde'**
+  String get later;
+
+  /// Botón para proceder con una acción
+  ///
+  /// In es, this message translates to:
+  /// **'Vamos allá'**
+  String get letsGo;
+
+  /// Mensaje cuando la IA no puede generar una respuesta
+  ///
+  /// In es, this message translates to:
+  /// **'No se pudo generar una respuesta'**
+  String get noResponseGenerated;
+
+  /// Mensaje de error cuando la API Key no está configurada
+  ///
+  /// In es, this message translates to:
+  /// **'API Key no configurada'**
+  String get apiKeyNotConfigured;
+
+  /// Mensaje de error cuando no se ha seleccionado un mes
+  ///
+  /// In es, this message translates to:
+  /// **'Mes no seleccionado'**
+  String get noMonthSelected;
+
+  /// Título del diálogo para crear un nuevo mes
+  ///
+  /// In es, this message translates to:
+  /// **'Crear nuevo mes'**
+  String get createNewMonth;
+
+  /// No description provided for @monthDoesNotExist.
+  ///
+  /// In es, this message translates to:
+  /// **'El mes {month} de {year} no existe. ¿Deseas crearlo?'**
+  String monthDoesNotExist(String month, String year);
+
+  /// Botón Sí
+  ///
+  /// In es, this message translates to:
+  /// **'Sí'**
+  String get yes;
+
+  /// Botón No
+  ///
+  /// In es, this message translates to:
+  /// **'No'**
+  String get no;
+
+  /// Mes de enero
+  ///
+  /// In es, this message translates to:
+  /// **'Enero'**
+  String get january;
+
+  /// Mes de febrero
+  ///
+  /// In es, this message translates to:
+  /// **'Febrero'**
+  String get february;
+
+  /// Mes de marzo
+  ///
+  /// In es, this message translates to:
+  /// **'Marzo'**
+  String get march;
+
+  /// Mes de abril
+  ///
+  /// In es, this message translates to:
+  /// **'Abril'**
+  String get april;
+
+  /// Mes de mayo
+  ///
+  /// In es, this message translates to:
+  /// **'Mayo'**
+  String get may;
+
+  /// Mes de junio
+  ///
+  /// In es, this message translates to:
+  /// **'Junio'**
+  String get june;
+
+  /// Mes de julio
+  ///
+  /// In es, this message translates to:
+  /// **'Julio'**
+  String get july;
+
+  /// Mes de agosto
+  ///
+  /// In es, this message translates to:
+  /// **'Agosto'**
+  String get august;
+
+  /// Mes de septiembre
+  ///
+  /// In es, this message translates to:
+  /// **'Septiembre'**
+  String get september;
+
+  /// Mes de octubre
+  ///
+  /// In es, this message translates to:
+  /// **'Octubre'**
+  String get october;
+
+  /// Mes de noviembre
+  ///
+  /// In es, this message translates to:
+  /// **'Noviembre'**
+  String get november;
+
+  /// Mes de diciembre
+  ///
+  /// In es, this message translates to:
+  /// **'Diciembre'**
+  String get december;
+
+  /// Etiqueta para nombre
+  ///
+  /// In es, this message translates to:
+  /// **'Nombre'**
+  String get name;
+
+  /// Mensaje de error cuando el nombre es requerido
+  ///
+  /// In es, this message translates to:
+  /// **'El nombre es requerido'**
+  String get nameRequired;
+
+  /// Mensaje de error cuando el monto es inválido
+  ///
+  /// In es, this message translates to:
+  /// **'Monto inválido'**
+  String get invalidAmount;
+
+  /// Mensaje cuando se requiere iniciar sesión
+  ///
+  /// In es, this message translates to:
+  /// **'Inicio de sesión requerido'**
+  String get loginRequired;
+
+  /// Mensaje explicativo de por qué se necesita iniciar sesión
+  ///
+  /// In es, this message translates to:
+  /// **'Inicia sesión para acceder a esta función'**
+  String get loginToAccess;
+
+  /// Botón de inicio de sesión
+  ///
+  /// In es, this message translates to:
+  /// **'Iniciar sesión'**
+  String get login;
+
+  /// Botón de cerrar sesión
+  ///
+  /// In es, this message translates to:
+  /// **'Cerrar sesión'**
+  String get logout;
+
+  /// Mensaje de éxito al cerrar sesión
+  ///
+  /// In es, this message translates to:
+  /// **'Sesión cerrada correctamente'**
+  String get loggedOutSuccessfully;
+
+  /// Mensaje de éxito al iniciar sesión
+  ///
+  /// In es, this message translates to:
+  /// **'Sesión iniciada correctamente'**
+  String get loggedInSuccessfully;
+
+  /// Mensaje de error al iniciar sesión
+  ///
+  /// In es, this message translates to:
+  /// **'Error al iniciar sesión'**
+  String get loginError;
+
+  /// Título de la sección de cuenta en ajustes
+  ///
+  /// In es, this message translates to:
+  /// **'Cuenta'**
+  String get accountSection;
+
+  /// Descripción de la sección de cuenta
+  ///
+  /// In es, this message translates to:
+  /// **'Gestiona tu cuenta y las opciones de inicio de sesión'**
+  String get accountDescription;
+
+  /// Título de movimientos futuros
+  ///
+  /// In es, this message translates to:
+  /// **'Movimientos futuros'**
+  String get futureMovements;
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {

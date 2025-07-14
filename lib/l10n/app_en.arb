@@ -4,6 +4,25 @@
   "home": "Home",
   "movements": "Movements",
   "summary": "Summary",
+  "aiAnalysis": "AI Analysis",
+  "monthlySummary": "Monthly Summary",
+  "configureApiKey": "Configure API Key",
+  "enterApiKeyMessage": "To use AI features, please enter your API Key:",
+  "later": "Later",
+  "letsGo": "Let's go",
+  "noResponseGenerated": "Could not generate a response",
+  "apiKeyNotConfigured": "API Key not configured",
+  "incomes": "Incomes",
+  "expenses": "Expenses",
+  "balance": "Balance",
+  "youSpentPercent": "You have spent {percent}% of your income",
+  "categoryDistribution": "Expense Distribution by Category",
+  "dailyExpenses": "Daily Expenses",
+  "aiAnalysisTitle": "Expense Analysis",
+  "generate": "Generate",
+  "generateAnalysisHint": "Press the \"Generate Analysis\" button to get a detailed analysis of your expenses and income for this month.",
+  "noDataForMonth": "No data for {month} {year}",
+  "dataWillAppear": "Data will appear here when you add movements.",
   "settings": "Settings",
   "newExpense": "New Expense",
   "newIncome": "New Income",
@@ -66,8 +85,6 @@
   "manageRecurringMovements": "Manage Recurring Movements",
   "noMovementsToShow": "No movements to show.",
   "total": "Total",
-  "incomes": "Incomes",
-  "expenses": "Expenses",
   "monthBalance": "Month Balance",
   "expensesByCategory": "Expenses by Category",
   "noTagsGenerated": "Could not generate tags for movements. Try again later or check the API key provided in settings.",
@@ -209,5 +226,62 @@
   "importFromJsonSubtitle": "Import data from a Gastoscopio JSON file.",
   "deleteDatabaseSubtitle": "⚠️ DANGER: Permanently deletes ALL app data. This action cannot be undone.",
   "cleaning": "Cleaning...",
-  "cleanAllData": "Clean All Data"
+  "cleanAllData": "Clean All Data",
+  "noMonthSelected": "No month selected",
+  "createNewMonth": "Create new month",
+  "monthDoesNotExist": "The month {month} of {year} does not exist. Would you like to create it?",
+  "yes": "Yes",
+  "no": "No",
+  "january": "January",
+  "february": "February",
+  "march": "March",
+  "april": "April",
+  "may": "May",
+  "june": "June",
+  "july": "July",
+  "august": "August",
+  "september": "September",
+  "october": "October",
+  "november": "November",
+  "december": "December",
+  "name": "Name",
+  "nameRequired": "Name is required",
+  "invalidAmount": "Invalid amount",
+  "loginRequired": "Login Required",
+  "@loginRequired": {
+    "description": "Message when login is required"
+  },
+  "loginToAccess": "Sign in to access this feature",
+  "@loginToAccess": {
+    "description": "Explanatory message of why login is needed"
+  },
+  "login": "Sign in",
+  "@login": {
+    "description": "Login button"
+  },
+  "logout": "Sign out",
+  "@logout": {
+    "description": "Logout button"
+  },
+  "loggedOutSuccessfully": "Signed out successfully",
+  "@loggedOutSuccessfully": {
+    "description": "Success message when signing out"
+  },
+  "loggedInSuccessfully": "Signed in successfully",
+  "@loggedInSuccessfully": {
+    "description": "Success message when signing in"
+  },
+  "loginError": "Sign in error",
+  "@loginError": {
+    "description": "Error message when signing in fails"
+  },
+  "accountSection": "Account",
+  "@accountSection": {
+    "description": "Account section title in settings"
+  },
+  "accountDescription": "Manage your account and sign-in options",
+  "@accountDescription": {
+    "description": "Account section description"
+  },
+  "futureMovements": "Future Movements"
 }

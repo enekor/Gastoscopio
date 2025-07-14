@@ -370,6 +370,7 @@ class _MovementFormScreenState extends State<MovementFormScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final localizations = AppLocalizations.of(context)!;
     return Material(
       child: Padding(
         padding: EdgeInsets.only(
@@ -388,7 +389,9 @@ class _MovementFormScreenState extends State<MovementFormScreen> {
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       Text(
-                        _isExpense ? 'Nuevo Gasto' : 'Nuevo Ingreso',
+                        _isExpense
+                            ? localizations.newExpense
+                            : localizations.newIncome,
                         style: Theme.of(context).textTheme.titleLarge,
                       ),
                       IconButton(
@@ -400,16 +403,16 @@ class _MovementFormScreenState extends State<MovementFormScreen> {
                   const SizedBox(height: 16),
                   // Selector de tipo de movimiento
                   SegmentedButton<bool>(
-                    segments: const [
+                    segments: [
                       ButtonSegment<bool>(
                         value: true,
-                        label: Text('Gasto'),
-                        icon: Icon(Icons.remove_circle_outline),
+                        label: Text(localizations.expense),
+                        icon: const Icon(Icons.remove_circle_outline),
                       ),
                       ButtonSegment<bool>(
                         value: false,
-                        label: Text('Ingreso'),
-                        icon: Icon(Icons.add_circle_outline),
+                        label: Text(localizations.income),
+                        icon: const Icon(Icons.add_circle_outline),
                       ),
                     ],
                     selected: {_isExpense},
@@ -424,13 +427,13 @@ class _MovementFormScreenState extends State<MovementFormScreen> {
                   // Campo de descripción
                   TextFormField(
                     controller: _descriptionController,
-                    decoration: const InputDecoration(
-                      labelText: 'Descripción',
-                      border: OutlineInputBorder(),
+                    decoration: InputDecoration(
+                      labelText: localizations.description,
+                      border: const OutlineInputBorder(),
                     ),
                     validator: (value) {
                       if (value == null || value.isEmpty) {
-                        return 'Por favor ingrese una descripción';
+                        return localizations.pleaseEnterDescription;
                       }
                       return null;
                     },
@@ -441,7 +444,7 @@ class _MovementFormScreenState extends State<MovementFormScreen> {
                   TextFormField(
                     controller: _amountController,
                     decoration: InputDecoration(
-                      labelText: 'Monto',
+                      labelText: localizations.amount,
                       border: const OutlineInputBorder(),
                       suffixText: _moneda,
                     ),
@@ -450,10 +453,10 @@ class _MovementFormScreenState extends State<MovementFormScreen> {
                     ),
                     validator: (value) {
                       if (value == null || value.isEmpty) {
-                        return 'Por favor ingrese un monto';
+                        return localizations.pleaseEnterAmount;
                       }
                       if (double.tryParse(value.replaceAll(',', '.')) == null) {
-                        return 'Por favor ingrese un monto válido';
+                        return localizations.pleaseEnterValidAmount;
                       }
                       return null;
                     },
@@ -465,7 +468,7 @@ class _MovementFormScreenState extends State<MovementFormScreen> {
                     onPressed: () => _selectDate(context),
                     icon: const Icon(Icons.calendar_today),
                     label: Text(
-                      'Fecha: ${_selectedDate.day}/${_selectedDate.month}/${_selectedDate.year}',
+                      '${localizations.date}: \\${_selectedDate.day}/${_selectedDate.month}/${_selectedDate.year}',
                     ),
                   ),
                   const SizedBox(height: 16), // Botón de guardar
@@ -473,10 +476,10 @@ class _MovementFormScreenState extends State<MovementFormScreen> {
                     onPressed: _isLoading ? null : () => _saveMovement(context),
                     child:
                         _isLoading
-                            ? const Row(
+                            ? Row(
                               mainAxisSize: MainAxisSize.min,
                               children: [
-                                SizedBox(
+                                const SizedBox(
                                   width: 16,
                                   height: 16,
                                   child: CircularProgressIndicator(
@@ -486,11 +489,11 @@ class _MovementFormScreenState extends State<MovementFormScreen> {
                                     ),
                                   ),
                                 ),
-                                SizedBox(width: 8),
-                                Text('Guardando...'),
+                                const SizedBox(width: 8),
+                                Text(localizations.saving),
                               ],
                             )
-                            : const Text('Guardar'),
+                            : Text(localizations.save),
                   ),
                   const SizedBox(height: 8),
                 ],

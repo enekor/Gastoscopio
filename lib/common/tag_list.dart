@@ -1,4 +1,5 @@
-List<String> TagList = [
+// Spanish tags list
+List<String> SpanishTagList = [
   'Vivienda (Alquiler/Hipoteca)',
   'Comida (Supermercado)',
   'Ocio y Entretenimiento',
@@ -29,3 +30,47 @@ List<String> TagList = [
   'Donaciones y Caridad',
   'Otros Gastos Misceláneos',
 ];
+
+// English tags list
+List<String> EnglishTagList = [
+  'Housing (Rent/Mortgage)',
+  'Food (Grocery)',
+  'Leisure and Entertainment',
+  'Restaurants and Bars',
+  'Home Utilities (Water, Electricity, Gas, Internet)',
+  'Transportation (Fuel, Vehicle Maintenance, Public Transport)',
+  'Health (Medical, Pharmacy, Insurance)',
+  'Education (Courses, Books, Tuition)',
+  'Clothing and Footwear',
+  'Personal Care (Hairdresser, Cosmetics)',
+  'Pets',
+  'Travel and Vacations',
+  'Gifts and Celebrations',
+  'Furniture and Decoration',
+  'Home Repairs and Improvements',
+  'Electronics and Appliances',
+  'Debts and Loans',
+  'Taxes and Fees',
+  'Insurance (non-health/vehicle)',
+  'Sports and Physical Activities',
+  'Subscriptions (Streaming, Apps, Gym)',
+  'Culture (Books, Magazines, Museums)',
+  'Technology and Software',
+  'Unexpected Expenses',
+  'Savings and Investment',
+  'Professional Development (Courses, Workshops)',
+  'Children/Family (Specific Expenses)',
+  'Donations and Charity',
+  'Other Miscellaneous Expenses',
+];
+
+// Function to get the appropriate tag list based on locale
+List<String> getTagList(String languageCode) {
+  switch (languageCode.toLowerCase()) {
+    case 'es':
+      return SpanishTagList;
+    case 'en':
+    default:
+      return EnglishTagList;
+  }
+}
