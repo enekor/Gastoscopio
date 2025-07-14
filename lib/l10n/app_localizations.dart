@@ -1655,6 +1655,102 @@ abstract class AppLocalizations {
   /// **'Funciones de IA'**
   String get iaFeaturesText;
 
+  /// Sección de seguridad de la aplicación
+  ///
+  /// In es, this message translates to:
+  /// **'Seguridad'**
+  String get security;
+
+  /// Descripción de la sección de seguridad
+  ///
+  /// In es, this message translates to:
+  /// **'Configura las funciones de seguridad de acceso a la app.'**
+  String get securityDescription;
+
+  /// Opción para activar el bloqueo de la aplicación
+  ///
+  /// In es, this message translates to:
+  /// **'Activar bloqueo de la app'**
+  String get useAppLock;
+
+  /// Descripción de la opción de bloqueo de la app
+  ///
+  /// In es, this message translates to:
+  /// **'Requiere autenticación para acceder a la app.'**
+  String get useAppLockDescription;
+
+  /// Opción para usar huella o reconocimiento facial
+  ///
+  /// In es, this message translates to:
+  /// **'Usar biometría'**
+  String get useBiometrics;
+
+  /// Descripción de la opción de biometría
+  ///
+  /// In es, this message translates to:
+  /// **'Utiliza huella digital o reconocimiento facial para desbloquear.'**
+  String get useBiometricsDescription;
+
+  /// Etiqueta para PIN
+  ///
+  /// In es, this message translates to:
+  /// **'PIN'**
+  String get pin;
+
+  /// Mensaje para introducir el PIN
+  ///
+  /// In es, this message translates to:
+  /// **'Introduce el PIN'**
+  String get enterPin;
+
+  /// Mensaje para introducir el PIN al acceder
+  ///
+  /// In es, this message translates to:
+  /// **'Introduce el PIN para acceder a la app'**
+  String get enterPinToAccess;
+
+  /// Mensaje para configurar el PIN
+  ///
+  /// In es, this message translates to:
+  /// **'Introduce un PIN de 4 dígitos para proteger tu app'**
+  String get enterPinSetup;
+
+  /// Botón para configurar el PIN
+  ///
+  /// In es, this message translates to:
+  /// **'Configurar PIN'**
+  String get setupPin;
+
+  /// Botón para cambiar el PIN
+  ///
+  /// In es, this message translates to:
+  /// **'Cambiar PIN'**
+  String get changePin;
+
+  /// Descripción para cambiar el PIN
+  ///
+  /// In es, this message translates to:
+  /// **'Cambia tu código PIN de seguridad'**
+  String get changePinDescription;
+
+  /// Mensaje de error para PIN inválido
+  ///
+  /// In es, this message translates to:
+  /// **'Código PIN inválido'**
+  String get invalidPin;
+
+  /// Mensaje de éxito al configurar el PIN
+  ///
+  /// In es, this message translates to:
+  /// **'PIN configurado correctamente'**
+  String get pinSetupSuccess;
+
+  /// Botón para verificar
+  ///
+  /// In es, this message translates to:
+  /// **'Verificar'**
+  String get verify;
+
   /// No description provided for @a.
   ///
   /// In es, this message translates to:

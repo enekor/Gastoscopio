@@ -1145,5 +1145,69 @@
   "@iaFeaturesText": {
     "description": "Texto para las funciones de IA"
   },
+  "security": "Seguridad",
+  "@security": {
+    "description": "Sección de seguridad de la aplicación"
+  },
+  "securityDescription": "Configura las funciones de seguridad de acceso a la app.",
+  "@securityDescription": {
+    "description": "Descripción de la sección de seguridad"
+  },
+  "useAppLock": "Activar bloqueo de la app",
+  "@useAppLock": {
+    "description": "Opción para activar el bloqueo de la aplicación"
+  },
+  "useAppLockDescription": "Requiere autenticación para acceder a la app.",
+  "@useAppLockDescription": {
+    "description": "Descripción de la opción de bloqueo de la app"
+  },
+  "useBiometrics": "Usar biometría",
+  "@useBiometrics": {
+    "description": "Opción para usar huella o reconocimiento facial"
+  },
+  "useBiometricsDescription": "Utiliza huella digital o reconocimiento facial para desbloquear.",
+  "@useBiometricsDescription": {
+    "description": "Descripción de la opción de biometría"
+  },
+  "pin": "PIN",
+  "@pin": {
+    "description": "Etiqueta para PIN"
+  },
+  "enterPin": "Introduce el PIN",
+  "@enterPin": {
+    "description": "Mensaje para introducir el PIN"
+  },
+  "enterPinToAccess": "Introduce el PIN para acceder a la app",
+  "@enterPinToAccess": {
+    "description": "Mensaje para introducir el PIN al acceder"
+  },
+  "enterPinSetup": "Introduce un PIN de 4 dígitos para proteger tu app",
+  "@enterPinSetup": {
+    "description": "Mensaje para configurar el PIN"
+  },
+  "setupPin": "Configurar PIN",
+  "@setupPin": {
+    "description": "Botón para configurar el PIN"
+  },
+  "changePin": "Cambiar PIN",
+  "@changePin": {
+    "description": "Botón para cambiar el PIN"
+  },
+  "changePinDescription": "Cambia tu código PIN de seguridad",
+  "@changePinDescription": {
+    "description": "Descripción para cambiar el PIN"
+  },
+  "invalidPin": "Código PIN inválido",
+  "@invalidPin": {
+    "description": "Mensaje de error para PIN inválido"
+  },
+  "pinSetupSuccess": "PIN configurado correctamente",
+  "@pinSetupSuccess": {
+    "description": "Mensaje de éxito al configurar el PIN"
+  },
+  "verify": "Verificar",
+  "@verify": {
+    "description": "Botón para verificar"
+  },
   "a":"flutter gen-l10n"
 }

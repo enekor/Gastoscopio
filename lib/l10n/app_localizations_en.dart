@@ -821,5 +821,53 @@ class AppLocalizationsEn extends AppLocalizations {
   String get iaFeaturesText => 'You are missing out on the app\'s smart features!\n\nEnable AI to get automatic analysis, personalized suggestions and much more.';
 
   @override
+  String get security => 'Security';
+
+  @override
+  String get securityDescription => 'Configure app access security features.';
+
+  @override
+  String get useAppLock => 'Enable app lock';
+
+  @override
+  String get useAppLockDescription => 'Require authentication to access the app.';
+
+  @override
+  String get useBiometrics => 'Use biometrics';
+
+  @override
+  String get useBiometricsDescription => 'Use fingerprint or face recognition to unlock.';
+
+  @override
+  String get pin => 'PIN';
+
+  @override
+  String get enterPin => 'Enter PIN';
+
+  @override
+  String get enterPinToAccess => 'Enter PIN to access the app';
+
+  @override
+  String get enterPinSetup => 'Enter a 4-digit PIN to secure your app';
+
+  @override
+  String get setupPin => 'Setup PIN';
+
+  @override
+  String get changePin => 'Change PIN';
+
+  @override
+  String get changePinDescription => 'Change your security PIN code';
+
+  @override
+  String get invalidPin => 'Invalid PIN code';
+
+  @override
+  String get pinSetupSuccess => 'PIN setup successfully';
+
+  @override
+  String get verify => 'Verify';
+
+  @override
   String get a => 'flutter gen-l10n';
 }

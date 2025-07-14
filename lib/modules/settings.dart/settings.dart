@@ -13,6 +13,7 @@ import 'package:cashly/l10n/app_localizations.dart';
 import 'package:flutter_colorpicker/flutter_colorpicker.dart';
 import 'package:svg_flutter/svg.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:cashly/modules/settings.dart/widgets/security_settings_card.dart';
 
 class SettingsScreen extends StatefulWidget {
   const SettingsScreen({super.key});
@@ -431,6 +432,19 @@ class _SettingsScreenState extends State<SettingsScreen> {
 
               // Bottom Navigation Style Card
               _buildBottomNavCard(context),
+              const SizedBox(height: 10),
+              const Divider(),
+              const SizedBox(height: 10),
+
+              // Security Section
+              _buildSectionHeader(
+                context,
+                AppLocalizations.of(context).security,
+                AppLocalizations.of(context).securityDescription,
+                Icons.security,
+              ),
+              const SizedBox(height: 20),
+              const SecuritySettingsCard(),
               const SizedBox(height: 10),
               const Divider(),
               const SizedBox(height: 10),

@@ -1,6 +1,8 @@
 import 'package:cashly/app.dart';
+import 'package:cashly/data/services/auth_service.dart';
 import 'package:cashly/data/services/gemini_service.dart';
 import 'package:cashly/data/services/locale_service.dart';
+import 'package:cashly/modules/auth/screens/auth_screen.dart';
 import 'package:dynamic_color/dynamic_color.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
@@ -27,6 +29,7 @@ class MyApp extends StatefulWidget {
 
 class _MyAppState extends State<MyApp> {
   final LocaleService _localeService = LocaleService();
+  final AuthService _authService = AuthService();
 
   @override
   void initState() {
@@ -77,7 +80,21 @@ class _MyAppState extends State<MyApp> {
                 ),
           ),
           themeMode: ThemeMode.system,
-          home: const App(),
+          home: FutureBuilder<bool>(
+            future: _authService.getUseAuth(),
+            builder: (context, snapshot) {
+              if (snapshot.connectionState == ConnectionState.waiting) {
+                return const Center(child: CircularProgressIndicator());
+              }
+
+              final useAuth = snapshot.data ?? false;
+              if (!useAuth) {
+                return const App();
+              }
+
+              return const AuthScreen();
+            },
+          ),
         );
       },
     );
