@@ -872,5 +872,95 @@ class AppLocalizationsEn extends AppLocalizations {
   String get verify => 'Verify';
 
   @override
-  String get a => 'flutter gen-l10n';
+  String get welcome => 'Welcome to Cashly';
+
+  @override
+  String get welcomeSubtitle => 'Your personal finance companion';
+
+  @override
+  String get getStarted => 'Get Started';
+
+  @override
+  String get next => 'Next';
+
+  @override
+  String get skip => 'Skip';
+
+  @override
+  String get finish => 'Finish';
+
+  @override
+  String get onboardingStep1Title => 'Track Your Finances';
+
+  @override
+  String get onboardingStep1Desc => 'Keep track of your income and expenses easily';
+
+  @override
+  String get onboardingStep2Title => 'Smart Analytics';
+
+  @override
+  String get onboardingStep2Desc => 'Get insights about your spending habits with AI assistance';
+
+  @override
+  String get onboardingStep3Title => 'Secure and Private';
+
+  @override
+  String get onboardingStep3Desc => 'Your data stays on your device, protected and private';
+
+  @override
+  String get termsAndConditions => 'Terms and Conditions';
+
+  @override
+  String get agreeToTerms => 'I agree to the Terms and Conditions';
+
+  @override
+  String get pleaseAgreeToTerms => 'Please agree to the Terms and Conditions to continue';
+
+  @override
+  String get configureGeminiApiKey => 'Configure your Gemini API Key';
+
+  @override
+  String get apiKeyRequired => 'API Key is required for AI features.\nIt\'s free and easy to obtain.';
+
+  @override
+  String get continueAction => 'Continue';
+
+  @override
+  String get welcomeToApp => 'Welcome to Cashly';
+
+  @override
+  String get connectGoogleAccount => 'Connect your Google account to sync and backup your financial data';
+
+  @override
+  String get noAccountConnected => 'No account connected';
+
+  @override
+  String get loginForBackupSync => 'Sign in with Google to access backup and sync features';
+
+  @override
+  String get correctlyConnected => 'Successfully connected';
+
+  @override
+  String get user => 'User';
+
+  @override
+  String get signInWithGoogle => 'Sign in with Google';
+
+  @override
+  String get optionalLogin => 'Optional: You can continue without an account, but you won\'t have access to backup features.';
+
+  @override
+  String get continueWithoutLogin => 'Continue without signing in';
+
+  @override
+  String get continueToNextStep => 'Continue to next step';
+
+  @override
+  String get signOut => 'Sign in out';
+
+  @override
+  String get signingIn => 'Signing in...';
+
+  @override
+  String get signingOut => 'Signing out...';
 }

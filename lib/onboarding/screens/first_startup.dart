@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_markdown/flutter_markdown.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:cashly/l10n/app_localizations.dart';
 
 class FirstStartupScreen extends StatefulWidget {
   const FirstStartupScreen({Key? key, required this.onTermsAccepted})
@@ -18,14 +19,11 @@ class FirstStartupScreen extends StatefulWidget {
 class _FirstStartupScreenState extends State<FirstStartupScreen> {
   bool _hasScrolledToBottom = false;
   final ScrollController _scrollController = ScrollController();
-  String _termsContent = '';
-  bool _isLoading = true;
 
   @override
   void initState() {
     super.initState();
     _scrollController.addListener(_onScroll);
-    _loadTermsFromAssets();
   }
 
   @override
@@ -34,21 +32,16 @@ class _FirstStartupScreenState extends State<FirstStartupScreen> {
     super.dispose();
   }
 
-  Future<void> _loadTermsFromAssets() async {
+  Future<String> _loadTermsFromAssets() async {
     try {
-      final content = await rootBundle.loadString(
-        'assets/terminos-y-condiciones.md',
-      );
-      setState(() {
-        _termsContent = content;
-        _isLoading = false;
-      });
+      final locale = AppLocalizations.of(context).localeName;
+      final fileName =
+          locale == 'es'
+              ? 'terminos-y-condiciones.md'
+              : 'terms-and-conditions-en.md';
+      return await rootBundle.loadString('assets/$fileName');
     } catch (e) {
-      // Fallback a texto estático si hay error cargando el archivo
-      setState(() {
-        _termsContent = _fallbackTermsText;
-        _isLoading = false;
-      });
+      return _fallbackTermsText;
     }
   }
 
@@ -68,7 +61,7 @@ class _FirstStartupScreenState extends State<FirstStartupScreen> {
     return Scaffold(
       appBar: AppBar(
         title: Text(
-          'Términos y Condiciones',
+          AppLocalizations.of(context).termsAndConditions,
           style: GoogleFonts.pacifico(
             fontSize: 20,
             fontWeight: FontWeight.bold,
@@ -88,14 +81,14 @@ class _FirstStartupScreenState extends State<FirstStartupScreen> {
               fit: BoxFit.contain,
             ),
             const SizedBox(height: 16),
-            const Text(
-              '¡Bienvenido a Gastoscopio!',
-              style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+            Text(
+              AppLocalizations.of(context).welcome,
+              style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 8),
-            const Text(
-              'Por favor, lee y acepta los términos de uso para continuar:',
-              style: TextStyle(fontSize: 16),
+            Text(
+              AppLocalizations.of(context).welcomeSubtitle,
+              style: const TextStyle(fontSize: 16),
               textAlign: TextAlign.center,
             ),
             const SizedBox(height: 20),
@@ -105,50 +98,56 @@ class _FirstStartupScreenState extends State<FirstStartupScreen> {
                   border: Border.all(color: Colors.grey.shade300),
                   borderRadius: BorderRadius.circular(8),
                 ),
-                child:
-                    _isLoading
-                        ? const Center(child: CircularProgressIndicator())
-                        : Markdown(
-                          controller: _scrollController,
-                          data: _termsContent,
-                          padding: const EdgeInsets.all(16),
-                          styleSheet: MarkdownStyleSheet(
-                            p: const TextStyle(fontSize: 14, height: 1.5),
-                            h1: const TextStyle(
-                              fontSize: 20,
-                              fontWeight: FontWeight.bold,
-                            ),
-                            h2: const TextStyle(
-                              fontSize: 18,
-                              fontWeight: FontWeight.bold,
-                            ),
-                            h3: const TextStyle(
-                              fontSize: 16,
-                              fontWeight: FontWeight.bold,
-                            ),
-                            blockquote: TextStyle(
-                              fontSize: 14,
-                              fontStyle: FontStyle.italic,
-                              color: Theme.of(context).colorScheme.onSurface,
-                            ),
-                            blockquoteDecoration: BoxDecoration(
-                              color: Theme.of(context).colorScheme.surface,
-                              border: Border(
-                                left: BorderSide(
-                                  color: Theme.of(context).colorScheme.primary,
-                                  width: 4,
-                                ),
-                              ),
+                child: FutureBuilder<String>(
+                  future: _loadTermsFromAssets(),
+                  builder: (context, snapshot) {
+                    if (snapshot.connectionState == ConnectionState.waiting) {
+                      return const Center(child: CircularProgressIndicator());
+                    }
+
+                    return Markdown(
+                      controller: _scrollController,
+                      data: snapshot.data ?? _fallbackTermsText,
+                      padding: const EdgeInsets.all(16),
+                      styleSheet: MarkdownStyleSheet(
+                        p: const TextStyle(fontSize: 14, height: 1.5),
+                        h1: const TextStyle(
+                          fontSize: 20,
+                          fontWeight: FontWeight.bold,
+                        ),
+                        h2: const TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold,
+                        ),
+                        h3: const TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.bold,
+                        ),
+                        blockquote: TextStyle(
+                          fontSize: 14,
+                          fontStyle: FontStyle.italic,
+                          color: Theme.of(context).colorScheme.onSurface,
+                        ),
+                        blockquoteDecoration: BoxDecoration(
+                          color: Theme.of(context).colorScheme.surface,
+                          border: Border(
+                            left: BorderSide(
+                              color: Theme.of(context).colorScheme.primary,
+                              width: 4,
                             ),
                           ),
                         ),
+                      ),
+                    );
+                  },
+                ),
               ),
             ),
             const SizedBox(height: 20),
             if (!_hasScrolledToBottom)
-              const Text(
-                'Desplázate hasta el final para habilitar los botones',
-                style: TextStyle(
+              Text(
+                AppLocalizations.of(context).pleaseAgreeToTerms,
+                style: const TextStyle(
                   color: Colors.orange,
                   fontStyle: FontStyle.italic,
                 ),
@@ -165,7 +164,7 @@ class _FirstStartupScreenState extends State<FirstStartupScreen> {
                     backgroundColor: Colors.red,
                     foregroundColor: Colors.white,
                   ),
-                  child: const Text('Rechazar y Salir'),
+                  child: Text(AppLocalizations.of(context).cancel),
                 ),
                 ElevatedButton(
                   onPressed:
@@ -178,7 +177,7 @@ class _FirstStartupScreenState extends State<FirstStartupScreen> {
                     backgroundColor:
                         _hasScrolledToBottom ? Colors.green : Colors.grey,
                   ),
-                  child: const Text('Aceptar y Continuar'),
+                  child: Text(AppLocalizations.of(context).accept),
                 ),
               ],
             ),
@@ -190,20 +189,10 @@ class _FirstStartupScreenState extends State<FirstStartupScreen> {
   }
 }
 
-const String _fallbackTermsText =
-    '''# TÉRMINOS Y CONDICIONES DE USO - Gastoscopio
+const String _fallbackTermsText = '''
+# Terms and Conditions
 
-**Última actualización:** Junio 2025
+This is a fallback text that appears if the main terms and conditions file cannot be loaded.
 
-Al utilizar la aplicación Gastoscopio, usted acepta estos términos y condiciones de uso.
-
-Gastoscopio es una aplicación de gestión financiera personal que utiliza su cuenta de Google para autenticación y almacenamiento seguro en Google Drive.
-
-La aplicación requiere una API Key de Google Gemini para análisis inteligentes. Esta clave se almacena localmente en su dispositivo.
-
-**Responsabilidad de IA:** Las recomendaciones generadas por IA no constituyen asesoría financiera profesional.
-
-**Privacidad:** No recopilamos información personal. Sus datos se almacenan localmente y en su Google Drive personal.
-
-Al continuar, acepta estos términos en su totalidad.
+Please try restarting the app. If the problem persists, please contact support.
 ''';

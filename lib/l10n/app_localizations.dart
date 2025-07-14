@@ -1757,11 +1757,191 @@ abstract class AppLocalizations {
   /// **'Verificar'**
   String get verify;
 
-  /// No description provided for @a.
+  /// No description provided for @welcome.
   ///
   /// In es, this message translates to:
-  /// **'flutter gen-l10n'**
-  String get a;
+  /// **'Bienvenido a Cashly'**
+  String get welcome;
+
+  /// No description provided for @welcomeSubtitle.
+  ///
+  /// In es, this message translates to:
+  /// **'Tu compañero de finanzas personales'**
+  String get welcomeSubtitle;
+
+  /// No description provided for @getStarted.
+  ///
+  /// In es, this message translates to:
+  /// **'Comenzar'**
+  String get getStarted;
+
+  /// No description provided for @next.
+  ///
+  /// In es, this message translates to:
+  /// **'Siguiente'**
+  String get next;
+
+  /// No description provided for @skip.
+  ///
+  /// In es, this message translates to:
+  /// **'Saltar'**
+  String get skip;
+
+  /// No description provided for @finish.
+  ///
+  /// In es, this message translates to:
+  /// **'Finalizar'**
+  String get finish;
+
+  /// No description provided for @onboardingStep1Title.
+  ///
+  /// In es, this message translates to:
+  /// **'Controla tus Finanzas'**
+  String get onboardingStep1Title;
+
+  /// No description provided for @onboardingStep1Desc.
+  ///
+  /// In es, this message translates to:
+  /// **'Mantén un registro de tus ingresos y gastos fácilmente'**
+  String get onboardingStep1Desc;
+
+  /// No description provided for @onboardingStep2Title.
+  ///
+  /// In es, this message translates to:
+  /// **'Análisis Inteligente'**
+  String get onboardingStep2Title;
+
+  /// No description provided for @onboardingStep2Desc.
+  ///
+  /// In es, this message translates to:
+  /// **'Obtén información sobre tus hábitos de gasto con ayuda de IA'**
+  String get onboardingStep2Desc;
+
+  /// No description provided for @onboardingStep3Title.
+  ///
+  /// In es, this message translates to:
+  /// **'Seguro y Privado'**
+  String get onboardingStep3Title;
+
+  /// No description provided for @onboardingStep3Desc.
+  ///
+  /// In es, this message translates to:
+  /// **'Tus datos permanecen en tu dispositivo, protegidos y privados'**
+  String get onboardingStep3Desc;
+
+  /// No description provided for @termsAndConditions.
+  ///
+  /// In es, this message translates to:
+  /// **'Términos y Condiciones'**
+  String get termsAndConditions;
+
+  /// No description provided for @agreeToTerms.
+  ///
+  /// In es, this message translates to:
+  /// **'Acepto los Términos y Condiciones'**
+  String get agreeToTerms;
+
+  /// No description provided for @pleaseAgreeToTerms.
+  ///
+  /// In es, this message translates to:
+  /// **'Por favor acepta los Términos y Condiciones para continuar'**
+  String get pleaseAgreeToTerms;
+
+  /// No description provided for @configureGeminiApiKey.
+  ///
+  /// In es, this message translates to:
+  /// **'Configura tu API Key de Gemini'**
+  String get configureGeminiApiKey;
+
+  /// No description provided for @apiKeyRequired.
+  ///
+  /// In es, this message translates to:
+  /// **'La API Key es necesaria para utilizar las funciones de IA.\nEs gratis y fácil de obtener.'**
+  String get apiKeyRequired;
+
+  /// No description provided for @continueAction.
+  ///
+  /// In es, this message translates to:
+  /// **'Continuar'**
+  String get continueAction;
+
+  /// No description provided for @welcomeToApp.
+  ///
+  /// In es, this message translates to:
+  /// **'Bienvenido a Gastoscopio'**
+  String get welcomeToApp;
+
+  /// No description provided for @connectGoogleAccount.
+  ///
+  /// In es, this message translates to:
+  /// **'Conecta tu cuenta de Google para sincronizar y respaldar tus datos financieros'**
+  String get connectGoogleAccount;
+
+  /// No description provided for @noAccountConnected.
+  ///
+  /// In es, this message translates to:
+  /// **'Sin cuenta conectada'**
+  String get noAccountConnected;
+
+  /// No description provided for @loginForBackupSync.
+  ///
+  /// In es, this message translates to:
+  /// **'Inicia sesión con Google para acceder a funciones de respaldo y sincronización'**
+  String get loginForBackupSync;
+
+  /// No description provided for @correctlyConnected.
+  ///
+  /// In es, this message translates to:
+  /// **'Conectado correctamente'**
+  String get correctlyConnected;
+
+  /// No description provided for @user.
+  ///
+  /// In es, this message translates to:
+  /// **'Usuario'**
+  String get user;
+
+  /// No description provided for @signInWithGoogle.
+  ///
+  /// In es, this message translates to:
+  /// **'Iniciar sesión con Google'**
+  String get signInWithGoogle;
+
+  /// No description provided for @optionalLogin.
+  ///
+  /// In es, this message translates to:
+  /// **'Opcional: Puedes continuar sin cuenta, pero no tendrás acceso a funciones de respaldo.'**
+  String get optionalLogin;
+
+  /// No description provided for @continueWithoutLogin.
+  ///
+  /// In es, this message translates to:
+  /// **'Continuar sin iniciar sesión'**
+  String get continueWithoutLogin;
+
+  /// No description provided for @continueToNextStep.
+  ///
+  /// In es, this message translates to:
+  /// **'Continuar al siguiente paso'**
+  String get continueToNextStep;
+
+  /// No description provided for @signOut.
+  ///
+  /// In es, this message translates to:
+  /// **'Cerrar sesión'**
+  String get signOut;
+
+  /// No description provided for @signingIn.
+  ///
+  /// In es, this message translates to:
+  /// **'Iniciando sesión...'**
+  String get signingIn;
+
+  /// No description provided for @signingOut.
+  ///
+  /// In es, this message translates to:
+  /// **'Cerrando sesión...'**
+  String get signingOut;
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {

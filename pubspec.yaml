@@ -81,7 +81,6 @@ flutter:
   generate: true
   
   assets:
-      
       - assets/guide/step1.jpg
       - assets/guide/step2.jpg
       - assets/guide/step3.jpg
@@ -92,3 +91,4 @@ flutter:
       - assets/logo.svg
       - assets/logo.png
       - assets/terminos-y-condiciones.md
+      - assets/terms-and-conditions-en.md

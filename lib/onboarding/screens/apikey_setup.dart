@@ -1,5 +1,6 @@
 import 'package:cashly/modules/settings.dart/widgets/apikey-generator.dart';
 import 'package:flutter/material.dart';
+import 'package:cashly/l10n/app_localizations.dart';
 
 class ApiKeySetupScreen extends StatefulWidget {
   final VoidCallback onApiKeySet;
@@ -22,15 +23,17 @@ class _ApiKeySetupScreenState extends State<ApiKeySetupScreen> {
             mainAxisAlignment: MainAxisAlignment.center,
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              const Text(
-                'Configura tu API Key de Gemini',
-                style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+              Text(
+                AppLocalizations.of(context).configureGeminiApiKey,
+                style: const TextStyle(
+                  fontSize: 24,
+                  fontWeight: FontWeight.bold,
+                ),
                 textAlign: TextAlign.center,
               ),
               const SizedBox(height: 16),
               Text(
-                'La API Key es necesaria para utilizar las funciones de IA.\n'
-                'Es gratis y fácil de obtener.',
+                AppLocalizations.of(context).apiKeyRequired,
                 style: TextStyle(
                   fontSize: 16,
                   color: Theme.of(context).textTheme.bodyMedium?.color,
@@ -38,14 +41,14 @@ class _ApiKeySetupScreenState extends State<ApiKeySetupScreen> {
                 textAlign: TextAlign.center,
               ),
               const SizedBox(height: 8),
-              ApiKeyGenerator(),
+              const ApiKeyGenerator(),
               const SizedBox(height: 8),
               ElevatedButton(
                 onPressed: widget.onApiKeySet,
-                child: const Text('Continuar'),
                 style: ElevatedButton.styleFrom(
                   padding: const EdgeInsets.symmetric(vertical: 16),
                 ),
+                child: Text(AppLocalizations.of(context).continueAction),
               ),
             ],
           ),

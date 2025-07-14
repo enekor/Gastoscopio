@@ -1,6 +1,7 @@
 import 'package:cashly/data/services/login_service.dart';
 import 'package:flutter/material.dart';
 import 'package:google_sign_in/google_sign_in.dart';
+import 'package:cashly/l10n/app_localizations.dart';
 
 class GoogleLoginScreen extends StatefulWidget {
   const GoogleLoginScreen({super.key, required this.onLoginOk});
@@ -21,33 +22,28 @@ class _GoogleLoginScreenState extends State<GoogleLoginScreen> {
   @override
   void initState() {
     super.initState();
-
     _checkExistingUser();
   }
 
   void changeLoginStatus() {
-    if (_loginService.isSignedIn) {
-      // Si hay un usuario activo, actualizar el estado
-
-      _currentUser = _loginService.currentUser;
-    } else {
-      // Si no hay usuario activo, dejarlo como null
-      _currentUser = null;
-    }
+    setState(() {
+      if (_loginService.isSignedIn) {
+        _currentUser = _loginService.currentUser;
+      } else {
+        _currentUser = null;
+      }
+    });
   }
 
   Future<void> _checkExistingUser() async {
-    // Intentar iniciar sesión silenciosamente si hay una sesión guardada
     await _loginService.silentSignIn();
     changeLoginStatus();
-
-    // El listener de onUserChanged actualizará la UI
   }
 
   Future<void> _handleSignIn() async {
     setState(() {
       _isLoading = true;
-      _statusMessage = 'Iniciando sesión...';
+      _statusMessage = AppLocalizations.of(context).signingIn;
       _isError = false;
     });
 
@@ -64,7 +60,7 @@ class _GoogleLoginScreenState extends State<GoogleLoginScreen> {
   Future<void> _handleSignOut() async {
     setState(() {
       _isLoading = true;
-      _statusMessage = 'Cerrando sesión...';
+      _statusMessage = AppLocalizations.of(context).signingOut;
       _isError = false;
     });
 
@@ -86,27 +82,18 @@ class _GoogleLoginScreenState extends State<GoogleLoginScreen> {
           child: Column(
             children: [
               const SizedBox(height: 40),
-              // Header con logo y título
               _buildHeader(context),
               const SizedBox(height: 32),
-
               Expanded(
                 child: SingleChildScrollView(
                   child: Column(
                     children: [
-                      // Card principal de información de usuario
                       _buildUserCard(context),
                       const SizedBox(height: 24),
-
-                      // Card de acciones
                       _buildActionsCard(context),
                       const SizedBox(height: 24),
-
-                      // Mensaje de estado si existe
                       if (_statusMessage.isNotEmpty)
                         _buildStatusMessage(context),
-
-                      // Indicador de carga
                       if (_isLoading) ...[
                         const SizedBox(height: 24),
                         const CircularProgressIndicator(),
@@ -125,7 +112,6 @@ class _GoogleLoginScreenState extends State<GoogleLoginScreen> {
   Widget _buildHeader(BuildContext context) {
     return Column(
       children: [
-        // Logo
         Container(
           padding: const EdgeInsets.all(16),
           decoration: BoxDecoration(
@@ -140,7 +126,7 @@ class _GoogleLoginScreenState extends State<GoogleLoginScreen> {
         ),
         const SizedBox(height: 16),
         Text(
-          'Bienvenido a Gastoscopio',
+          AppLocalizations.of(context).welcomeToApp,
           style: Theme.of(
             context,
           ).textTheme.headlineMedium?.copyWith(fontWeight: FontWeight.bold),
@@ -148,7 +134,7 @@ class _GoogleLoginScreenState extends State<GoogleLoginScreen> {
         ),
         const SizedBox(height: 8),
         Text(
-          'Conecta tu cuenta de Google para sincronizar y respaldar tus datos financieros',
+          AppLocalizations.of(context).connectGoogleAccount,
           style: Theme.of(context).textTheme.bodyLarge?.copyWith(
             color: Theme.of(context).colorScheme.onSurfaceVariant,
           ),
@@ -173,7 +159,6 @@ class _GoogleLoginScreenState extends State<GoogleLoginScreen> {
         child: Column(
           children: [
             if (_currentUser != null) ...[
-              // Usuario conectado
               CircleAvatar(
                 backgroundImage:
                     _currentUser!.photoUrl != null
@@ -195,10 +180,10 @@ class _GoogleLoginScreenState extends State<GoogleLoginScreen> {
               const SizedBox(height: 16),
               Row(
                 children: [
-                  Icon(Icons.check_circle, color: Colors.green, size: 20),
+                  const Icon(Icons.check_circle, color: Colors.green, size: 20),
                   const SizedBox(width: 8),
                   Text(
-                    'Conectado correctamente',
+                    AppLocalizations.of(context).correctlyConnected,
                     style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                       color: Colors.green,
                       fontWeight: FontWeight.w500,
@@ -208,7 +193,7 @@ class _GoogleLoginScreenState extends State<GoogleLoginScreen> {
               ),
               const SizedBox(height: 12),
               Text(
-                _currentUser!.displayName ?? 'Usuario',
+                _currentUser!.displayName ?? AppLocalizations.of(context).user,
                 style: Theme.of(context).textTheme.headlineSmall?.copyWith(
                   fontWeight: FontWeight.bold,
                 ),
@@ -223,7 +208,6 @@ class _GoogleLoginScreenState extends State<GoogleLoginScreen> {
                 textAlign: TextAlign.center,
               ),
             ] else ...[
-              // Sin usuario conectado
               Icon(
                 Icons.cloud_off,
                 size: 64,
@@ -231,7 +215,7 @@ class _GoogleLoginScreenState extends State<GoogleLoginScreen> {
               ),
               const SizedBox(height: 16),
               Text(
-                'Sin cuenta conectada',
+                AppLocalizations.of(context).noAccountConnected,
                 style: Theme.of(context).textTheme.headlineSmall?.copyWith(
                   fontWeight: FontWeight.bold,
                 ),
@@ -239,7 +223,7 @@ class _GoogleLoginScreenState extends State<GoogleLoginScreen> {
               ),
               const SizedBox(height: 8),
               Text(
-                'Inicia sesión con Google para acceder a funciones de respaldo y sincronización',
+                AppLocalizations.of(context).loginForBackupSync,
                 style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                   color: Theme.of(context).colorScheme.onSurfaceVariant,
                 ),
@@ -268,11 +252,10 @@ class _GoogleLoginScreenState extends State<GoogleLoginScreen> {
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             if (_currentUser == null) ...[
-              // Botón de inicio de sesión
               ElevatedButton.icon(
                 onPressed: _isLoading ? null : _handleSignIn,
                 icon: const Icon(Icons.login),
-                label: const Text('Iniciar sesión con Google'),
+                label: Text(AppLocalizations.of(context).signInWithGoogle),
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Theme.of(context).colorScheme.primary,
                   foregroundColor: Theme.of(context).colorScheme.onPrimary,
@@ -284,7 +267,7 @@ class _GoogleLoginScreenState extends State<GoogleLoginScreen> {
               ),
               const SizedBox(height: 12),
               Text(
-                'Opcional: Puedes continuar sin cuenta, pero no tendrás acceso a funciones de respaldo.',
+                AppLocalizations.of(context).optionalLogin,
                 style: Theme.of(context).textTheme.bodySmall?.copyWith(
                   color: Theme.of(context).colorScheme.onSurfaceVariant,
                 ),
@@ -292,15 +275,14 @@ class _GoogleLoginScreenState extends State<GoogleLoginScreen> {
               ),
               const SizedBox(height: 12),
               TextButton(
-                child: Text('Continuar sin iniciar sesion'),
                 onPressed: widget.onLoginOk,
-              )
+                child: Text(AppLocalizations.of(context).continueWithoutLogin),
+              ),
             ] else ...[
-              // Opciones cuando está conectado
               ElevatedButton.icon(
                 onPressed: widget.onLoginOk,
                 icon: const Icon(Icons.navigate_next),
-                label: const Text('Continuar al siguiente paso'),
+                label: Text(AppLocalizations.of(context).continueToNextStep),
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Theme.of(context).colorScheme.primary,
                   foregroundColor: Theme.of(context).colorScheme.onPrimary,
@@ -314,7 +296,7 @@ class _GoogleLoginScreenState extends State<GoogleLoginScreen> {
               OutlinedButton.icon(
                 onPressed: _isLoading ? null : _handleSignOut,
                 icon: const Icon(Icons.logout),
-                label: const Text('Cerrar sesión'),
+                label: Text(AppLocalizations.of(context).signOut),
                 style: OutlinedButton.styleFrom(
                   foregroundColor: Theme.of(context).colorScheme.error,
                   side: BorderSide(color: Theme.of(context).colorScheme.error),

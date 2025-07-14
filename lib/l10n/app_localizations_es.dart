@@ -872,5 +872,95 @@ class AppLocalizationsEs extends AppLocalizations {
   String get verify => 'Verificar';
 
   @override
-  String get a => 'flutter gen-l10n';
+  String get welcome => 'Bienvenido a Cashly';
+
+  @override
+  String get welcomeSubtitle => 'Tu compañero de finanzas personales';
+
+  @override
+  String get getStarted => 'Comenzar';
+
+  @override
+  String get next => 'Siguiente';
+
+  @override
+  String get skip => 'Saltar';
+
+  @override
+  String get finish => 'Finalizar';
+
+  @override
+  String get onboardingStep1Title => 'Controla tus Finanzas';
+
+  @override
+  String get onboardingStep1Desc => 'Mantén un registro de tus ingresos y gastos fácilmente';
+
+  @override
+  String get onboardingStep2Title => 'Análisis Inteligente';
+
+  @override
+  String get onboardingStep2Desc => 'Obtén información sobre tus hábitos de gasto con ayuda de IA';
+
+  @override
+  String get onboardingStep3Title => 'Seguro y Privado';
+
+  @override
+  String get onboardingStep3Desc => 'Tus datos permanecen en tu dispositivo, protegidos y privados';
+
+  @override
+  String get termsAndConditions => 'Términos y Condiciones';
+
+  @override
+  String get agreeToTerms => 'Acepto los Términos y Condiciones';
+
+  @override
+  String get pleaseAgreeToTerms => 'Por favor acepta los Términos y Condiciones para continuar';
+
+  @override
+  String get configureGeminiApiKey => 'Configura tu API Key de Gemini';
+
+  @override
+  String get apiKeyRequired => 'La API Key es necesaria para utilizar las funciones de IA.\nEs gratis y fácil de obtener.';
+
+  @override
+  String get continueAction => 'Continuar';
+
+  @override
+  String get welcomeToApp => 'Bienvenido a Gastoscopio';
+
+  @override
+  String get connectGoogleAccount => 'Conecta tu cuenta de Google para sincronizar y respaldar tus datos financieros';
+
+  @override
+  String get noAccountConnected => 'Sin cuenta conectada';
+
+  @override
+  String get loginForBackupSync => 'Inicia sesión con Google para acceder a funciones de respaldo y sincronización';
+
+  @override
+  String get correctlyConnected => 'Conectado correctamente';
+
+  @override
+  String get user => 'Usuario';
+
+  @override
+  String get signInWithGoogle => 'Iniciar sesión con Google';
+
+  @override
+  String get optionalLogin => 'Opcional: Puedes continuar sin cuenta, pero no tendrás acceso a funciones de respaldo.';
+
+  @override
+  String get continueWithoutLogin => 'Continuar sin iniciar sesión';
+
+  @override
+  String get continueToNextStep => 'Continuar al siguiente paso';
+
+  @override
+  String get signOut => 'Cerrar sesión';
+
+  @override
+  String get signingIn => 'Iniciando sesión...';
+
+  @override
+  String get signingOut => 'Cerrando sesión...';
 }
