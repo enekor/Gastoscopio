@@ -1141,6 +1141,10 @@
   "@noIaFeaturesHomeSubtitle": {
     "description": "Subtítulo para la pantalla de inicio cuando las funciones de IA no están activadas"
   },
+  "activateIaFeatures": "¡Activa las funciones IA!",
+  "@activateIaFeatures": {
+    "description": "Botón para activar las funciones de IA"
+  },
   "iaFeaturesText": "Funciones de IA",
   "@iaFeaturesText": {
     "description": "Texto para las funciones de IA"

@@ -243,7 +243,7 @@ class _GastoscopioHomeScreenState extends State<GastoscopioHomeScreen> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        '¡Activa las funciones IA!',
+                        AppLocalizations.of(context)!.activateIaFeatures,
                         style: Theme.of(
                           context,
                         ).textTheme.titleMedium?.copyWith(

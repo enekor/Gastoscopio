@@ -1649,6 +1649,12 @@ abstract class AppLocalizations {
   /// **'Para activar las funciones IA, ve a Ajustes > Sección IA y sigue los pasos para introducir tu API Key.'**
   String get noIaFeaturesHomeSubtitle;
 
+  /// Botón para activar las funciones de IA
+  ///
+  /// In es, this message translates to:
+  /// **'¡Activa las funciones IA!'**
+  String get activateIaFeatures;
+
   /// Texto para las funciones de IA
   ///
   /// In es, this message translates to:

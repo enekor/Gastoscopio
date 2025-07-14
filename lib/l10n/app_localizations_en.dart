@@ -812,13 +812,16 @@ class AppLocalizationsEn extends AppLocalizations {
   String get futureMovements => 'Future Movements';
 
   @override
-  String get noIaFeaturesHomeTitle => 'Activate AI features!';
+  String get noIaFeaturesHomeTitle => 'You are missing out on the app\'s smart features!\n\nEnable AI to get automatic analysis, personalized suggestions, and much more. It\'s free and very easy to set up.';
 
   @override
   String get noIaFeaturesHomeSubtitle => 'Discover smart analysis, recommendations and more. Tap to learn how to enable AI features.';
 
   @override
-  String get iaFeaturesText => 'You are missing out on the app\'s smart features!\n\nEnable AI to get automatic analysis, personalized suggestions and much more.';
+  String get activateIaFeatures => 'Enable AI Features!';
+
+  @override
+  String get iaFeaturesText => 'AI features';
 
   @override
   String get security => 'Security';

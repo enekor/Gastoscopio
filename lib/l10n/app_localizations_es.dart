@@ -818,6 +818,9 @@ class AppLocalizationsEs extends AppLocalizations {
   String get noIaFeaturesHomeSubtitle => 'Para activar las funciones IA, ve a Ajustes > Sección IA y sigue los pasos para introducir tu API Key.';
 
   @override
+  String get activateIaFeatures => '¡Activa las funciones IA!';
+
+  @override
   String get iaFeaturesText => 'Funciones de IA';
 
   @override
