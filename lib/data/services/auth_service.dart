@@ -1,6 +1,7 @@
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:local_auth/local_auth.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter/foundation.dart';
 
 class AuthService {
   static const _pinKey = 'auth_pin';
@@ -12,22 +13,57 @@ class AuthService {
 
   Future<bool> isBiometricsAvailable() async {
     try {
-      return await _auth.canCheckBiometrics && await _auth.isDeviceSupported();
+      final isSupported = await _auth.isDeviceSupported();
+      if (!isSupported) {
+        debugPrint('Device does not support biometrics');
+        return false;
+      }
+
+      final canCheck = await _auth.canCheckBiometrics;
+      if (!canCheck) {
+        debugPrint('Cannot check biometrics');
+        return false;
+      }
+
+      final availableBiometrics = await _auth.getAvailableBiometrics();
+      debugPrint('Available biometrics: $availableBiometrics');
+      return availableBiometrics.isNotEmpty;
     } catch (e) {
+      debugPrint('Error checking biometrics availability: $e');
       return false;
     }
   }
 
-  Future<bool> authenticateWithBiometrics() async {
+  Future<bool> authenticateWithBiometrics({
+    String? localizedReason,
+    void Function(String)? onError,
+  }) async {
     try {
-      return await _auth.authenticate(
-        localizedReason: 'Please authenticate to access the app',
+      // First check if biometrics is available
+      final isAvailable = await isBiometricsAvailable();
+      if (!isAvailable) {
+        onError?.call('Biometric authentication not available');
+        return false;
+      }
+
+      final authenticated = await _auth.authenticate(
+        localizedReason: localizedReason ?? 'Authenticate to access the app',
         options: const AuthenticationOptions(
           stickyAuth: true,
           biometricOnly: true,
+          useErrorDialogs: true,
+          sensitiveTransaction: true,
         ),
       );
-    } on PlatformException {
+
+      return authenticated;
+    } on PlatformException catch (e) {
+      debugPrint('Biometric authentication error: ${e.message}');
+      onError?.call(e.message ?? 'Authentication error');
+      return false;
+    } catch (e) {
+      debugPrint('Unexpected error in biometric authentication: $e');
+      onError?.call('Unexpected authentication error');
       return false;
     }
   }

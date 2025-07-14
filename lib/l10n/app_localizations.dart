@@ -1942,6 +1942,18 @@ abstract class AppLocalizations {
   /// In es, this message translates to:
   /// **'Cerrando sesión...'**
   String get signingOut;
+
+  /// No description provided for @authenticateToAccess.
+  ///
+  /// In es, this message translates to:
+  /// **'Por favor, autentícate para acceder a la aplicación'**
+  String get authenticateToAccess;
+
+  /// No description provided for @biometricAuthFailed.
+  ///
+  /// In es, this message translates to:
+  /// **'Autenticación biométrica fallida'**
+  String get biometricAuthFailed;
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {

@@ -963,4 +963,10 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get signingOut => 'Signing out...';
+
+  @override
+  String get authenticateToAccess => 'Please authenticate to access the app';
+
+  @override
+  String get biometricAuthFailed => 'Biometric authentication failed';
 }

@@ -15,6 +15,7 @@ class _AuthScreenState extends State<AuthScreen> {
   final _pinController = TextEditingController();
   bool _isLoading = false;
   bool _showPin = false;
+  bool _checkingBiometrics = false;
 
   @override
   void initState() {
@@ -23,12 +24,43 @@ class _AuthScreenState extends State<AuthScreen> {
   }
 
   Future<void> _checkBiometrics() async {
-    final useBiometrics = await _authService.getUseBiometrics();
-    if (useBiometrics && await _authService.isBiometricsAvailable()) {
-      final success = await _authService.authenticateWithBiometrics();
-      if (success && mounted) {
-        Navigator.of(context).pushReplacementNamed('/home');
+    if (_checkingBiometrics) return; // Prevent multiple simultaneous checks
+    _checkingBiometrics = true;
+
+    try {
+      final useBiometrics = await _authService.getUseBiometrics();
+      if (useBiometrics && await _authService.isBiometricsAvailable()) {
+        final success = await _authService.authenticateWithBiometrics(
+          localizedReason: AppLocalizations.of(context).authenticateToAccess,
+          onError:
+              (p0) => ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(
+                  content: Text(p0),
+                  backgroundColor: Theme.of(context).colorScheme.error,
+                  behavior: SnackBarBehavior.floating,
+                ),
+              ),
+        );
+
+        if (success && mounted) {
+          Navigator.of(context).pushReplacement(
+            MaterialPageRoute(builder: (context) => const MainScreen()),
+          );
+        } else if (mounted) {
+          // Only show error if authentication failed (not if user cancelled)
+          if (success == false) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text(AppLocalizations.of(context).biometricAuthFailed),
+                backgroundColor: Theme.of(context).colorScheme.error,
+                behavior: SnackBarBehavior.floating,
+              ),
+            );
+          }
+        }
       }
+    } finally {
+      _checkingBiometrics = false;
     }
   }
 
@@ -49,11 +81,12 @@ class _AuthScreenState extends State<AuthScreen> {
         } else {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
-              content: Text(AppLocalizations.of(context)!.invalidPin),
+              content: Text(AppLocalizations.of(context).invalidPin),
               backgroundColor: Theme.of(context).colorScheme.error,
               behavior: SnackBarBehavior.floating,
             ),
           );
+          _pinController.clear(); // Clear the PIN on error
         }
       }
     } finally {
@@ -82,7 +115,7 @@ class _AuthScreenState extends State<AuthScreen> {
               ),
               const SizedBox(height: 24),
               Text(
-                AppLocalizations.of(context)!.enterPinToAccess,
+                AppLocalizations.of(context).enterPinToAccess,
                 style: Theme.of(context).textTheme.titleLarge,
                 textAlign: TextAlign.center,
               ),
@@ -90,7 +123,7 @@ class _AuthScreenState extends State<AuthScreen> {
               TextField(
                 controller: _pinController,
                 decoration: InputDecoration(
-                  labelText: AppLocalizations.of(context)!.pin,
+                  labelText: AppLocalizations.of(context).pin,
                   border: const OutlineInputBorder(),
                   prefixIcon: const Icon(Icons.pin),
                   suffixIcon: IconButton(
@@ -109,6 +142,7 @@ class _AuthScreenState extends State<AuthScreen> {
                 maxLength: 4,
                 textAlign: TextAlign.center,
                 style: const TextStyle(letterSpacing: 8, fontSize: 24),
+                onSubmitted: (_) => _verifyPin(),
               ),
               const SizedBox(height: 24),
               FilledButton(
@@ -120,7 +154,7 @@ class _AuthScreenState extends State<AuthScreen> {
                           width: 20,
                           child: CircularProgressIndicator(strokeWidth: 2),
                         )
-                        : Text(AppLocalizations.of(context)!.verify),
+                        : Text(AppLocalizations.of(context).verify),
               ),
               const SizedBox(height: 16),
               FutureBuilder<bool>(
@@ -128,9 +162,9 @@ class _AuthScreenState extends State<AuthScreen> {
                 builder: (context, snapshot) {
                   if (snapshot.hasData && snapshot.data!) {
                     return TextButton.icon(
-                      onPressed: _checkBiometrics,
+                      onPressed: _checkingBiometrics ? null : _checkBiometrics,
                       icon: const Icon(Icons.fingerprint),
-                      label: Text(AppLocalizations.of(context)!.useBiometrics),
+                      label: Text(AppLocalizations.of(context).useBiometrics),
                     );
                   }
                   return const SizedBox.shrink();

@@ -304,6 +304,8 @@
   "changePinDescription": "Change your security PIN code",
   "invalidPin": "Invalid PIN code",
   "pinSetupSuccess": "PIN setup successfully",
+  "authenticateToAccess": "Please authenticate to access the app",
+  "biometricAuthFailed": "Biometric authentication failed",
   "verify": "Verify",
   "a":"flutter gen-l10n",
   "welcome": "Welcome to Cashly",

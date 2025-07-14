@@ -1243,5 +1243,7 @@
   "continueToNextStep": "Continuar al siguiente paso",
   "signOut": "Cerrar sesión",
   "signingIn": "Iniciando sesión...",
-  "signingOut": "Cerrando sesión..."
+  "signingOut": "Cerrando sesión...",
+  "authenticateToAccess": "Por favor, autentícate para acceder a la aplicación",
+  "biometricAuthFailed": "Autenticación biométrica fallida"
 }
