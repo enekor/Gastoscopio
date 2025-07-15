@@ -47,8 +47,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get generate => 'Generate';
 
   @override
-  String get generateAnalysisHint =>
-      'Press the \"Generate Analysis\" button to get a detailed analysis of your expenses and income for this month.';
+  String get generateAnalysisHint => 'Press the \"Generate Analysis\" button to get a detailed analysis of your expenses and income for this month.';
 
   @override
   String noDataForMonth(String month, int year) {
@@ -56,8 +55,7 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
-  String get dataWillAppear =>
-      'Data will appear here when you add at least 5 movements.';
+  String get dataWillAppear => 'Data will appear here when you add at least 5 movements.';
 
   @override
   String get settings => 'Settings';
@@ -172,23 +170,19 @@ class AppLocalizationsEn extends AppLocalizations {
   String get personalizationSubtitle => 'Configure your app experience.';
 
   @override
-  String get languageDescription =>
-      'Select the app language. Choosing \"System language\" will use your Android language setting.';
+  String get languageDescription => 'Select the app language. Choosing \"System language\" will use your Android language setting.';
 
   @override
-  String get currencyDescription =>
-      'Select the currency to display throughout the app.';
+  String get currencyDescription => 'Select the currency to display throughout the app.';
 
   @override
   String get logoPersonalization => 'Logo Personalization.';
 
   @override
-  String get logoDescription =>
-      'Choose between static PNG or customizable SVG with color.';
+  String get logoDescription => 'Choose between static PNG or customizable SVG with color.';
 
   @override
-  String get navigationStyleDescription =>
-      'Customize the bottom navigation bar appearance.';
+  String get navigationStyleDescription => 'Customize the bottom navigation bar appearance.';
 
   @override
   String get artificialIntelligence => 'Artificial Intelligence';
@@ -271,8 +265,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get expensesByCategory => 'Expenses by Category';
 
   @override
-  String get noTagsGenerated =>
-      'Could not generate tags for movements. Try again later or check the API key provided in settings.';
+  String get noTagsGenerated => 'Could not generate tags for movements. Try again later or check the API key provided in settings.';
 
   @override
   String get sortBy => 'Sort by';
@@ -305,16 +298,13 @@ class AppLocalizationsEn extends AppLocalizations {
   String get noIncomes => 'No incomes.';
 
   @override
-  String get pleaseEnterValidAmountGreaterThanZero =>
-      'Please enter a valid amount greater than 0';
+  String get pleaseEnterValidAmountGreaterThanZero => 'Please enter a valid amount greater than 0';
 
   @override
-  String get categoryNotGenerated =>
-      'Could not generate category, will be saved with empty category. You can assign it manually later.';
+  String get categoryNotGenerated => 'Could not generate category, will be saved with empty category. You can assign it manually later.';
 
   @override
-  String get errorGeneratingCategory =>
-      'Error generating category. Will be saved without category.';
+  String get errorGeneratingCategory => 'Error generating category. Will be saved without category.';
 
   @override
   String get movementUpdatedSuccessfully => 'Movement updated successfully';
@@ -332,29 +322,25 @@ class AppLocalizationsEn extends AppLocalizations {
   String get databaseError => 'Database error';
 
   @override
-  String get databaseErrorMessage =>
-      'Could not access database. Check that you have enough storage space on the device.';
+  String get databaseErrorMessage => 'Could not access database. Check that you have enough storage space on the device.';
 
   @override
   String get formatError => 'Format error';
 
   @override
-  String get formatErrorMessage =>
-      'Amount format is invalid. Use numbers with dot or comma as decimal.';
+  String get formatErrorMessage => 'Amount format is invalid. Use numbers with dot or comma as decimal.';
 
   @override
   String get connectionError => 'Connection error';
 
   @override
-  String get connectionErrorMessage =>
-      'No internet connection. Movement will be saved without automatic category.';
+  String get connectionErrorMessage => 'No internet connection. Movement will be saved without automatic category.';
 
   @override
   String get permissionError => 'Permission error';
 
   @override
-  String get permissionErrorMessage =>
-      'App doesn\'t have permission to save data. Check app permissions.';
+  String get permissionErrorMessage => 'App doesn\'t have permission to save data. Check app permissions.';
 
   @override
   String get error => 'Error';
@@ -380,12 +366,10 @@ class AppLocalizationsEn extends AppLocalizations {
   String get errorSavingData => 'An error occurred while saving data';
 
   @override
-  String get databaseInitializationError =>
-      'Error initializing database. Please try again.';
+  String get databaseInitializationError => 'Error initializing database. Please try again.';
 
   @override
-  String get dataFormatError =>
-      'Error saving data. Check that the file format is correct.';
+  String get dataFormatError => 'Error saving data. Check that the file format is correct.';
 
   @override
   String get importError => 'Import Error';
@@ -427,15 +411,13 @@ class AppLocalizationsEn extends AppLocalizations {
   String get automaticMovements => 'Automatic Movements';
 
   @override
-  String get addedAutomaticallyEachMonth =>
-      'Added automatically each new month.';
+  String get addedAutomaticallyEachMonth => 'Added automatically each new month.';
 
   @override
   String get noFixedMovements => 'No fixed movements';
 
   @override
-  String get createRecurringMovements =>
-      'Create movements that repeat automatically each month, like salaries, rent or subscriptions.';
+  String get createRecurringMovements => 'Create movements that repeat automatically each month, like salaries, rent or subscriptions.';
 
   @override
   String get createFirstMovement => 'Create first movement.';
@@ -533,12 +515,10 @@ class AppLocalizationsEn extends AppLocalizations {
   String get startDayWithEnergy => 'Start the day with renewed energy.';
 
   @override
-  String get keepBuildingFinancialFuture =>
-      'Keep building your financial future.';
+  String get keepBuildingFinancialFuture => 'Keep building your financial future.';
 
   @override
-  String get perfectTimeToReviewFinances =>
-      'Perfect time to review your finances.';
+  String get perfectTimeToReviewFinances => 'Perfect time to review your finances.';
 
   @override
   String get filters => 'Filters';
@@ -593,12 +573,10 @@ class AppLocalizationsEn extends AppLocalizations {
   String get logoChangedSuccessfully => 'Logo updated successfully';
 
   @override
-  String get avatarColorChangedSuccessfully =>
-      'Avatar color updated successfully';
+  String get avatarColorChangedSuccessfully => 'Avatar color updated successfully';
 
   @override
-  String get transparentBottomNavApplied =>
-      'Transparent bottom navigation applied';
+  String get transparentBottomNavApplied => 'Transparent bottom navigation applied';
 
   @override
   String get opaqueBottomNavApplied => 'Opaque bottom navigation applied';
@@ -619,22 +597,19 @@ class AppLocalizationsEn extends AppLocalizations {
   String get apiKeySaved => 'API Key saved';
 
   @override
-  String get importantRestart =>
-      'IMPORTANT: For AI to work properly, you must completely restart the app.';
+  String get importantRestart => 'IMPORTANT: For AI to work properly, you must completely restart the app.';
 
   @override
   String get appRestartAdvice => '💡 Close the app completely and reopen it.';
 
   @override
-  String get aiFeaturesActivation =>
-      'To activate artificial intelligence features, you need to obtain a Google API key. We guide you step by step:';
+  String get aiFeaturesActivation => 'To activate artificial intelligence features, you need to obtain a Google API key. We guide you step by step:';
 
   @override
   String get step1 => '1. Go to Google AI Studio and sign in with your account';
 
   @override
-  String get step2 =>
-      '2. Click on \"Create API key\" and copy the generated key';
+  String get step2 => '2. Click on \"Create API key\" and copy the generated key';
 
   @override
   String get step2_1 => '2.1. If this popup appears, close it with the X';
@@ -661,8 +636,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get deleteDatabase => 'Delete database';
 
   @override
-  String get dbDeleteWarning =>
-      'WARNING: This action will delete ALL app data:';
+  String get dbDeleteWarning => 'WARNING: This action will delete ALL app data:';
 
   @override
   String get dbDeleteList1 => '• All recorded movements';
@@ -680,8 +654,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get dbDeleteUnrecoverable => 'This action CANNOT be undone.';
 
   @override
-  String get dbDeleteRecomendation =>
-      '💡 Recommendation: Make a backup before continuing.';
+  String get dbDeleteRecomendation => '💡 Recommendation: Make a backup before continuing.';
 
   @override
   String get deleteAll => 'Delete All';
@@ -696,12 +669,10 @@ class AppLocalizationsEn extends AppLocalizations {
   String get deDeletedSubtitle => 'All data has been deleted successfully.';
 
   @override
-  String get dbDeleteAppRestart =>
-      'IMPORTANT: To fully apply the changes, it is recommended to restart the app.';
+  String get dbDeleteAppRestart => 'IMPORTANT: To fully apply the changes, it is recommended to restart the app.';
 
   @override
-  String get dbDeleteAppRestartAdvice =>
-      '💡 Close the app completely and reopen it.';
+  String get dbDeleteAppRestartAdvice => '💡 Close the app completely and reopen it.';
 
   @override
   String get errorCleaningDatabase => '❌ Error cleaning the database';
@@ -710,19 +681,16 @@ class AppLocalizationsEn extends AppLocalizations {
   String get developerOptions => 'Developer Options';
 
   @override
-  String get developerOptionsSubtitle =>
-      'Access to advanced and development features.';
+  String get developerOptionsSubtitle => 'Access to advanced and development features.';
 
   @override
   String get importFromJson => 'Import from JSON';
 
   @override
-  String get importFromJsonSubtitle =>
-      'Import data from a Gastoscopio JSON file.';
+  String get importFromJsonSubtitle => 'Import data from a Gastoscopio JSON file.';
 
   @override
-  String get deleteDatabaseSubtitle =>
-      '⚠️ DANGER: Permanently deletes ALL app data. This action cannot be undone.';
+  String get deleteDatabaseSubtitle => '⚠️ DANGER: Permanently deletes ALL app data. This action cannot be undone.';
 
   @override
   String get cleaning => 'Cleaning...';
@@ -737,8 +705,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get configureApiKey => 'Configure API Key';
 
   @override
-  String get enterApiKeyMessage =>
-      'To use AI features, please enter your API Key:';
+  String get enterApiKeyMessage => 'To use AI features, please enter your API Key:';
 
   @override
   String get later => 'Later';
@@ -845,12 +812,10 @@ class AppLocalizationsEn extends AppLocalizations {
   String get futureMovements => 'Future Movements';
 
   @override
-  String get noIaFeaturesHomeTitle =>
-      'You are missing out on the app\'s smart features!\n\nEnable AI to get automatic analysis, personalized suggestions, and much more. It\'s free and very easy to set up.';
+  String get noIaFeaturesHomeTitle => 'You are missing out on the app\'s smart features!\n\nEnable AI to get automatic analysis, personalized suggestions, and much more. It\'s free and very easy to set up.';
 
   @override
-  String get noIaFeaturesHomeSubtitle =>
-      'Discover smart analysis, recommendations and more. Tap to learn how to enable AI features.';
+  String get noIaFeaturesHomeSubtitle => 'Discover smart analysis, recommendations and more. Tap to learn how to enable AI features.';
 
   @override
   String get activateIaFeatures => 'Enable AI Features!';
@@ -868,15 +833,13 @@ class AppLocalizationsEn extends AppLocalizations {
   String get useAppLock => 'Enable app lock';
 
   @override
-  String get useAppLockDescription =>
-      'Require authentication to access the app.';
+  String get useAppLockDescription => 'Require authentication to access the app.';
 
   @override
   String get useBiometrics => 'Use biometrics';
 
   @override
-  String get useBiometricsDescription =>
-      'Use fingerprint or face recognition to unlock.';
+  String get useBiometricsDescription => 'Use fingerprint or face recognition to unlock.';
 
   @override
   String get pin => 'PIN';
@@ -930,22 +893,19 @@ class AppLocalizationsEn extends AppLocalizations {
   String get onboardingStep1Title => 'Track Your Finances';
 
   @override
-  String get onboardingStep1Desc =>
-      'Keep track of your income and expenses easily';
+  String get onboardingStep1Desc => 'Keep track of your income and expenses easily';
 
   @override
   String get onboardingStep2Title => 'Smart Analytics';
 
   @override
-  String get onboardingStep2Desc =>
-      'Get insights about your spending habits with AI assistance';
+  String get onboardingStep2Desc => 'Get insights about your spending habits with AI assistance';
 
   @override
   String get onboardingStep3Title => 'Secure and Private';
 
   @override
-  String get onboardingStep3Desc =>
-      'Your data stays on your device, protected and private';
+  String get onboardingStep3Desc => 'Your data stays on your device, protected and private';
 
   @override
   String get termsAndConditions => 'Terms and Conditions';
@@ -954,15 +914,13 @@ class AppLocalizationsEn extends AppLocalizations {
   String get agreeToTerms => 'I agree to the Terms and Conditions';
 
   @override
-  String get pleaseAgreeToTerms =>
-      'Please agree to the Terms and Conditions to continue';
+  String get pleaseAgreeToTerms => 'Please agree to the Terms and Conditions to continue';
 
   @override
   String get configureGeminiApiKey => 'Configure your Gemini API Key';
 
   @override
-  String get apiKeyRequired =>
-      'API Key is required for AI features.\nIt\'s free and easy to obtain.';
+  String get apiKeyRequired => 'API Key is required for AI features.\nIt\'s free and easy to obtain.';
 
   @override
   String get continueAction => 'Continue';
@@ -971,15 +929,13 @@ class AppLocalizationsEn extends AppLocalizations {
   String get welcomeToApp => 'Welcome to Cashly';
 
   @override
-  String get connectGoogleAccount =>
-      'Connect your Google account to sync and backup your financial data';
+  String get connectGoogleAccount => 'Connect your Google account to sync and backup your financial data';
 
   @override
   String get noAccountConnected => 'No account connected';
 
   @override
-  String get loginForBackupSync =>
-      'Sign in with Google to access backup and sync features';
+  String get loginForBackupSync => 'Sign in with Google to access backup and sync features';
 
   @override
   String get correctlyConnected => 'Successfully connected';
@@ -991,8 +947,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get signInWithGoogle => 'Sign in with Google';
 
   @override
-  String get optionalLogin =>
-      'Optional: You can continue without an account, but you won\'t have access to backup features.';
+  String get optionalLogin => 'Optional: You can continue without an account, but you won\'t have access to backup features.';
 
   @override
   String get continueWithoutLogin => 'Continue without signing in';
@@ -1014,4 +969,52 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get biometricAuthFailed => 'Biometric authentication failed';
+
+  @override
+  String get notifications => 'Notifications';
+
+  @override
+  String get notificationsHistory => 'Notifications History';
+
+  @override
+  String get enableNotifications => 'Enable Notifications';
+
+  @override
+  String get disableNotifications => 'Disable Notifications';
+
+  @override
+  String get notificationsDisabled => 'Notifications Disabled';
+
+  @override
+  String get notificationsEnabled => 'Notifications Enabled';
+
+  @override
+  String get goToSettings => 'Go to Settings';
+
+  @override
+  String get notificationPermissionRequired => 'Notification permission is required';
+
+  @override
+  String get disableNotificationsTitle => 'Disable Notifications';
+
+  @override
+  String get disableNotificationsMessage => 'To completely disable notifications, you need to revoke the permission in your device settings. Would you like to open the settings now?';
+
+  @override
+  String get noNotificationsYet => 'No notifications yet';
+
+  @override
+  String get movementAdded => 'Movement added successfully';
+
+  @override
+  String get noActiveMonth => 'No active month';
+
+  @override
+  String get addMovement => 'Add movement';
+
+  @override
+  String get isExpense => 'Is expense';
+
+  @override
+  String get notificationSettings => 'Notification Settings';
 }

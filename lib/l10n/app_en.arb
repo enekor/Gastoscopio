@@ -338,5 +338,21 @@
   "continueToNextStep": "Continue to next step",
   "signOut": "Sign in out",
   "signingIn": "Signing in...",
-  "signingOut": "Signing out..."
+  "signingOut": "Signing out...",
+  "notifications": "Notifications",
+  "notificationsHistory": "Notifications History",
+  "enableNotifications": "Enable Notifications",
+  "disableNotifications": "Disable Notifications",
+  "notificationsDisabled": "Notifications Disabled",
+  "notificationsEnabled": "Notifications Enabled",
+  "goToSettings": "Go to Settings",
+  "notificationPermissionRequired": "Notification permission is required",
+  "disableNotificationsTitle": "Disable Notifications",
+  "disableNotificationsMessage": "To completely disable notifications, you need to revoke the permission in your device settings. Would you like to open the settings now?",
+  "noNotificationsYet": "No notifications yet",
+  "movementAdded": "Movement added successfully",
+  "noActiveMonth": "No active month",
+  "addMovement": "Add movement",
+  "isExpense": "Is expense",
+  "notificationSettings": "Notification Settings"
 }

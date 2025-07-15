@@ -1245,5 +1245,21 @@
   "signingIn": "Iniciando sesión...",
   "signingOut": "Cerrando sesión...",
   "authenticateToAccess": "Por favor, autentícate para acceder a la aplicación",
-  "biometricAuthFailed": "Autenticación biométrica fallida"
+  "biometricAuthFailed": "Autenticación biométrica fallida",
+  "notifications": "Notificaciones",
+  "notificationsHistory": "Historial de Notificaciones",
+  "enableNotifications": "Activar Notificaciones",
+  "disableNotifications": "Desactivar Notificaciones",
+  "notificationsDisabled": "Notificaciones Desactivadas",
+  "notificationsEnabled": "Notificaciones Activadas",
+  "goToSettings": "Ir a Ajustes",
+  "notificationPermissionRequired": "Se requiere permiso de notificaciones",
+  "disableNotificationsTitle": "Desactivar Notificaciones",
+  "disableNotificationsMessage": "Para desactivar completamente las notificaciones, necesitas revocar el permiso en los ajustes del dispositivo. ¿Quieres abrir los ajustes ahora?",
+  "noNotificationsYet": "Aún no hay notificaciones",
+  "movementAdded": "Movimiento añadido correctamente",
+  "noActiveMonth": "No hay un mes activo",
+  "addMovement": "Añadir movimiento",
+  "isExpense": "Es un gasto",
+  "notificationSettings": "Configuración de Notificaciones"
 }

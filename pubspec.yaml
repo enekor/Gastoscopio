@@ -28,6 +28,7 @@ environment:
 # the latest version available on pub.dev. To see which dependencies have newer
 # versions available, run `flutter pub outdated`.
 dependencies:
+  app_settings: ^5.1.1 # Para abrir los ajustes del dispositivo
   carousel_slider: ^5.0.0
   cupertino_icons: ^1.0.8
   dropdown_button2: ^2.3.9
@@ -55,7 +56,7 @@ dependencies:
   markdown: ^7.2.2
   path: ^1.9.1
   path_provider: ^2.1.5
-
+  permission_handler: ^11.2.0
   shared_preferences: ^2.5.3
   sqflite: ^2.4.2
   svg_flutter: ^0.0.1

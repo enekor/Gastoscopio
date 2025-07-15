@@ -9,11 +9,9 @@ import android.util.Log
 class NotificationListener : NotificationListenerService() {
 
     private val TAG = "NotificationListener"
-    private lateinit var dbHelper: NotificationDBHelper
 
     override fun onCreate() {
         super.onCreate()
-        dbHelper = NotificationDBHelper(this)
         Log.d(TAG, "NotificationListener service created")
     }
 
