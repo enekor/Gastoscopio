@@ -28,7 +28,9 @@ List<String> SpanishTagList = [
   'Desarrollo Profesional (Cursos, Talleres)',
   'Hijos/Familiares (Gastos específicos)',
   'Donaciones y Caridad',
-  'Otros Gastos Misceláneos',
+  'Nómina y Sueldos',
+  'Otros ingresos'
+      'Otros Gastos Misceláneos',
 ];
 
 // English tags list
@@ -61,6 +63,8 @@ List<String> EnglishTagList = [
   'Professional Development (Courses, Workshops)',
   'Children/Family (Specific Expenses)',
   'Donations and Charity',
+  'Payroll and Salaries',
+  'Other Income',
   'Other Miscellaneous Expenses',
 ];
 
