@@ -38,6 +38,7 @@ class _GastoscopioHomeScreenState extends State<GastoscopioHomeScreen> {
   final CarouselSliderController _carouselController =
       CarouselSliderController();
   bool _showIaBanner = false;
+  List<String> _notifications = [];
 
   @override
   void initState() {
@@ -109,6 +110,15 @@ class _GastoscopioHomeScreenState extends State<GastoscopioHomeScreen> {
     } catch (e) {
       debugPrint('Error al cargar datos iniciales: $e');
     }
+  }
+
+  Future<void> _loadNotifications() async {
+    SharedPreferencesService().getStringValue(SharedPreferencesKeys.notifications)
+        .then((value) {
+          setState(() {
+            _notifications = value?.split('|') ?? [];
+          });
+        });
   }
 
   void _updateGreeting() {
@@ -212,6 +222,7 @@ class _GastoscopioHomeScreenState extends State<GastoscopioHomeScreen> {
               const SizedBox(height: 16),
               _buildFixedMovementsButton(),
               const SizedBox(height: 8),
+              if (_notifications.isNotEmpty) _buildNotificationsPart(),
               _ChartPart(_moneda),
             ],
           ),
@@ -474,6 +485,58 @@ class _GastoscopioHomeScreenState extends State<GastoscopioHomeScreen> {
           ],
         );
       },
+    );
+  }
+
+  Widget _buildNotificationsPart() {
+    return Column(
+      children: [
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 6.0),
+          child: Center(
+            child: SizedBox(
+              width: double.infinity,
+              child: ElevatedButton.icon(
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => const NotificationHistoryScreen(_notifications),
+                    ),
+                  );
+                },
+                icon: Icon(
+                  Icons.notifications,
+                  color: Theme.of(context).colorScheme.primary,
+                ),
+                label: Text(
+                  "Se han detectado ${_notifications.count()} potenciales nuevos movimientos.",
+                  style: TextStyle(
+                    color: Theme.of(context).colorScheme.primary,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Theme.of(
+                    context,
+                  ).colorScheme.secondary.withAlpha(25),
+                  foregroundColor: Theme.of(context).colorScheme.primary,
+                  padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
+                    side: BorderSide(
+                      color: Theme.of(context).colorScheme.primary.withOpacity(0.3),
+                      width: 1,
+                    ),
+                  ),
+                  elevation: 1,
+                ),
+              ),
+            ),
+          ),
+        ),
+        const SizedBox(height: 8)
+      ],
     );
   }
 
