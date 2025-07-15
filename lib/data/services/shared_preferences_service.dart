@@ -76,7 +76,8 @@ enum SharedPreferencesKeys {
   isSvgAvatar('is_svg_avatar'),
   numberOfMovements('number_of_movements'),
   isOpaqueBottomNav('is_opaque_bottom_nav'),
-  selectedLanguage('selected_language');
+  selectedLanguage('selected_language'),
+  notificaciones('NOTIFICATIONS');
 
   final String value;
   const SharedPreferencesKeys(this.value);

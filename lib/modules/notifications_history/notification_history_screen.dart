@@ -1,14 +1,25 @@
+import 'package:cashly/data/dao/movement_value_dao.dart';
+import 'package:cashly/data/models/movement_value.dart';
+import 'package:cashly/data/services/sqlite_service.dart';
+import 'package:cashly/modules/gastoscopio/logic/finance_service.dart';
+import 'package:cashly/modules/notifications_history/widgets/notification_history_widgets.dart';
 import 'package:flutter/material.dart';
 import 'package:cashly/l10n/app_localizations.dart';
 
 class NotificationHistoryScreen extends StatelessWidget {
   final List<String> items;
+  late FinanceService financeService;
 
-  const ShowNotificationHistoryScreen({
+  NotificationHistoryScreen({
     Key? key,
-    required this.items,
-    this.currency,
-  }) : super(key: key);
+    required this.items
+  }) : super(key: key){
+    financeService = FinanceService.getInstance(
+      SqliteService().database.monthDao,
+      SqliteService().database.movementValueDao,
+      SqliteService().database.fixedMovementDao,
+    );
+  }
 
   List<_TitleValue> _parseItems() {
     return items.map((str) {
@@ -19,12 +30,18 @@ class NotificationHistoryScreen extends StatelessWidget {
     }).toList();
   }
 
+  Future<void> _onSave(MovementValue movementValue) async {
+    MovementValueDao dao = SqliteService().database.movementValueDao;
+
+    await dao.insertMovementValue(movementValue);
+  }
+
   @override
   Widget build(BuildContext context) {
     final parsedItems = _parseItems();
     return Scaffold(
       appBar: AppBar(
-        title: Text(AppLocalizations.of(context)?.notifications ?? 'Notificaciones'),
+        title: Text('Notificaciones'),
       ),
       body: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 20),
@@ -41,20 +58,7 @@ class NotificationHistoryScreen extends StatelessWidget {
             separatorBuilder: (context, index) => const Divider(height: 1, thickness: 1, indent: 16, endIndent: 16),
             itemBuilder: (context, index) {
               final item = parsedItems[index];
-              return ListTile(
-                title: Text(
-                  item.title,
-                  style: const TextStyle(fontWeight: FontWeight.w500),
-                ),
-                trailing: Text(
-                  item.value.toStringAsFixed(2),
-                  style: TextStyle(
-                    color: Theme.of(context).colorScheme.primary,
-                    fontWeight: FontWeight.bold,
-                    fontSize: 16,
-                  ),
-                ),
-              );
+              return NotificationWidget(item.title, item.value, context, financeService.currentMonth?.id ?? -1, _onSave);
             },
           ),
         ),

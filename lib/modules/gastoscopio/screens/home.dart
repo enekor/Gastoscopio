@@ -8,6 +8,7 @@ import 'package:cashly/modules/gastoscopio/screens/fixed_movements_screen.dart';
 import 'package:cashly/modules/gastoscopio/widgets/finance_widgets.dart';
 import 'package:cashly/data/models/movement_value.dart';
 import 'package:cashly/common/tag_list.dart';
+import 'package:cashly/modules/notifications_history/notification_history_screen.dart';
 import 'package:cashly/modules/settings.dart/settings.dart';
 import 'package:flutter/material.dart';
 import 'package:cashly/l10n/app_localizations.dart';
@@ -113,7 +114,7 @@ class _GastoscopioHomeScreenState extends State<GastoscopioHomeScreen> {
   }
 
   Future<void> _loadNotifications() async {
-    SharedPreferencesService().getStringValue(SharedPreferencesKeys.notifications)
+    SharedPreferencesService().getStringValue(SharedPreferencesKeys.notificaciones)
         .then((value) {
           setState(() {
             _notifications = value?.split('|') ?? [];
@@ -501,7 +502,7 @@ class _GastoscopioHomeScreenState extends State<GastoscopioHomeScreen> {
                   Navigator.push(
                     context,
                     MaterialPageRoute(
-                      builder: (context) => const NotificationHistoryScreen(_notifications),
+                      builder: (context) => NotificationHistoryScreen(items:_notifications),
                     ),
                   );
                 },
@@ -510,7 +511,7 @@ class _GastoscopioHomeScreenState extends State<GastoscopioHomeScreen> {
                   color: Theme.of(context).colorScheme.primary,
                 ),
                 label: Text(
-                  "Se han detectado ${_notifications.count()} potenciales nuevos movimientos.",
+                  "Se han detectado ${_notifications.length} potenciales nuevos movimientos.",
                   style: TextStyle(
                     color: Theme.of(context).colorScheme.primary,
                     fontWeight: FontWeight.w600,
