@@ -1,3 +1,18 @@
+buildscript {
+    val agpVersion by extra("8.2.1")
+    val kotlinVersion by extra("1.9.22")
+
+    repositories {
+        google()
+        mavenCentral()
+    }
+    dependencies {
+        classpath("com.android.tools.build:gradle:$agpVersion")
+        classpath("org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlinVersion")
+        classpath("com.google.gms:google-services:4.4.0")  // Firebase
+    }
+}
+
 allprojects {
     repositories {
         google()
@@ -12,6 +27,7 @@ subprojects {
     val newSubprojectBuildDir: Directory = newBuildDir.dir(project.name)
     project.layout.buildDirectory.value(newSubprojectBuildDir)
 }
+
 subprojects {
     project.evaluationDependsOn(":app")
 }
