@@ -140,58 +140,57 @@ class _MainScreenState extends State<MainScreen>
   void _showMonthSelector() {
     showDialog(
       context: context,
-      builder:
-          (dialogContext) => StatefulBuilder(
-            builder:
-                (context, setDialogState) => Dialog(
-                  child: Padding(
-                    padding: const EdgeInsets.all(16),
-                    child: Column(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        MonthGridSelector(
-                          availableMonths: _availableMonths,
-                          availableYears: _availableYears,
-                          selectedMonth: _month,
-                          selectedYear: _year,
-                          onMonthChanged: (month) async {
-                            await _setNewDate(month, _year);
-                            Navigator.pop(dialogContext);
-                          },
-                          onYearChanged: (year) async {
-                            final financeService = FinanceService.getInstance(
-                              SqliteService().db.monthDao,
-                              SqliteService().db.movementValueDao,
-                              SqliteService().db.fixedMovementDao,
-                            );
-                            final months = await financeService
-                                .getAvailableMonths(year);
+      builder: (dialogContext) => StatefulBuilder(
+        builder: (context, setDialogState) => Dialog(
+          child: Padding(
+            padding: const EdgeInsets.all(16),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                MonthGridSelector(
+                  availableMonths: _availableMonths,
+                  availableYears: _availableYears,
+                  selectedMonth: _month,
+                  selectedYear: _year,
+                  onMonthChanged: (month) async {
+                    await _setNewDate(month, _year);
+                    Navigator.pop(dialogContext);
+                  },
+                  onYearChanged: (year) async {
+                    final financeService = FinanceService.getInstance(
+                      SqliteService().db.monthDao,
+                      SqliteService().db.movementValueDao,
+                      SqliteService().db.fixedMovementDao,
+                    );
+                    final months = await financeService.getAvailableMonths(
+                      year,
+                    );
 
-                            // Cerrar el diálogo actual
-                            Navigator.pop(dialogContext);
+                    // Cerrar el diálogo actual
+                    Navigator.pop(dialogContext);
 
-                            // Actualizar ambos estados de forma sincronizada
-                            setState(() {
-                              _availableMonths = months;
-                              _year = year;
-                            });
+                    // Actualizar ambos estados de forma sincronizada
+                    setState(() {
+                      _availableMonths = months;
+                      _year = year;
+                    });
 
-                            // Manejar el cambio de mes si es necesario
-                            if (!months.contains(_month)) {
-                              await _setNewDate(months.last, year);
-                            } else {
-                              await _setNewDate(_month, year);
-                            }
+                    // Manejar el cambio de mes si es necesario
+                    if (!months.contains(_month)) {
+                      await _setNewDate(months.last, year);
+                    } else {
+                      await _setNewDate(_month, year);
+                    }
 
-                            // Mostrar el diálogo actualizado
-                            _showMonthSelector();
-                          },
-                        ),
-                      ],
-                    ),
-                  ),
+                    // Mostrar el diálogo actualizado
+                    _showMonthSelector();
+                  },
                 ),
+              ],
+            ),
           ),
+        ),
+      ),
     );
   }
 
@@ -287,16 +286,14 @@ class _MainScreenState extends State<MainScreen>
             selectedIndex: _selectedIndex,
             onDestinationSelected: _onDestinationSelected,
             destinations: _destinations,
-            backgroundColor:
-                _isOpaqueBottomNav
-                    ? Theme.of(context).colorScheme.primary.withAlpha(200)
-                    : Theme.of(context).colorScheme.secondary.withAlpha(25),
+            backgroundColor: _isOpaqueBottomNav
+                ? Theme.of(context).colorScheme.primary.withAlpha(200)
+                : Theme.of(context).colorScheme.secondary.withAlpha(25),
             elevation: _isOpaqueBottomNav ? 4 : 8,
             animationDuration: const Duration(milliseconds: 500),
-            indicatorColor:
-                _isOpaqueBottomNav
-                    ? Theme.of(context).colorScheme.onPrimary.withAlpha(50)
-                    : Theme.of(context).colorScheme.primary.withAlpha(50),
+            indicatorColor: _isOpaqueBottomNav
+                ? Theme.of(context).colorScheme.onPrimary.withAlpha(50)
+                : Theme.of(context).colorScheme.primary.withAlpha(50),
             isOpaque: _isOpaqueBottomNav,
             margin: EdgeInsets.only(
               left: 24.0,
@@ -304,15 +301,12 @@ class _MainScreenState extends State<MainScreen>
               bottom: 18.0,
             ),
             borderRadius: BorderRadius.circular(24),
-            border:
-                _isOpaqueBottomNav
-                    ? null
-                    : Border.all(
-                      color: Theme.of(
-                        context,
-                      ).colorScheme.outline.withAlpha(50),
-                      width: 1,
-                    ),
+            border: _isOpaqueBottomNav
+                ? null
+                : Border.all(
+                    color: Theme.of(context).colorScheme.outline.withAlpha(50),
+                    width: 1,
+                  ),
           ),
         );
       },

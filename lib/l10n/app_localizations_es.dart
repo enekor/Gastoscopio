@@ -47,7 +47,8 @@ class AppLocalizationsEs extends AppLocalizations {
   String get generate => 'Generar';
 
   @override
-  String get generateAnalysisHint => 'Pulsa el botón \"Generar Análisis\" para obtener un análisis detallado de tus gastos e ingresos de este mes.';
+  String get generateAnalysisHint =>
+      'Pulsa el botón \"Generar Análisis\" para obtener un análisis detallado de tus gastos e ingresos de este mes.';
 
   @override
   String noDataForMonth(String month, int year) {
@@ -55,7 +56,8 @@ class AppLocalizationsEs extends AppLocalizations {
   }
 
   @override
-  String get dataWillAppear => 'Los datos aparecerán aquí cuando agregues mínimo 5 movimientos.';
+  String get dataWillAppear =>
+      'Los datos aparecerán aquí cuando agregues mínimo 5 movimientos.';
 
   @override
   String get settings => 'Configuración';
@@ -167,22 +169,27 @@ class AppLocalizationsEs extends AppLocalizations {
   String get personalization => 'Personalización';
 
   @override
-  String get personalizationSubtitle => 'Configura tu experiencia en la aplicación.';
+  String get personalizationSubtitle =>
+      'Configura tu experiencia en la aplicación.';
 
   @override
-  String get languageDescription => 'Selecciona el idioma de la aplicación. Al elegir \"Idioma del sistema\", la app usará el idioma configurado en Android.';
+  String get languageDescription =>
+      'Selecciona el idioma de la aplicación. Al elegir \"Idioma del sistema\", la app usará el idioma configurado en Android.';
 
   @override
-  String get currencyDescription => 'Selecciona la moneda que se mostrará en toda la aplicación.';
+  String get currencyDescription =>
+      'Selecciona la moneda que se mostrará en toda la aplicación.';
 
   @override
   String get logoPersonalization => 'Personalización del Logo.';
 
   @override
-  String get logoDescription => 'Elige entre PNG estático o SVG personalizable con color.';
+  String get logoDescription =>
+      'Elige entre PNG estático o SVG personalizable con color.';
 
   @override
-  String get navigationStyleDescription => 'Personaliza la apariencia de la barra de navegación inferior.';
+  String get navigationStyleDescription =>
+      'Personaliza la apariencia de la barra de navegación inferior.';
 
   @override
   String get artificialIntelligence => 'Inteligencia Artificial';
@@ -214,7 +221,8 @@ class AppLocalizationsEs extends AppLocalizations {
   String get avatarColorUpdated => 'Color de avatar actualizado correctamente';
 
   @override
-  String get transparentBottomNav => 'Navegación inferior transparente aplicada';
+  String get transparentBottomNav =>
+      'Navegación inferior transparente aplicada';
 
   @override
   String get opaqueBottomNav => 'Navegación inferior opaca aplicada';
@@ -265,7 +273,8 @@ class AppLocalizationsEs extends AppLocalizations {
   String get expensesByCategory => 'Gastos por Categoría';
 
   @override
-  String get noTagsGenerated => 'No se pudieron generar etiquetas para los movimientos. Intente de nuevo más tarde o revise la API key proporcionada en ajustes.';
+  String get noTagsGenerated =>
+      'No se pudieron generar etiquetas para los movimientos. Intente de nuevo más tarde o revise la API key proporcionada en ajustes.';
 
   @override
   String get sortBy => 'Ordenar por';
@@ -298,13 +307,16 @@ class AppLocalizationsEs extends AppLocalizations {
   String get noIncomes => 'No hay ingresos.';
 
   @override
-  String get pleaseEnterValidAmountGreaterThanZero => 'Por favor, introduce un monto válido mayor que 0';
+  String get pleaseEnterValidAmountGreaterThanZero =>
+      'Por favor, introduce un monto válido mayor que 0';
 
   @override
-  String get categoryNotGenerated => 'No se pudo generar la categoría, se guardará con categoría vacía. Puedes asignarla manualmente más tarde.';
+  String get categoryNotGenerated =>
+      'No se pudo generar la categoría, se guardará con categoría vacía. Puedes asignarla manualmente más tarde.';
 
   @override
-  String get errorGeneratingCategory => 'Error al generar categoría. Se guardará sin categoría.';
+  String get errorGeneratingCategory =>
+      'Error al generar categoría. Se guardará sin categoría.';
 
   @override
   String get movementUpdatedSuccessfully => 'Movimiento actualizado con éxito';
@@ -322,25 +334,29 @@ class AppLocalizationsEs extends AppLocalizations {
   String get databaseError => 'Error de base de datos';
 
   @override
-  String get databaseErrorMessage => 'No se pudo acceder a la base de datos. Verifica que tengas espacio suficiente en el dispositivo.';
+  String get databaseErrorMessage =>
+      'No se pudo acceder a la base de datos. Verifica que tengas espacio suficiente en el dispositivo.';
 
   @override
   String get formatError => 'Error de formato';
 
   @override
-  String get formatErrorMessage => 'El formato del monto no es válido. Usa números con punto o coma como decimal.';
+  String get formatErrorMessage =>
+      'El formato del monto no es válido. Usa números con punto o coma como decimal.';
 
   @override
   String get connectionError => 'Error de conexión';
 
   @override
-  String get connectionErrorMessage => 'Sin conexión a internet. El movimiento se guardará sin categoría automática.';
+  String get connectionErrorMessage =>
+      'Sin conexión a internet. El movimiento se guardará sin categoría automática.';
 
   @override
   String get permissionError => 'Error de permisos';
 
   @override
-  String get permissionErrorMessage => 'La aplicación no tiene permisos para guardar datos. Verifica los permisos de la app.';
+  String get permissionErrorMessage =>
+      'La aplicación no tiene permisos para guardar datos. Verifica los permisos de la app.';
 
   @override
   String get error => 'Error';
@@ -360,16 +376,19 @@ class AppLocalizationsEs extends AppLocalizations {
   String get ok => 'Ok';
 
   @override
-  String get dataImportedSuccessfully => 'Los datos se han importado correctamente';
+  String get dataImportedSuccessfully =>
+      'Los datos se han importado correctamente';
 
   @override
   String get errorSavingData => 'Ocurrió un error al guardar los datos';
 
   @override
-  String get databaseInitializationError => 'Error al inicializar la base de datos. Por favor, intenta de nuevo.';
+  String get databaseInitializationError =>
+      'Error al inicializar la base de datos. Por favor, intenta de nuevo.';
 
   @override
-  String get dataFormatError => 'Error al guardar los datos. Verifica que el formato del archivo sea correcto.';
+  String get dataFormatError =>
+      'Error al guardar los datos. Verifica que el formato del archivo sea correcto.';
 
   @override
   String get importError => 'Error al importar';
@@ -411,13 +430,15 @@ class AppLocalizationsEs extends AppLocalizations {
   String get automaticMovements => 'Movimientos Automáticos';
 
   @override
-  String get addedAutomaticallyEachMonth => 'Se añaden automáticamente cada mes nuevo.';
+  String get addedAutomaticallyEachMonth =>
+      'Se añaden automáticamente cada mes nuevo.';
 
   @override
   String get noFixedMovements => 'Sin movimientos fijos';
 
   @override
-  String get createRecurringMovements => 'Crea movimientos que se repitan automáticamente cada mes, como salarios, alquileres o suscripciones.';
+  String get createRecurringMovements =>
+      'Crea movimientos que se repitan automáticamente cada mes, como salarios, alquileres o suscripciones.';
 
   @override
   String get createFirstMovement => 'Crear primer movimiento.';
@@ -515,10 +536,12 @@ class AppLocalizationsEs extends AppLocalizations {
   String get startDayWithEnergy => 'Comienza el día con energía renovada.';
 
   @override
-  String get keepBuildingFinancialFuture => 'Sigue construyendo tu futuro financiero.';
+  String get keepBuildingFinancialFuture =>
+      'Sigue construyendo tu futuro financiero.';
 
   @override
-  String get perfectTimeToReviewFinances => 'Momento perfecto para revisar tus finanzas.';
+  String get perfectTimeToReviewFinances =>
+      'Momento perfecto para revisar tus finanzas.';
 
   @override
   String get filters => 'Filtros';
@@ -573,10 +596,12 @@ class AppLocalizationsEs extends AppLocalizations {
   String get logoChangedSuccessfully => 'Logo actualizado correctamente';
 
   @override
-  String get avatarColorChangedSuccessfully => 'Color de avatar actualizado correctamente';
+  String get avatarColorChangedSuccessfully =>
+      'Color de avatar actualizado correctamente';
 
   @override
-  String get transparentBottomNavApplied => 'Navegación inferior transparente aplicada';
+  String get transparentBottomNavApplied =>
+      'Navegación inferior transparente aplicada';
 
   @override
   String get opaqueBottomNavApplied => 'Navegación inferior opaca aplicada';
@@ -597,34 +622,44 @@ class AppLocalizationsEs extends AppLocalizations {
   String get apiKeySaved => 'API Key guardada';
 
   @override
-  String get importantRestart => 'IMPORTANTE: Para que la IA funcione correctamente, debes reiniciar completamente la aplicación.';
+  String get importantRestart =>
+      'IMPORTANTE: Para que la IA funcione correctamente, debes reiniciar completamente la aplicación.';
 
   @override
-  String get appRestartAdvice => '💡 Cierra la app completamente y vuelve a abrirla.';
+  String get appRestartAdvice =>
+      '💡 Cierra la app completamente y vuelve a abrirla.';
 
   @override
-  String get aiFeaturesActivation => 'Para activar las funciones de inteligencia artificial, necesitas obtener una clave API de Google. Te guiamos paso a paso:';
+  String get aiFeaturesActivation =>
+      'Para activar las funciones de inteligencia artificial, necesitas obtener una clave API de Google. Te guiamos paso a paso:';
 
   @override
-  String get step1 => '1. Accede a Google AI Studio e inicia sesión con tu cuenta';
+  String get step1 =>
+      '1. Accede a Google AI Studio e inicia sesión con tu cuenta';
 
   @override
-  String get step2 => '2. Haz clic en \"Crear clave de API\" y copia la clave generada';
+  String get step2 =>
+      '2. Haz clic en \"Crear clave de API\" y copia la clave generada';
 
   @override
-  String get step2_1 => '2.1. Si aparece esta ventana emergente, ciérrala con la X';
+  String get step2_1 =>
+      '2.1. Si aparece esta ventana emergente, ciérrala con la X';
 
   @override
-  String get step2_2 => '2.2. Desplázate hacia abajo hasta encontrar la tabla de claves';
+  String get step2_2 =>
+      '2.2. Desplázate hacia abajo hasta encontrar la tabla de claves';
 
   @override
-  String get step2_3 => '2.3. Haz clic en el enlace azul para acceder a la clave';
+  String get step2_3 =>
+      '2.3. Haz clic en el enlace azul para acceder a la clave';
 
   @override
-  String get step3 => '3. Pega la clave API en el campo de texto de la aplicación';
+  String get step3 =>
+      '3. Pega la clave API en el campo de texto de la aplicación';
 
   @override
-  String get step4 => '4. Presiona el botón guardar para completar la configuración';
+  String get step4 =>
+      '4. Presiona el botón guardar para completar la configuración';
 
   @override
   String get goToGoogleAiStudio => 'Ir a Google AI Studio';
@@ -636,7 +671,8 @@ class AppLocalizationsEs extends AppLocalizations {
   String get deleteDatabase => 'Borrar base de datos';
 
   @override
-  String get dbDeleteWarning => 'ATENCIÓN: Esta acción eliminará TODOS los datos de la aplicación:';
+  String get dbDeleteWarning =>
+      'ATENCIÓN: Esta acción eliminará TODOS los datos de la aplicación:';
 
   @override
   String get dbDeleteList1 => '• Todos los movimientos registrados';
@@ -654,7 +690,8 @@ class AppLocalizationsEs extends AppLocalizations {
   String get dbDeleteUnrecoverable => 'Esta acción NO se puede deshacer.';
 
   @override
-  String get dbDeleteRecomendation => '💡 Recomendación: Haz un backup antes de continuar.';
+  String get dbDeleteRecomendation =>
+      '💡 Recomendación: Haz un backup antes de continuar.';
 
   @override
   String get deleteAll => 'Eliminar Todo';
@@ -666,13 +703,16 @@ class AppLocalizationsEs extends AppLocalizations {
   String get dbDeleted => 'Base de datos limpiada';
 
   @override
-  String get deDeletedSubtitle => 'Todos los datos se han eliminado correctamente.';
+  String get deDeletedSubtitle =>
+      'Todos los datos se han eliminado correctamente.';
 
   @override
-  String get dbDeleteAppRestart => 'IMPORTANTE: Para que los cambios se apliquen completamente, es recomendable reiniciar la aplicación.';
+  String get dbDeleteAppRestart =>
+      'IMPORTANTE: Para que los cambios se apliquen completamente, es recomendable reiniciar la aplicación.';
 
   @override
-  String get dbDeleteAppRestartAdvice => '💡 Cierra la app completamente y vuelve a abrirla.';
+  String get dbDeleteAppRestartAdvice =>
+      '💡 Cierra la app completamente y vuelve a abrirla.';
 
   @override
   String get errorCleaningDatabase => '❌ Error al limpiar la base de datos';
@@ -681,16 +721,19 @@ class AppLocalizationsEs extends AppLocalizations {
   String get developerOptions => 'Opciones de Desarrollador';
 
   @override
-  String get developerOptionsSubtitle => 'Acceso a funciones avanzadas y de desarrollo.';
+  String get developerOptionsSubtitle =>
+      'Acceso a funciones avanzadas y de desarrollo.';
 
   @override
   String get importFromJson => 'Importar desde JSON';
 
   @override
-  String get importFromJsonSubtitle => 'Importa datos desde un archivo JSON de Gastoscopio.';
+  String get importFromJsonSubtitle =>
+      'Importa datos desde un archivo JSON de Gastoscopio.';
 
   @override
-  String get deleteDatabaseSubtitle => '⚠️ PELIGRO: Borra TODOS los datos de la aplicación de forma permanente. Esta acción no se puede deshacer.';
+  String get deleteDatabaseSubtitle =>
+      '⚠️ PELIGRO: Borra TODOS los datos de la aplicación de forma permanente. Esta acción no se puede deshacer.';
 
   @override
   String get cleaning => 'Limpiando...';
@@ -705,7 +748,8 @@ class AppLocalizationsEs extends AppLocalizations {
   String get configureApiKey => 'Configurar API Key';
 
   @override
-  String get enterApiKeyMessage => 'Para utilizar las funciones de IA, por favor ingrese su API Key:';
+  String get enterApiKeyMessage =>
+      'Para utilizar las funciones de IA, por favor ingrese su API Key:';
 
   @override
   String get later => 'Más tarde';
@@ -806,16 +850,19 @@ class AppLocalizationsEs extends AppLocalizations {
   String get accountSection => 'Cuenta';
 
   @override
-  String get accountDescription => 'Gestiona tu cuenta y las opciones de inicio de sesión';
+  String get accountDescription =>
+      'Gestiona tu cuenta y las opciones de inicio de sesión';
 
   @override
   String get futureMovements => 'Movimientos futuros';
 
   @override
-  String get noIaFeaturesHomeTitle => '¡Estás perdiendo acceso a las funciones inteligentes de la app!\n\nActiva la IA para obtener análisis automáticos, sugerencias personalizadas y mucho más. Es gratuito y muy facil de configurar.';
+  String get noIaFeaturesHomeTitle =>
+      '¡Estás perdiendo acceso a las funciones inteligentes de la app!\n\nActiva la IA para obtener análisis automáticos, sugerencias personalizadas y mucho más. Es gratuito y muy facil de configurar.';
 
   @override
-  String get noIaFeaturesHomeSubtitle => 'Para activar las funciones IA, ve a Ajustes > Sección IA y sigue los pasos para introducir tu API Key.';
+  String get noIaFeaturesHomeSubtitle =>
+      'Para activar las funciones IA, ve a Ajustes > Sección IA y sigue los pasos para introducir tu API Key.';
 
   @override
   String get activateIaFeatures => '¡Activa las funciones IA!';
@@ -827,19 +874,22 @@ class AppLocalizationsEs extends AppLocalizations {
   String get security => 'Seguridad';
 
   @override
-  String get securityDescription => 'Configura las funciones de seguridad de acceso a la app.';
+  String get securityDescription =>
+      'Configura las funciones de seguridad de acceso a la app.';
 
   @override
   String get useAppLock => 'Activar bloqueo de la app';
 
   @override
-  String get useAppLockDescription => 'Requiere autenticación para acceder a la app.';
+  String get useAppLockDescription =>
+      'Requiere autenticación para acceder a la app.';
 
   @override
   String get useBiometrics => 'Usar biometría';
 
   @override
-  String get useBiometricsDescription => 'Utiliza huella digital o reconocimiento facial para desbloquear.';
+  String get useBiometricsDescription =>
+      'Utiliza huella digital o reconocimiento facial para desbloquear.';
 
   @override
   String get pin => 'PIN';
@@ -851,7 +901,8 @@ class AppLocalizationsEs extends AppLocalizations {
   String get enterPinToAccess => 'Introduce el PIN para acceder a la app';
 
   @override
-  String get enterPinSetup => 'Introduce un PIN de 4 dígitos para proteger tu app';
+  String get enterPinSetup =>
+      'Introduce un PIN de 4 dígitos para proteger tu app';
 
   @override
   String get setupPin => 'Configurar PIN';
@@ -893,19 +944,22 @@ class AppLocalizationsEs extends AppLocalizations {
   String get onboardingStep1Title => 'Controla tus Finanzas';
 
   @override
-  String get onboardingStep1Desc => 'Mantén un registro de tus ingresos y gastos fácilmente';
+  String get onboardingStep1Desc =>
+      'Mantén un registro de tus ingresos y gastos fácilmente';
 
   @override
   String get onboardingStep2Title => 'Análisis Inteligente';
 
   @override
-  String get onboardingStep2Desc => 'Obtén información sobre tus hábitos de gasto con ayuda de IA';
+  String get onboardingStep2Desc =>
+      'Obtén información sobre tus hábitos de gasto con ayuda de IA';
 
   @override
   String get onboardingStep3Title => 'Seguro y Privado';
 
   @override
-  String get onboardingStep3Desc => 'Tus datos permanecen en tu dispositivo, protegidos y privados';
+  String get onboardingStep3Desc =>
+      'Tus datos permanecen en tu dispositivo, protegidos y privados';
 
   @override
   String get termsAndConditions => 'Términos y Condiciones';
@@ -914,13 +968,15 @@ class AppLocalizationsEs extends AppLocalizations {
   String get agreeToTerms => 'Acepto los Términos y Condiciones';
 
   @override
-  String get pleaseAgreeToTerms => 'Por favor acepta los Términos y Condiciones para continuar';
+  String get pleaseAgreeToTerms =>
+      'Por favor acepta los Términos y Condiciones para continuar';
 
   @override
   String get configureGeminiApiKey => 'Configura tu API Key de Gemini';
 
   @override
-  String get apiKeyRequired => 'La API Key es necesaria para utilizar las funciones de IA.\nEs gratis y fácil de obtener.';
+  String get apiKeyRequired =>
+      'La API Key es necesaria para utilizar las funciones de IA.\nEs gratis y fácil de obtener.';
 
   @override
   String get continueAction => 'Continuar';
@@ -929,13 +985,15 @@ class AppLocalizationsEs extends AppLocalizations {
   String get welcomeToApp => 'Bienvenido a Gastoscopio';
 
   @override
-  String get connectGoogleAccount => 'Conecta tu cuenta de Google para sincronizar y respaldar tus datos financieros';
+  String get connectGoogleAccount =>
+      'Conecta tu cuenta de Google para sincronizar y respaldar tus datos financieros';
 
   @override
   String get noAccountConnected => 'Sin cuenta conectada';
 
   @override
-  String get loginForBackupSync => 'Inicia sesión con Google para acceder a funciones de respaldo y sincronización';
+  String get loginForBackupSync =>
+      'Inicia sesión con Google para acceder a funciones de respaldo y sincronización';
 
   @override
   String get correctlyConnected => 'Conectado correctamente';
@@ -947,7 +1005,8 @@ class AppLocalizationsEs extends AppLocalizations {
   String get signInWithGoogle => 'Iniciar sesión con Google';
 
   @override
-  String get optionalLogin => 'Opcional: Puedes continuar sin cuenta, pero no tendrás acceso a funciones de respaldo.';
+  String get optionalLogin =>
+      'Opcional: Puedes continuar sin cuenta, pero no tendrás acceso a funciones de respaldo.';
 
   @override
   String get continueWithoutLogin => 'Continuar sin iniciar sesión';
@@ -965,7 +1024,8 @@ class AppLocalizationsEs extends AppLocalizations {
   String get signingOut => 'Cerrando sesión...';
 
   @override
-  String get authenticateToAccess => 'Por favor, autentícate para acceder a la aplicación';
+  String get authenticateToAccess =>
+      'Por favor, autentícate para acceder a la aplicación';
 
   @override
   String get biometricAuthFailed => 'Autenticación biométrica fallida';
