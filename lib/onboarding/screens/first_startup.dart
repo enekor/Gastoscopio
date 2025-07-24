@@ -35,10 +35,9 @@ class _FirstStartupScreenState extends State<FirstStartupScreen> {
   Future<String> _loadTermsFromAssets() async {
     try {
       final locale = AppLocalizations.of(context).localeName;
-      final fileName =
-          locale == 'es'
-              ? 'terminos-y-condiciones.md'
-              : 'terms-and-conditions-en.md';
+      final fileName = locale == 'es'
+          ? 'terminos-y-condiciones.md'
+          : 'terms-and-conditions-en.md';
       return await rootBundle.loadString('assets/$fileName');
     } catch (e) {
       return _fallbackTermsText;
@@ -60,12 +59,16 @@ class _FirstStartupScreenState extends State<FirstStartupScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(
-          AppLocalizations.of(context).termsAndConditions,
-          style: GoogleFonts.pacifico(
-            fontSize: 20,
-            fontWeight: FontWeight.bold,
-            color: Theme.of(context).colorScheme.onSurface,
+        toolbarHeight: kToolbarHeight + 32,
+        title: Padding(
+          padding: const EdgeInsets.only(top: 35.0),
+          child: Text(
+            AppLocalizations.of(context).termsAndConditions,
+            style: GoogleFonts.pacifico(
+              fontSize: 20,
+              fontWeight: FontWeight.bold,
+              color: Theme.of(context).colorScheme.onSurface,
+            ),
           ),
         ),
         centerTitle: true,
@@ -167,15 +170,15 @@ class _FirstStartupScreenState extends State<FirstStartupScreen> {
                   child: Text(AppLocalizations.of(context).cancel),
                 ),
                 ElevatedButton(
-                  onPressed:
-                      _hasScrolledToBottom
-                          ? () async {
-                            await widget.onTermsAccepted();
-                          }
-                          : null,
+                  onPressed: _hasScrolledToBottom
+                      ? () async {
+                          await widget.onTermsAccepted();
+                        }
+                      : null,
                   style: ElevatedButton.styleFrom(
-                    backgroundColor:
-                        _hasScrolledToBottom ? Colors.green : Colors.grey,
+                    backgroundColor: _hasScrolledToBottom
+                        ? Colors.green
+                        : Colors.grey,
                   ),
                   child: Text(AppLocalizations.of(context).accept),
                 ),

@@ -44,9 +44,8 @@ class _FixedMovementsScreenState extends State<FixedMovementsScreen> {
 
   Future<void> _loadFixedMovements() async {
     try {
-      final movements =
-          await SqliteService().database.fixedMovementDao
-              .findAllFixedMovements();
+      final movements = await SqliteService().database.fixedMovementDao
+          .findAllFixedMovements();
       if (mounted) {
         setState(() {
           _fixedMovements = movements;
@@ -98,22 +97,22 @@ class _FixedMovementsScreenState extends State<FixedMovementsScreen> {
               DateTime.now().day > result[0].day &&
                       DateTime.now().month == DateTime.now().month
                   ? DateTime(
-                    DateTime.now().year,
-                    DateTime.now().month + 1,
-                    0,
-                  ).day
+                      DateTime.now().year,
+                      DateTime.now().month + 1,
+                      0,
+                    ).day
                   : result[0].day <=
-                      DateTime(
-                        DateTime.now().year,
-                        DateTime.now().month + 1,
-                        0,
-                      ).day
+                        DateTime(
+                          DateTime.now().year,
+                          DateTime.now().month + 1,
+                          0,
+                        ).day
                   ? result[0].day
                   : DateTime(
-                    DateTime.now().year,
-                    DateTime.now().month + 1,
-                    0,
-                  ).day,
+                      DateTime.now().year,
+                      DateTime.now().month + 1,
+                      0,
+                    ).day,
               null,
             ),
           );
@@ -137,12 +136,17 @@ class _FixedMovementsScreenState extends State<FixedMovementsScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(
-          AppLocalizations.of(context)!.fixedMovements,
-          style: GoogleFonts.pacifico(
-            fontSize: 20,
-            fontWeight: FontWeight.bold,
-            color: Theme.of(context).colorScheme.onSurface,
+        centerTitle: true,
+        toolbarHeight: kToolbarHeight + 32,
+        title: Padding(
+          padding: const EdgeInsets.only(top: 35.0),
+          child: Text(
+            AppLocalizations.of(context)!.fixedMovements,
+            style: GoogleFonts.pacifico(
+              fontSize: 20,
+              fontWeight: FontWeight.bold,
+              color: Theme.of(context).colorScheme.onSurface,
+            ),
           ),
         ),
         elevation: 0,
@@ -205,10 +209,9 @@ class _FixedMovementsScreenState extends State<FixedMovementsScreen> {
 
           // Content
           Expanded(
-            child:
-                _fixedMovements.isEmpty
-                    ? _buildEmptyState()
-                    : _buildMovementsList(),
+            child: _fixedMovements.isEmpty
+                ? _buildEmptyState()
+                : _buildMovementsList(),
           ),
         ],
       ),
@@ -216,37 +219,31 @@ class _FixedMovementsScreenState extends State<FixedMovementsScreen> {
         onPressed: _addFixedMovement,
         icon: Icon(
           Icons.add,
-          color:
-              _isOpaqueBottomNav
-                  ? Theme.of(context).colorScheme.onPrimary
-                  : Theme.of(context).colorScheme.primary,
+          color: _isOpaqueBottomNav
+              ? Theme.of(context).colorScheme.onPrimary
+              : Theme.of(context).colorScheme.primary,
         ),
         label: Text(
           AppLocalizations.of(context)!.add,
           style: TextStyle(
-            color:
-                _isOpaqueBottomNav
-                    ? Theme.of(context).colorScheme.onPrimary
-                    : Theme.of(context).colorScheme.primary,
+            color: _isOpaqueBottomNav
+                ? Theme.of(context).colorScheme.onPrimary
+                : Theme.of(context).colorScheme.primary,
             fontWeight: FontWeight.w600,
           ),
         ),
-        backgroundColor:
-            _isOpaqueBottomNav
-                ? Theme.of(context).colorScheme.primary.withAlpha(200)
-                : Theme.of(context).colorScheme.primary.withOpacity(0.1),
+        backgroundColor: _isOpaqueBottomNav
+            ? Theme.of(context).colorScheme.primary.withAlpha(200)
+            : Theme.of(context).colorScheme.primary.withOpacity(0.1),
         elevation: _isOpaqueBottomNav ? 4 : 4,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(16),
-          side:
-              _isOpaqueBottomNav
-                  ? BorderSide.none
-                  : BorderSide(
-                    color: Theme.of(
-                      context,
-                    ).colorScheme.primary.withOpacity(0.3),
-                    width: 1.5,
-                  ),
+          side: _isOpaqueBottomNav
+              ? BorderSide.none
+              : BorderSide(
+                  color: Theme.of(context).colorScheme.primary.withOpacity(0.3),
+                  width: 1.5,
+                ),
         ),
       ),
     );
@@ -386,8 +383,8 @@ class _FixedMovementsScreenState extends State<FixedMovementsScreen> {
               try {
                 final result = await showDialog<List<dynamic>>(
                   context: context,
-                  builder:
-                      (context) => _FixedMovementDialog(movement: movement),
+                  builder: (context) =>
+                      _FixedMovementDialog(movement: movement),
                 );
                 if (result != null) {
                   await SqliteService().database.fixedMovementDao
@@ -427,10 +424,9 @@ class _FixedMovementsScreenState extends State<FixedMovementsScreen> {
           Container(
             padding: const EdgeInsets.all(8),
             decoration: BoxDecoration(
-              color:
-                  movement.isExpense
-                      ? Colors.red.withOpacity(0.1)
-                      : Colors.green.withOpacity(0.1),
+              color: movement.isExpense
+                  ? Colors.red.withOpacity(0.1)
+                  : Colors.green.withOpacity(0.1),
               borderRadius: BorderRadius.circular(8),
             ),
             child: Icon(
@@ -623,20 +619,17 @@ class _FixedMovementDialogState extends State<_FixedMovementDialog> {
                 TextFormField(
                   controller: _descriptionController,
                   decoration: InputDecoration(
-                    hintText:
-                        AppLocalizations.of(context)!.exampleSalaryRentNetflix,
+                    hintText: AppLocalizations.of(
+                      context,
+                    )!.exampleSalaryRentNetflix,
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(12),
                     ),
                     prefixIcon: const Icon(Icons.description),
                   ),
-                  validator:
-                      (value) =>
-                          value?.isEmpty == true
-                              ? AppLocalizations.of(
-                                context,
-                              )!.descriptionRequired
-                              : null,
+                  validator: (value) => value?.isEmpty == true
+                      ? AppLocalizations.of(context)!.descriptionRequired
+                      : null,
                 ),
 
                 const SizedBox(height: 20),
@@ -726,16 +719,14 @@ class _FixedMovementDialogState extends State<_FixedMovementDialog> {
                         decoration: BoxDecoration(
                           borderRadius: BorderRadius.circular(12),
                           border: Border.all(
-                            color:
-                                _isExpense
-                                    ? Colors.red
-                                    : Colors.grey.withOpacity(0.3),
+                            color: _isExpense
+                                ? Colors.red
+                                : Colors.grey.withOpacity(0.3),
                             width: _isExpense ? 2 : 1,
                           ),
-                          color:
-                              _isExpense
-                                  ? Colors.red.withOpacity(0.1)
-                                  : Colors.transparent,
+                          color: _isExpense
+                              ? Colors.red.withOpacity(0.1)
+                              : Colors.transparent,
                         ),
                         child: InkWell(
                           borderRadius: BorderRadius.circular(12),
@@ -757,12 +748,12 @@ class _FixedMovementDialogState extends State<_FixedMovementDialog> {
                                 Text(
                                   AppLocalizations.of(context)!.expense,
                                   style: TextStyle(
-                                    color:
-                                        _isExpense ? Colors.red : Colors.grey,
-                                    fontWeight:
-                                        _isExpense
-                                            ? FontWeight.bold
-                                            : FontWeight.normal,
+                                    color: _isExpense
+                                        ? Colors.red
+                                        : Colors.grey,
+                                    fontWeight: _isExpense
+                                        ? FontWeight.bold
+                                        : FontWeight.normal,
                                   ),
                                 ),
                               ],
@@ -777,16 +768,14 @@ class _FixedMovementDialogState extends State<_FixedMovementDialog> {
                         decoration: BoxDecoration(
                           borderRadius: BorderRadius.circular(12),
                           border: Border.all(
-                            color:
-                                !_isExpense
-                                    ? Colors.green
-                                    : Colors.grey.withOpacity(0.3),
+                            color: !_isExpense
+                                ? Colors.green
+                                : Colors.grey.withOpacity(0.3),
                             width: !_isExpense ? 2 : 1,
                           ),
-                          color:
-                              !_isExpense
-                                  ? Colors.green.withOpacity(0.1)
-                                  : Colors.transparent,
+                          color: !_isExpense
+                              ? Colors.green.withOpacity(0.1)
+                              : Colors.transparent,
                         ),
                         child: InkWell(
                           borderRadius: BorderRadius.circular(12),
@@ -801,22 +790,21 @@ class _FixedMovementDialogState extends State<_FixedMovementDialog> {
                               children: [
                                 Icon(
                                   Icons.arrow_upward,
-                                  color:
-                                      !_isExpense ? Colors.green : Colors.grey,
+                                  color: !_isExpense
+                                      ? Colors.green
+                                      : Colors.grey,
                                   size: 24,
                                 ),
                                 const SizedBox(height: 8),
                                 Text(
                                   AppLocalizations.of(context)!.income,
                                   style: TextStyle(
-                                    color:
-                                        !_isExpense
-                                            ? Colors.green
-                                            : Colors.grey,
-                                    fontWeight:
-                                        !_isExpense
-                                            ? FontWeight.bold
-                                            : FontWeight.normal,
+                                    color: !_isExpense
+                                        ? Colors.green
+                                        : Colors.grey,
+                                    fontWeight: !_isExpense
+                                        ? FontWeight.bold
+                                        : FontWeight.normal,
                                   ),
                                 ),
                               ],

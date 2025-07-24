@@ -82,49 +82,48 @@ class _SummaryScreenState extends State<SummaryScreen>
   void _showMonthSelector() {
     showDialog(
       context: context,
-      builder:
-          (dialogContext) => StatefulBuilder(
-            builder:
-                (context, setDialogState) => Dialog(
-                  child: Padding(
-                    padding: const EdgeInsets.all(16),
-                    child: Column(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        MonthGridSelector(
-                          availableMonths: _availableMonths,
-                          availableYears: _availableYears,
-                          selectedMonth: _month,
-                          selectedYear: _year,
-                          onMonthChanged: (month) async {
-                            await _setNewDate(month, _year);
-                            Navigator.pop(dialogContext);
-                          },
-                          onYearChanged: (year) async {
-                            final months = await _financeService
-                                .getAvailableMonths(year);
+      builder: (dialogContext) => StatefulBuilder(
+        builder: (context, setDialogState) => Dialog(
+          child: Padding(
+            padding: const EdgeInsets.all(16),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                MonthGridSelector(
+                  availableMonths: _availableMonths,
+                  availableYears: _availableYears,
+                  selectedMonth: _month,
+                  selectedYear: _year,
+                  onMonthChanged: (month) async {
+                    await _setNewDate(month, _year);
+                    Navigator.pop(dialogContext);
+                  },
+                  onYearChanged: (year) async {
+                    final months = await _financeService.getAvailableMonths(
+                      year,
+                    );
 
-                            Navigator.pop(dialogContext);
+                    Navigator.pop(dialogContext);
 
-                            setState(() {
-                              _availableMonths = months;
-                              _year = year;
-                            });
+                    setState(() {
+                      _availableMonths = months;
+                      _year = year;
+                    });
 
-                            if (!months.contains(_month)) {
-                              await _setNewDate(months.last, year);
-                            } else {
-                              await _setNewDate(_month, year);
-                            }
+                    if (!months.contains(_month)) {
+                      await _setNewDate(months.last, year);
+                    } else {
+                      await _setNewDate(_month, year);
+                    }
 
-                            _showMonthSelector();
-                          },
-                        ),
-                      ],
-                    ),
-                  ),
+                    _showMonthSelector();
+                  },
                 ),
+              ],
+            ),
           ),
+        ),
+      ),
     );
   }
 
@@ -133,22 +132,26 @@ class _SummaryScreenState extends State<SummaryScreen>
     return Scaffold(
       appBar: AppBar(
         automaticallyImplyLeading: false,
-        title: Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Text(
-              "${_getMonthName(_month)} $_year",
-              style: GoogleFonts.pacifico(
-                fontSize: 20,
-                fontWeight: FontWeight.bold,
-                color: Theme.of(context).colorScheme.onSurface,
+        toolbarHeight: kToolbarHeight + 32,
+        title: Padding(
+          padding: const EdgeInsets.only(top: 35.0),
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text(
+                "${_getMonthName(_month)} $_year",
+                style: GoogleFonts.pacifico(
+                  fontSize: 20,
+                  fontWeight: FontWeight.bold,
+                  color: Theme.of(context).colorScheme.onSurface,
+                ),
               ),
-            ),
-            IconButton(
-              icon: const Icon(Icons.calendar_month),
-              onPressed: _showMonthSelector,
-            ),
-          ],
+              IconButton(
+                icon: const Icon(Icons.calendar_month),
+                onPressed: _showMonthSelector,
+              ),
+            ],
+          ),
         ),
         centerTitle: true,
         bottom: TabBar(
@@ -193,8 +196,9 @@ class _SummaryScreenState extends State<SummaryScreen>
                         }
 
                         final movements = snapshot.data!;
-                        final expenses =
-                            movements.where((m) => m.isExpense).toList();
+                        final expenses = movements
+                            .where((m) => m.isExpense)
+                            .toList();
                         final categoryData = _calculateCategoryPercentages(
                           expenses,
                         );
@@ -258,23 +262,21 @@ class _SummaryScreenState extends State<SummaryScreen>
                     ).colorScheme.secondary.withAlpha(25),
                     margin: const EdgeInsets.all(16),
                     child: LayoutBuilder(
-                      builder:
-                          (context, constraints) => SizedBox(
-                            width: constraints.maxWidth,
-                            child: Markdown(
-                              data:
-                                  _aiAnalysis.isEmpty
-                                      ? AppLocalizations.of(
-                                        context,
-                                      ).generateAnalysisHint
-                                      : _aiAnalysis,
-                              styleSheet: MarkdownStyleSheet(
-                                h1: Theme.of(context).textTheme.titleLarge,
-                                h2: Theme.of(context).textTheme.titleMedium,
-                                p: Theme.of(context).textTheme.bodyMedium,
-                              ),
-                            ),
+                      builder: (context, constraints) => SizedBox(
+                        width: constraints.maxWidth,
+                        child: Markdown(
+                          data: _aiAnalysis.isEmpty
+                              ? AppLocalizations.of(
+                                  context,
+                                ).generateAnalysisHint
+                              : _aiAnalysis,
+                          styleSheet: MarkdownStyleSheet(
+                            h1: Theme.of(context).textTheme.titleLarge,
+                            h2: Theme.of(context).textTheme.titleMedium,
+                            p: Theme.of(context).textTheme.bodyMedium,
                           ),
+                        ),
+                      ),
                     ),
                   ),
                 ),
@@ -404,11 +406,9 @@ class _SummaryScreenState extends State<SummaryScreen>
           (dailyTotals[movement.day] ?? 0) + movement.amount;
     }
 
-    final spots =
-        dailyTotals.entries.map((e) {
-            return FlSpot(e.key.toDouble(), e.value);
-          }).toList()
-          ..sort((a, b) => a.x.compareTo(b.x));
+    final spots = dailyTotals.entries.map((e) {
+      return FlSpot(e.key.toDouble(), e.value);
+    }).toList()..sort((a, b) => a.x.compareTo(b.x));
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -493,16 +493,15 @@ class _SummaryScreenState extends State<SummaryScreen>
                       color: Theme.of(context).colorScheme.error,
                       dotData: FlDotData(
                         show: true,
-                        getDotPainter:
-                            (spot, percent, barData, index) =>
-                                FlDotCirclePainter(
-                                  radius: 4,
-                                  color: Theme.of(context).colorScheme.error,
-                                  strokeWidth: 1,
-                                  strokeColor: Theme.of(
-                                    context,
-                                  ).colorScheme.error.withOpacity(0.5),
-                                ),
+                        getDotPainter: (spot, percent, barData, index) =>
+                            FlDotCirclePainter(
+                              radius: 4,
+                              color: Theme.of(context).colorScheme.error,
+                              strokeWidth: 1,
+                              strokeColor: Theme.of(
+                                context,
+                              ).colorScheme.error.withOpacity(0.5),
+                            ),
                       ),
                       belowBarData: BarAreaData(
                         show: true,

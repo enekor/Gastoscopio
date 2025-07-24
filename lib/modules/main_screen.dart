@@ -250,29 +250,39 @@ class _MainScreenState extends State<MainScreen>
         return Scaffold(
           extendBody: _selectedIndex != 2,
           appBar: AppBar(
+            toolbarHeight: kToolbarHeight + 32,
             centerTitle: true,
-            title: Text(
-              AppLocalizations.of(context)!.appTitle,
-              style: GoogleFonts.pacifico(fontSize: 24, letterSpacing: 1.2),
+            title: Padding(
+              padding: const EdgeInsets.only(top: 35.0),
+              child: Text(
+                AppLocalizations.of(context)!.appTitle,
+                style: GoogleFonts.pacifico(fontSize: 24, letterSpacing: 1.2),
+              ),
             ),
             actions: [
-              IconButton(
-                icon: const Icon(Icons.settings),
-                onPressed: () async {
-                  await Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => const SettingsScreen(),
-                    ),
-                  );
-                  // Reload configuration when returning from settings
-                  await _reloadBottomNavConfig();
-                },
+              Padding(
+                padding: const EdgeInsets.only(top: 35.0),
+                child: IconButton(
+                  icon: const Icon(Icons.settings),
+                  onPressed: () async {
+                    await Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => const SettingsScreen(),
+                      ),
+                    );
+                    // Reload configuration when returning from settings
+                    await _reloadBottomNavConfig();
+                  },
+                ),
               ),
               if (_selectedIndex != 2)
-                IconButton(
-                  onPressed: _showMonthSelector,
-                  icon: const Icon(Icons.calendar_today),
+                Padding(
+                  padding: const EdgeInsets.only(top: 35.0),
+                  child: IconButton(
+                    onPressed: _showMonthSelector,
+                    icon: const Icon(Icons.calendar_today),
+                  ),
                 ),
             ],
           ),

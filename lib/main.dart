@@ -11,8 +11,11 @@ import 'package:cashly/l10n/app_localizations.dart';
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
-  // Configurar el modo de UI del sistema para ocultar todas las barras del sistema
-  SystemChrome.setEnabledSystemUIMode(SystemUiMode.immersiveSticky);
+  // Configurar el modo de UI del sistema para ocultar la barra de navegación
+  SystemChrome.setEnabledSystemUIMode(
+    SystemUiMode.manual,
+    overlays: [SystemUiOverlay.top],
+  );
 
   // Inicializar servicio de Gemini para cargar API Key existente
   await GeminiService().initializeGemini();

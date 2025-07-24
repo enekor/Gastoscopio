@@ -142,8 +142,9 @@ class _SettingsScreenState extends State<SettingsScreen> {
       // Show error dialog with more specific messages
       String errorMessage = AppLocalizations.of(context)!.errorSavingData;
       if (e.toString().contains('database')) {
-        errorMessage =
-            AppLocalizations.of(context)!.databaseInitializationError;
+        errorMessage = AppLocalizations.of(
+          context,
+        )!.databaseInitializationError;
       } else if (e.toString().contains('insert')) {
         errorMessage = AppLocalizations.of(context)!.dataFormatError;
       }
@@ -378,12 +379,16 @@ class _SettingsScreenState extends State<SettingsScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(
-          AppLocalizations.of(context)!.settings,
-          style: GoogleFonts.pacifico(
-            fontSize: 20,
-            fontWeight: FontWeight.bold,
-            color: Theme.of(context).colorScheme.onSurface,
+        toolbarHeight: kToolbarHeight + 32,
+        title: Padding(
+          padding: const EdgeInsets.only(top: 35.0),
+          child: Text(
+            AppLocalizations.of(context)!.settings,
+            style: GoogleFonts.pacifico(
+              fontSize: 20,
+              fontWeight: FontWeight.bold,
+              color: Theme.of(context).colorScheme.onSurface,
+            ),
           ),
         ),
         centerTitle: true,
@@ -769,16 +774,14 @@ class _SettingsScreenState extends State<SettingsScreen> {
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(12),
           border: Border.all(
-            color:
-                isSelected
-                    ? Theme.of(context).colorScheme.primary
-                    : Theme.of(context).colorScheme.outline.withAlpha(100),
+            color: isSelected
+                ? Theme.of(context).colorScheme.primary
+                : Theme.of(context).colorScheme.outline.withAlpha(100),
             width: isSelected ? 2 : 1,
           ),
-          color:
-              isSelected
-                  ? Theme.of(context).colorScheme.primary.withAlpha(25)
-                  : Theme.of(context).colorScheme.surface,
+          color: isSelected
+              ? Theme.of(context).colorScheme.primary.withAlpha(25)
+              : Theme.of(context).colorScheme.surface,
         ),
         child: Column(
           children: [
@@ -787,29 +790,27 @@ class _SettingsScreenState extends State<SettingsScreen> {
               width: 60,
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(8),
-                color:
-                    !isPng
-                        ? Theme.of(context).colorScheme.surfaceContainerHighest
-                        : Colors.transparent,
+                color: !isPng
+                    ? Theme.of(context).colorScheme.surfaceContainerHighest
+                    : Colors.transparent,
               ),
               child: Center(
-                child:
-                    isPng
-                        ? Image.asset(
-                          'assets/logo.png',
-                          width: 40,
-                          height: 40,
-                          fit: BoxFit.contain,
-                        )
-                        : SvgPicture.asset(
-                          'assets/logo.svg',
-                          width: 40,
-                          height: 40,
-                          colorFilter: ColorFilter.mode(
-                            Color.fromARGB(255, _r, _g, _b),
-                            BlendMode.srcIn,
-                          ),
+                child: isPng
+                    ? Image.asset(
+                        'assets/logo.png',
+                        width: 40,
+                        height: 40,
+                        fit: BoxFit.contain,
+                      )
+                    : SvgPicture.asset(
+                        'assets/logo.svg',
+                        width: 40,
+                        height: 40,
+                        colorFilter: ColorFilter.mode(
+                          Color.fromARGB(255, _r, _g, _b),
+                          BlendMode.srcIn,
                         ),
+                      ),
               ),
             ),
             const SizedBox(height: 12),
@@ -819,10 +820,9 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   : AppLocalizations.of(context)!.svg,
               style: Theme.of(context).textTheme.titleSmall?.copyWith(
                 fontWeight: FontWeight.w600,
-                color:
-                    isSelected
-                        ? Theme.of(context).colorScheme.primary
-                        : Theme.of(context).colorScheme.onSurface,
+                color: isSelected
+                    ? Theme.of(context).colorScheme.primary
+                    : Theme.of(context).colorScheme.onSurface,
               ),
             ),
             const SizedBox(height: 4),
@@ -990,16 +990,14 @@ class _SettingsScreenState extends State<SettingsScreen> {
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(12),
           border: Border.all(
-            color:
-                isSelected
-                    ? Theme.of(context).colorScheme.primary
-                    : Theme.of(context).colorScheme.outline.withAlpha(100),
+            color: isSelected
+                ? Theme.of(context).colorScheme.primary
+                : Theme.of(context).colorScheme.outline.withAlpha(100),
             width: isSelected ? 2 : 1,
           ),
-          color:
-              isSelected
-                  ? Theme.of(context).colorScheme.primary.withAlpha(25)
-                  : Theme.of(context).colorScheme.surface,
+          color: isSelected
+              ? Theme.of(context).colorScheme.primary.withAlpha(25)
+              : Theme.of(context).colorScheme.surface,
         ),
         child: Column(
           children: [
@@ -1030,23 +1028,21 @@ class _SettingsScreenState extends State<SettingsScreen> {
                       height: 20,
                       decoration: BoxDecoration(
                         borderRadius: BorderRadius.circular(12),
-                        color:
-                            isOpaque
-                                ? Theme.of(
+                        color: isOpaque
+                            ? Theme.of(
+                                context,
+                              ).colorScheme.primary.withAlpha(200)
+                            : Theme.of(
+                                context,
+                              ).colorScheme.primary.withAlpha(60),
+                        border: isOpaque
+                            ? null
+                            : Border.all(
+                                color: Theme.of(
                                   context,
-                                ).colorScheme.primary.withAlpha(200)
-                                : Theme.of(
-                                  context,
-                                ).colorScheme.primary.withAlpha(60),
-                        border:
-                            isOpaque
-                                ? null
-                                : Border.all(
-                                  color: Theme.of(
-                                    context,
-                                  ).colorScheme.primary.withAlpha(100),
-                                  width: 1,
-                                ),
+                                ).colorScheme.primary.withAlpha(100),
+                                width: 1,
+                              ),
                       ),
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
@@ -1054,34 +1050,31 @@ class _SettingsScreenState extends State<SettingsScreen> {
                           Icon(
                             Icons.home,
                             size: 12,
-                            color:
-                                isOpaque
-                                    ? Theme.of(context).colorScheme.onPrimary
-                                    : Theme.of(context).colorScheme.primary,
+                            color: isOpaque
+                                ? Theme.of(context).colorScheme.onPrimary
+                                : Theme.of(context).colorScheme.primary,
                           ),
                           Icon(
                             Icons.receipt,
                             size: 12,
-                            color:
-                                isOpaque
-                                    ? Theme.of(
-                                      context,
-                                    ).colorScheme.onPrimary.withAlpha(150)
-                                    : Theme.of(
-                                      context,
-                                    ).colorScheme.primary.withAlpha(150),
+                            color: isOpaque
+                                ? Theme.of(
+                                    context,
+                                  ).colorScheme.onPrimary.withAlpha(150)
+                                : Theme.of(
+                                    context,
+                                  ).colorScheme.primary.withAlpha(150),
                           ),
                           Icon(
                             Icons.bar_chart,
                             size: 12,
-                            color:
-                                isOpaque
-                                    ? Theme.of(
-                                      context,
-                                    ).colorScheme.onPrimary.withAlpha(150)
-                                    : Theme.of(
-                                      context,
-                                    ).colorScheme.primary.withAlpha(150),
+                            color: isOpaque
+                                ? Theme.of(
+                                    context,
+                                  ).colorScheme.onPrimary.withAlpha(150)
+                                : Theme.of(
+                                    context,
+                                  ).colorScheme.primary.withAlpha(150),
                           ),
                         ],
                       ),
@@ -1097,10 +1090,9 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   : AppLocalizations.of(context)!.transparentNavigation,
               style: Theme.of(context).textTheme.titleSmall?.copyWith(
                 fontWeight: FontWeight.w600,
-                color:
-                    isSelected
-                        ? Theme.of(context).colorScheme.primary
-                        : Theme.of(context).colorScheme.onSurface,
+                color: isSelected
+                    ? Theme.of(context).colorScheme.primary
+                    : Theme.of(context).colorScheme.onSurface,
               ),
             ),
             const SizedBox(height: 4),
@@ -1260,8 +1252,9 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 label: Text(AppLocalizations.of(context).logout),
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Theme.of(context).colorScheme.errorContainer,
-                  foregroundColor:
-                      Theme.of(context).colorScheme.onErrorContainer,
+                  foregroundColor: Theme.of(
+                    context,
+                  ).colorScheme.onErrorContainer,
                 ),
               ),
             ] else ...[
@@ -1296,8 +1289,9 @@ class _SettingsScreenState extends State<SettingsScreen> {
                       label: Text(AppLocalizations.of(context).login),
                       style: ElevatedButton.styleFrom(
                         backgroundColor: Theme.of(context).colorScheme.primary,
-                        foregroundColor:
-                            Theme.of(context).colorScheme.onPrimary,
+                        foregroundColor: Theme.of(
+                          context,
+                        ).colorScheme.onPrimary,
                       ),
                     ),
                   ],

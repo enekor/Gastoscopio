@@ -16,17 +16,6 @@ class MainActivity : FlutterFragmentActivity() {
         // Enable edge-to-edge
         WindowCompat.setDecorFitsSystemWindows(window, false)
         
-        window.decorView.post {
-            window.decorView.systemUiVisibility = (
-                View.SYSTEM_UI_FLAG_LAYOUT_STABLE
-                or View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
-                or View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
-                or View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
-                or View.SYSTEM_UI_FLAG_FULLSCREEN
-                or View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY
-            )
-        }
-        
         super.onCreate(savedInstanceState)
         
         // Use WindowInsetsControllerCompat for modern system UI control
@@ -39,6 +28,16 @@ class MainActivity : FlutterFragmentActivity() {
             val insets = windowInsets.getInsets(WindowInsetsCompat.Type.systemBars())
             view.setPadding(insets.left, 0, insets.right, 0)
             WindowInsetsCompat.CONSUMED
+        }
+
+        // Configurar solo para ocultar la barra de navegación
+        window.decorView.post {
+            window.decorView.systemUiVisibility = (
+                View.SYSTEM_UI_FLAG_LAYOUT_STABLE
+                or View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
+                or View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
+                or View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY
+            )
         }
     }
 

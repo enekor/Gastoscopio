@@ -142,12 +142,11 @@ class _MovementsScreenState extends State<MovementsScreen>
   }
 
   Future<void> _autoGenerateTags() async {
-    List<MovementValue> movements =
-        await _financeService.getCurrentMonthMovements();
-    movements =
-        movements
-            .where((m) => m.category == null || m.category!.isEmpty)
-            .toList();
+    List<MovementValue> movements = await _financeService
+        .getCurrentMonthMovements();
+    movements = movements
+        .where((m) => m.category == null || m.category!.isEmpty)
+        .toList();
 
     if (movements.isEmpty) return;
     List<String> tags = await GeminiService().generateTags(
@@ -241,34 +240,29 @@ class _MovementsScreenState extends State<MovementsScreen>
 
   Widget _buildFAB() {
     return Card(
-      color:
-          _isOpaqueBottomNav
-              ? Theme.of(context).colorScheme.primary.withAlpha(200)
-              : Theme.of(context).colorScheme.secondary.withAlpha(25),
+      color: _isOpaqueBottomNav
+          ? Theme.of(context).colorScheme.primary.withAlpha(200)
+          : Theme.of(context).colorScheme.secondary.withAlpha(25),
       elevation: _isOpaqueBottomNav ? 4 : 8,
       shape: CircleBorder(
-        side:
-            _isOpaqueBottomNav
-                ? BorderSide.none
-                : BorderSide(
-                  color: Theme.of(context).colorScheme.primary.withOpacity(0.3),
-                  width: 2,
-                ),
+        side: _isOpaqueBottomNav
+            ? BorderSide.none
+            : BorderSide(
+                color: Theme.of(context).colorScheme.primary.withOpacity(0.3),
+                width: 2,
+              ),
       ),
       child: Container(
         width: 45,
         height: 45,
         decoration: BoxDecoration(
           shape: BoxShape.circle,
-          border:
-              _isOpaqueBottomNav
-                  ? null
-                  : Border.all(
-                    color: Theme.of(
-                      context,
-                    ).colorScheme.primary.withOpacity(0.3),
-                    width: 2,
-                  ),
+          border: _isOpaqueBottomNav
+              ? null
+              : Border.all(
+                  color: Theme.of(context).colorScheme.primary.withOpacity(0.3),
+                  width: 2,
+                ),
         ),
         child: FloatingActionButton.small(
           backgroundColor: Colors.transparent,
@@ -289,10 +283,9 @@ class _MovementsScreenState extends State<MovementsScreen>
           },
           child: Icon(
             Icons.add,
-            color:
-                _isOpaqueBottomNav
-                    ? Theme.of(context).colorScheme.onPrimary
-                    : Theme.of(context).colorScheme.primary,
+            color: _isOpaqueBottomNav
+                ? Theme.of(context).colorScheme.onPrimary
+                : Theme.of(context).colorScheme.primary,
           ),
           heroTag: 'movements_fab',
         ),
@@ -374,8 +367,8 @@ class _MovementsScreenState extends State<MovementsScreen>
             child: _buildList(
               showFutureMovements
                   ? movements
-                      .where((mov) => mov.day <= DateTime.now().day)
-                      .toList()
+                        .where((mov) => mov.day <= DateTime.now().day)
+                        .toList()
                   : movements,
               moneda,
             ),
@@ -461,88 +454,76 @@ class _MovementsScreenState extends State<MovementsScreen>
             ),
           ),
           child: Column(
-            children:
-                movements.map((mov) {
-                  final isExpanded =
-                      _expandedItems['future_${mov.id}'] ?? false;
+            children: movements.map((mov) {
+              final isExpanded = _expandedItems['future_${mov.id}'] ?? false;
 
-                  return AnimatedCard(
-                    isExpanded: isExpanded,
-                    onTap: () {
-                      setState(() {
-                        _expandedItems['future_${mov.id}'] = !isExpanded;
-                      });
-                    },
-                    leadingWidget: ListTile(
-                      contentPadding: const EdgeInsets.symmetric(
-                        horizontal: 16.0,
-                        vertical: 4.0,
-                      ),
-                      title: Text(
-                        mov.description,
+              return AnimatedCard(
+                isExpanded: isExpanded,
+                onTap: () {
+                  setState(() {
+                    _expandedItems['future_${mov.id}'] = !isExpanded;
+                  });
+                },
+                leadingWidget: ListTile(
+                  contentPadding: const EdgeInsets.symmetric(
+                    horizontal: 16.0,
+                    vertical: 4.0,
+                  ),
+                  title: Text(
+                    mov.description,
+                    style: Theme.of(context).textTheme.titleSmall?.copyWith(
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
+                  subtitle: mov.category != null
+                      ? Padding(
+                          padding: const EdgeInsets.only(top: 4.0),
+                          child: Row(
+                            children: [
+                              Icon(
+                                Icons.label_outline,
+                                size: 16,
+                                color: Theme.of(context).colorScheme.secondary,
+                              ),
+                              const SizedBox(width: 4),
+                              Text(
+                                mov.category!,
+                                style: TextStyle(
+                                  color: Theme.of(
+                                    context,
+                                  ).colorScheme.secondary,
+                                  fontSize: 12,
+                                ),
+                              ),
+                            ],
+                          ),
+                        )
+                      : null,
+                  trailing: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    crossAxisAlignment: CrossAxisAlignment.end,
+                    children: [
+                      Text(
+                        '${mov.amount.toStringAsFixed(2)} $moneda',
                         style: Theme.of(context).textTheme.titleSmall?.copyWith(
-                          fontWeight: FontWeight.w500,
+                          fontWeight: FontWeight.bold,
+                          color: mov.isExpense
+                              ? Theme.of(context).colorScheme.error
+                              : Theme.of(context).colorScheme.primary,
                         ),
                       ),
-                      subtitle:
-                          mov.category != null
-                              ? Padding(
-                                padding: const EdgeInsets.only(top: 4.0),
-                                child: Row(
-                                  children: [
-                                    Icon(
-                                      Icons.label_outline,
-                                      size: 16,
-                                      color:
-                                          Theme.of(
-                                            context,
-                                          ).colorScheme.secondary,
-                                    ),
-                                    const SizedBox(width: 4),
-                                    Text(
-                                      mov.category!,
-                                      style: TextStyle(
-                                        color:
-                                            Theme.of(
-                                              context,
-                                            ).colorScheme.secondary,
-                                        fontSize: 12,
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              )
-                              : null,
-                      trailing: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        crossAxisAlignment: CrossAxisAlignment.end,
-                        children: [
-                          Text(
-                            '${mov.amount.toStringAsFixed(2)} $moneda',
-                            style: Theme.of(
-                              context,
-                            ).textTheme.titleSmall?.copyWith(
-                              fontWeight: FontWeight.bold,
-                              color:
-                                  mov.isExpense
-                                      ? Theme.of(context).colorScheme.error
-                                      : Theme.of(context).colorScheme.primary,
-                            ),
-                          ),
-                          Text(
-                            '${mov.day}/${widget.month}',
-                            style: Theme.of(
-                              context,
-                            ).textTheme.bodySmall?.copyWith(
-                              color: Theme.of(context).colorScheme.secondary,
-                            ),
-                          ),
-                        ],
+                      Text(
+                        '${mov.day}/${widget.month}',
+                        style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                          color: Theme.of(context).colorScheme.secondary,
+                        ),
                       ),
-                    ),
-                    hiddenWidget: _buildExpandedContent(context, mov),
-                  );
-                }).toList(),
+                    ],
+                  ),
+                ),
+                hiddenWidget: _buildExpandedContent(context, mov),
+              );
+            }).toList(),
           ),
         ),
       ),
@@ -592,25 +573,23 @@ class _MovementsScreenState extends State<MovementsScreen>
                   },
                   leadingWidget: ListTile(
                     title: Text(movement.description),
-                    subtitle:
-                        movement.category != null
-                            ? Text(
-                              movement.category!,
-                              style: TextStyle(
-                                color: Theme.of(context).colorScheme.secondary,
-                              ),
-                            )
-                            : null,
+                    subtitle: movement.category != null
+                        ? Text(
+                            movement.category!,
+                            style: TextStyle(
+                              color: Theme.of(context).colorScheme.secondary,
+                            ),
+                          )
+                        : null,
                     trailing: Row(
                       mainAxisSize: MainAxisSize.min,
                       children: [
                         Text(
                           '${movement.amount.toStringAsFixed(2)}${moneda}',
                           style: TextStyle(
-                            color:
-                                movement.isExpense
-                                    ? Theme.of(context).colorScheme.error
-                                    : Theme.of(context).colorScheme.primary,
+                            color: movement.isExpense
+                                ? Theme.of(context).colorScheme.error
+                                : Theme.of(context).colorScheme.primary,
                             fontWeight: FontWeight.bold,
                           ),
                         ),
@@ -664,103 +643,99 @@ class _MovementsScreenState extends State<MovementsScreen>
             _applySorting();
           });
         },
-        itemBuilder:
-            (BuildContext context) => [
-              PopupMenuItem<String>(
-                value: 'fecha',
-                child: Row(
-                  children: [
-                    Icon(
-                      Icons.calendar_today,
-                      color: Theme.of(context).colorScheme.primary,
-                    ),
-                    const SizedBox(width: 12),
-                    Text(AppLocalizations.of(context)!.byDate),
-                    const Spacer(),
-                    if (_currentSortType == 'fecha')
-                      Icon(
-                        _isAscending
-                            ? Icons.keyboard_arrow_up
-                            : Icons.keyboard_arrow_down,
-                        color: Theme.of(context).colorScheme.primary,
-                        size: 16,
-                      ),
-                  ],
+        itemBuilder: (BuildContext context) => [
+          PopupMenuItem<String>(
+            value: 'fecha',
+            child: Row(
+              children: [
+                Icon(
+                  Icons.calendar_today,
+                  color: Theme.of(context).colorScheme.primary,
                 ),
-              ),
-              PopupMenuItem<String>(
-                value: 'alfabetico',
-                child: Row(
-                  children: [
-                    Icon(
-                      Icons.sort_by_alpha,
-                      color: Theme.of(context).colorScheme.primary,
-                    ),
-                    const SizedBox(width: 12),
-                    Text(AppLocalizations.of(context)!.alphabetical),
-                    const Spacer(),
-                    if (_currentSortType == 'alfabetico')
-                      Icon(
-                        _isAscending
-                            ? Icons.keyboard_arrow_up
-                            : Icons.keyboard_arrow_down,
-                        color: Theme.of(context).colorScheme.primary,
-                        size: 16,
-                      ),
-                  ],
-                ),
-              ),
-              PopupMenuItem<String>(
-                value: 'valor',
-                child: Row(
-                  children: [
-                    Icon(
-                      Icons.attach_money,
-                      color: Theme.of(context).colorScheme.primary,
-                    ),
-                    const SizedBox(width: 12),
-                    Text(AppLocalizations.of(context)!.byValue),
-                    const Spacer(),
-                    if (_currentSortType == 'valor')
-                      Icon(
-                        _isAscending
-                            ? Icons.keyboard_arrow_up
-                            : Icons.keyboard_arrow_down,
-                        color: Theme.of(context).colorScheme.primary,
-                        size: 16,
-                      ),
-                  ],
-                ),
-              ),
-              if (_currentSortType != null) ...[
-                const PopupMenuDivider(),
-                PopupMenuItem<String>(
-                  value: 'reset',
-                  child: Row(
-                    children: [
-                      Icon(
-                        Icons.clear,
-                        color: Theme.of(context).colorScheme.error,
-                      ),
-                      const SizedBox(width: 12),
-                      Text(
-                        AppLocalizations.of(context)!.clearSort,
-                        style: TextStyle(
-                          color: Theme.of(context).colorScheme.error,
-                        ),
-                      ),
-                    ],
+                const SizedBox(width: 12),
+                Text(AppLocalizations.of(context)!.byDate),
+                const Spacer(),
+                if (_currentSortType == 'fecha')
+                  Icon(
+                    _isAscending
+                        ? Icons.keyboard_arrow_up
+                        : Icons.keyboard_arrow_down,
+                    color: Theme.of(context).colorScheme.primary,
+                    size: 16,
                   ),
-                  onTap: () {
-                    setState(() {
-                      _currentSortType = null;
-                      _isAscending = true;
-                      _loadMovements(); // Recargar en orden original
-                    });
-                  },
-                ),
               ],
-            ],
+            ),
+          ),
+          PopupMenuItem<String>(
+            value: 'alfabetico',
+            child: Row(
+              children: [
+                Icon(
+                  Icons.sort_by_alpha,
+                  color: Theme.of(context).colorScheme.primary,
+                ),
+                const SizedBox(width: 12),
+                Text(AppLocalizations.of(context)!.alphabetical),
+                const Spacer(),
+                if (_currentSortType == 'alfabetico')
+                  Icon(
+                    _isAscending
+                        ? Icons.keyboard_arrow_up
+                        : Icons.keyboard_arrow_down,
+                    color: Theme.of(context).colorScheme.primary,
+                    size: 16,
+                  ),
+              ],
+            ),
+          ),
+          PopupMenuItem<String>(
+            value: 'valor',
+            child: Row(
+              children: [
+                Icon(
+                  Icons.attach_money,
+                  color: Theme.of(context).colorScheme.primary,
+                ),
+                const SizedBox(width: 12),
+                Text(AppLocalizations.of(context)!.byValue),
+                const Spacer(),
+                if (_currentSortType == 'valor')
+                  Icon(
+                    _isAscending
+                        ? Icons.keyboard_arrow_up
+                        : Icons.keyboard_arrow_down,
+                    color: Theme.of(context).colorScheme.primary,
+                    size: 16,
+                  ),
+              ],
+            ),
+          ),
+          if (_currentSortType != null) ...[
+            const PopupMenuDivider(),
+            PopupMenuItem<String>(
+              value: 'reset',
+              child: Row(
+                children: [
+                  Icon(Icons.clear, color: Theme.of(context).colorScheme.error),
+                  const SizedBox(width: 12),
+                  Text(
+                    AppLocalizations.of(context)!.clearSort,
+                    style: TextStyle(
+                      color: Theme.of(context).colorScheme.error,
+                    ),
+                  ),
+                ],
+              ),
+              onTap: () {
+                setState(() {
+                  _currentSortType = null;
+                  _isAscending = true;
+                  _loadMovements(); // Recargar en orden original
+                });
+              },
+            ),
+          ],
+        ],
       ),
     );
   }
@@ -841,10 +816,9 @@ class _MovementsScreenState extends State<MovementsScreen>
           Text(
             '${totalAmount >= 0 ? '+' : ''}${totalAmount.toStringAsFixed(2)}$moneda',
             style: Theme.of(context).textTheme.titleSmall?.copyWith(
-              color:
-                  totalAmount >= 0
-                      ? Theme.of(context).colorScheme.primary
-                      : Theme.of(context).colorScheme.error,
+              color: totalAmount >= 0
+                  ? Theme.of(context).colorScheme.primary
+                  : Theme.of(context).colorScheme.error,
               fontWeight: FontWeight.bold,
             ),
           ),
@@ -1007,18 +981,17 @@ class _MovementsScreenState extends State<MovementsScreen>
                       decoration: InputDecoration(
                         labelText: AppLocalizations.of(context)!.search,
                         prefixIcon: const Icon(Icons.abc),
-                        suffixIcon:
-                            _searchQuery.isNotEmpty
-                                ? IconButton(
-                                  icon: const Icon(Icons.clear),
-                                  onPressed: () {
-                                    setState(() {
-                                      _searchQuery = '';
-                                      _searchController.clear();
-                                    });
-                                  },
-                                )
-                                : null,
+                        suffixIcon: _searchQuery.isNotEmpty
+                            ? IconButton(
+                                icon: const Icon(Icons.clear),
+                                onPressed: () {
+                                  setState(() {
+                                    _searchQuery = '';
+                                    _searchController.clear();
+                                  });
+                                },
+                              )
+                            : null,
                       ),
                     ),
                   ),
@@ -1186,9 +1159,8 @@ class _MovementsScreenState extends State<MovementsScreen>
     // Combinar categorías existentes con TagList localizado y ordenar alfabéticamente
     final locale = AppLocalizations.of(context).localeName;
     final localizedTags = getTagList(locale);
-    final allCategories =
-        {...existingCategories, ...localizedTags}.toList()
-          ..sort((a, b) => a.compareTo(b));
+    final allCategories = {...existingCategories, ...localizedTags}.toList()
+      ..sort((a, b) => a.compareTo(b));
 
     showModalBottomSheet(
       context: context,
@@ -1225,13 +1197,12 @@ class _MovementsScreenState extends State<MovementsScreen>
                         title: Text(
                           AppLocalizations.of(context)!.allCategories,
                         ),
-                        leading:
-                            _selectedCategory == null
-                                ? Icon(
-                                  Icons.check,
-                                  color: Theme.of(context).colorScheme.primary,
-                                )
-                                : const Icon(Icons.label_outline),
+                        leading: _selectedCategory == null
+                            ? Icon(
+                                Icons.check,
+                                color: Theme.of(context).colorScheme.primary,
+                              )
+                            : const Icon(Icons.label_outline),
                         onTap: () {
                           setState(() => _selectedCategory = null);
                           Navigator.pop(context);
@@ -1241,14 +1212,12 @@ class _MovementsScreenState extends State<MovementsScreen>
                       ...allCategories.map(
                         (category) => ListTile(
                           title: Text(category),
-                          leading:
-                              _selectedCategory == category
-                                  ? Icon(
-                                    Icons.check,
-                                    color:
-                                        Theme.of(context).colorScheme.primary,
-                                  )
-                                  : const Icon(Icons.label_outline),
+                          leading: _selectedCategory == category
+                              ? Icon(
+                                  Icons.check,
+                                  color: Theme.of(context).colorScheme.primary,
+                                )
+                              : const Icon(Icons.label_outline),
                           onTap: () {
                             setState(() => _selectedCategory = category);
                             Navigator.pop(context);
@@ -1281,196 +1250,179 @@ class _MovementsScreenState extends State<MovementsScreen>
       isScrollControlled: true,
       showDragHandle: true,
       useSafeArea: true,
-      builder:
-          (BuildContext context) => Padding(
-            padding: EdgeInsets.only(
-              bottom: MediaQuery.of(context).viewInsets.bottom,
-            ),
-            child: SingleChildScrollView(
-              child: Padding(
-                padding: const EdgeInsets.all(16.0),
-                child: Form(
-                  key: formKey,
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    crossAxisAlignment: CrossAxisAlignment.stretch,
+      builder: (BuildContext context) => Padding(
+        padding: EdgeInsets.only(
+          bottom: MediaQuery.of(context).viewInsets.bottom,
+        ),
+        child: SingleChildScrollView(
+          child: Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: Form(
+              key: formKey,
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  Row(
                     children: [
-                      Row(
-                        children: [
-                          const Icon(Icons.edit),
-                          const SizedBox(width: 16),
-                          Text(
-                            AppLocalizations.of(context).editMovement,
-                            style: Theme.of(context).textTheme.titleLarge,
-                          ),
-                        ],
-                      ),
-                      const SizedBox(height: 16),
-                      TextFormField(
-                        controller: descriptionController,
-                        decoration: InputDecoration(
-                          labelText: AppLocalizations.of(context).description,
-                          prefixIcon: const Icon(Icons.description),
-                        ),
-                        validator: (value) {
-                          if (value == null || value.isEmpty) {
-                            return AppLocalizations.of(
-                              context,
-                            ).pleaseEnterDescription;
-                          }
-                          return null;
-                        },
-                      ),
-                      const SizedBox(height: 16),
-                      TextFormField(
-                        controller: amountController,
-                        decoration: InputDecoration(
-                          labelText: AppLocalizations.of(context).amount,
-                          prefixIcon: const Icon(Icons.attach_money),
-                          suffixText: _moneda,
-                        ),
-                        keyboardType: const TextInputType.numberWithOptions(
-                          decimal: true,
-                        ),
-                        validator: (value) {
-                          if (value == null || value.isEmpty) {
-                            return AppLocalizations.of(
-                              context,
-                            ).pleaseEnterAmount;
-                          }
-                          if (double.tryParse(value.replaceAll(',', '.')) ==
-                              null) {
-                            return AppLocalizations.of(
-                              context,
-                            ).pleaseEnterValidAmount;
-                          }
-                          return null;
-                        },
-                      ),
-                      const SizedBox(height: 16),
-                      StatefulBuilder(
-                        builder:
-                            (context, setDateState) => FilledButton.icon(
-                              onPressed: () async {
-                                final date = await showDatePicker(
-                                  context: context,
-                                  initialDate: selectedDate,
-                                  firstDate: DateTime(
-                                    widget.year,
-                                    widget.month,
-                                    1,
-                                  ),
-                                  lastDate: DateTime(
-                                    widget.year,
-                                    widget.month + 1,
-                                    0,
-                                  ),
-                                );
-                                if (date != null) {
-                                  setDateState(() => selectedDate = date);
-                                }
-                              },
-                              icon: const Icon(Icons.calendar_today),
-                              label: Text(
-                                '${AppLocalizations.of(context).date}: \\${selectedDate.day}/${selectedDate.month}/${selectedDate.year}',
-                              ),
-                            ),
-                      ),
-                      const SizedBox(height: 24),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.end,
-                        children: [
-                          TextButton(
-                            onPressed: () => Navigator.pop(context),
-                            child: Text(AppLocalizations.of(context)!.cancel),
-                          ),
-                          const SizedBox(width: 8),
-                          FilledButton(
-                            onPressed: () async {
-                              if (!formKey.currentState!.validate()) return;
-
-                              // Show loading indicator
-                              if (!context.mounted) return;
-                              showDialog(
-                                context: context,
-                                barrierDismissible: false,
-                                builder:
-                                    (context) => const Center(
-                                      child: CircularProgressIndicator(),
-                                    ),
-                              );
-                              final updatedMovement = MovementValue(
-                                movement.id,
-                                movement.monthId,
-                                descriptionController.text,
-                                double.parse(
-                                  amountController.text.replaceAll(',', '.'),
-                                ),
-                                movement.isExpense,
-                                selectedDate.day,
-                                movement.category,
-                              );
-
-                              await _financeService.updateMovement(
-                                updatedMovement,
-                              );
-
-                              // Call haveToUpload() after updating movement
-                              await SharedPreferencesService().haveToUpload();
-
-                              // Close both dialogs
-                              if (!context.mounted) return;
-                              Navigator.pop(context); // Close loading
-                              Navigator.pop(context); // Close form
-
-                              // Show success message
-                              if (!context.mounted) return;
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                SnackBar(
-                                  content: Text(
-                                    AppLocalizations.of(
-                                      context,
-                                    )!.movementUpdatedSuccessfully,
-                                  ),
-                                  behavior: SnackBarBehavior.floating,
-                                ),
-                              );
-                            },
-                            child: Text(AppLocalizations.of(context)!.save),
-                          ),
-                        ],
+                      const Icon(Icons.edit),
+                      const SizedBox(width: 16),
+                      Text(
+                        AppLocalizations.of(context).editMovement,
+                        style: Theme.of(context).textTheme.titleLarge,
                       ),
                     ],
                   ),
-                ),
+                  const SizedBox(height: 16),
+                  TextFormField(
+                    controller: descriptionController,
+                    decoration: InputDecoration(
+                      labelText: AppLocalizations.of(context).description,
+                      prefixIcon: const Icon(Icons.description),
+                    ),
+                    validator: (value) {
+                      if (value == null || value.isEmpty) {
+                        return AppLocalizations.of(
+                          context,
+                        ).pleaseEnterDescription;
+                      }
+                      return null;
+                    },
+                  ),
+                  const SizedBox(height: 16),
+                  TextFormField(
+                    controller: amountController,
+                    decoration: InputDecoration(
+                      labelText: AppLocalizations.of(context).amount,
+                      prefixIcon: const Icon(Icons.attach_money),
+                      suffixText: _moneda,
+                    ),
+                    keyboardType: const TextInputType.numberWithOptions(
+                      decimal: true,
+                    ),
+                    validator: (value) {
+                      if (value == null || value.isEmpty) {
+                        return AppLocalizations.of(context).pleaseEnterAmount;
+                      }
+                      if (double.tryParse(value.replaceAll(',', '.')) == null) {
+                        return AppLocalizations.of(
+                          context,
+                        ).pleaseEnterValidAmount;
+                      }
+                      return null;
+                    },
+                  ),
+                  const SizedBox(height: 16),
+                  StatefulBuilder(
+                    builder: (context, setDateState) => FilledButton.icon(
+                      onPressed: () async {
+                        final date = await showDatePicker(
+                          context: context,
+                          initialDate: selectedDate,
+                          firstDate: DateTime(widget.year, widget.month, 1),
+                          lastDate: DateTime(widget.year, widget.month + 1, 0),
+                        );
+                        if (date != null) {
+                          setDateState(() => selectedDate = date);
+                        }
+                      },
+                      icon: const Icon(Icons.calendar_today),
+                      label: Text(
+                        '${AppLocalizations.of(context).date}: \\${selectedDate.day}/${selectedDate.month}/${selectedDate.year}',
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 24),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.end,
+                    children: [
+                      TextButton(
+                        onPressed: () => Navigator.pop(context),
+                        child: Text(AppLocalizations.of(context)!.cancel),
+                      ),
+                      const SizedBox(width: 8),
+                      FilledButton(
+                        onPressed: () async {
+                          if (!formKey.currentState!.validate()) return;
+
+                          // Show loading indicator
+                          if (!context.mounted) return;
+                          showDialog(
+                            context: context,
+                            barrierDismissible: false,
+                            builder: (context) => const Center(
+                              child: CircularProgressIndicator(),
+                            ),
+                          );
+                          final updatedMovement = MovementValue(
+                            movement.id,
+                            movement.monthId,
+                            descriptionController.text,
+                            double.parse(
+                              amountController.text.replaceAll(',', '.'),
+                            ),
+                            movement.isExpense,
+                            selectedDate.day,
+                            movement.category,
+                          );
+
+                          await _financeService.updateMovement(updatedMovement);
+
+                          // Call haveToUpload() after updating movement
+                          await SharedPreferencesService().haveToUpload();
+
+                          // Close both dialogs
+                          if (!context.mounted) return;
+                          Navigator.pop(context); // Close loading
+                          Navigator.pop(context); // Close form
+
+                          // Show success message
+                          if (!context.mounted) return;
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(
+                              content: Text(
+                                AppLocalizations.of(
+                                  context,
+                                )!.movementUpdatedSuccessfully,
+                              ),
+                              behavior: SnackBarBehavior.floating,
+                            ),
+                          );
+                        },
+                        child: Text(AppLocalizations.of(context)!.save),
+                      ),
+                    ],
+                  ),
+                ],
               ),
             ),
           ),
+        ),
+      ),
     );
   }
 
   Future<void> _showDeleteDialog(MovementValue movement) async {
     final shouldDelete = await showDialog<bool>(
       context: context,
-      builder:
-          (context) => AlertDialog(
-            title: Text(AppLocalizations.of(context)!.deleteMovement),
-            content: Text(
-              AppLocalizations.of(
-                context,
-              )!.confirmDeleteMovement(movement.description),
-            ),
-            actions: [
-              TextButton(
-                onPressed: () => Navigator.pop(context, false),
-                child: Text(AppLocalizations.of(context)!.cancel),
-              ),
-              TextButton(
-                onPressed: () => Navigator.pop(context, true),
-                child: Text(AppLocalizations.of(context)!.delete),
-              ),
-            ],
+      builder: (context) => AlertDialog(
+        title: Text(AppLocalizations.of(context)!.deleteMovement),
+        content: Text(
+          AppLocalizations.of(
+            context,
+          )!.confirmDeleteMovement(movement.description),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context, false),
+            child: Text(AppLocalizations.of(context)!.cancel),
           ),
+          TextButton(
+            onPressed: () => Navigator.pop(context, true),
+            child: Text(AppLocalizations.of(context)!.delete),
+          ),
+        ],
+      ),
     );
     if (shouldDelete == true) {
       await _financeService.deleteMovement(context, movement);
@@ -1491,9 +1443,8 @@ class _MovementsScreenState extends State<MovementsScreen>
     final existingCategories = _getAvailableCategories(movements);
     final locale = AppLocalizations.of(context).localeName;
     final localizedTags = getTagList(locale);
-    final allCategories =
-        {...existingCategories, ...localizedTags}.toList()
-          ..sort((a, b) => a.compareTo(b));
+    final allCategories = {...existingCategories, ...localizedTags}.toList()
+      ..sort((a, b) => a.compareTo(b));
 
     await showModalBottomSheet(
       context: context,
@@ -1529,14 +1480,12 @@ class _MovementsScreenState extends State<MovementsScreen>
                       ...allCategories.map(
                         (category) => ListTile(
                           title: Text(category),
-                          leading:
-                              movement.category == category
-                                  ? Icon(
-                                    Icons.check,
-                                    color:
-                                        Theme.of(context).colorScheme.primary,
-                                  )
-                                  : const Icon(Icons.label_outline),
+                          leading: movement.category == category
+                              ? Icon(
+                                  Icons.check,
+                                  color: Theme.of(context).colorScheme.primary,
+                                )
+                              : const Icon(Icons.label_outline),
                           onTap: () async {
                             final updatedMovement = MovementValue(
                               movement.id,
@@ -1551,10 +1500,9 @@ class _MovementsScreenState extends State<MovementsScreen>
                             showDialog(
                               context: context,
                               barrierDismissible: false,
-                              builder:
-                                  (context) => const Center(
-                                    child: CircularProgressIndicator(),
-                                  ),
+                              builder: (context) => const Center(
+                                child: CircularProgressIndicator(),
+                              ),
                             );
                             await _financeService.updateMovement(
                               updatedMovement,

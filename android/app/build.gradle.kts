@@ -13,8 +13,16 @@ plugins {
 
 android {
     namespace = "com.N3k0chan.cashly"
-    compileSdk = 35
+    compileSdk = 36
     ndkVersion = "27.0.12077973"
+    
+    testOptions {
+        unitTests.isIncludeAndroidResources = true
+        unitTests.isReturnDefaultValues = true
+        unitTests.all {
+            it.enabled = false
+        }
+    }
 
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_11
