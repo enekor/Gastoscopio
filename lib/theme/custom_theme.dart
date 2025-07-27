@@ -11,6 +11,11 @@ class CustomTheme {
         );
 
     return ThemeData(
+      pageTransitionsTheme: const PageTransitionsTheme(
+        builders: {
+          TargetPlatform.android: PredictiveBackPageTransitionsBuilder(),
+        },
+      ),
       useMaterial3: true,
       colorScheme: baseScheme,
 
@@ -123,6 +128,11 @@ class CustomTheme {
         );
 
     return ThemeData(
+      pageTransitionsTheme: const PageTransitionsTheme(
+        builders: {
+          TargetPlatform.android: PredictiveBackPageTransitionsBuilder(),
+        },
+      ),
       useMaterial3: true,
       colorScheme: baseScheme,
 
