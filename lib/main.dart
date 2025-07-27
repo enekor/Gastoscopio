@@ -7,6 +7,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:cashly/l10n/app_localizations.dart';
+import 'package:dynamic_color/dynamic_color.dart';
+import 'package:cashly/theme/custom_theme.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -55,49 +57,41 @@ class _MyAppState extends State<MyApp> {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'Gastoscopio',
+    return DynamicColorBuilder(
+      builder: (ColorScheme? lightDynamic, ColorScheme? darkDynamic) {
+        return MaterialApp(
+          title: 'Gastoscopio',
 
-      // Configuración de localizaciones
-      localizationsDelegates: const [
-        AppLocalizations.delegate,
-        GlobalMaterialLocalizations.delegate,
-        GlobalWidgetsLocalizations.delegate,
-        GlobalCupertinoLocalizations.delegate,
-      ],
-      supportedLocales: LocaleService.supportedLocales,
-      locale: _localeService.currentLocale,
+          // Configuración de localizaciones
+          localizationsDelegates: const [
+            AppLocalizations.delegate,
+            GlobalMaterialLocalizations.delegate,
+            GlobalWidgetsLocalizations.delegate,
+            GlobalCupertinoLocalizations.delegate,
+          ],
+          supportedLocales: LocaleService.supportedLocales,
+          locale: _localeService.currentLocale,
 
-      theme: ThemeData(
-        useMaterial3: true,
-        colorScheme: ColorScheme.fromSeed(
-          seedColor: Colors.deepPurple,
-          brightness: Brightness.light,
-        ),
-      ),
-      darkTheme: ThemeData(
-        useMaterial3: true,
-        colorScheme: ColorScheme.fromSeed(
-          seedColor: Colors.deepPurple,
-          brightness: Brightness.dark,
-        ),
-      ),
-      themeMode: ThemeMode.system,
-      home: FutureBuilder<bool>(
-        future: _authService.getUseAuth(),
-        builder: (context, snapshot) {
-          if (snapshot.connectionState == ConnectionState.waiting) {
-            return const Center(child: CircularProgressIndicator());
-          }
+          theme: CustomTheme.createTheme(lightDynamic),
+          darkTheme: CustomTheme.createDarkTheme(darkDynamic),
+          themeMode: ThemeMode.system,
+          home: FutureBuilder<bool>(
+            future: _authService.getUseAuth(),
+            builder: (context, snapshot) {
+              if (snapshot.connectionState == ConnectionState.waiting) {
+                return const Center(child: CircularProgressIndicator());
+              }
 
-          final useAuth = snapshot.data ?? false;
-          if (!useAuth) {
-            return const App();
-          }
+              final useAuth = snapshot.data ?? false;
+              if (!useAuth) {
+                return const App();
+              }
 
-          return const AuthScreen();
-        },
-      ),
+              return const AuthScreen();
+            },
+          ),
+        );
+      },
     );
   }
 }
