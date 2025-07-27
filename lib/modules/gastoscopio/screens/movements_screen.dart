@@ -150,9 +150,7 @@ class _MovementsScreenState extends State<MovementsScreen>
 
     if (movements.isEmpty) return;
     List<String> tags = await GeminiService().generateTags(
-      movements
-          .map((m) => '${m.description} (${m.isExpense ? 'gasto' : 'ingreso'})')
-          .join(','),
+      movements.map((m) => m.description).join(','),
       context,
     );
     if (tags.isEmpty) {
