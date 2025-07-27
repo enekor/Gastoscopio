@@ -4,7 +4,6 @@ import 'package:cashly/data/services/shared_preferences_service.dart';
 import 'package:cashly/data/services/sqlite_service.dart';
 import 'package:cashly/modules/gastoscopio/logic/finance_service.dart';
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:cashly/l10n/app_localizations.dart';
 
 class FixedMovementsScreen extends StatefulWidget {
@@ -142,7 +141,8 @@ class _FixedMovementsScreenState extends State<FixedMovementsScreen> {
           padding: const EdgeInsets.only(top: 35.0),
           child: Text(
             AppLocalizations.of(context)!.fixedMovements,
-            style: GoogleFonts.pacifico(
+            style: TextStyle(
+              fontFamily: 'Pacifico',
               fontSize: 20,
               fontWeight: FontWeight.bold,
               color: Theme.of(context).colorScheme.onSurface,

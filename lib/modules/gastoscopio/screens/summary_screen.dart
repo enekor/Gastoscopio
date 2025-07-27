@@ -9,7 +9,6 @@ import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_markdown/flutter_markdown.dart';
 import 'package:cashly/data/services/sqlite_service.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:cashly/l10n/app_localizations.dart';
 
 class SummaryScreen extends StatefulWidget {
@@ -140,7 +139,8 @@ class _SummaryScreenState extends State<SummaryScreen>
             children: [
               Text(
                 "${_getMonthName(_month)} $_year",
-                style: GoogleFonts.pacifico(
+                style: TextStyle(
+                  fontFamily: 'Pacifico',
                   fontSize: 20,
                   fontWeight: FontWeight.bold,
                   color: Theme.of(context).colorScheme.onSurface,

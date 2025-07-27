@@ -16,7 +16,7 @@ publish_to: "none" # Remove this line if you wish to publish to pub.dev
 # https://developer.apple.com/library/archive/documentation/General/Reference/InfoPlistKeyReference/Articles/CoreFoundationKeys.html
 # In Windows, build-name is used as the major, minor, and patch parts
 # of the product and file versions while build-number is used as the build suffix.
-version: 1.5.0+36
+version: 1.5.0+37
 
 environment:
   sdk: ^3.8.0-126.0.dev
@@ -43,7 +43,6 @@ dependencies:
   flutter_markdown: ^0.7.7+1
   flutter_secure_storage: ^9.0.0
   fluttertoast: ^8.2.12
-  google_fonts: ^6.2.1
   google_generative_ai: ^0.4.7
   google_sign_in: ^6.3.0
   googleapis: ^14.0.0
@@ -54,7 +53,6 @@ dependencies:
   markdown: ^7.2.2
   path: ^1.9.1
   path_provider: ^2.1.5
-
   shared_preferences: ^2.5.3
   sqflite: ^2.4.2
   svg_flutter: ^0.0.1
@@ -75,19 +73,19 @@ flutter:
   # included with your application, so that you can use the icons in
   # the material Icons class.
   uses-material-design: true
-  
+
   # Enable generation of localized Strings from arb files.
   generate: true
-  
+
   assets:
-      - assets/guide/step1.jpg
-      - assets/guide/step2.jpg
-      - assets/guide/step3.jpg
-      - assets/guide/step4.jpg
-      - assets/guide/step2b.jpg
-      - assets/guide/step2c.jpg
-      - assets/guide/step2d.jpg
-      - assets/logo.svg
-      - assets/logo.png
-      - assets/terminos-y-condiciones.md
-      - assets/terms-and-conditions-en.md
+    - assets/guide/step1.jpg
+    - assets/guide/step2.jpg
+    - assets/guide/step3.jpg
+    - assets/guide/step4.jpg
+    - assets/guide/step2b.jpg
+    - assets/guide/step2c.jpg
+    - assets/guide/step2d.jpg
+    - assets/logo.svg
+    - assets/logo.png
+    - assets/terminos-y-condiciones.md
+    - assets/terms-and-conditions-en.md

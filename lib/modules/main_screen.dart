@@ -9,7 +9,6 @@ import 'package:cashly/modules/settings.dart/settings.dart';
 import 'package:cashly/modules/settings.dart/widgets/custom_navbar.dart';
 import 'package:cashly/onboarding/onboarding.dart';
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:cashly/l10n/app_localizations.dart';
 
 class MainScreen extends StatefulWidget {
@@ -256,7 +255,11 @@ class _MainScreenState extends State<MainScreen>
               padding: const EdgeInsets.only(top: 35.0),
               child: Text(
                 AppLocalizations.of(context)!.appTitle,
-                style: GoogleFonts.pacifico(fontSize: 24, letterSpacing: 1.2),
+                style: TextStyle(
+                  fontFamily: 'Pacifico',
+                  fontSize: 24,
+                  letterSpacing: 1.2,
+                ),
               ),
             ),
             actions: [

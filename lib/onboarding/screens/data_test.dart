@@ -3,7 +3,6 @@ import 'package:cashly/data/models/movement_value.dart';
 import 'package:cashly/data/services/shared_preferences_service.dart';
 import 'package:cashly/data/services/sqlite_service.dart';
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 
 class DataTestPage extends StatefulWidget {
   const DataTestPage({super.key});
@@ -56,31 +55,30 @@ class _DataTestPageState extends State<DataTestPage> {
   void _showMovementTypeDialog(Month month) {
     showDialog(
       context: context,
-      builder:
-          (context) => AlertDialog(
-            title: Text('${month.month}/${month.year}'),
-            content: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                ListTile(
-                  title: const Text('Ver Gastos'),
-                  leading: const Icon(Icons.money_off),
-                  onTap: () {
-                    Navigator.pop(context);
-                    _loadMovements(month, true);
-                  },
-                ),
-                ListTile(
-                  title: const Text('Ver Ingresos'),
-                  leading: const Icon(Icons.money),
-                  onTap: () {
-                    Navigator.pop(context);
-                    _loadMovements(month, false);
-                  },
-                ),
-              ],
+      builder: (context) => AlertDialog(
+        title: Text('${month.month}/${month.year}'),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            ListTile(
+              title: const Text('Ver Gastos'),
+              leading: const Icon(Icons.money_off),
+              onTap: () {
+                Navigator.pop(context);
+                _loadMovements(month, true);
+              },
             ),
-          ),
+            ListTile(
+              title: const Text('Ver Ingresos'),
+              leading: const Icon(Icons.money),
+              onTap: () {
+                Navigator.pop(context);
+                _loadMovements(month, false);
+              },
+            ),
+          ],
+        ),
+      ),
     );
   }
 
@@ -121,7 +119,8 @@ class _DataTestPageState extends State<DataTestPage> {
           _selectedMonth != null
               ? '${_selectedMonth!.month}/${_selectedMonth!.year} - ${_showExpenses! ? "Gastos" : "Ingresos"}'
               : 'Selecciona un mes',
-          style: GoogleFonts.pacifico(
+          style: TextStyle(
+            fontFamily: 'Pacifico',
             fontSize: 18,
             fontWeight: FontWeight.bold,
             color: Theme.of(context).colorScheme.onSurface,
@@ -130,32 +129,28 @@ class _DataTestPageState extends State<DataTestPage> {
         actions: [
           IconButton(
             icon: const Icon(Icons.refresh),
-            onPressed:
-                _selectedMonth != null
-                    ? () => _loadMovements(_selectedMonth!, _showExpenses!)
-                    : _loadMonths,
+            onPressed: _selectedMonth != null
+                ? () => _loadMovements(_selectedMonth!, _showExpenses!)
+                : _loadMonths,
           ),
         ],
       ),
-      body:
-          _selectedMonth == null
-              ? ListView.builder(
-                itemCount: _months.length,
-                itemBuilder: (context, index) {
-                  final month = _months[index];
-                  return Card(
-                    color: Theme.of(
-                      context,
-                    ).colorScheme.secondary.withAlpha(25),
-                    margin: const EdgeInsets.all(8.0),
-                    child: ListTile(
-                      title: Text('${month.month}/${month.year}'),
-                      onTap: () => _showMovementTypeDialog(month),
-                    ),
-                  );
-                },
-              )
-              : _buildMovementsList(),
+      body: _selectedMonth == null
+          ? ListView.builder(
+              itemCount: _months.length,
+              itemBuilder: (context, index) {
+                final month = _months[index];
+                return Card(
+                  color: Theme.of(context).colorScheme.secondary.withAlpha(25),
+                  margin: const EdgeInsets.all(8.0),
+                  child: ListTile(
+                    title: Text('${month.month}/${month.year}'),
+                    onTap: () => _showMovementTypeDialog(month),
+                  ),
+                );
+              },
+            )
+          : _buildMovementsList(),
     );
   }
 }

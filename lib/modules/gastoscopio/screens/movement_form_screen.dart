@@ -26,10 +26,21 @@ class _MovementFormScreenState extends State<MovementFormScreen> {
   late DateTime _selectedDate = DateTime.now();
   late String _moneda = '';
   String? _category;
+  final _descriptionFocus = FocusNode();
+  final _amountFocus = FocusNode();
+  bool _isKeyboardVisible = false;
+
+  void _onFocusChange() {
+    setState(() {
+      _isKeyboardVisible = _descriptionFocus.hasFocus || _amountFocus.hasFocus;
+    });
+  }
 
   @override
   void initState() {
     super.initState();
+    _descriptionFocus.addListener(_onFocusChange);
+    _amountFocus.addListener(_onFocusChange);
     if (widget.movement != null) {
       _descriptionController.text = widget.movement!.description;
       _amountController.text = widget.movement!.amount.toStringAsFixed(2);
@@ -50,6 +61,8 @@ class _MovementFormScreenState extends State<MovementFormScreen> {
   void dispose() {
     _descriptionController.dispose();
     _amountController.dispose();
+    _descriptionFocus.dispose();
+    _amountFocus.dispose();
     super.dispose();
   }
 
@@ -234,10 +247,9 @@ class _MovementFormScreenState extends State<MovementFormScreen> {
         );
         // Mostrar toast de éxito
         Fluttertoast.showToast(
-          msg:
-              widget.movement != null
-                  ? AppLocalizations.of(context)!.movementUpdated
-                  : AppLocalizations.of(context)!.movementSaved,
+          msg: widget.movement != null
+              ? AppLocalizations.of(context)!.movementUpdated
+              : AppLocalizations.of(context)!.movementSaved,
           toastLength: Toast.LENGTH_SHORT,
           gravity: ToastGravity.TOP,
           timeInSecForIosWeb: 2,
@@ -255,8 +267,8 @@ class _MovementFormScreenState extends State<MovementFormScreen> {
                 Text(
                   widget.movement != null
                       ? AppLocalizations.of(
-                        context,
-                      )!.movementUpdatedSuccessfully
+                          context,
+                        )!.movementUpdatedSuccessfully
                       : AppLocalizations.of(context)!.movementSavedSuccessfully,
                 ),
               ],
@@ -373,9 +385,7 @@ class _MovementFormScreenState extends State<MovementFormScreen> {
     final localizations = AppLocalizations.of(context)!;
     return Material(
       child: Padding(
-        padding: EdgeInsets.only(
-          bottom: MediaQuery.of(context).viewInsets.bottom,
-        ),
+        padding: EdgeInsets.only(bottom: _isKeyboardVisible ? 250 : 0),
         child: SingleChildScrollView(
           child: Padding(
             padding: const EdgeInsets.all(16.0),
@@ -427,6 +437,7 @@ class _MovementFormScreenState extends State<MovementFormScreen> {
                   // Campo de descripción
                   TextFormField(
                     controller: _descriptionController,
+                    focusNode: _descriptionFocus,
                     decoration: InputDecoration(
                       labelText: localizations.description,
                       border: const OutlineInputBorder(),
@@ -443,6 +454,7 @@ class _MovementFormScreenState extends State<MovementFormScreen> {
                   // Campo de monto
                   TextFormField(
                     controller: _amountController,
+                    focusNode: _amountFocus,
                     decoration: InputDecoration(
                       labelText: localizations.amount,
                       border: const OutlineInputBorder(),
@@ -474,26 +486,25 @@ class _MovementFormScreenState extends State<MovementFormScreen> {
                   const SizedBox(height: 16), // Botón de guardar
                   FilledButton(
                     onPressed: _isLoading ? null : () => _saveMovement(context),
-                    child:
-                        _isLoading
-                            ? Row(
-                              mainAxisSize: MainAxisSize.min,
-                              children: [
-                                const SizedBox(
-                                  width: 16,
-                                  height: 16,
-                                  child: CircularProgressIndicator(
-                                    strokeWidth: 2,
-                                    valueColor: AlwaysStoppedAnimation<Color>(
-                                      Colors.white,
-                                    ),
+                    child: _isLoading
+                        ? Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              const SizedBox(
+                                width: 16,
+                                height: 16,
+                                child: CircularProgressIndicator(
+                                  strokeWidth: 2,
+                                  valueColor: AlwaysStoppedAnimation<Color>(
+                                    Colors.white,
                                   ),
                                 ),
-                                const SizedBox(width: 8),
-                                Text(localizations.saving),
-                              ],
-                            )
-                            : Text(localizations.save),
+                              ),
+                              const SizedBox(width: 8),
+                              Text(localizations.saving),
+                            ],
+                          )
+                        : Text(localizations.save),
                   ),
                   const SizedBox(height: 8),
                 ],

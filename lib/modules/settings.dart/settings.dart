@@ -12,7 +12,6 @@ import 'package:flutter/material.dart';
 import 'package:cashly/l10n/app_localizations.dart';
 import 'package:flutter_colorpicker/flutter_colorpicker.dart';
 import 'package:svg_flutter/svg.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:cashly/modules/settings.dart/widgets/security_settings_card.dart';
 
 class SettingsScreen extends StatefulWidget {
@@ -384,7 +383,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
           padding: const EdgeInsets.only(top: 35.0),
           child: Text(
             AppLocalizations.of(context)!.settings,
-            style: GoogleFonts.pacifico(
+            style: TextStyle(
+              fontFamily: 'Pacifico',
               fontSize: 20,
               fontWeight: FontWeight.bold,
               color: Theme.of(context).colorScheme.onSurface,
