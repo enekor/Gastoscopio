@@ -338,5 +338,6 @@
   "continueToNextStep": "Continue to next step",
   "signOut": "Sign in out",
   "signingIn": "Signing in...",
-  "signingOut": "Signing out..."
+  "signingOut": "Signing out...",
+  "showSummary": "Monthly insights."
 }

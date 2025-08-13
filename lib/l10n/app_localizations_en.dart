@@ -1014,4 +1014,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get biometricAuthFailed => 'Biometric authentication failed';
+
+  @override
+  String get showSummary => 'Monthly insights.';
 }

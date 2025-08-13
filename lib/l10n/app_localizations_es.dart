@@ -1029,4 +1029,7 @@ class AppLocalizationsEs extends AppLocalizations {
 
   @override
   String get biometricAuthFailed => 'Autenticación biométrica fallida';
+
+  @override
+  String get showSummary => '¿Cómo ha ido el mes?';
 }
