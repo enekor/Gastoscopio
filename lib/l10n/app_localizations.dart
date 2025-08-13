@@ -1957,6 +1957,12 @@ abstract class AppLocalizations {
   /// In es, this message translates to:
   /// **'Autenticación biométrica fallida'**
   String get biometricAuthFailed;
+
+  /// No description provided for @showSummary.
+  ///
+  /// In es, this message translates to:
+  /// **'¿Cómo ha ido el mes?'**
+  String get showSummary;
 }
 
 class _AppLocalizationsDelegate

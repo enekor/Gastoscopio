@@ -5,6 +5,7 @@ import 'package:cashly/data/services/login_service.dart';
 import 'package:cashly/modules/gastoscopio/logic/finance_service.dart';
 import 'package:cashly/modules/gastoscopio/screens/movement_form_screen.dart';
 import 'package:cashly/modules/gastoscopio/screens/fixed_movements_screen.dart';
+import 'package:cashly/modules/gastoscopio/screens/summary_screen.dart';
 import 'package:cashly/modules/gastoscopio/widgets/finance_widgets.dart';
 import 'package:cashly/data/models/movement_value.dart';
 import 'package:cashly/common/tag_list.dart';
@@ -111,6 +112,14 @@ class _GastoscopioHomeScreenState extends State<GastoscopioHomeScreen> {
     }
   }
 
+  bool _isLastDaysOfTheWeek(){
+    DateTime today = DateTime.now();
+    DateTime lastDayOfTheWeek = DateTime(today.year, today.month +1, 1).add(Duration(days: -1));
+    DateTime lastLimitDaysOfTheWeek = lastDayOfTheWeek.add(Duration(days: -5));
+
+    return today.isAfter(lastLimitDaysOfTheWeek) && (today.isBefore(lastDayOfTheWeek) || today.isAtSameMomentAs(lastDayOfTheWeek));
+  }
+
   void _updateGreeting() {
     final hour = DateTime.now().hour;
     final userName =
@@ -212,6 +221,7 @@ class _GastoscopioHomeScreenState extends State<GastoscopioHomeScreen> {
               const SizedBox(height: 16),
               _buildFixedMovementsButton(),
               const SizedBox(height: 8),
+              _isLastDaysOfTheWeek() ? _buildShowSummaryButton() : Container(),
               _ChartPart(_moneda),
             ],
           ),
@@ -347,6 +357,53 @@ class _GastoscopioHomeScreenState extends State<GastoscopioHomeScreen> {
           ),
         ),
       ],
+    );
+  }
+
+  Widget _buildShowSummaryButton(){
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 6.0),
+      child: Center(
+        child: SizedBox(
+          width: double.infinity,
+          child: ElevatedButton.icon(
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => const SummaryScreen(),
+                ),
+              );
+            },
+            icon: Icon(
+              Icons.repeat,
+              color: Theme.of(context).colorScheme.primary,
+            ),
+            label: Text(
+              AppLocalizations.of(context)!.showSummary,
+              style: TextStyle(
+                color: Theme.of(context).colorScheme.primary,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: Theme.of(
+                context,
+              ).colorScheme.secondary.withAlpha(25),
+              foregroundColor: Theme.of(context).colorScheme.primary,
+              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(12),
+                side: BorderSide(
+                  color: Theme.of(context).colorScheme.primary.withOpacity(0.3),
+                  width: 1,
+                ),
+              ),
+              elevation: 1,
+            ),
+          ),
+        ),
+      ),
     );
   }
 
