@@ -44,3 +44,5 @@ app.*.map.json
 /android/app/profile
 /android/app/release
 android/keystore.properties
+android/app/google-services.json
+android/app/build.gradle.kts

@@ -166,7 +166,7 @@ class _MovementFormScreenState extends State<MovementFormScreen> {
         try {
           // Agregar timeout para evitar que se quede colgado
           final generatedCategory = await GeminiService()
-              .generateCategory(_descriptionController.text, context)
+              .generateCategory(_descriptionController.text, _isExpense, context)
               .timeout(
                 const Duration(seconds: 10),
                 onTimeout: () {

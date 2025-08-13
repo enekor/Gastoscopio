@@ -29,6 +29,9 @@ List<String> SpanishTagList = [
   'Hijos/Familiares (Gastos específicos)',
   'Donaciones y Caridad',
   'Otros Gastos Misceláneos',
+  'Ahorro e inversión',
+  'Salario y sueldo',
+  'Otros ingresos'
 ];
 
 // English tags list
@@ -62,6 +65,9 @@ List<String> EnglishTagList = [
   'Children/Family (Specific Expenses)',
   'Donations and Charity',
   'Other Miscellaneous Expenses',
+  'Savings and investments',
+  'Salary and wages',
+  'Other incomes'
 ];
 
 // Function to get the appropriate tag list based on locale

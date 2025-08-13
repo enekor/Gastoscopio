@@ -60,12 +60,12 @@ class GeminiService {
     }
   }
 
-  Future<String> generateCategory(String name, BuildContext context) async {
+  Future<String> generateCategory(String name, bool isExpense, BuildContext context) async {
     final locale = AppLocalizations.of(context).localeName;
     final categoryList = getTagList(locale);
 
     String prompt =
-        'dime la mejor categoria para el siguiente movimiento (solo dime la categoria, nada mas): "$name". '
+        'dime la mejor categoria para el siguiente movimiento (solo dime la categoria, nada mas): "$name". Ten en cuenta que es un ${isExpense ? 'gasto' : 'ingreso'}'
         'Elige una de las siguientes categorías: ${categoryList.join(', ')}. '
         'Si no encuentras una categoría adecuada, responde con la ultima categoria.';
 
