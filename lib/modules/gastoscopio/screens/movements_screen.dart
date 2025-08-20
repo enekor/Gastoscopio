@@ -378,6 +378,7 @@ class _MovementsScreenState extends State<MovementsScreen>
             ),
             // Card de filtros (condicional)
             if (_expandedItems['filters'] ?? false) _buildFilters(),
+
             // Card principal con los movimientos
             Expanded(
               child: _cachedMovements.isEmpty
@@ -399,32 +400,62 @@ class _MovementsScreenState extends State<MovementsScreen>
                           ).colorScheme.outline.withOpacity(0.2),
                         ),
                       ),
+
                       child: AnimatedBuilder(
                         animation: _listFadeAnimation,
                         builder: (context, child) {
                           return Opacity(
                             opacity: _listFadeAnimation.value,
-                            child: ListView.builder(
-                              padding: EdgeInsets.zero,
-                              itemCount: filteredMovements.length,
-                              itemBuilder: (context, index) {
-                                final movement = filteredMovements[index];
-                                final isExpanded =
-                                    _expandedItems[movement.id.toString()] ??
-                                    false;
-
-                                return MovementTile(
-                                  movement: movement,
-                                  isExpanded: isExpanded,
-                                  currency: _moneda,
-                                  onTap: () =>
-                                      _toggleMovementExpansion(movement.id!),
-                                  expandedContent: _buildExpandedContent(
-                                    context,
-                                    movement,
+                            child: Column(
+                              children: [
+                                if (filteredMovements
+                                    .where(
+                                      (mov) => mov.day > DateTime.now().day,
+                                    )
+                                    .toList()
+                                    .isNotEmpty)
+                                  _buildFutureMovementsCard(
+                                    filteredMovements
+                                        .where(
+                                          (mov) => mov.day > DateTime.now().day,
+                                        )
+                                        .toList(),
                                   ),
-                                );
-                              },
+                                ListView.builder(
+                                  padding: EdgeInsets.zero,
+                                  itemCount: filteredMovements
+                                      .where(
+                                        (mov) => mov.day <= DateTime.now().day,
+                                      )
+                                      .toList()
+                                      .length,
+                                  itemBuilder: (context, index) {
+                                    final movement = filteredMovements
+                                        .where(
+                                          (mov) =>
+                                              mov.day <= DateTime.now().day,
+                                        )
+                                        .toList()[index];
+                                    final isExpanded =
+                                        _expandedItems[movement.id
+                                            .toString()] ??
+                                        false;
+
+                                    return MovementTile(
+                                      movement: movement,
+                                      isExpanded: isExpanded,
+                                      currency: _moneda,
+                                      onTap: () => _toggleMovementExpansion(
+                                        movement.id!,
+                                      ),
+                                      expandedContent: _buildExpandedContent(
+                                        context,
+                                        movement,
+                                      ),
+                                    );
+                                  },
+                                ),
+                              ],
                             ),
                           );
                         },
@@ -1134,6 +1165,16 @@ class _MovementsScreenState extends State<MovementsScreen>
                                 Expanded(
                                   child: FilledButton.tonal(
                                     onPressed: () => _selectDate(context),
+                                    style: FilledButton.styleFrom(
+                                      foregroundColor: Theme.of(
+                                        context,
+                                      ).colorScheme.onPrimaryContainer,
+                                      backgroundColor: Theme.of(context)
+                                          .colorScheme
+                                          .primaryContainer
+                                          .withOpacity(0.3),
+                                      elevation: 0,
+                                    ),
                                     child: Row(
                                       mainAxisAlignment:
                                           MainAxisAlignment.center,
@@ -1143,6 +1184,7 @@ class _MovementsScreenState extends State<MovementsScreen>
                                           color: Theme.of(
                                             context,
                                           ).colorScheme.primary,
+                                          size: 20,
                                         ),
                                         const SizedBox(width: 4),
                                         Expanded(
@@ -1192,12 +1234,23 @@ class _MovementsScreenState extends State<MovementsScreen>
                                           context,
                                           categories,
                                         ),
+                                        style: FilledButton.styleFrom(
+                                          foregroundColor: Theme.of(
+                                            context,
+                                          ).colorScheme.onPrimaryContainer,
+                                          backgroundColor: Theme.of(context)
+                                              .colorScheme
+                                              .primaryContainer
+                                              .withOpacity(0.3),
+                                          elevation: 0,
+                                        ),
                                         child: Row(
                                           mainAxisAlignment:
                                               MainAxisAlignment.center,
                                           children: [
                                             Icon(
                                               Icons.category,
+                                              size: 20,
                                               color: Theme.of(
                                                 context,
                                               ).colorScheme.primary,
@@ -1694,6 +1747,94 @@ class _MovementsScreenState extends State<MovementsScreen>
         });
       }
     }
+  }
+
+  Widget _buildFutureMovementsCard(List<MovementValue> values) {
+    if (values.isEmpty) {
+      return const SizedBox.shrink();
+    }
+
+    final bool isExpanded = _expandedItems['future_movements'] ?? false;
+
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 16.0),
+      child: Card(
+        elevation: 0,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(12),
+          side: BorderSide(
+            color: Theme.of(context).colorScheme.primary.withOpacity(0.2),
+            width: 1,
+          ),
+        ),
+        child: Column(
+          children: [
+            ListTile(
+              contentPadding: const EdgeInsets.symmetric(horizontal: 16.0),
+              title: Row(
+                children: [
+                  Icon(
+                    Icons.upcoming,
+                    color: Theme.of(context).colorScheme.primary,
+                    size: 20,
+                  ),
+                  const SizedBox(width: 8),
+                  Text(
+                    AppLocalizations.of(context)!.futureMovements,
+                    style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  const SizedBox(width: 8),
+                  Container(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 8,
+                      vertical: 2,
+                    ),
+                    decoration: BoxDecoration(
+                      color: Theme.of(context).colorScheme.primaryContainer,
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    child: Text(
+                      values.length.toString(),
+                      style: TextStyle(
+                        color: Theme.of(context).colorScheme.onPrimaryContainer,
+                        fontSize: 12,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+              trailing: Icon(
+                isExpanded ? Icons.expand_less : Icons.expand_more,
+                color: Theme.of(context).colorScheme.primary,
+              ),
+              onTap: () {
+                setState(() {
+                  _expandedItems['future_movements'] = !isExpanded;
+                });
+              },
+            ),
+            if (isExpanded)
+              ListView.builder(
+                shrinkWrap: true,
+                physics: const NeverScrollableScrollPhysics(),
+                itemCount: values.length,
+                itemBuilder: (context, index) {
+                  final movement = values[index];
+                  return MovementTile(
+                    movement: movement,
+                    isExpanded: false,
+                    currency: _moneda,
+                    onTap: () => _toggleMovementExpansion(movement.id!),
+                    expandedContent: _buildExpandedContent(context, movement),
+                  );
+                },
+              ),
+          ],
+        ),
+      ),
+    );
   }
 
   Future<void> _showCategoryChangeDialog(
