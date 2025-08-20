@@ -378,6 +378,15 @@ class _MovementsScreenState extends State<MovementsScreen>
             ),
             // Card de filtros (condicional)
             if (_expandedItems['filters'] ?? false) _buildFilters(),
+            if (filteredMovements
+                .where((mov) => mov.day > DateTime.now().day)
+                .toList()
+                .isNotEmpty)
+              _buildFutureMovementsCard(
+                filteredMovements
+                    .where((mov) => mov.day > DateTime.now().day)
+                    .toList(),
+              ),
 
             // Card principal con los movimientos
             Expanded(
@@ -406,56 +415,34 @@ class _MovementsScreenState extends State<MovementsScreen>
                         builder: (context, child) {
                           return Opacity(
                             opacity: _listFadeAnimation.value,
-                            child: Column(
-                              children: [
-                                if (filteredMovements
+                            child: ListView.builder(
+                              padding: EdgeInsets.zero,
+                              itemCount: filteredMovements
+                                  .where((mov) => mov.day <= DateTime.now().day)
+                                  .toList()
+                                  .length,
+                              itemBuilder: (context, index) {
+                                final movement = filteredMovements
                                     .where(
-                                      (mov) => mov.day > DateTime.now().day,
+                                      (mov) => mov.day <= DateTime.now().day,
                                     )
-                                    .toList()
-                                    .isNotEmpty)
-                                  _buildFutureMovementsCard(
-                                    filteredMovements
-                                        .where(
-                                          (mov) => mov.day > DateTime.now().day,
-                                        )
-                                        .toList(),
-                                  ),
-                                ListView.builder(
-                                  padding: EdgeInsets.zero,
-                                  itemCount: filteredMovements
-                                      .where(
-                                        (mov) => mov.day <= DateTime.now().day,
-                                      )
-                                      .toList()
-                                      .length,
-                                  itemBuilder: (context, index) {
-                                    final movement = filteredMovements
-                                        .where(
-                                          (mov) =>
-                                              mov.day <= DateTime.now().day,
-                                        )
-                                        .toList()[index];
-                                    final isExpanded =
-                                        _expandedItems[movement.id
-                                            .toString()] ??
-                                        false;
+                                    .toList()[index];
+                                final isExpanded =
+                                    _expandedItems[movement.id.toString()] ??
+                                    false;
 
-                                    return MovementTile(
-                                      movement: movement,
-                                      isExpanded: isExpanded,
-                                      currency: _moneda,
-                                      onTap: () => _toggleMovementExpansion(
-                                        movement.id!,
-                                      ),
-                                      expandedContent: _buildExpandedContent(
-                                        context,
-                                        movement,
-                                      ),
-                                    );
-                                  },
-                                ),
-                              ],
+                                return MovementTile(
+                                  movement: movement,
+                                  isExpanded: isExpanded,
+                                  currency: _moneda,
+                                  onTap: () =>
+                                      _toggleMovementExpansion(movement.id!),
+                                  expandedContent: _buildExpandedContent(
+                                    context,
+                                    movement,
+                                  ),
+                                );
+                              },
                             ),
                           );
                         },
