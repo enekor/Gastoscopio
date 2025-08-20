@@ -3,6 +3,7 @@ import 'package:cashly/data/services/shared_preferences_service.dart';
 import 'package:cashly/data/services/sqlite_service.dart';
 import 'package:cashly/modules/gastoscopio/screens/movement_form_screen.dart';
 import 'package:cashly/modules/gastoscopio/widgets/main_screen_widgets.dart';
+import 'package:cashly/modules/gastoscopio/widgets/movement_tile.dart';
 import 'package:cashly/common/tag_list.dart' show getTagList;
 import 'package:flutter/material.dart';
 import 'package:cashly/l10n/app_localizations.dart';
@@ -214,25 +215,279 @@ class _MovementsScreenState extends State<MovementsScreen>
       return const Scaffold(body: Center(child: CircularProgressIndicator()));
     }
 
-    if (_cachedMovements.isEmpty) {
-      return _buildEmptyScreen();
-    }
-
     final filteredMovements = _filterMovements(_cachedMovements);
 
-    return FadeTransition(
-      opacity: _listFadeAnimation,
-      child: _buildContent(filteredMovements, _moneda),
+    return Scaffold(
+      body: SafeArea(
+        child: Column(
+          children: [
+            // Selector de tipo (expenses/incomes)
+            Container(
+              width: double.infinity,
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+              child: _buildTypeSelector(),
+            ),
+            // Row con total y botones
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16),
+              child: Row(
+                children: [
+                  // Total indicator expandido
+                  Expanded(
+                    child: _buildTotalIndicator(filteredMovements, _moneda),
+                  ),
+                  // Botones
+                  Card(
+                    color: _isOpaqueBottomNav
+                        ? Theme.of(context).colorScheme.primary.withAlpha(200)
+                        : Theme.of(context).colorScheme.secondary.withAlpha(25),
+                    elevation: _isOpaqueBottomNav ? 2 : 4,
+                    shape: CircleBorder(
+                      side: _isOpaqueBottomNav
+                          ? BorderSide.none
+                          : BorderSide(
+                              color: Theme.of(
+                                context,
+                              ).colorScheme.primary.withOpacity(0.3),
+                              width: 1,
+                            ),
+                    ),
+                    child: Container(
+                      width: 35,
+                      height: 35,
+                      decoration: BoxDecoration(
+                        shape: BoxShape.circle,
+                        border: _isOpaqueBottomNav
+                            ? null
+                            : Border.all(
+                                color: Theme.of(
+                                  context,
+                                ).colorScheme.primary.withOpacity(0.3),
+                                width: 1,
+                              ),
+                      ),
+                      child: IconButton(
+                        padding: EdgeInsets.zero,
+                        iconSize: 18,
+                        icon: Icon(
+                          Icons.filter_list,
+                          color: _isOpaqueBottomNav
+                              ? Theme.of(context).colorScheme.onPrimary
+                              : Theme.of(context).colorScheme.primary,
+                        ),
+                        onPressed: () {
+                          setState(() {
+                            _expandedItems['filters'] =
+                                !(_expandedItems['filters'] ?? false);
+                          });
+                        },
+                      ),
+                    ),
+                  ),
+                  const SizedBox(width: 1),
+                  Card(
+                    color: _isOpaqueBottomNav
+                        ? Theme.of(context).colorScheme.primary.withAlpha(200)
+                        : Theme.of(context).colorScheme.secondary.withAlpha(25),
+                    elevation: _isOpaqueBottomNav ? 2 : 4,
+                    shape: CircleBorder(
+                      side: _isOpaqueBottomNav
+                          ? BorderSide.none
+                          : BorderSide(
+                              color: Theme.of(
+                                context,
+                              ).colorScheme.primary.withOpacity(0.3),
+                              width: 1,
+                            ),
+                    ),
+                    child: Container(
+                      width: 35,
+                      height: 35,
+                      decoration: BoxDecoration(
+                        shape: BoxShape.circle,
+                        border: _isOpaqueBottomNav
+                            ? null
+                            : Border.all(
+                                color: Theme.of(
+                                  context,
+                                ).colorScheme.primary.withOpacity(0.3),
+                                width: 1,
+                              ),
+                      ),
+                      child: IconButton(
+                        padding: EdgeInsets.zero,
+                        iconSize: 18,
+                        icon: Icon(
+                          Icons.sort,
+                          color: _isOpaqueBottomNav
+                              ? Theme.of(context).colorScheme.onPrimary
+                              : Theme.of(context).colorScheme.primary,
+                        ),
+                        onPressed: () => _showSortMenu(context),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(width: 1),
+                  Card(
+                    color: _isOpaqueBottomNav
+                        ? Theme.of(context).colorScheme.primary.withAlpha(200)
+                        : Theme.of(context).colorScheme.secondary.withAlpha(25),
+                    elevation: _isOpaqueBottomNav ? 2 : 4,
+                    shape: CircleBorder(
+                      side: _isOpaqueBottomNav
+                          ? BorderSide.none
+                          : BorderSide(
+                              color: Theme.of(
+                                context,
+                              ).colorScheme.primary.withOpacity(0.3),
+                              width: 1,
+                            ),
+                    ),
+                    child: Container(
+                      width: 35,
+                      height: 35,
+                      decoration: BoxDecoration(
+                        shape: BoxShape.circle,
+                        border: _isOpaqueBottomNav
+                            ? null
+                            : Border.all(
+                                color: Theme.of(
+                                  context,
+                                ).colorScheme.primary.withOpacity(0.3),
+                                width: 1,
+                              ),
+                      ),
+                      child: IconButton(
+                        padding: EdgeInsets.zero,
+                        iconSize: 18,
+                        icon: Icon(
+                          Icons.auto_awesome,
+                          color: _isOpaqueBottomNav
+                              ? Theme.of(context).colorScheme.onPrimary
+                              : Theme.of(context).colorScheme.primary,
+                        ),
+                        onPressed: () async {
+                          await _autoGenerateTags();
+                          await _loadMovements();
+                        },
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            // Card de filtros (condicional)
+            if (_expandedItems['filters'] ?? false) _buildFilters(),
+            // Card principal con los movimientos
+            Expanded(
+              child: _cachedMovements.isEmpty
+                  ? Center(
+                      child: Text(
+                        _showExpenses
+                            ? AppLocalizations.of(context).noExpenses
+                            : AppLocalizations.of(context).noIncomes,
+                      ),
+                    )
+                  : Card(
+                      margin: const EdgeInsets.all(16),
+                      elevation: 0,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
+                        side: BorderSide(
+                          color: Theme.of(
+                            context,
+                          ).colorScheme.outline.withOpacity(0.2),
+                        ),
+                      ),
+                      child: AnimatedBuilder(
+                        animation: _listFadeAnimation,
+                        builder: (context, child) {
+                          return Opacity(
+                            opacity: _listFadeAnimation.value,
+                            child: ListView.builder(
+                              padding: EdgeInsets.zero,
+                              itemCount: filteredMovements.length,
+                              itemBuilder: (context, index) {
+                                final movement = filteredMovements[index];
+                                final isExpanded =
+                                    _expandedItems[movement.id.toString()] ??
+                                    false;
+
+                                return MovementTile(
+                                  movement: movement,
+                                  isExpanded: isExpanded,
+                                  currency: _moneda,
+                                  onTap: () =>
+                                      _toggleMovementExpansion(movement.id!),
+                                  expandedContent: _buildExpandedContent(
+                                    context,
+                                    movement,
+                                  ),
+                                );
+                              },
+                            ),
+                          );
+                        },
+                      ),
+                    ),
+            ),
+          ],
+        ),
+      ),
+      floatingActionButton: _buildFAB(),
     );
   }
 
-  Widget _buildEmptyScreen() {
-    return Scaffold(
-      appBar: _buildAppBar(),
-      body: Center(
-        child: Text(AppLocalizations.of(context)!.noMovementsToShow),
+  Widget _buildTypeSelector() {
+    return Container(
+      decoration: BoxDecoration(
+        color: Theme.of(context).colorScheme.primaryContainer.withOpacity(0.1),
+        borderRadius: BorderRadius.circular(28),
       ),
-      floatingActionButton: _buildFAB(),
+      child: SegmentedButton<bool>(
+        showSelectedIcon: false,
+        style: ButtonStyle(
+          tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+          side: MaterialStateProperty.all(BorderSide.none),
+          visualDensity: VisualDensity.comfortable,
+          backgroundColor: MaterialStateProperty.resolveWith((states) {
+            if (states.contains(MaterialState.selected)) {
+              return Theme.of(context).colorScheme.primaryContainer;
+            }
+            return Colors.transparent;
+          }),
+        ),
+        segments: [
+          ButtonSegment<bool>(
+            value: false,
+            label: Text(
+              AppLocalizations.of(context).incomes,
+              style: TextStyle(
+                color: !_showExpenses
+                    ? Theme.of(context).colorScheme.onPrimaryContainer
+                    : Theme.of(context).colorScheme.onSurface,
+              ),
+            ),
+          ),
+          ButtonSegment<bool>(
+            value: true,
+            label: Text(
+              AppLocalizations.of(context).expenses,
+              style: TextStyle(
+                color: _showExpenses
+                    ? Theme.of(context).colorScheme.onPrimaryContainer
+                    : Theme.of(context).colorScheme.onSurface,
+              ),
+            ),
+          ),
+        ],
+        selected: {_showExpenses},
+        onSelectionChanged: (newSelection) {
+          setState(() {
+            _showExpenses = newSelection.first;
+          });
+        },
+      ),
     );
   }
 
@@ -535,8 +790,8 @@ class _MovementsScreenState extends State<MovementsScreen>
         child: Center(
           child: Text(
             _showExpenses
-                ? AppLocalizations.of(context)!.noExpenses
-                : AppLocalizations.of(context)!.noIncomes,
+                ? AppLocalizations.of(context).noExpenses
+                : AppLocalizations.of(context).noIncomes,
             style: TextStyle(color: Theme.of(context).colorScheme.secondary),
           ),
         ),
@@ -548,55 +803,25 @@ class _MovementsScreenState extends State<MovementsScreen>
       child: FadeTransition(
         opacity: _toggleAnimation,
         child: ListView.builder(
+          padding: const EdgeInsets.symmetric(horizontal: 16),
           itemCount: movements.length,
           itemBuilder: (context, index) {
             final movement = movements[index];
             final isExpanded = _expandedItems[movement.id.toString()] ?? false;
 
-            return AnimatedSlide(
-              offset: Offset(0, isExpanded ? 0 : 0.1),
-              duration: const Duration(milliseconds: 200),
-              child: Padding(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 16,
-                  vertical: 4,
-                ),
-                child: AnimatedCard(
-                  isExpanded: isExpanded,
-                  onTap: () {
-                    setState(() {
-                      final key = movement.id.toString();
-                      _expandedItems[key] = !(_expandedItems[key] ?? false);
-                    });
-                  },
-                  leadingWidget: ListTile(
-                    title: Text(movement.description),
-                    subtitle: movement.category != null
-                        ? Text(
-                            movement.category!,
-                            style: TextStyle(
-                              color: Theme.of(context).colorScheme.secondary,
-                            ),
-                          )
-                        : null,
-                    trailing: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Text(
-                          '${movement.amount.toStringAsFixed(2)}${moneda}',
-                          style: TextStyle(
-                            color: movement.isExpense
-                                ? Theme.of(context).colorScheme.error
-                                : Theme.of(context).colorScheme.primary,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-
-                  hiddenWidget: _buildExpandedContent(context, movement),
-                ),
+            return Padding(
+              padding: const EdgeInsets.only(bottom: 8.0),
+              child: MovementTile(
+                movement: movement,
+                isExpanded: isExpanded,
+                currency: moneda,
+                onTap: () {
+                  setState(() {
+                    final key = movement.id.toString();
+                    _expandedItems[key] = !(_expandedItems[key] ?? false);
+                  });
+                },
+                expandedContent: _buildExpandedContent(context, movement),
               ),
             );
           },
@@ -788,16 +1013,16 @@ class _MovementsScreenState extends State<MovementsScreen>
             size: 20,
           ),
           const SizedBox(width: 12),
-          Text(
-            hasFilters
-                ? AppLocalizations.of(context)!.filteredMovements
-                : AppLocalizations.of(context)!.totalMovements,
-            style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-              color: Theme.of(context).colorScheme.onPrimaryContainer,
-              fontWeight: FontWeight.bold,
-            ),
-          ),
-          const SizedBox(width: 6),
+          // Text(
+          //   hasFilters
+          //       ? AppLocalizations.of(context)!.filteredMovements
+          //       : AppLocalizations.of(context)!.totalMovements,
+          //   style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+          //     color: Theme.of(context).colorScheme.onPrimaryContainer,
+          //     fontWeight: FontWeight.bold,
+          //   ),
+          // ),
+          // const SizedBox(width: 6),
           Text(
             '$totalCount ${_showExpenses ? AppLocalizations.of(context)!.expenses.toLowerCase() : AppLocalizations.of(context)!.incomes.toLowerCase()}',
             style: Theme.of(context).textTheme.titleSmall?.copyWith(
@@ -828,198 +1053,223 @@ class _MovementsScreenState extends State<MovementsScreen>
   Widget _buildFilters() {
     final bool isFiltersExpanded = _expandedItems['filters'] ?? false;
 
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-      child: AnimatedCard(
-        isExpanded: isFiltersExpanded,
-        leadingWidget: ListTile(
-          title: Row(
-            children: [
-              const Icon(Icons.filter_list),
-              const SizedBox(width: 8),
-              Text(
-                AppLocalizations.of(context)!.filters,
-                style: Theme.of(context).textTheme.titleMedium,
-              ),
-              if (_selectedDate != null ||
-                  _selectedCategory != null ||
-                  _searchQuery.isNotEmpty) ...[
-                const SizedBox(width: 8),
-                Container(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 8,
-                    vertical: 2,
-                  ),
-                  decoration: BoxDecoration(
-                    color: Theme.of(context).colorScheme.primaryContainer,
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  child: Text(
-                    '${(_selectedDate != null ? 1 : 0) + (_selectedCategory != null ? 1 : 0) + (_searchQuery.isNotEmpty ? 1 : 0)}',
-                    style: TextStyle(
-                      color: Theme.of(context).colorScheme.onPrimaryContainer,
-                      fontSize: 12,
-                    ),
-                  ),
-                ),
-              ],
-            ],
-          ),
-          trailing: Icon(
-            isFiltersExpanded ? Icons.expand_less : Icons.expand_more,
-            color: Theme.of(context).colorScheme.primary,
-          ),
-          onTap: () {
-            setState(() {
-              _expandedItems['filters'] = !isFiltersExpanded;
-            });
-          },
-        ),
-        hiddenWidget: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 8.0),
-          child: Column(
-            children: [
-              Row(
+    return AnimatedContainer(
+      duration: const Duration(milliseconds: 300),
+      margin: EdgeInsets.only(
+        top: isFiltersExpanded ? 16 : 0,
+        left: 16,
+        right: 16,
+        bottom: 8,
+      ),
+      child: Card(
+        margin: EdgeInsets.zero,
+        elevation: isFiltersExpanded ? 4 : 0,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            ListTile(
+              title: Row(
                 children: [
-                  Expanded(
-                    child: FilledButton.tonal(
-                      onPressed: () => _selectDate(context),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Icon(
-                            Icons.date_range,
-                            color: Theme.of(context).colorScheme.primary,
-                          ),
-                          const SizedBox(width: 4),
-                          Expanded(
-                            child: Text(
-                              _selectedDate != null
-                                  ? _selectedDate!.day.toString()
-                                  : AppLocalizations.of(context)!.all,
-                              textAlign: TextAlign.center,
-                              overflow: TextOverflow.ellipsis,
-                            ),
-                          ),
-                          if (_selectedDate != null) ...[
-                            const SizedBox(width: 4),
-                            GestureDetector(
-                              onTap: () {
-                                setState(() {
-                                  _selectedDate = null;
-                                });
-                              },
-                              child: Icon(
-                                Icons.clear,
-                                size: 16,
-                                color: Theme.of(context).colorScheme.error,
-                              ),
-                            ),
-                          ],
-                        ],
+                  const Icon(Icons.filter_list),
+                  const SizedBox(width: 8),
+                  Text(
+                    AppLocalizations.of(context).filters,
+                    style: Theme.of(context).textTheme.titleMedium,
+                  ),
+                  if (_selectedDate != null ||
+                      _selectedCategory != null ||
+                      _searchQuery.isNotEmpty) ...[
+                    const SizedBox(width: 8),
+                    Container(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 8,
+                        vertical: 2,
+                      ),
+                      decoration: BoxDecoration(
+                        color: Theme.of(context).colorScheme.primaryContainer,
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      child: Text(
+                        '${(_selectedDate != null ? 1 : 0) + (_selectedCategory != null ? 1 : 0) + (_searchQuery.isNotEmpty ? 1 : 0)}',
+                        style: TextStyle(
+                          color: Theme.of(
+                            context,
+                          ).colorScheme.onPrimaryContainer,
+                          fontSize: 12,
+                        ),
                       ),
                     ),
+                  ],
+                ],
+              ),
+              trailing: RotationTransition(
+                turns: Tween(begin: 0.0, end: 0.5).animate(
+                  CurvedAnimation(
+                    parent: _toggleAnimationController,
+                    curve: Curves.easeInOut,
                   ),
-                  const SizedBox(width: 8),
-                  Expanded(
-                    child: FutureBuilder<List<MovementValue>>(
-                      future: _financeService.getCurrentMonthMovements(),
-                      builder: (context, snapshot) {
-                        final categories = _getAvailableCategories(
-                          snapshot.data ?? [],
-                        );
-                        return FilledButton.tonal(
-                          onPressed: () => _selectCategory(context, categories),
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              Icon(
-                                Icons.category,
-                                color: Theme.of(context).colorScheme.primary,
-                              ),
-                              const SizedBox(width: 4),
-                              Expanded(
-                                child: Text(
-                                  _selectedCategory ??
-                                      AppLocalizations.of(context)!.all,
-                                  overflow: TextOverflow.ellipsis,
-                                  maxLines: 1,
-                                  textAlign: TextAlign.center,
+                ),
+                child: const Icon(Icons.expand_more),
+              ),
+              onTap: () {
+                setState(() {
+                  _expandedItems['filters'] = !isFiltersExpanded;
+                });
+              },
+            ),
+            AnimatedContainer(
+              duration: const Duration(milliseconds: 300),
+              height: isFiltersExpanded ? null : 0,
+              child: AnimatedOpacity(
+                duration: const Duration(milliseconds: 300),
+                opacity: isFiltersExpanded ? 1.0 : 0.0,
+                child: isFiltersExpanded
+                    ? Padding(
+                        padding: const EdgeInsets.all(16),
+                        child: Column(
+                          children: [
+                            Row(
+                              children: [
+                                Expanded(
+                                  child: FilledButton.tonal(
+                                    onPressed: () => _selectDate(context),
+                                    child: Row(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.center,
+                                      children: [
+                                        Icon(
+                                          Icons.date_range,
+                                          color: Theme.of(
+                                            context,
+                                          ).colorScheme.primary,
+                                        ),
+                                        const SizedBox(width: 4),
+                                        Expanded(
+                                          child: Text(
+                                            _selectedDate != null
+                                                ? _selectedDate!.day.toString()
+                                                : AppLocalizations.of(
+                                                    context,
+                                                  ).all,
+                                            textAlign: TextAlign.center,
+                                            overflow: TextOverflow.ellipsis,
+                                          ),
+                                        ),
+                                        if (_selectedDate != null) ...[
+                                          const SizedBox(width: 4),
+                                          GestureDetector(
+                                            onTap: () {
+                                              setState(() {
+                                                _selectedDate = null;
+                                              });
+                                            },
+                                            child: Icon(
+                                              Icons.clear,
+                                              size: 16,
+                                              color: Theme.of(
+                                                context,
+                                              ).colorScheme.error,
+                                            ),
+                                          ),
+                                        ],
+                                      ],
+                                    ),
+                                  ),
                                 ),
-                              ),
-                              if (_selectedCategory != null) ...[
-                                const SizedBox(width: 4),
-                                GestureDetector(
-                                  onTap: () {
-                                    setState(() {
-                                      _selectedCategory = null;
-                                    });
-                                  },
-                                  child: Icon(
-                                    Icons.clear,
-                                    size: 16,
-                                    color: Theme.of(context).colorScheme.error,
+                                const SizedBox(width: 8),
+                                Expanded(
+                                  child: FutureBuilder<List<MovementValue>>(
+                                    future: _financeService
+                                        .getCurrentMonthMovements(),
+                                    builder: (context, snapshot) {
+                                      final categories =
+                                          _getAvailableCategories(
+                                            snapshot.data ?? [],
+                                          );
+                                      return FilledButton.tonal(
+                                        onPressed: () => _selectCategory(
+                                          context,
+                                          categories,
+                                        ),
+                                        child: Row(
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.center,
+                                          children: [
+                                            Icon(
+                                              Icons.category,
+                                              color: Theme.of(
+                                                context,
+                                              ).colorScheme.primary,
+                                            ),
+                                            const SizedBox(width: 4),
+                                            Expanded(
+                                              child: Text(
+                                                _selectedCategory ??
+                                                    AppLocalizations.of(
+                                                      context,
+                                                    ).all,
+                                                overflow: TextOverflow.ellipsis,
+                                                maxLines: 1,
+                                                textAlign: TextAlign.center,
+                                              ),
+                                            ),
+                                            if (_selectedCategory != null) ...[
+                                              const SizedBox(width: 4),
+                                              GestureDetector(
+                                                onTap: () {
+                                                  setState(() {
+                                                    _selectedCategory = null;
+                                                  });
+                                                },
+                                                child: Icon(
+                                                  Icons.clear,
+                                                  size: 16,
+                                                  color: Theme.of(
+                                                    context,
+                                                  ).colorScheme.error,
+                                                ),
+                                              ),
+                                            ],
+                                          ],
+                                        ),
+                                      );
+                                    },
                                   ),
                                 ),
                               ],
-                            ],
-                          ),
-                        );
-                      },
-                    ),
-                  ),
-                ],
+                            ),
+                            const SizedBox(height: 8),
+                            TextField(
+                              controller: _searchController,
+                              decoration: InputDecoration(
+                                labelText: AppLocalizations.of(context).search,
+                                prefixIcon: const Icon(Icons.abc),
+                                suffixIcon: _searchQuery.isNotEmpty
+                                    ? IconButton(
+                                        icon: const Icon(Icons.clear),
+                                        onPressed: () {
+                                          setState(() {
+                                            _searchQuery = '';
+                                            _searchController.clear();
+                                          });
+                                        },
+                                      )
+                                    : null,
+                              ),
+                              onChanged: (value) {
+                                setState(() {
+                                  _searchQuery = value;
+                                });
+                              },
+                            ),
+                          ],
+                        ),
+                      )
+                    : const SizedBox.shrink(),
               ),
-              const SizedBox(height: 8),
-              Row(
-                children: [
-                  Expanded(
-                    child: TextField(
-                      controller: _searchController,
-                      decoration: InputDecoration(
-                        labelText: AppLocalizations.of(context)!.search,
-                        prefixIcon: const Icon(Icons.abc),
-                        suffixIcon: _searchQuery.isNotEmpty
-                            ? IconButton(
-                                icon: const Icon(Icons.clear),
-                                onPressed: () {
-                                  setState(() {
-                                    _searchQuery = '';
-                                    _searchController.clear();
-                                  });
-                                },
-                              )
-                            : null,
-                      ),
-                    ),
-                  ),
-                  const SizedBox(width: 8),
-                  Card(
-                    color: Colors.transparent,
-                    shape: const CircleBorder().copyWith(
-                      side: BorderSide(
-                        color: Theme.of(
-                          context,
-                        ).colorScheme.primary.withAlpha(35),
-                        width: 2,
-                      ),
-                    ),
-                    child: IconButton(
-                      onPressed: () {
-                        setState(() {
-                          _searchQuery = _searchController.text;
-                        });
-                      },
-                      icon: Icon(
-                        Icons.search,
-                        color: Theme.of(context).colorScheme.primary,
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ],
-          ),
+            ),
+          ],
         ),
       ),
     );
@@ -1079,7 +1329,167 @@ class _MovementsScreenState extends State<MovementsScreen>
     );
   }
 
+  Widget _buildSortButton() {
+    return IconButton(
+      icon: Stack(
+        children: [
+          const Icon(Icons.sort),
+          if (_currentSortType != null)
+            Positioned(
+              right: 0,
+              bottom: 0,
+              child: Container(
+                padding: const EdgeInsets.all(2),
+                decoration: BoxDecoration(
+                  color: Theme.of(context).colorScheme.primaryContainer,
+                  shape: BoxShape.circle,
+                ),
+                child: Icon(
+                  _isAscending ? Icons.arrow_upward : Icons.arrow_downward,
+                  size: 12,
+                  color: Theme.of(context).colorScheme.onPrimaryContainer,
+                ),
+              ),
+            ),
+        ],
+      ),
+      onPressed: () => _showSortMenu(context),
+    );
+  }
+
+  void _toggleMovementExpansion(int movementId) {
+    setState(() {
+      _expandedItems[movementId.toString()] =
+          !(_expandedItems[movementId.toString()] ?? false);
+    });
+  }
+
+  void _showSortMenu(BuildContext context) {
+    showModalBottomSheet(
+      context: context,
+      showDragHandle: true,
+      builder: (BuildContext context) {
+        return SafeArea(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              ListTile(
+                leading: const Icon(Icons.calendar_today),
+                title: Text(AppLocalizations.of(context).byDate),
+                trailing: _currentSortType == 'fecha'
+                    ? Icon(
+                        _isAscending
+                            ? Icons.arrow_upward
+                            : Icons.arrow_downward,
+                        color: Theme.of(context).colorScheme.primary,
+                      )
+                    : null,
+                onTap: () {
+                  setState(() {
+                    if (_currentSortType == 'fecha') {
+                      _isAscending = !_isAscending;
+                    } else {
+                      _currentSortType = 'fecha';
+                      _isAscending = true;
+                    }
+                    _applySorting();
+                  });
+                  Navigator.pop(context);
+                },
+              ),
+              ListTile(
+                leading: const Icon(Icons.sort_by_alpha),
+                title: Text(AppLocalizations.of(context).alphabetical),
+                trailing: _currentSortType == 'alfabetico'
+                    ? Icon(
+                        _isAscending
+                            ? Icons.arrow_upward
+                            : Icons.arrow_downward,
+                        color: Theme.of(context).colorScheme.primary,
+                      )
+                    : null,
+                onTap: () {
+                  setState(() {
+                    if (_currentSortType == 'alfabetico') {
+                      _isAscending = !_isAscending;
+                    } else {
+                      _currentSortType = 'alfabetico';
+                      _isAscending = true;
+                    }
+                    _applySorting();
+                  });
+                  Navigator.pop(context);
+                },
+              ),
+              ListTile(
+                leading: const Icon(Icons.euro),
+                title: Text(AppLocalizations.of(context).byValue),
+                trailing: _currentSortType == 'valor'
+                    ? Icon(
+                        _isAscending
+                            ? Icons.arrow_upward
+                            : Icons.arrow_downward,
+                        color: Theme.of(context).colorScheme.primary,
+                      )
+                    : null,
+                onTap: () {
+                  setState(() {
+                    if (_currentSortType == 'valor') {
+                      _isAscending = !_isAscending;
+                    } else {
+                      _currentSortType = 'valor';
+                      _isAscending = true;
+                    }
+                    _applySorting();
+                  });
+                  Navigator.pop(context);
+                },
+              ),
+              if (_currentSortType != null)
+                ListTile(
+                  leading: const Icon(Icons.clear),
+                  title: Text(AppLocalizations.of(context).clearSort),
+                  onTap: () {
+                    setState(() {
+                      _currentSortType = null;
+                      _isAscending = true;
+                      _loadMovements();
+                    });
+                    Navigator.pop(context);
+                  },
+                ),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
   void _applySorting() {
+    if (_currentSortType == null) {
+      _cachedMovements.sort((a, b) => b.day.compareTo(a.day));
+      return;
+    }
+
+    _cachedMovements.sort((a, b) {
+      int comparison;
+      switch (_currentSortType) {
+        case 'fecha':
+          comparison = a.day.compareTo(b.day);
+          break;
+        case 'alfabetico':
+          comparison = a.description.toLowerCase().compareTo(
+            b.description.toLowerCase(),
+          );
+          break;
+        case 'valor':
+          comparison = a.amount.compareTo(b.amount);
+          break;
+        default:
+          comparison = b.day.compareTo(a.day);
+      }
+      return _isAscending ? comparison : -comparison;
+    });
     if (_currentSortType == null) return;
 
     switch (_currentSortType) {
@@ -1108,25 +1518,25 @@ class _MovementsScreenState extends State<MovementsScreen>
 
   List<MovementValue> _filterMovements(List<MovementValue> movements) {
     return movements.where((movement) {
-      // Filter by type (expense/income)
+      // Filtrar por tipo (gastos/ingresos)
       if (movement.isExpense != _showExpenses) return false;
 
-      // Filter by date if selected
+      // Filtrar por fecha
       if (_selectedDate != null && movement.day != _selectedDate!.day) {
         return false;
       }
 
-      // Filter by category if selected
+      // Filtrar por categoría
       if (_selectedCategory != null && movement.category != _selectedCategory) {
         return false;
       }
 
-      // Filter by search text
-      if (_searchQuery.isNotEmpty &&
-          !movement.description.toLowerCase().contains(
-            _searchQuery.toLowerCase(),
-          )) {
-        return false;
+      // Filtrar por búsqueda
+      if (_searchQuery.isNotEmpty) {
+        final query = _searchQuery.toLowerCase();
+        final description = movement.description.toLowerCase();
+        final category = (movement.category ?? '').toLowerCase();
+        return description.contains(query) || category.contains(query);
       }
 
       return true;
@@ -1177,7 +1587,10 @@ class _MovementsScreenState extends State<MovementsScreen>
                   padding: const EdgeInsets.all(16),
                   child: Row(
                     children: [
-                      const Icon(Icons.category),
+                      Icon(
+                        Icons.category,
+                        color: Theme.of(context).colorScheme.surface,
+                      ),
                       const SizedBox(width: 16),
                       Text(
                         AppLocalizations.of(context).selectCategory,
@@ -1198,9 +1611,12 @@ class _MovementsScreenState extends State<MovementsScreen>
                         leading: _selectedCategory == null
                             ? Icon(
                                 Icons.check,
-                                color: Theme.of(context).colorScheme.primary,
+                                color: Theme.of(context).colorScheme.surface,
                               )
-                            : const Icon(Icons.label_outline),
+                            : Icon(
+                                Icons.label_outline,
+                                color: Theme.of(context).colorScheme.surface,
+                              ),
                         onTap: () {
                           setState(() => _selectedCategory = null);
                           Navigator.pop(context);
@@ -1234,170 +1650,18 @@ class _MovementsScreenState extends State<MovementsScreen>
   }
 
   Future<void> _showEditDialog(MovementValue movement) async {
-    final formKey = GlobalKey<FormState>();
-    final descriptionController = TextEditingController(
-      text: movement.description,
-    );
-    final amountController = TextEditingController(
-      text: movement.amount.toStringAsFixed(2),
-    );
-    DateTime selectedDate = DateTime(widget.year, widget.month, movement.day);
-
-    await showModalBottomSheet(
+    final result = await showModalBottomSheet<bool>(
       context: context,
       isScrollControlled: true,
       showDragHandle: true,
       useSafeArea: true,
-      builder: (BuildContext context) => Padding(
-        padding: EdgeInsets.only(
-          bottom: MediaQuery.of(context).viewInsets.bottom,
-        ),
-        child: SingleChildScrollView(
-          child: Padding(
-            padding: const EdgeInsets.all(16.0),
-            child: Form(
-              key: formKey,
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
-                  Row(
-                    children: [
-                      const Icon(Icons.edit),
-                      const SizedBox(width: 16),
-                      Text(
-                        AppLocalizations.of(context).editMovement,
-                        style: Theme.of(context).textTheme.titleLarge,
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 16),
-                  TextFormField(
-                    controller: descriptionController,
-                    decoration: InputDecoration(
-                      labelText: AppLocalizations.of(context).description,
-                      prefixIcon: const Icon(Icons.description),
-                    ),
-                    validator: (value) {
-                      if (value == null || value.isEmpty) {
-                        return AppLocalizations.of(
-                          context,
-                        ).pleaseEnterDescription;
-                      }
-                      return null;
-                    },
-                  ),
-                  const SizedBox(height: 16),
-                  TextFormField(
-                    controller: amountController,
-                    decoration: InputDecoration(
-                      labelText: AppLocalizations.of(context).amount,
-                      prefixIcon: const Icon(Icons.attach_money),
-                      suffixText: _moneda,
-                    ),
-                    keyboardType: const TextInputType.numberWithOptions(
-                      decimal: true,
-                    ),
-                    validator: (value) {
-                      if (value == null || value.isEmpty) {
-                        return AppLocalizations.of(context).pleaseEnterAmount;
-                      }
-                      if (double.tryParse(value.replaceAll(',', '.')) == null) {
-                        return AppLocalizations.of(
-                          context,
-                        ).pleaseEnterValidAmount;
-                      }
-                      return null;
-                    },
-                  ),
-                  const SizedBox(height: 16),
-                  StatefulBuilder(
-                    builder: (context, setDateState) => FilledButton.icon(
-                      onPressed: () async {
-                        final date = await showDatePicker(
-                          context: context,
-                          initialDate: selectedDate,
-                          firstDate: DateTime(widget.year, widget.month, 1),
-                          lastDate: DateTime(widget.year, widget.month + 1, 0),
-                        );
-                        if (date != null) {
-                          setDateState(() => selectedDate = date);
-                        }
-                      },
-                      icon: const Icon(Icons.calendar_today),
-                      label: Text(
-                        '${AppLocalizations.of(context).date}: \\${selectedDate.day}/${selectedDate.month}/${selectedDate.year}',
-                      ),
-                    ),
-                  ),
-                  const SizedBox(height: 24),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.end,
-                    children: [
-                      TextButton(
-                        onPressed: () => Navigator.pop(context),
-                        child: Text(AppLocalizations.of(context)!.cancel),
-                      ),
-                      const SizedBox(width: 8),
-                      FilledButton(
-                        onPressed: () async {
-                          if (!formKey.currentState!.validate()) return;
-
-                          // Show loading indicator
-                          if (!context.mounted) return;
-                          showDialog(
-                            context: context,
-                            barrierDismissible: false,
-                            builder: (context) => const Center(
-                              child: CircularProgressIndicator(),
-                            ),
-                          );
-                          final updatedMovement = MovementValue(
-                            movement.id,
-                            movement.monthId,
-                            descriptionController.text,
-                            double.parse(
-                              amountController.text.replaceAll(',', '.'),
-                            ),
-                            movement.isExpense,
-                            selectedDate.day,
-                            movement.category,
-                          );
-
-                          await _financeService.updateMovement(updatedMovement);
-
-                          // Call haveToUpload() after updating movement
-                          await SharedPreferencesService().haveToUpload();
-
-                          // Close both dialogs
-                          if (!context.mounted) return;
-                          Navigator.pop(context); // Close loading
-                          Navigator.pop(context); // Close form
-
-                          // Show success message
-                          if (!context.mounted) return;
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            SnackBar(
-                              content: Text(
-                                AppLocalizations.of(
-                                  context,
-                                )!.movementUpdatedSuccessfully,
-                              ),
-                              behavior: SnackBarBehavior.floating,
-                            ),
-                          );
-                        },
-                        child: Text(AppLocalizations.of(context)!.save),
-                      ),
-                    ],
-                  ),
-                ],
-              ),
-            ),
-          ),
-        ),
-      ),
+      builder: (BuildContext context) => MovementFormScreen(movement: movement),
     );
+
+    // Si se editó un movimiento, recargar los datos
+    if (result == true) {
+      await _loadMovements();
+    }
   }
 
   Future<void> _showDeleteDialog(MovementValue movement) async {
