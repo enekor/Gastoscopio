@@ -128,7 +128,7 @@ class _MovementsScreenState extends State<MovementsScreen>
       movements = movements.reversed.toList();
 
       setState(() {
-        _cachedMovements = movements; //aqui
+        _cachedMovements = movements;
         _isLoading = false;
         // Aplicar ordenamiento si existe
         _applySorting();
@@ -1414,10 +1414,9 @@ class _MovementsScreenState extends State<MovementsScreen>
   }
 
   void _toggleMovementExpansion(int movementId) {
-    setState(() {
-      _expandedItems[movementId.toString()] =
-          !(_expandedItems[movementId.toString()] ?? false);
-    });
+    final key = movementId.toString();
+    _expandedItems[key] = !(_expandedItems[key] ?? false);
+    setState(() {});
   }
 
   void _showSortMenu(BuildContext context) {
@@ -1827,7 +1826,7 @@ class _MovementsScreenState extends State<MovementsScreen>
                   final movement = values[index];
                   return MovementTile(
                     movement: movement,
-                    isExpanded: false,
+                    isExpanded: _expandedItems[movement.id.toString()] ?? false,
                     currency: _moneda,
                     onTap: () => _toggleMovementExpansion(movement.id!),
                     expandedContent: _buildExpandedContent(context, movement),
