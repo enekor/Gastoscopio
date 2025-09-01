@@ -5,6 +5,7 @@ import 'package:cashly/data/models/month.dart';
 import 'package:cashly/data/models/movement_value.dart';
 import 'package:cashly/data/models/fixed_movement.dart';
 import 'package:cashly/data/services/shared_preferences_service.dart';
+import 'package:cashly/data/services/sqlite_service.dart';
 import 'package:cashly/l10n/app_localizations.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -189,26 +190,25 @@ class FinanceService extends ChangeNotifier {
     final shouldCreate =
         await showDialog<bool>(
           context: context,
-          builder:
-              (context) => AlertDialog(
-                title: Text(AppLocalizations.of(context).createNewMonth),
-                content: Text(
-                  AppLocalizations.of(context).monthDoesNotExist(
-                    _getMonthName(month, context),
-                    year.toString(),
-                  ),
-                ),
-                actions: [
-                  TextButton(
-                    onPressed: () => Navigator.pop(context, false),
-                    child: Text(AppLocalizations.of(context).no),
-                  ),
-                  FilledButton(
-                    onPressed: () => Navigator.pop(context, true),
-                    child: Text(AppLocalizations.of(context).yes),
-                  ),
-                ],
+          builder: (context) => AlertDialog(
+            title: Text(AppLocalizations.of(context).createNewMonth),
+            content: Text(
+              AppLocalizations.of(context).monthDoesNotExist(
+                _getMonthName(month, context),
+                year.toString(),
               ),
+            ),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.pop(context, false),
+                child: Text(AppLocalizations.of(context).no),
+              ),
+              FilledButton(
+                onPressed: () => Navigator.pop(context, true),
+                child: Text(AppLocalizations.of(context).yes),
+              ),
+            ],
+          ),
         ) ??
         false;
 
@@ -343,28 +343,27 @@ class FinanceService extends ChangeNotifier {
     final shouldDelete =
         await showDialog<bool>(
           context: context,
-          builder:
-              (context) => AlertDialog(
-                title: Text(AppLocalizations.of(context).deleteMovement),
-                content: Text(
-                  AppLocalizations.of(
-                    context,
-                  ).confirmDeleteMovement(movement.description),
-                ),
-                actions: [
-                  TextButton(
-                    onPressed: () => Navigator.of(context).pop(false),
-                    child: Text(AppLocalizations.of(context).cancel),
-                  ),
-                  FilledButton(
-                    onPressed: () => Navigator.of(context).pop(true),
-                    style: FilledButton.styleFrom(
-                      backgroundColor: Theme.of(context).colorScheme.error,
-                    ),
-                    child: Text(AppLocalizations.of(context).delete),
-                  ),
-                ],
+          builder: (context) => AlertDialog(
+            title: Text(AppLocalizations.of(context).deleteMovement),
+            content: Text(
+              AppLocalizations.of(
+                context,
+              ).confirmDeleteMovement(movement.description),
+            ),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.of(context).pop(false),
+                child: Text(AppLocalizations.of(context).cancel),
               ),
+              FilledButton(
+                onPressed: () => Navigator.of(context).pop(true),
+                style: FilledButton.styleFrom(
+                  backgroundColor: Theme.of(context).colorScheme.error,
+                ),
+                child: Text(AppLocalizations.of(context).delete),
+              ),
+            ],
+          ),
         ) ??
         false;
 
@@ -431,68 +430,60 @@ class FinanceService extends ChangeNotifier {
 
     await showDialog(
       context: context,
-      builder:
-          (context) => AlertDialog(
-            title: Text(localizations.editMovement),
-            content: Form(
-              key: formKey,
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  TextFormField(
-                    controller: nameController,
-                    decoration: InputDecoration(labelText: localizations.name),
-                    validator:
-                        (value) =>
-                            value?.isEmpty == true
-                                ? localizations.nameRequired
-                                : null,
-                  ),
-                  TextFormField(
-                    controller: amountController,
-                    decoration: InputDecoration(
-                      labelText: localizations.amount,
-                    ),
-                    keyboardType: TextInputType.number,
-                    validator: (value) {
-                      if (value?.isEmpty == true)
-                        return localizations.amountRequired;
-                      if (double.tryParse(value!) == null)
-                        return localizations.invalidAmount;
-                      return null;
-                    },
-                  ),
-                ],
+      builder: (context) => AlertDialog(
+        title: Text(localizations.editMovement),
+        content: Form(
+          key: formKey,
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              TextFormField(
+                controller: nameController,
+                decoration: InputDecoration(labelText: localizations.name),
+                validator: (value) =>
+                    value?.isEmpty == true ? localizations.nameRequired : null,
               ),
-            ),
-            actions: [
-              TextButton(
-                onPressed: () => Navigator.pop(context),
-                child: Text(localizations.cancel),
-              ),
-              FilledButton(
-                onPressed: () async {
-                  if (formKey.currentState?.validate() == true) {
-                    final updatedMovement = MovementValue(
-                      movement.id,
-                      movement.monthId,
-                      nameController.text,
-                      double.parse(amountController.text),
-                      movement.isExpense,
-                      movement.day,
-                      movement.category,
-                    );
-                    await _movementValueDao.updateMovementValue(
-                      updatedMovement,
-                    );
-                    await _updateMonthData();
-                    Navigator.pop(context);
-                  }
+              TextFormField(
+                controller: amountController,
+                decoration: InputDecoration(labelText: localizations.amount),
+                keyboardType: TextInputType.number,
+                validator: (value) {
+                  if (value?.isEmpty == true)
+                    return localizations.amountRequired;
+                  if (double.tryParse(value!) == null)
+                    return localizations.invalidAmount;
+                  return null;
                 },
-                child: Text(localizations.save),
               ),
             ],
           ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: Text(localizations.cancel),
+          ),
+          FilledButton(
+            onPressed: () async {
+              if (formKey.currentState?.validate() == true) {
+                final updatedMovement = MovementValue(
+                  movement.id,
+                  movement.monthId,
+                  nameController.text,
+                  double.parse(amountController.text),
+                  movement.isExpense,
+                  movement.day,
+                  movement.category,
+                );
+                await _movementValueDao.updateMovementValue(updatedMovement);
+                await _updateMonthData();
+                Navigator.pop(context);
+              }
+            },
+            child: Text(localizations.save),
+          ),
+        ],
+      ),
     );
   }
 
@@ -547,5 +538,24 @@ class FinanceService extends ChangeNotifier {
     int val =
         await _movementValueDao.countMovementValuesByMonth(month, year) ?? 0;
     return val;
+  }
+
+  Future<int> getMonthId(DateTime date) async {
+    final month = await _monthDao.findMonthByMonthAndYear(
+      date.month,
+      date.year,
+    );
+    return month?.id ?? await _createMonth(date);
+  }
+
+  Future<int> _createMonth(DateTime date) async {
+    final db = SqliteService().db;
+    final newMonth = Month(date.month, date.year);
+    await db.monthDao.insertMonth(newMonth);
+    final month = await db.monthDao.findMonthByMonthAndYear(
+      date.month,
+      date.year,
+    );
+    return month!.id!;
   }
 }

@@ -380,10 +380,11 @@ class _MovementsScreenState extends State<MovementsScreen>
             ),
             // Card de filtros (condicional)
             if (_expandedItems['filters'] ?? false) _buildFilters(),
-            if (filteredMovements
-                .where((mov) => mov.day > DateTime.now().day)
-                .toList()
-                .isNotEmpty)
+            if (_financeService.currentMonth!.month == DateTime.now().month &&
+                filteredMovements
+                    .where((mov) => mov.day > DateTime.now().day)
+                    .toList()
+                    .isNotEmpty)
               _buildFutureMovementsCard(
                 filteredMovements
                     .where((mov) => mov.day > DateTime.now().day)
@@ -419,16 +420,28 @@ class _MovementsScreenState extends State<MovementsScreen>
                             opacity: _listFadeAnimation.value,
                             child: ListView.builder(
                               padding: EdgeInsets.zero,
-                              itemCount: filteredMovements
-                                  .where((mov) => mov.day <= DateTime.now().day)
-                                  .toList()
-                                  .length,
+                              itemCount:
+                                  _financeService.currentMonth!.month <
+                                      DateTime.now().month
+                                  ? filteredMovements.length
+                                  : filteredMovements
+                                        .where(
+                                          (mov) =>
+                                              mov.day <= DateTime.now().day,
+                                        )
+                                        .toList()
+                                        .length,
                               itemBuilder: (context, index) {
-                                final movement = filteredMovements
-                                    .where(
-                                      (mov) => mov.day <= DateTime.now().day,
-                                    )
-                                    .toList()[index];
+                                final movement =
+                                    _financeService.currentMonth!.month <
+                                        DateTime.now().month
+                                    ? filteredMovements.toList()[index]
+                                    : filteredMovements
+                                          .where(
+                                            (mov) =>
+                                                mov.day <= DateTime.now().day,
+                                          )
+                                          .toList()[index];
                                 final isExpanded =
                                     _expandedItems[movement.id.toString()] ??
                                     false;

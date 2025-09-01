@@ -1,7 +1,6 @@
 import 'package:cashly/data/services/gemini_service.dart';
 import 'package:cashly/data/services/shared_preferences_service.dart';
 import 'package:cashly/data/services/sqlite_service.dart';
-import 'package:cashly/data/models/month.dart';
 import 'package:cashly/data/models/movement_value.dart';
 import 'package:cashly/modules/gastoscopio/logic/finance_service.dart';
 import 'package:flutter/material.dart';
@@ -80,17 +79,6 @@ class _MovementFormScreenState extends State<MovementFormScreen> {
     }
   }
 
-  Future<int> _createMonth(DateTime date) async {
-    final db = SqliteService().db;
-    final newMonth = Month(date.month, date.year);
-    await db.monthDao.insertMonth(newMonth);
-    final month = await db.monthDao.findMonthByMonthAndYear(
-      date.month,
-      date.year,
-    );
-    return month!.id!;
-  }
-
   Future<void> _saveMovement(BuildContext context) async {
     if (!_formKey.currentState!.validate()) return;
 
@@ -150,6 +138,11 @@ class _MovementFormScreenState extends State<MovementFormScreen> {
       }
 
       final db = SqliteService().db;
+      final financeService = FinanceService.getInstance(
+        db.monthDao,
+        db.movementValueDao,
+        db.fixedMovementDao,
+      );
 
       // Get or create month
       final month = await db.monthDao.findMonthByMonthAndYear(
@@ -157,16 +150,19 @@ class _MovementFormScreenState extends State<MovementFormScreen> {
         _selectedDate.year,
       );
 
-      final monthId =
-          month?.id ??
-          await _createMonth(
-            _selectedDate,
-          ); // Generate category if needed and not already set
+      //aqui
+      final monthId = await financeService.getMonthId(
+        _selectedDate,
+      ); // Generate category if needed and not already set
       if (_category == null) {
         try {
           // Agregar timeout para evitar que se quede colgado
           final generatedCategory = await GeminiService()
-              .generateCategory(_descriptionController.text, _isExpense, context)
+              .generateCategory(
+                _descriptionController.text,
+                _isExpense,
+                context,
+              )
               .timeout(
                 const Duration(seconds: 10),
                 onTimeout: () {
@@ -236,11 +232,6 @@ class _MovementFormScreenState extends State<MovementFormScreen> {
 
       // Update FinanceService singleton
       if (mounted) {
-        final financeService = FinanceService.getInstance(
-          db.monthDao,
-          db.movementValueDao,
-          db.fixedMovementDao,
-        );
         await financeService.updateSelectedDate(
           _selectedDate.month,
           _selectedDate.year,
