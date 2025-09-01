@@ -231,7 +231,7 @@ class _MovementsScreenState extends State<MovementsScreen>
             ),
             // Row con total y botones
             Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16),
+              padding: const EdgeInsets.only(left: 4, right: 16),
               child: Row(
                 children: [
                   // Total indicator expandido
@@ -559,7 +559,8 @@ class _MovementsScreenState extends State<MovementsScreen>
               isScrollControlled: true,
               showDragHandle: true,
               useSafeArea: true,
-              builder: (BuildContext context) => MovementFormScreen(),
+              builder: (BuildContext context) =>
+                  MovementFormScreen(isExpense: _showExpenses),
             );
 
             // Si se agregó un movimiento, recargar los datos

@@ -112,12 +112,18 @@ class _GastoscopioHomeScreenState extends State<GastoscopioHomeScreen> {
     }
   }
 
-  bool _isLastDaysOfTheWeek(){
+  bool _isLastDaysOfTheWeek() {
     DateTime today = DateTime.now();
-    DateTime lastDayOfTheWeek = DateTime(today.year, today.month +1, 1).add(Duration(days: -1));
+    DateTime lastDayOfTheWeek = DateTime(
+      today.year,
+      today.month + 1,
+      1,
+    ).add(Duration(days: -1));
     DateTime lastLimitDaysOfTheWeek = lastDayOfTheWeek.add(Duration(days: -5));
 
-    return today.isAfter(lastLimitDaysOfTheWeek) && (today.isBefore(lastDayOfTheWeek) || today.isAtSameMomentAs(lastDayOfTheWeek));
+    return today.isAfter(lastLimitDaysOfTheWeek) &&
+        (today.isBefore(lastDayOfTheWeek) ||
+            today.isAtSameMomentAs(lastDayOfTheWeek));
   }
 
   void _updateGreeting() {
@@ -146,36 +152,31 @@ class _GastoscopioHomeScreenState extends State<GastoscopioHomeScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       floatingActionButton: Card(
-        color:
-            _isOpaqueBottomNav
-                ? Theme.of(context).colorScheme.primary.withAlpha(200)
-                : Theme.of(context).colorScheme.secondary.withAlpha(25),
+        color: _isOpaqueBottomNav
+            ? Theme.of(context).colorScheme.primary.withAlpha(200)
+            : Theme.of(context).colorScheme.secondary.withAlpha(25),
         elevation: _isOpaqueBottomNav ? 4 : 8,
         shape: CircleBorder(
-          side:
-              _isOpaqueBottomNav
-                  ? BorderSide.none
-                  : BorderSide(
-                    color: Theme.of(
-                      context,
-                    ).colorScheme.primary.withOpacity(0.3),
-                    width: 2,
-                  ),
+          side: _isOpaqueBottomNav
+              ? BorderSide.none
+              : BorderSide(
+                  color: Theme.of(context).colorScheme.primary.withOpacity(0.3),
+                  width: 2,
+                ),
         ),
         child: Container(
           width: 45,
           height: 45,
           decoration: BoxDecoration(
             shape: BoxShape.circle,
-            border:
-                _isOpaqueBottomNav
-                    ? null
-                    : Border.all(
-                      color: Theme.of(
-                        context,
-                      ).colorScheme.primary.withOpacity(0.3),
-                      width: 2,
-                    ),
+            border: _isOpaqueBottomNav
+                ? null
+                : Border.all(
+                    color: Theme.of(
+                      context,
+                    ).colorScheme.primary.withOpacity(0.3),
+                    width: 2,
+                  ),
           ),
           child: FloatingActionButton.small(
             backgroundColor: Colors.transparent,
@@ -186,15 +187,14 @@ class _GastoscopioHomeScreenState extends State<GastoscopioHomeScreen> {
                 isScrollControlled: true,
                 showDragHandle: true,
                 useSafeArea: true,
-                builder: (BuildContext context) => const MovementFormScreen(),
+                builder: (BuildContext context) => MovementFormScreen(),
               );
             },
             child: Icon(
               Icons.add,
-              color:
-                  _isOpaqueBottomNav
-                      ? Theme.of(context).colorScheme.onPrimary
-                      : Theme.of(context).colorScheme.primary,
+              color: _isOpaqueBottomNav
+                  ? Theme.of(context).colorScheme.onPrimary
+                  : Theme.of(context).colorScheme.primary,
             ),
             heroTag: 'home_fab',
           ),
@@ -254,12 +254,11 @@ class _GastoscopioHomeScreenState extends State<GastoscopioHomeScreen> {
                     children: [
                       Text(
                         AppLocalizations.of(context)!.activateIaFeatures,
-                        style: Theme.of(
-                          context,
-                        ).textTheme.titleMedium?.copyWith(
-                          color: Colors.amber.shade900,
-                          fontWeight: FontWeight.bold,
-                        ),
+                        style: Theme.of(context).textTheme.titleMedium
+                            ?.copyWith(
+                              color: Colors.amber.shade900,
+                              fontWeight: FontWeight.bold,
+                            ),
                       ),
                     ],
                   ),
@@ -280,53 +279,52 @@ class _GastoscopioHomeScreenState extends State<GastoscopioHomeScreen> {
   void _showIaInfoDialog(BuildContext context) {
     showDialog(
       context: context,
-      builder:
-          (ctx) => AlertDialog(
-            title: Row(
-              children: [
-                Icon(Icons.flash_on, color: Colors.amber.shade800),
-                const SizedBox(width: 8),
-                Text(AppLocalizations.of(context)!.iaFeaturesText),
-              ],
+      builder: (ctx) => AlertDialog(
+        title: Row(
+          children: [
+            Icon(Icons.flash_on, color: Colors.amber.shade800),
+            const SizedBox(width: 8),
+            Text(AppLocalizations.of(context)!.iaFeaturesText),
+          ],
+        ),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              AppLocalizations.of(context)!.noIaFeaturesHomeTitle,
+              style: Theme.of(context).textTheme.bodyMedium,
             ),
-            content: Column(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  AppLocalizations.of(context)!.noIaFeaturesHomeTitle,
-                  style: Theme.of(context).textTheme.bodyMedium,
-                ),
-                const SizedBox(height: 16),
-                Text(
-                  AppLocalizations.of(context)!.noIaFeaturesHomeSubtitle,
-                  style: Theme.of(
-                    context,
-                  ).textTheme.bodySmall?.copyWith(color: Colors.amber.shade900),
-                ),
-              ],
+            const SizedBox(height: 16),
+            Text(
+              AppLocalizations.of(context)!.noIaFeaturesHomeSubtitle,
+              style: Theme.of(
+                context,
+              ).textTheme.bodySmall?.copyWith(color: Colors.amber.shade900),
             ),
-            actions: [
-              TextButton(
-                onPressed: () => Navigator.of(ctx).pop(),
-                child: Text(AppLocalizations.of(context)!.later),
-              ),
-              TextButton(
-                onPressed: () {
-                  Navigator.of(ctx).pop();
-                  // Navegar a ajustes (puedes cambiar esto por tu ruta de settings)
-                  Navigator.of(context).push(
-                    MaterialPageRoute(
-                      builder: (context) {
-                        return const SettingsScreen();
-                      },
-                    ),
-                  );
-                },
-                child: Text(AppLocalizations.of(context)!.letsGo),
-              ),
-            ],
+          ],
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(ctx).pop(),
+            child: Text(AppLocalizations.of(context)!.later),
           ),
+          TextButton(
+            onPressed: () {
+              Navigator.of(ctx).pop();
+              // Navegar a ajustes (puedes cambiar esto por tu ruta de settings)
+              Navigator.of(context).push(
+                MaterialPageRoute(
+                  builder: (context) {
+                    return const SettingsScreen();
+                  },
+                ),
+              );
+            },
+            child: Text(AppLocalizations.of(context)!.letsGo),
+          ),
+        ],
+      ),
     );
   }
 
@@ -335,11 +333,11 @@ class _GastoscopioHomeScreenState extends State<GastoscopioHomeScreen> {
       children: [
         _isSvg
             ? SvgPicture.asset(
-              height: 140,
-              width: 140,
-              'assets/logo.svg',
-              color: Color.fromARGB(255, _r, _g, _b),
-            )
+                height: 140,
+                width: 140,
+                'assets/logo.svg',
+                color: Color.fromARGB(255, _r, _g, _b),
+              )
             : Image.asset('assets/logo.png', height: 140, width: 140),
         Expanded(
           flex: 7,
@@ -360,7 +358,7 @@ class _GastoscopioHomeScreenState extends State<GastoscopioHomeScreen> {
     );
   }
 
-  Widget _buildShowSummaryButton(){
+  Widget _buildShowSummaryButton() {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 6.0),
       child: Center(
@@ -370,9 +368,7 @@ class _GastoscopioHomeScreenState extends State<GastoscopioHomeScreen> {
             onPressed: () {
               Navigator.push(
                 context,
-                MaterialPageRoute(
-                  builder: (context) => const SummaryScreen(),
-                ),
+                MaterialPageRoute(builder: (context) => const SummaryScreen()),
               );
             },
             icon: Icon(
@@ -496,12 +492,12 @@ class _GastoscopioHomeScreenState extends State<GastoscopioHomeScreen> {
                               child: Text(
                                 AppLocalizations.of(context)!.noMovementsToShow,
                                 textAlign: TextAlign.center,
-                                style: Theme.of(
-                                  context,
-                                ).textTheme.bodyMedium?.copyWith(
-                                  color:
-                                      Theme.of(context).colorScheme.secondary,
-                                ),
+                                style: Theme.of(context).textTheme.bodyMedium
+                                    ?.copyWith(
+                                      color: Theme.of(
+                                        context,
+                                      ).colorScheme.secondary,
+                                    ),
                               ),
                             ),
                           ),
@@ -549,21 +545,19 @@ class _GastoscopioHomeScreenState extends State<GastoscopioHomeScreen> {
         Text(
           '${AppLocalizations.of(context)!.total}: ${total < 0 ? '-' : ''}${total.abs().toStringAsFixed(2)}${_moneda}',
           style: Theme.of(context).textTheme.titleLarge?.copyWith(
-            color:
-                isPositive
-                    ? Theme.of(context).colorScheme.primary
-                    : Theme.of(context).colorScheme.error,
+            color: isPositive
+                ? Theme.of(context).colorScheme.primary
+                : Theme.of(context).colorScheme.error,
             fontWeight: FontWeight.bold,
           ),
         ),
         InkWell(
-          onTap:
-              () => setState(() {
-                _carouselController.nextPage(
-                  duration: const Duration(milliseconds: 300),
-                  curve: Curves.easeInOut,
-                );
-              }),
+          onTap: () => setState(() {
+            _carouselController.nextPage(
+              duration: const Duration(milliseconds: 300),
+              curve: Curves.easeInOut,
+            );
+          }),
           child: Icon(Icons.expand_more),
         ),
       ],
@@ -573,13 +567,12 @@ class _GastoscopioHomeScreenState extends State<GastoscopioHomeScreen> {
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
         InkWell(
-          onTap:
-              () => setState(() {
-                _carouselController.previousPage(
-                  duration: const Duration(milliseconds: 300),
-                  curve: Curves.easeInOut,
-                );
-              }),
+          onTap: () => setState(() {
+            _carouselController.previousPage(
+              duration: const Duration(milliseconds: 300),
+              curve: Curves.easeInOut,
+            );
+          }),
           child: Icon(
             Icons.expand_less,
             color: Theme.of(context).colorScheme.primary,
@@ -755,57 +748,56 @@ class HomeCategoryChart extends StatelessWidget {
     );
 
     return Column(
-      children:
-          categoryData.entries.map((entry) {
-            final category = entry.key;
-            final amount = entry.value;
-            final percentage = total > 0 ? (amount / total) * 100 : 0;
+      children: categoryData.entries.map((entry) {
+        final category = entry.key;
+        final amount = entry.value;
+        final percentage = total > 0 ? (amount / total) * 100 : 0;
 
-            return Padding(
-              padding: const EdgeInsets.only(bottom: 16.0),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
+        return Padding(
+          padding: const EdgeInsets.only(bottom: 16.0),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
+                  Expanded(child: Text(category)),
+                  SizedBox(width: 8),
                   Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      Expanded(child: Text(category)),
-                      SizedBox(width: 8),
-                      Row(
-                        children: [
-                          Text(
-                            '${amount.toStringAsFixed(2)}$moneda',
-                            style: const TextStyle(fontWeight: FontWeight.bold),
-                          ),
-                          Text(
-                            ' (${percentage.toStringAsFixed(1)}%)',
-                            style: TextStyle(
-                              color: Theme.of(context).colorScheme.secondary,
-                              fontSize: 12,
-                            ),
-                          ),
-                        ],
+                      Text(
+                        '${amount.toStringAsFixed(2)}$moneda',
+                        style: const TextStyle(fontWeight: FontWeight.bold),
+                      ),
+                      Text(
+                        ' (${percentage.toStringAsFixed(1)}%)',
+                        style: TextStyle(
+                          color: Theme.of(context).colorScheme.secondary,
+                          fontSize: 12,
+                        ),
                       ),
                     ],
                   ),
-                  const SizedBox(height: 4),
-                  LinearProgressIndicator(
-                    value: percentage / 100,
-                    backgroundColor: Theme.of(
-                      context,
-                    ).colorScheme.primary.withOpacity(0.1),
-                    valueColor: AlwaysStoppedAnimation(
-                      HSLColor.fromColor(
-                        Theme.of(context).colorScheme.primary,
-                      ).withLightness(0.5).toColor(),
-                    ),
-                    minHeight: 8,
-                    borderRadius: BorderRadius.circular(4),
-                  ),
                 ],
               ),
-            );
-          }).toList(),
+              const SizedBox(height: 4),
+              LinearProgressIndicator(
+                value: percentage / 100,
+                backgroundColor: Theme.of(
+                  context,
+                ).colorScheme.primary.withOpacity(0.1),
+                valueColor: AlwaysStoppedAnimation(
+                  HSLColor.fromColor(
+                    Theme.of(context).colorScheme.primary,
+                  ).withLightness(0.5).toColor(),
+                ),
+                minHeight: 8,
+                borderRadius: BorderRadius.circular(4),
+              ),
+            ],
+          ),
+        );
+      }).toList(),
     );
   }
 }

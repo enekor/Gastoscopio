@@ -9,8 +9,9 @@ import 'package:fluttertoast/fluttertoast.dart';
 
 class MovementFormScreen extends StatefulWidget {
   final MovementValue? movement;
+  bool isExpense = true;
 
-  const MovementFormScreen({super.key, this.movement});
+  MovementFormScreen({super.key, this.movement, this.isExpense = true});
 
   @override
   State<MovementFormScreen> createState() => _MovementFormScreenState();
@@ -18,7 +19,6 @@ class MovementFormScreen extends StatefulWidget {
 
 class _MovementFormScreenState extends State<MovementFormScreen> {
   final _formKey = GlobalKey<FormState>();
-  bool _isExpense = true;
   bool _isLoading = false; // Agregar indicador de carga
   late final _descriptionController = TextEditingController();
   late final _amountController = TextEditingController();
@@ -43,7 +43,7 @@ class _MovementFormScreenState extends State<MovementFormScreen> {
     if (widget.movement != null) {
       _descriptionController.text = widget.movement!.description;
       _amountController.text = widget.movement!.amount.toStringAsFixed(2);
-      _isExpense = widget.movement!.isExpense;
+      widget.isExpense = widget.movement!.isExpense;
       _selectedDate = DateTime.now().copyWith(day: widget.movement!.day);
       _category = widget.movement!.category;
     }
@@ -160,7 +160,7 @@ class _MovementFormScreenState extends State<MovementFormScreen> {
           final generatedCategory = await GeminiService()
               .generateCategory(
                 _descriptionController.text,
-                _isExpense,
+                widget.isExpense,
                 context,
               )
               .timeout(
@@ -208,7 +208,7 @@ class _MovementFormScreenState extends State<MovementFormScreen> {
           monthId,
           _descriptionController.text,
           amount,
-          _isExpense,
+          widget.isExpense,
           _selectedDate.day,
           _category,
         );
@@ -220,7 +220,7 @@ class _MovementFormScreenState extends State<MovementFormScreen> {
           monthId,
           _descriptionController.text,
           amount,
-          _isExpense,
+          widget.isExpense,
           _selectedDate.day,
           _category?.trim(),
         );
@@ -390,7 +390,7 @@ class _MovementFormScreenState extends State<MovementFormScreen> {
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       Text(
-                        _isExpense
+                        widget.isExpense
                             ? localizations.newExpense
                             : localizations.newIncome,
                         style: Theme.of(context).textTheme.titleLarge,
@@ -416,10 +416,10 @@ class _MovementFormScreenState extends State<MovementFormScreen> {
                         icon: const Icon(Icons.add_circle_outline),
                       ),
                     ],
-                    selected: {_isExpense},
+                    selected: {widget.isExpense},
                     onSelectionChanged: (Set<bool> selection) {
                       setState(() {
-                        _isExpense = selection.first;
+                        widget.isExpense = selection.first;
                       });
                     },
                   ),
