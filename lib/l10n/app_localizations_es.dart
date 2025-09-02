@@ -1032,4 +1032,11 @@ class AppLocalizationsEs extends AppLocalizations {
 
   @override
   String get showSummary => '¿Cómo ha ido el mes?';
+
+  @override
+  String get confrmTagDelete => 'Borrar categorias';
+
+  @override
+  String get confirmDeleteAllTags =>
+      '¿Quieres borrar las categorias de los movimientos de este mes?';
 }

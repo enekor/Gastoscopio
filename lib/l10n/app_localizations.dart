@@ -1963,6 +1963,18 @@ abstract class AppLocalizations {
   /// In es, this message translates to:
   /// **'¿Cómo ha ido el mes?'**
   String get showSummary;
+
+  /// No description provided for @confrmTagDelete.
+  ///
+  /// In es, this message translates to:
+  /// **'Borrar categorias'**
+  String get confrmTagDelete;
+
+  /// No description provided for @confirmDeleteAllTags.
+  ///
+  /// In es, this message translates to:
+  /// **'¿Quieres borrar las categorias de los movimientos de este mes?'**
+  String get confirmDeleteAllTags;
 }
 
 class _AppLocalizationsDelegate

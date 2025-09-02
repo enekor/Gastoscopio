@@ -1246,5 +1246,8 @@
   "signingOut": "Cerrando sesión...",
   "authenticateToAccess": "Por favor, autentícate para acceder a la aplicación",
   "biometricAuthFailed": "Autenticación biométrica fallida",
-  "showSummary": "¿Cómo ha ido el mes?"
+  "showSummary": "¿Cómo ha ido el mes?",
+  "confrmTagDelete":"Borrar categorias",
+  "confirmDeleteAllTags":"¿Quieres borrar las categorias de los movimientos de este mes?"
+
 }

@@ -142,6 +142,52 @@ class _MovementsScreenState extends State<MovementsScreen>
     }
   }
 
+  Future<void> _deleteAllTags() async {
+    bool delete = await showDialog<bool>(
+          context: context,
+          builder: (context) => AlertDialog(
+            title: Text(AppLocalizations.of(context).confrmTagDelete),
+            content: Text(AppLocalizations.of(context).confirmDeleteAllTags),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.of(context).pop(false),
+                child: Text(AppLocalizations.of(context).cancel),
+              ),
+              ElevatedButton(
+                onPressed: () => Navigator.of(context).pop(true),
+                child: Text(AppLocalizations.of(context).ok),
+              ),
+            ],
+          ),
+        ) ??
+        false;
+    List<MovementValue> movements = await _financeService
+        .getCurrentMonthMovements();
+    movements = movements
+        .where((m) => m.category != null && m.category!.isNotEmpty)
+        .toList();
+
+    if (movements.isEmpty) return;
+
+    for (final movement in movements) {
+      final updatedMovement = MovementValue(
+        movement.id,
+        movement.monthId,
+        movement.description,
+        movement.amount,
+        movement.isExpense,
+        movement.day,
+        null, // Eliminar la categoría
+      );
+      await _financeService.updateMovement(updatedMovement);
+      // Call haveToUpload() after updating movement tag
+      await SharedPreferencesService().haveToUpload();
+    }
+
+    // Recargar movimientos después de eliminar las etiquetas
+    await _loadMovements();
+  }
+
   Future<void> _autoGenerateTags() async {
     List<MovementValue> movements = await _financeService
         .getCurrentMonthMovements();
@@ -359,19 +405,24 @@ class _MovementsScreenState extends State<MovementsScreen>
                                 width: 1,
                               ),
                       ),
-                      child: IconButton(
-                        padding: EdgeInsets.zero,
-                        iconSize: 18,
-                        icon: Icon(
-                          Icons.auto_awesome,
-                          color: _isOpaqueBottomNav
-                              ? Theme.of(context).colorScheme.onPrimary
-                              : Theme.of(context).colorScheme.primary,
-                        ),
-                        onPressed: () async {
-                          await _autoGenerateTags();
-                          await _loadMovements();
+                      child: GestureDetector(
+                        onLongPress: () {
+                          _deleteAllTags();
                         },
+                        child: IconButton(
+                          padding: EdgeInsets.zero,
+                          iconSize: 18,
+                          icon: Icon(
+                            Icons.auto_awesome,
+                            color: _isOpaqueBottomNav
+                                ? Theme.of(context).colorScheme.onPrimary
+                                : Theme.of(context).colorScheme.primary,
+                          ),
+                          onPressed: () async {
+                            await _autoGenerateTags();
+                            await _loadMovements();
+                          },
+                        ),
                       ),
                     ),
                   ),

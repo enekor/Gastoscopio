@@ -339,5 +339,7 @@
   "signOut": "Sign in out",
   "signingIn": "Signing in...",
   "signingOut": "Signing out...",
-  "showSummary": "Monthly insights."
+  "showSummary": "Monthly insights.",
+  "confrmTagDelete":"Delete categories",
+  "confirmDeleteAllTags":"Do you want to delete all the tags from this month's movements?"
 }

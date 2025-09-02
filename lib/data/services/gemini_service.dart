@@ -85,10 +85,11 @@ class GeminiService {
         'Dime las mejores etiquetas para los siguientes movimientos (solo dime las etiquetas separadas por comas en el orden de los nombres que te mando, nada mas): "$names". '
         'Elige entre las siguientes etiquetas: ${tagList.join(', ')}. '
         'Si no encuentras una etiqueta adecuada, responde con la ultima etiqueta.'
-        'Ten en cuenta que cada uno de los movimientos tiene entre paréntesis su tipo (gasto o ingreso), para que te sea mas sencillo elegir una etiqueta.';
+        'Ten en cuenta que cada uno de los movimientos tiene entre paréntesis su tipo (gasto o ingreso), para que te sea mas sencillo elegir una etiqueta.'
+        'Como separador de los tags usa un pipeline (|) en lugar de una coma';
 
     String response = await _initGenerateContent(prompt, context);
-    return response.split(',').map((e) => e.trim()).toList();
+    return response.split('|').map((e) => e.trim()).toList();
   }
 
   Future<String> generateSummary(

@@ -1017,4 +1017,11 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get showSummary => 'Monthly insights.';
+
+  @override
+  String get confrmTagDelete => 'Delete categories';
+
+  @override
+  String get confirmDeleteAllTags =>
+      'Do you want to delete all the tags from this month\'s movements?';
 }
