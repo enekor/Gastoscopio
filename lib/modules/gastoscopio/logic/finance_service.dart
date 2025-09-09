@@ -559,7 +559,7 @@ class FinanceService extends ChangeNotifier {
     return month!.id!;
   }
 
-  Future<int> aaa(int month, int year) async{
+  Future<int> findMonthByMonthAndYear(int month, int year) async{
     final db = SqliteService().db;
     Month? _month = await db.monthDao.findMonthByMonthAndYear(
         month,
