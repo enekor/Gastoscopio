@@ -1677,6 +1677,8 @@ class _MovementsScreenState extends State<MovementsScreen>
     final allCategories = {...existingCategories, ...localizedTags}.toList()
       ..sort((a, b) => a.compareTo(b));
 
+    List<String> _cat = _filteredCategory != null || _filteredCategory != "" ? allCategories.where((category) => category.contains(_filteredCategory ?? '')).toList() : allCategories;
+
     showModalBottomSheet(
       context: context,
       useSafeArea: true,
@@ -1715,7 +1717,7 @@ class _MovementsScreenState extends State<MovementsScreen>
                       });
                     },
                   ),
-                )
+                ),
                 Expanded(
                   child: ListView(
                     controller: scrollController,
@@ -1739,7 +1741,7 @@ class _MovementsScreenState extends State<MovementsScreen>
                         },
                       ),
                       const Divider(),
-                      ..._filteredCategory != null || _filteredCategory != "" ? allCategories.where((category) => category.contains(_filteredCategory ?? '')) : allCategories.map(
+                      ..._cat.map(
                         (category) => ListTile(
                           title: Text(category),
                           leading: _selectedCategory == category
@@ -1917,6 +1919,7 @@ class _MovementsScreenState extends State<MovementsScreen>
       useSafeArea: true,
       isScrollControlled: true,
       builder: (BuildContext context) {
+        List<String> _cat = _filteredCategory != null || _filteredCategory != "" ? allCategories.where((category) => category.contains(_filteredCategory ?? '')).toList() : allCategories;
         return DraggableScrollableSheet(
           expand: false,
           initialChildSize: 0.5,
@@ -1952,7 +1955,7 @@ class _MovementsScreenState extends State<MovementsScreen>
                   child: ListView(
                     controller: scrollController,
                     children: [
-                      ..._filteredCategory != null || _filteredCategory != "" ? allCategories.where((category) => category.contains(_filteredCategory ?? '')) : allCategories.map(
+                      ..._cat.map(
                         (category) => ListTile(
                           title: Text(category),
                           leading: movement.category == category

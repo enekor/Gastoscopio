@@ -144,15 +144,10 @@ class _MovementFormScreenState extends State<MovementFormScreen> {
         db.fixedMovementDao,
       );
 
-      int monthId = widget.movement?.monthId ?? await db.monthDao.findMonthByMonthAndYear(
-        _selectedDate.month,
-        _selectedDate.year,
-      );
+      int monthId = widget.movement?.monthId 
+                  ?? await financeService.findMonthByMonthAndYear(_selectedDate.month, _selectedDate.year);
 
-      //aqui
-      final monthId = await financeService.getMonthId(
-        _selectedDate,
-      ); // Generate category if needed and not already set
+      // Generate category if needed and not already set
       if (_category == null) {
         try {
           // Agregar timeout para evitar que se quede colgado

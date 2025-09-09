@@ -558,4 +558,19 @@ class FinanceService extends ChangeNotifier {
     );
     return month!.id!;
   }
+
+  Future<int> aaa(int month, int year) async{
+    final db = SqliteService().db;
+    Month? _month = await db.monthDao.findMonthByMonthAndYear(
+        month,
+        year,
+      );
+
+    if(_month == null){
+      return _createMonth(DateTime(year,month,1));
+    }
+
+    return _month.id!;
+
+  }
 }
