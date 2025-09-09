@@ -1,3 +1,4 @@
+import 'package:cashly/modules/gastoscopio/widgets/loading.dart';
 import 'package:cashly/modules/main_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:cashly/data/services/auth_service.dart';
@@ -67,6 +68,7 @@ class _AuthScreenState extends State<AuthScreen> {
   Future<void> _verifyPin() async {
     if (_pinController.text.isEmpty) return;
 
+      Loading(context);
     setState(() {
       _isLoading = true;
     });
@@ -91,6 +93,7 @@ class _AuthScreenState extends State<AuthScreen> {
       }
     } finally {
       if (mounted) {
+        Navigator.pop(context);
         setState(() {
           _isLoading = false;
         });

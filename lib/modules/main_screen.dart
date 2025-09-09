@@ -4,6 +4,7 @@ import 'package:cashly/modules/gastoscopio/logic/finance_service.dart';
 import 'package:cashly/modules/gastoscopio/screens/home.dart';
 import 'package:cashly/modules/gastoscopio/screens/movements_screen.dart';
 import 'package:cashly/modules/gastoscopio/screens/summary_screen.dart';
+import 'package:cashly/modules/gastoscopio/widgets/loading.dart';
 import 'package:cashly/modules/gastoscopio/widgets/month_grid_selector.dart';
 import 'package:cashly/modules/settings.dart/settings.dart';
 import 'package:cashly/modules/settings.dart/widgets/custom_navbar.dart';
@@ -227,12 +228,15 @@ class _MainScreenState extends State<MainScreen>
       future: _initializationFuture,
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
+          Loading(context);
+
           return const Scaffold(
             body: Center(child: CircularProgressIndicator()),
           );
         }
 
         if (snapshot.data == true) {
+          Navigator.pop(context);
           // Programar la navegación para después del frame actual
           WidgetsBinding.instance.addPostFrameCallback((_) {
             Navigator.pushReplacement(

@@ -3,6 +3,7 @@ import 'package:cashly/data/services/shared_preferences_service.dart';
 import 'package:cashly/data/services/sqlite_service.dart';
 import 'package:cashly/data/models/movement_value.dart';
 import 'package:cashly/modules/gastoscopio/logic/finance_service.dart';
+import 'package:cashly/modules/gastoscopio/widgets/loading.dart';
 import 'package:flutter/material.dart';
 import 'package:cashly/l10n/app_localizations.dart';
 import 'package:fluttertoast/fluttertoast.dart';
@@ -88,6 +89,7 @@ class _MovementFormScreenState extends State<MovementFormScreen> {
     // Cerrar el teclado para mejorar la experiencia del usuario
     FocusScope.of(context).unfocus();
 
+    Loading(context);
     setState(() {
       _isLoading = true;
     });
@@ -358,6 +360,7 @@ class _MovementFormScreenState extends State<MovementFormScreen> {
       }
     } finally {
       if (mounted) {
+        Navigator.pop(context);
         setState(() {
           _isLoading = false;
         });

@@ -1,5 +1,6 @@
 import 'package:cashly/data/services/sqlite_service.dart';
 import 'package:cashly/modules/gastoscopio/logic/finance_service.dart';
+import 'package:cashly/modules/gastoscopio/widgets/loading.dart';
 import 'package:cashly/modules/main_screen.dart';
 import 'package:flutter/material.dart';
 
@@ -77,12 +78,14 @@ class _AppState extends State<App> with WidgetsBindingObserver {
       future: _initializationFuture,
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
+          Loading(context);
           return const Scaffold(
             body: Center(child: CircularProgressIndicator()),
           );
         }
 
         if (snapshot.hasError) {
+          Navigator.pop(context);
           return Scaffold(
             body: Center(child: Text('Error: ${snapshot.error}')),
           );
