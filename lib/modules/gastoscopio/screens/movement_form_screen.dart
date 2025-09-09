@@ -144,8 +144,7 @@ class _MovementFormScreenState extends State<MovementFormScreen> {
         db.fixedMovementDao,
       );
 
-      // Get or create month
-      final month = await db.monthDao.findMonthByMonthAndYear(
+      int monthId = widget.movement?.monthId ?? await db.monthDao.findMonthByMonthAndYear(
         _selectedDate.month,
         _selectedDate.year,
       );
