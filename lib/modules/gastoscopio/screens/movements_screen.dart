@@ -1669,6 +1669,7 @@ class _MovementsScreenState extends State<MovementsScreen>
     }
   }
 
+  String? _filteredCategory;
   void _selectCategory(BuildContext context, Set<String> existingCategories) {
     // Combinar categorías existentes con TagList localizado y ordenar alfabéticamente
     final locale = AppLocalizations.of(context).localeName;
@@ -1707,6 +1708,15 @@ class _MovementsScreenState extends State<MovementsScreen>
                 ),
                 const Divider(),
                 Expanded(
+                  child: TextField(
+                    onChanged: (value) {
+                      setState(() {
+                        _filteredCategory = value;
+                      });
+                    },
+                  ),
+                )
+                Expanded(
                   child: ListView(
                     controller: scrollController,
                     children: [
@@ -1729,7 +1739,7 @@ class _MovementsScreenState extends State<MovementsScreen>
                         },
                       ),
                       const Divider(),
-                      ...allCategories.map(
+                      ..._filteredCategory != null || _filteredCategory != "" ? allCategories.where((category) => category.contains(_filteredCategory ?? '')) : allCategories.map(
                         (category) => ListTile(
                           title: Text(category),
                           leading: _selectedCategory == category
@@ -1930,10 +1940,19 @@ class _MovementsScreenState extends State<MovementsScreen>
                 ),
                 const Divider(),
                 Expanded(
+                  child: TextField(
+                    onChanged: (value) {
+                      setState(() {
+                        _filteredCategory = value;
+                      });
+                    },
+                  ),
+                ),
+                Expanded(
                   child: ListView(
                     controller: scrollController,
                     children: [
-                      ...allCategories.map(
+                      ..._filteredCategory != null || _filteredCategory != "" ? allCategories.where((category) => category.contains(_filteredCategory ?? '')) : allCategories.map(
                         (category) => ListTile(
                           title: Text(category),
                           leading: movement.category == category
