@@ -6,6 +6,7 @@ import 'package:cashly/modules/gastoscopio/widgets/loading.dart';
 import 'package:cashly/modules/gastoscopio/widgets/main_screen_widgets.dart';
 import 'package:cashly/modules/gastoscopio/widgets/movement_tile.dart';
 import 'package:cashly/common/tag_list.dart' show getTagList;
+import 'package:cashly/modules/gastoscopio/widgets/tag_list.dart';
 import 'package:flutter/material.dart';
 import 'package:cashly/l10n/app_localizations.dart';
 import 'package:cashly/data/models/movement_value.dart';
@@ -1679,13 +1680,8 @@ class _MovementsScreenState extends State<MovementsScreen>
     final allCategories = {...existingCategories, ...localizedTags}.toList()
       ..sort((a, b) => a.compareTo(b));
 
-    List<String> _cat = _filteredCategory != null || _filteredCategory != ""
-        ? allCategories
-              .where((category) => category.contains(_filteredCategory ?? ''))
-              .toList()
-        : allCategories;
-
     showModalBottomSheet(
+      showDragHandle: true,
       context: context,
       useSafeArea: true,
       isScrollControlled: true,
@@ -1696,79 +1692,17 @@ class _MovementsScreenState extends State<MovementsScreen>
           minChildSize: 0.3,
           maxChildSize: 0.85,
           builder: (context, scrollController) {
-            return Column(
-              children: [
-                Padding(
-                  padding: const EdgeInsets.all(16),
-                  child: Row(
-                    children: [
-                      Icon(
-                        Icons.category,
-                        color: Theme.of(context).colorScheme.surface,
-                      ),
-                      const SizedBox(width: 16),
-                      Text(
-                        AppLocalizations.of(context).selectCategory,
-                        style: Theme.of(context).textTheme.titleLarge,
-                      ),
-                    ],
-                  ),
-                ),
-                const Divider(),
-                Expanded(
-                  child: SizedBox(
-                    height: 20,
-                    child: TextField(
-                      onChanged: (value) {
-                        setState(() {
-                          _filteredCategory = value;
-                        });
-                      },
-                    ),
-                  ),
-                ),
-                Expanded(
-                  child: ListView(
-                    controller: scrollController,
-                    children: [
-                      ListTile(
-                        title: Text(
-                          AppLocalizations.of(context)!.allCategories,
-                        ),
-                        leading: _selectedCategory == null
-                            ? Icon(
-                                Icons.check,
-                                color: Theme.of(context).colorScheme.surface,
-                              )
-                            : Icon(
-                                Icons.label_outline,
-                                color: Theme.of(context).colorScheme.surface,
-                              ),
-                        onTap: () {
-                          setState(() => _selectedCategory = null);
-                          Navigator.pop(context);
-                        },
-                      ),
-                      const Divider(),
-                      ..._cat.map(
-                        (category) => ListTile(
-                          title: Text(category),
-                          leading: _selectedCategory == category
-                              ? Icon(
-                                  Icons.check,
-                                  color: Theme.of(context).colorScheme.primary,
-                                )
-                              : const Icon(Icons.label_outline),
-                          onTap: () {
-                            setState(() => _selectedCategory = category);
-                            Navigator.pop(context);
-                          },
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ],
+            return TagList(
+              tags: allCategories,
+              context: context,
+              scrollController: scrollController,
+              onTagSelected: (tag) {
+                setState(() {
+                  _selectedCategory = tag;
+                });
+                Navigator.pop(context);
+              },
+              selectedCategory: _selectedCategory,
             );
           },
         );
@@ -1924,109 +1858,34 @@ class _MovementsScreenState extends State<MovementsScreen>
       ..sort((a, b) => a.compareTo(b));
 
     await showModalBottomSheet(
+      showDragHandle: true,
       context: context,
       useSafeArea: true,
       isScrollControlled: true,
       builder: (BuildContext context) {
-        List<String> _cat = _filteredCategory != null || _filteredCategory != ""
-            ? allCategories
-                  .where(
-                    (category) => category.contains(_filteredCategory ?? ''),
-                  )
-                  .toList()
-            : allCategories;
         return DraggableScrollableSheet(
           expand: false,
           initialChildSize: 0.5,
           minChildSize: 0.3,
           maxChildSize: 0.85,
           builder: (context, scrollController) {
-            return Column(
-              children: [
-                Padding(
-                  padding: const EdgeInsets.all(16),
-                  child: Row(
-                    children: [
-                      const Icon(Icons.category),
-                      const SizedBox(width: 16),
-                      Text(
-                        AppLocalizations.of(context).changeCategory,
-                        style: Theme.of(context).textTheme.titleLarge,
-                      ),
-                    ],
-                  ),
-                ),
-                const Divider(),
-                Expanded(
-                  child: TextField(
-                    onChanged: (value) {
-                      setState(() {
-                        _filteredCategory = value;
-                      });
-                    },
-                  ),
-                ),
-                Expanded(
-                  child: ListView(
-                    controller: scrollController,
-                    children: [
-                      ..._cat.map(
-                        (category) => ListTile(
-                          title: Text(category),
-                          leading: movement.category == category
-                              ? Icon(
-                                  Icons.check,
-                                  color: Theme.of(context).colorScheme.primary,
-                                )
-                              : const Icon(Icons.label_outline),
-                          onTap: () async {
-                            final updatedMovement = MovementValue(
-                              movement.id,
-                              movement.monthId,
-                              movement.description,
-                              movement.amount,
-                              movement.isExpense,
-                              movement.day,
-                              category,
-                            ); // Show loading indicator
-                            if (!context.mounted) return;
-                            showDialog(
-                              context: context,
-                              barrierDismissible: false,
-                              builder: (context) =>
-                                  Center(child: Loading(context)),
-                            );
-                            await _financeService.updateMovement(
-                              updatedMovement,
-                            );
+            return TagList(
+              scrollController: scrollController,
+              tags: allCategories,
+              context: context,
+              onTagSelected: (tag) async {
+                movement.category = tag;
 
-                            // Call haveToUpload() after updating movement category
-                            await SharedPreferencesService().haveToUpload();
-
-                            // Close loading dialog and bottom sheet
-                            if (!context.mounted) return;
-                            Navigator.pop(context); // Close loading
-                            Navigator.pop(context); // Close bottom sheet
-
-                            // Show success message
-                            if (!context.mounted) return;
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              SnackBar(
-                                content: Text(
-                                  AppLocalizations.of(context)!.categoryUpdated(
-                                    updatedMovement.category ?? "",
-                                  ),
-                                ),
-                                behavior: SnackBarBehavior.floating,
-                              ),
-                            );
-                          },
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ],
+                if (!context.mounted) return;
+                showDialog(
+                  context: context,
+                  barrierDismissible: false,
+                  builder: (context) => Center(child: Loading(context)),
+                );
+                await _financeService.updateMovement(movement);
+                Navigator.pop(context);
+              },
+              selectedCategory: movement.category,
             );
           },
         );
