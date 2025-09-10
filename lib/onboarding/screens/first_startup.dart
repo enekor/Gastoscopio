@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:cashly/modules/gastoscopio/widgets/loading.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_markdown/flutter_markdown.dart';
@@ -105,7 +106,7 @@ class _FirstStartupScreenState extends State<FirstStartupScreen> {
                   future: _loadTermsFromAssets(),
                   builder: (context, snapshot) {
                     if (snapshot.connectionState == ConnectionState.waiting) {
-                      return const Center(child: CircularProgressIndicator());
+                      return Center(child: Loading(context));
                     }
 
                     return Markdown(

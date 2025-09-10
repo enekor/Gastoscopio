@@ -3,6 +3,7 @@ import 'package:cashly/data/services/shared_preferences_service.dart';
 import 'package:cashly/data/services/sqlite_service.dart';
 import 'package:cashly/data/models/movement_value.dart';
 import 'package:cashly/modules/gastoscopio/logic/finance_service.dart';
+import 'package:cashly/modules/gastoscopio/widgets/loading.dart';
 import 'package:flutter/material.dart';
 import 'package:cashly/l10n/app_localizations.dart';
 import 'package:fluttertoast/fluttertoast.dart';
@@ -144,8 +145,12 @@ class _MovementFormScreenState extends State<MovementFormScreen> {
         db.fixedMovementDao,
       );
 
-      int monthId = widget.movement?.monthId 
-                  ?? await financeService.findMonthByMonthAndYear(_selectedDate.month, _selectedDate.year);
+      int monthId =
+          widget.movement?.monthId ??
+          await financeService.findMonthByMonthAndYear(
+            _selectedDate.month,
+            _selectedDate.year,
+          );
 
       // Generate category if needed and not already set
       if (_category == null) {
@@ -475,15 +480,10 @@ class _MovementFormScreenState extends State<MovementFormScreen> {
                         ? Row(
                             mainAxisSize: MainAxisSize.min,
                             children: [
-                              const SizedBox(
+                              SizedBox(
                                 width: 16,
                                 height: 16,
-                                child: CircularProgressIndicator(
-                                  strokeWidth: 2,
-                                  valueColor: AlwaysStoppedAnimation<Color>(
-                                    Colors.white,
-                                  ),
-                                ),
+                                child: Loading(context),
                               ),
                               const SizedBox(width: 8),
                               Text(localizations.saving),

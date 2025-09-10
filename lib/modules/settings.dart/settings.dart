@@ -5,6 +5,7 @@ import 'package:cashly/data/services/locale_service.dart';
 import 'package:cashly/data/services/login_service.dart';
 import 'package:cashly/data/services/shared_preferences_service.dart';
 import 'package:cashly/data/services/sqlite_service.dart';
+import 'package:cashly/modules/gastoscopio/widgets/loading.dart';
 import 'package:cashly/modules/settings.dart/widgets/apikey-generator.dart';
 import 'package:cashly/modules/settings.dart/widgets/developer_options_widget.dart';
 import 'package:cashly/modules/settings.dart/widgets/backup_restore_widget.dart';
@@ -79,7 +80,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
             content: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
-                const CircularProgressIndicator(),
+                Loading(context),
                 const SizedBox(height: 16),
                 Text(
                   '${AppLocalizations.of(context)!.saving} ${result['Movements'].length} ${AppLocalizations.of(context)!.movements.toLowerCase()}',

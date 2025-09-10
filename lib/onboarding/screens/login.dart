@@ -1,4 +1,5 @@
 import 'package:cashly/data/services/login_service.dart';
+import 'package:cashly/modules/gastoscopio/widgets/loading.dart';
 import 'package:flutter/material.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:cashly/l10n/app_localizations.dart';
@@ -96,7 +97,7 @@ class _GoogleLoginScreenState extends State<GoogleLoginScreen> {
                         _buildStatusMessage(context),
                       if (_isLoading) ...[
                         const SizedBox(height: 24),
-                        const CircularProgressIndicator(),
+                        Loading(context),
                       ],
                     ],
                   ),
@@ -160,22 +161,20 @@ class _GoogleLoginScreenState extends State<GoogleLoginScreen> {
           children: [
             if (_currentUser != null) ...[
               CircleAvatar(
-                backgroundImage:
-                    _currentUser!.photoUrl != null
-                        ? NetworkImage(_currentUser!.photoUrl!)
-                        : null,
+                backgroundImage: _currentUser!.photoUrl != null
+                    ? NetworkImage(_currentUser!.photoUrl!)
+                    : null,
                 radius: 40,
                 backgroundColor: Theme.of(
                   context,
                 ).colorScheme.primary.withAlpha(25),
-                child:
-                    _currentUser!.photoUrl == null
-                        ? Icon(
-                          Icons.person,
-                          size: 40,
-                          color: Theme.of(context).colorScheme.primary,
-                        )
-                        : null,
+                child: _currentUser!.photoUrl == null
+                    ? Icon(
+                        Icons.person,
+                        size: 40,
+                        color: Theme.of(context).colorScheme.primary,
+                      )
+                    : null,
               ),
               const SizedBox(height: 16),
               Row(
@@ -317,36 +316,32 @@ class _GoogleLoginScreenState extends State<GoogleLoginScreen> {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color:
-            _isError
-                ? Theme.of(context).colorScheme.errorContainer
-                : Theme.of(context).colorScheme.primaryContainer,
+        color: _isError
+            ? Theme.of(context).colorScheme.errorContainer
+            : Theme.of(context).colorScheme.primaryContainer,
         borderRadius: BorderRadius.circular(12),
         border: Border.all(
-          color:
-              _isError
-                  ? Theme.of(context).colorScheme.error.withAlpha(50)
-                  : Theme.of(context).colorScheme.primary.withAlpha(50),
+          color: _isError
+              ? Theme.of(context).colorScheme.error.withAlpha(50)
+              : Theme.of(context).colorScheme.primary.withAlpha(50),
         ),
       ),
       child: Row(
         children: [
           Icon(
             _isError ? Icons.error_outline : Icons.check_circle_outline,
-            color:
-                _isError
-                    ? Theme.of(context).colorScheme.error
-                    : Theme.of(context).colorScheme.primary,
+            color: _isError
+                ? Theme.of(context).colorScheme.error
+                : Theme.of(context).colorScheme.primary,
           ),
           const SizedBox(width: 12),
           Expanded(
             child: Text(
               _statusMessage,
               style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                color:
-                    _isError
-                        ? Theme.of(context).colorScheme.onErrorContainer
-                        : Theme.of(context).colorScheme.onPrimaryContainer,
+                color: _isError
+                    ? Theme.of(context).colorScheme.onErrorContainer
+                    : Theme.of(context).colorScheme.onPrimaryContainer,
               ),
             ),
           ),

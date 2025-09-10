@@ -7,6 +7,7 @@ import 'package:cashly/data/models/fixed_movement.dart';
 import 'package:cashly/data/services/shared_preferences_service.dart';
 import 'package:cashly/data/services/sqlite_service.dart';
 import 'package:cashly/l10n/app_localizations.dart';
+import 'package:cashly/modules/gastoscopio/widgets/loading.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
@@ -375,7 +376,7 @@ class FinanceService extends ChangeNotifier {
       showDialog(
         context: context,
         barrierDismissible: false,
-        builder: (context) => const Center(child: CircularProgressIndicator()),
+        builder: (context) => Center(child: Loading(context)),
       );
       await _movementValueDao.deleteMovementValue(movement);
       await _updateMonthData();
@@ -559,18 +560,14 @@ class FinanceService extends ChangeNotifier {
     return month!.id!;
   }
 
-  Future<int> findMonthByMonthAndYear(int month, int year) async{
+  Future<int> findMonthByMonthAndYear(int month, int year) async {
     final db = SqliteService().db;
-    Month? _month = await db.monthDao.findMonthByMonthAndYear(
-        month,
-        year,
-      );
+    Month? _month = await db.monthDao.findMonthByMonthAndYear(month, year);
 
-    if(_month == null){
-      return _createMonth(DateTime(year,month,1));
+    if (_month == null) {
+      return _createMonth(DateTime(year, month, 1));
     }
 
     return _month.id!;
-
   }
 }

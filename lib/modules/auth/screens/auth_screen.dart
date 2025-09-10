@@ -1,3 +1,4 @@
+import 'package:cashly/modules/gastoscopio/widgets/loading.dart';
 import 'package:cashly/modules/main_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:cashly/data/services/auth_service.dart';
@@ -32,14 +33,13 @@ class _AuthScreenState extends State<AuthScreen> {
       if (useBiometrics && await _authService.isBiometricsAvailable()) {
         final success = await _authService.authenticateWithBiometrics(
           localizedReason: AppLocalizations.of(context).authenticateToAccess,
-          onError:
-              (p0) => ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(
-                  content: Text(p0),
-                  backgroundColor: Theme.of(context).colorScheme.error,
-                  behavior: SnackBarBehavior.floating,
-                ),
-              ),
+          onError: (p0) => ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(p0),
+              backgroundColor: Theme.of(context).colorScheme.error,
+              behavior: SnackBarBehavior.floating,
+            ),
+          ),
         );
 
         if (success && mounted) {
@@ -147,14 +147,9 @@ class _AuthScreenState extends State<AuthScreen> {
               const SizedBox(height: 24),
               FilledButton(
                 onPressed: _isLoading ? null : _verifyPin,
-                child:
-                    _isLoading
-                        ? const SizedBox(
-                          height: 20,
-                          width: 20,
-                          child: CircularProgressIndicator(strokeWidth: 2),
-                        )
-                        : Text(AppLocalizations.of(context).verify),
+                child: _isLoading
+                    ? SizedBox(height: 20, width: 20, child: Loading(context))
+                    : Text(AppLocalizations.of(context).verify),
               ),
               const SizedBox(height: 16),
               FutureBuilder<bool>(

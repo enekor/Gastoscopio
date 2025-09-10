@@ -1,3 +1,4 @@
+import 'package:cashly/modules/gastoscopio/widgets/loading.dart';
 import 'package:flutter/material.dart';
 import 'package:dropdown_button2/dropdown_button2.dart';
 import 'package:fl_chart/fl_chart.dart';
@@ -46,13 +47,12 @@ class MonthYearSelector extends StatelessWidget {
           flex: 4,
           child: DropdownButton2<int>(
             value: selectedYear,
-            items:
-                availableYears.map((year) {
-                  return DropdownMenuItem(
-                    value: year,
-                    child: Text(year.toString()),
-                  );
-                }).toList(),
+            items: availableYears.map((year) {
+              return DropdownMenuItem(
+                value: year,
+                child: Text(year.toString()),
+              );
+            }).toList(),
             onChanged: (value) => onYearChanged(value!),
             underline: const SizedBox(),
             buttonStyleData: ButtonStyleData(
@@ -70,13 +70,12 @@ class MonthYearSelector extends StatelessWidget {
           flex: 6,
           child: DropdownButton2<int>(
             value: selectedMonth,
-            items:
-                availableMonths.map((month) {
-                  return DropdownMenuItem(
-                    value: month,
-                    child: Text(monthNames[month - 1]),
-                  );
-                }).toList(),
+            items: availableMonths.map((month) {
+              return DropdownMenuItem(
+                value: month,
+                child: Text(monthNames[month - 1]),
+              );
+            }).toList(),
             onChanged: (value) => onMonthChanged(value!),
             underline: const SizedBox(),
             buttonStyleData: ButtonStyleData(
@@ -123,10 +122,9 @@ class MovementCard extends StatelessWidget {
             '${isExpense ? '-' : '+'}${amount.toStringAsFixed(2)}${moneda}',
             textAlign: TextAlign.end,
             style: TextStyle(
-              color:
-                  isExpense
-                      ? Theme.of(context).colorScheme.error
-                      : Theme.of(context).colorScheme.primary,
+              color: isExpense
+                  ? Theme.of(context).colorScheme.error
+                  : Theme.of(context).colorScheme.primary,
               fontWeight: FontWeight.bold,
               fontSize: 16,
             ),
@@ -176,9 +174,7 @@ class YearlyChart extends StatelessWidget {
                         future: service.getYearlyData(year),
                         builder: (context, snapshot) {
                           if (!snapshot.hasData) {
-                            return const Center(
-                              child: CircularProgressIndicator(),
-                            );
+                            return Center(child: Loading(context));
                           }
 
                           final yearlyData = snapshot.data!;
@@ -268,13 +264,12 @@ class YearlyChart extends StatelessWidget {
                               lineBarsData: [
                                 // Línea de gastos (roja)
                                 LineChartBarData(
-                                  spots:
-                                      yearlyData.asMap().entries.map((e) {
-                                        return FlSpot(
-                                          e.key.toDouble(),
-                                          e.value['expenses']!,
-                                        );
-                                      }).toList(),
+                                  spots: yearlyData.asMap().entries.map((e) {
+                                    return FlSpot(
+                                      e.key.toDouble(),
+                                      e.value['expenses']!,
+                                    );
+                                  }).toList(),
                                   isCurved: true,
                                   color: Theme.of(context).colorScheme.error,
                                   barWidth: 2.5,
@@ -284,10 +279,9 @@ class YearlyChart extends StatelessWidget {
                                         (spot, percent, barData, index) =>
                                             FlDotCirclePainter(
                                               radius: 4,
-                                              color:
-                                                  Theme.of(
-                                                    context,
-                                                  ).colorScheme.error,
+                                              color: Theme.of(
+                                                context,
+                                              ).colorScheme.error,
                                               strokeWidth: 1,
                                               strokeColor: Theme.of(context)
                                                   .colorScheme
@@ -304,13 +298,12 @@ class YearlyChart extends StatelessWidget {
                                 ),
                                 // Línea de ingresos (verde)
                                 LineChartBarData(
-                                  spots:
-                                      yearlyData.asMap().entries.map((e) {
-                                        return FlSpot(
-                                          e.key.toDouble(),
-                                          e.value['incomes']!,
-                                        );
-                                      }).toList(),
+                                  spots: yearlyData.asMap().entries.map((e) {
+                                    return FlSpot(
+                                      e.key.toDouble(),
+                                      e.value['incomes']!,
+                                    );
+                                  }).toList(),
                                   isCurved: true,
                                   color: Colors.green,
                                   barWidth: 2.5,

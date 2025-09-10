@@ -1,6 +1,7 @@
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:cashly/data/services/shared_preferences_service.dart';
 import 'package:cashly/l10n/app_localizations.dart';
+import 'package:cashly/modules/gastoscopio/widgets/loading.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -290,12 +291,9 @@ class _ApiKeyGeneratorState extends State<ApiKeyGenerator> {
                   margin: const EdgeInsets.symmetric(horizontal: 4.0),
                   decoration: BoxDecoration(
                     shape: BoxShape.circle,
-                    color:
-                        _currentIndex == index
-                            ? Theme.of(
-                              context,
-                            ).colorScheme.primary.withAlpha(45)
-                            : Colors.grey.shade300,
+                    color: _currentIndex == index
+                        ? Theme.of(context).colorScheme.primary.withAlpha(45)
+                        : Colors.grey.shade300,
                   ),
                 ),
               ),
@@ -303,9 +301,8 @@ class _ApiKeyGeneratorState extends State<ApiKeyGenerator> {
             const SizedBox(height: 16),
             Center(
               child: ElevatedButton.icon(
-                onPressed:
-                    () =>
-                        _launchUrl('https://makersuite.google.com/app/apikey'),
+                onPressed: () =>
+                    _launchUrl('https://makersuite.google.com/app/apikey'),
                 icon: const Icon(Icons.open_in_new),
                 label: Text(AppLocalizations.of(context)!.goToGoogleAiStudio),
               ),
@@ -319,20 +316,18 @@ class _ApiKeyGeneratorState extends State<ApiKeyGenerator> {
                   labelText: AppLocalizations.of(context)!.googleApiKey,
                   border: const OutlineInputBorder(),
                   suffixIcon: IconButton(
-                    icon:
-                        _isSaving
-                            ? const SizedBox(
-                              width: 16,
-                              height: 16,
-                              child: CircularProgressIndicator(strokeWidth: 2),
-                            )
-                            : const Icon(Icons.save),
-                    onPressed:
-                        _isSaving
-                            ? null
-                            : () async {
-                              await _saveApiKey();
-                            },
+                    icon: _isSaving
+                        ? SizedBox(
+                            width: 16,
+                            height: 16,
+                            child: Loading(context),
+                          )
+                        : const Icon(Icons.save),
+                    onPressed: _isSaving
+                        ? null
+                        : () async {
+                            await _saveApiKey();
+                          },
                   ),
                 ),
               ),

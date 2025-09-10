@@ -1,3 +1,4 @@
+import 'package:cashly/modules/gastoscopio/widgets/loading.dart';
 import 'package:flutter/material.dart';
 import 'package:cashly/data/services/login_service.dart';
 import 'package:cashly/l10n/app_localizations.dart';
@@ -111,14 +112,13 @@ class _BackupRestoreWidgetState extends State<BackupRestoreWidget> {
                   width: double.infinity,
                   child: ElevatedButton.icon(
                     onPressed: _isLoading ? null : _performBackup,
-                    icon:
-                        _isLoading
-                            ? const SizedBox(
-                              width: 16,
-                              height: 16,
-                              child: CircularProgressIndicator(strokeWidth: 2),
-                            )
-                            : const Icon(Icons.cloud_upload),
+                    icon: _isLoading
+                        ? SizedBox(
+                            width: 16,
+                            height: 16,
+                            child: Loading(context),
+                          )
+                        : const Icon(Icons.cloud_upload),
                     label: Text(_isLoading ? 'Subiendo...' : 'Hacer Backup'),
                     style: ElevatedButton.styleFrom(
                       backgroundColor: Theme.of(context).colorScheme.primary,
@@ -137,14 +137,13 @@ class _BackupRestoreWidgetState extends State<BackupRestoreWidget> {
                   width: double.infinity,
                   child: OutlinedButton.icon(
                     onPressed: _isLoading ? null : _checkAndRestoreBackup,
-                    icon:
-                        _isLoading
-                            ? const SizedBox(
-                              width: 16,
-                              height: 16,
-                              child: CircularProgressIndicator(strokeWidth: 2),
-                            )
-                            : const Icon(Icons.cloud_download),
+                    icon: _isLoading
+                        ? SizedBox(
+                            width: 16,
+                            height: 16,
+                            child: Loading(context),
+                          )
+                        : const Icon(Icons.cloud_download),
                     label: Text(
                       _isLoading ? 'Verificando...' : 'Restaurar desde Backup',
                     ),
@@ -186,13 +185,13 @@ class _BackupRestoreWidgetState extends State<BackupRestoreWidget> {
                       Expanded(
                         child: Text(
                           'Los datos se guardan en tu Google Drive personal. Te recomendamos hacer backups periódicos.',
-                          style: Theme.of(
-                            context,
-                          ).textTheme.bodySmall?.copyWith(
-                            color:
-                                Theme.of(context).colorScheme.onSurfaceVariant,
-                            fontSize: 12,
-                          ),
+                          style: Theme.of(context).textTheme.bodySmall
+                              ?.copyWith(
+                                color: Theme.of(
+                                  context,
+                                ).colorScheme.onSurfaceVariant,
+                                fontSize: 12,
+                              ),
                         ),
                       ),
                     ],
@@ -221,11 +220,11 @@ class _BackupRestoreWidgetState extends State<BackupRestoreWidget> {
         loadingDialogShown = true;
         return PopScope(
           canPop: false, // Prevenir cierre accidental
-          child: const AlertDialog(
+          child: AlertDialog(
             content: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
-                CircularProgressIndicator(),
+                Loading(context),
                 SizedBox(height: 16),
                 Text('Subiendo datos a Google Drive...'),
                 SizedBox(height: 8),
@@ -259,10 +258,9 @@ class _BackupRestoreWidgetState extends State<BackupRestoreWidget> {
         _showResultDialog(
           success: success,
           title: success ? 'Backup Exitoso' : 'Error en Backup',
-          message:
-              success
-                  ? 'Tus datos han sido guardados exitosamente en Google Drive.'
-                  : 'Hubo un problema al subir los datos. Verifica tu conexión a internet e inténtalo de nuevo.',
+          message: success
+              ? 'Tus datos han sido guardados exitosamente en Google Drive.'
+              : 'Hubo un problema al subir los datos. Verifica tu conexión a internet e inténtalo de nuevo.',
           icon: success ? Icons.check_circle : Icons.error,
           color: success ? Colors.green : Colors.red,
         );
@@ -403,11 +401,11 @@ class _BackupRestoreWidgetState extends State<BackupRestoreWidget> {
           loadingDialogShown = true;
           return PopScope(
             canPop: false, // Prevenir cierre accidental
-            child: const AlertDialog(
+            child: AlertDialog(
               content: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  CircularProgressIndicator(),
+                  Loading(context),
                   SizedBox(height: 16),
                   Text('Restaurando datos...'),
                   SizedBox(height: 8),

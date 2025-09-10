@@ -1,5 +1,6 @@
 import 'package:cashly/data/models/month.dart';
 import 'package:cashly/l10n/app_localizations.dart';
+import 'package:cashly/modules/gastoscopio/widgets/loading.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:cashly/data/services/sqlite_service.dart';
@@ -304,12 +305,12 @@ class _DeveloperOptionsWidgetState extends State<DeveloperOptionsWidget> {
                         const SizedBox(height: 8),
                         Text(
                           AppLocalizations.of(context)!.importFromJsonSubtitle,
-                          style: Theme.of(
-                            context,
-                          ).textTheme.bodySmall?.copyWith(
-                            color:
-                                Theme.of(context).colorScheme.onSurfaceVariant,
-                          ),
+                          style: Theme.of(context).textTheme.bodySmall
+                              ?.copyWith(
+                                color: Theme.of(
+                                  context,
+                                ).colorScheme.onSurfaceVariant,
+                              ),
                         ),
                         const SizedBox(height: 16),
                         ImportFromGastoscopioScreen(
@@ -350,24 +351,22 @@ class _DeveloperOptionsWidgetState extends State<DeveloperOptionsWidget> {
                             const SizedBox(width: 8),
                             Text(
                               AppLocalizations.of(context)!.deleteDatabase,
-                              style: Theme.of(
-                                context,
-                              ).textTheme.titleSmall?.copyWith(
-                                fontWeight: FontWeight.w600,
-                                color: Theme.of(context).colorScheme.error,
-                              ),
+                              style: Theme.of(context).textTheme.titleSmall
+                                  ?.copyWith(
+                                    fontWeight: FontWeight.w600,
+                                    color: Theme.of(context).colorScheme.error,
+                                  ),
                             ),
                           ],
                         ),
                         const SizedBox(height: 8),
                         Text(
                           AppLocalizations.of(context)!.deleteDatabaseSubtitle,
-                          style: Theme.of(
-                            context,
-                          ).textTheme.bodySmall?.copyWith(
-                            color: Theme.of(context).colorScheme.error,
-                            fontWeight: FontWeight.w500,
-                          ),
+                          style: Theme.of(context).textTheme.bodySmall
+                              ?.copyWith(
+                                color: Theme.of(context).colorScheme.error,
+                                fontWeight: FontWeight.w500,
+                              ),
                         ),
                         const SizedBox(height: 16),
                         Container(
@@ -396,15 +395,13 @@ class _DeveloperOptionsWidgetState extends State<DeveloperOptionsWidget> {
                                   AppLocalizations.of(
                                     context,
                                   )!.dbDeleteRecomendation,
-                                  style: Theme.of(
-                                    context,
-                                  ).textTheme.bodySmall?.copyWith(
-                                    color:
-                                        Theme.of(
+                                  style: Theme.of(context).textTheme.bodySmall
+                                      ?.copyWith(
+                                        color: Theme.of(
                                           context,
                                         ).colorScheme.onSurfaceVariant,
-                                    fontSize: 12,
-                                  ),
+                                        fontSize: 12,
+                                      ),
                                 ),
                               ),
                             ],
@@ -415,30 +412,25 @@ class _DeveloperOptionsWidgetState extends State<DeveloperOptionsWidget> {
                           width: double.infinity,
                           child: ElevatedButton.icon(
                             onPressed: _isClearing ? null : _clearDatabase,
-                            icon:
-                                _isClearing
-                                    ? const SizedBox(
-                                      width: 16,
-                                      height: 16,
-                                      child: CircularProgressIndicator(
-                                        strokeWidth: 2,
-                                        valueColor:
-                                            AlwaysStoppedAnimation<Color>(
-                                              Colors.white,
-                                            ),
-                                      ),
-                                    )
-                                    : const Icon(Icons.delete_forever),
+                            icon: _isClearing
+                                ? SizedBox(
+                                    width: 16,
+                                    height: 16,
+                                    child: Loading(context),
+                                  )
+                                : const Icon(Icons.delete_forever),
                             label: Text(
                               _isClearing
                                   ? AppLocalizations.of(context)!.cleaning
                                   : AppLocalizations.of(context)!.cleanAllData,
                             ),
                             style: ElevatedButton.styleFrom(
-                              backgroundColor:
-                                  Theme.of(context).colorScheme.error,
-                              foregroundColor:
-                                  Theme.of(context).colorScheme.onError,
+                              backgroundColor: Theme.of(
+                                context,
+                              ).colorScheme.error,
+                              foregroundColor: Theme.of(
+                                context,
+                              ).colorScheme.onError,
                               padding: const EdgeInsets.symmetric(vertical: 12),
                               shape: RoundedRectangleBorder(
                                 borderRadius: BorderRadius.circular(12),

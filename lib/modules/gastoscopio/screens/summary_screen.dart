@@ -4,6 +4,7 @@ import 'package:cashly/data/models/month.dart';
 import 'package:cashly/data/services/gemini_service.dart';
 import 'package:cashly/modules/gastoscopio/logic/finance_service.dart';
 import 'package:cashly/modules/gastoscopio/widgets/category_progress_chart.dart';
+import 'package:cashly/modules/gastoscopio/widgets/loading.dart';
 import 'package:cashly/modules/gastoscopio/widgets/month_grid_selector.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
@@ -186,9 +187,7 @@ class _SummaryScreenState extends State<SummaryScreen>
                       builder: (context, snapshot) {
                         if (snapshot.connectionState ==
                             ConnectionState.waiting) {
-                          return const Center(
-                            child: CircularProgressIndicator(),
-                          );
+                          return Center(child: Loading(context));
                         }
 
                         if (!snapshot.hasData || snapshot.data!.isEmpty) {
@@ -253,7 +252,7 @@ class _SummaryScreenState extends State<SummaryScreen>
               if (_hasData)
                 _buildEmptyState()
               else if (_isLoadingAnalysis)
-                const Center(child: CircularProgressIndicator())
+                Center(child: Loading(context))
               else
                 Expanded(
                   child: Card(

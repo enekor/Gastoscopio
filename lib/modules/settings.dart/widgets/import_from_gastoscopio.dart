@@ -3,6 +3,7 @@ import 'package:cashly/data/models/movement_value.dart';
 import 'package:cashly/data/services/json_import_service.dart';
 import 'package:cashly/data/services/shared_preferences_service.dart';
 import 'package:cashly/data/services/sqlite_service.dart';
+import 'package:cashly/modules/gastoscopio/widgets/loading.dart';
 import 'package:cashly/modules/main_screen.dart';
 import 'package:flutter/material.dart';
 
@@ -147,17 +148,12 @@ class _ImportFromGastoscopioScreenState
                 // Import Button
                 ElevatedButton.icon(
                   onPressed: _isLoading ? null : _handleFileSelection,
-                  icon:
-                      _isLoading
-                          ? SizedBox(
-                            width: 20,
-                            height: 20,
-                            child: CircularProgressIndicator(strokeWidth: 2),
-                          )
-                          : Padding(
-                            padding: const EdgeInsets.only(left: 16.0),
-                            child: Icon(Icons.folder_open),
-                          ),
+                  icon: _isLoading
+                      ? SizedBox(width: 20, height: 20, child: Loading(context))
+                      : Padding(
+                          padding: const EdgeInsets.only(left: 16.0),
+                          child: Icon(Icons.folder_open),
+                        ),
                   label: Padding(
                     padding: const EdgeInsets.only(right: 16.0),
                     child: Text(

@@ -2,6 +2,7 @@ import 'package:cashly/data/services/gemini_service.dart';
 import 'package:cashly/data/services/shared_preferences_service.dart';
 import 'package:cashly/data/services/sqlite_service.dart';
 import 'package:cashly/modules/gastoscopio/screens/movement_form_screen.dart';
+import 'package:cashly/modules/gastoscopio/widgets/loading.dart';
 import 'package:cashly/modules/gastoscopio/widgets/main_screen_widgets.dart';
 import 'package:cashly/modules/gastoscopio/widgets/movement_tile.dart';
 import 'package:cashly/common/tag_list.dart' show getTagList;
@@ -143,7 +144,8 @@ class _MovementsScreenState extends State<MovementsScreen>
   }
 
   Future<void> _deleteAllTags() async {
-    bool delete = await showDialog<bool>(
+    bool delete =
+        await showDialog<bool>(
           context: context,
           builder: (context) => AlertDialog(
             title: Text(AppLocalizations.of(context).confrmTagDelete),
@@ -260,7 +262,7 @@ class _MovementsScreenState extends State<MovementsScreen>
   @override
   Widget build(BuildContext context) {
     if (_isLoading) {
-      return const Scaffold(body: Center(child: CircularProgressIndicator()));
+      return Scaffold(body: Center(child: Loading(context)));
     }
 
     final filteredMovements = _filterMovements(_cachedMovements);
@@ -1677,7 +1679,11 @@ class _MovementsScreenState extends State<MovementsScreen>
     final allCategories = {...existingCategories, ...localizedTags}.toList()
       ..sort((a, b) => a.compareTo(b));
 
-    List<String> _cat = _filteredCategory != null || _filteredCategory != "" ? allCategories.where((category) => category.contains(_filteredCategory ?? '')).toList() : allCategories;
+    List<String> _cat = _filteredCategory != null || _filteredCategory != ""
+        ? allCategories
+              .where((category) => category.contains(_filteredCategory ?? ''))
+              .toList()
+        : allCategories;
 
     showModalBottomSheet(
       context: context,
@@ -1710,12 +1716,15 @@ class _MovementsScreenState extends State<MovementsScreen>
                 ),
                 const Divider(),
                 Expanded(
-                  child: TextField(
-                    onChanged: (value) {
-                      setState(() {
-                        _filteredCategory = value;
-                      });
-                    },
+                  child: SizedBox(
+                    height: 20,
+                    child: TextField(
+                      onChanged: (value) {
+                        setState(() {
+                          _filteredCategory = value;
+                        });
+                      },
+                    ),
                   ),
                 ),
                 Expanded(
@@ -1919,7 +1928,13 @@ class _MovementsScreenState extends State<MovementsScreen>
       useSafeArea: true,
       isScrollControlled: true,
       builder: (BuildContext context) {
-        List<String> _cat = _filteredCategory != null || _filteredCategory != "" ? allCategories.where((category) => category.contains(_filteredCategory ?? '')).toList() : allCategories;
+        List<String> _cat = _filteredCategory != null || _filteredCategory != ""
+            ? allCategories
+                  .where(
+                    (category) => category.contains(_filteredCategory ?? ''),
+                  )
+                  .toList()
+            : allCategories;
         return DraggableScrollableSheet(
           expand: false,
           initialChildSize: 0.5,
@@ -1978,9 +1993,8 @@ class _MovementsScreenState extends State<MovementsScreen>
                             showDialog(
                               context: context,
                               barrierDismissible: false,
-                              builder: (context) => const Center(
-                                child: CircularProgressIndicator(),
-                              ),
+                              builder: (context) =>
+                                  Center(child: Loading(context)),
                             );
                             await _financeService.updateMovement(
                               updatedMovement,
