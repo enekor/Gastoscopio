@@ -1248,6 +1248,8 @@
   "biometricAuthFailed": "Autenticación biométrica fallida",
   "showSummary": "¿Cómo ha ido el mes?",
   "confrmTagDelete":"Borrar categorias",
-  "confirmDeleteAllTags":"¿Quieres borrar las categorias de los movimientos de este mes?"
+  "confirmDeleteAllTags":"¿Quieres borrar las categorias de los movimientos de este mes?",
+  "migrateMonth":"Migrar a otro mes",
+  "selectMonthToMigrate":"Solo se cogerá el mes, no el dia seleccinado"
 
 }

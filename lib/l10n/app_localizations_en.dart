@@ -1024,4 +1024,11 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get confirmDeleteAllTags =>
       'Do you want to delete all the tags from this month\'s movements?';
+
+  @override
+  String get migrateMonth => 'Migrate to another month';
+
+  @override
+  String get selectMonthToMigrate =>
+      'It only takes the month, not the selected day';
 }

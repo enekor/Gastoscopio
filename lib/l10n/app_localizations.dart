@@ -1975,6 +1975,18 @@ abstract class AppLocalizations {
   /// In es, this message translates to:
   /// **'¿Quieres borrar las categorias de los movimientos de este mes?'**
   String get confirmDeleteAllTags;
+
+  /// No description provided for @migrateMonth.
+  ///
+  /// In es, this message translates to:
+  /// **'Migrar a otro mes'**
+  String get migrateMonth;
+
+  /// No description provided for @selectMonthToMigrate.
+  ///
+  /// In es, this message translates to:
+  /// **'Solo se cogerá el mes, no el dia seleccinado'**
+  String get selectMonthToMigrate;
 }
 
 class _AppLocalizationsDelegate

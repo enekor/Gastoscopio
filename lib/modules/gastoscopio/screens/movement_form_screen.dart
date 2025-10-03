@@ -1,3 +1,4 @@
+import 'package:cashly/data/models/month.dart';
 import 'package:cashly/data/services/gemini_service.dart';
 import 'package:cashly/data/services/shared_preferences_service.dart';
 import 'package:cashly/data/services/sqlite_service.dart';
@@ -29,6 +30,7 @@ class _MovementFormScreenState extends State<MovementFormScreen> {
   final _descriptionFocus = FocusNode();
   final _amountFocus = FocusNode();
   bool _isKeyboardVisible = false;
+  bool _showDatePicker = true;
 
   void _onFocusChange() {
     setState(() {
@@ -45,8 +47,19 @@ class _MovementFormScreenState extends State<MovementFormScreen> {
       _descriptionController.text = widget.movement!.description;
       _amountController.text = widget.movement!.amount.toStringAsFixed(2);
       widget.isExpense = widget.movement!.isExpense;
-      _selectedDate = DateTime.now().copyWith(day: widget.movement!.day);
+
+      SqliteService().db.monthDao.findMonthById(widget.movement!.monthId).then((
+        value,
+      ) {
+        _selectedDate = DateTime(
+          value!.year,
+          value.month,
+          widget.movement!.day,
+        );
+      });
+
       _category = widget.movement!.category;
+      _showDatePicker = false;
     }
     SharedPreferencesService()
         .getStringValue(SharedPreferencesKeys.currency)
@@ -78,6 +91,39 @@ class _MovementFormScreenState extends State<MovementFormScreen> {
         _selectedDate = picked;
       });
     }
+  }
+
+  Future<void> _migrateMonth(BuildContext context) async {
+    DateTime _month = DateTime.now();
+    final DateTime? picked = await showDatePicker(
+      helpText: AppLocalizations.of(context)!.selectMonthToMigrate,
+      context: context,
+      initialDate: _selectedDate,
+      firstDate: DateTime(2020),
+      lastDate: DateTime.now(),
+    );
+    if (picked != null && picked != _selectedDate) {
+      setState(() {
+        _month = picked;
+      });
+    }
+
+    FinanceService financeService = FinanceService.getInstance(
+      SqliteService().db.monthDao,
+      SqliteService().db.movementValueDao,
+      SqliteService().db.fixedMovementDao,
+    );
+
+    await financeService.migrateMonth(
+      context,
+      widget.movement!,
+      _month.month,
+      _month.year,
+    );
+
+    setState(() {
+      Navigator.pop(context);
+    });
   }
 
   Future<void> _saveMovement(BuildContext context) async {
@@ -465,14 +511,25 @@ class _MovementFormScreenState extends State<MovementFormScreen> {
                   ),
                   const SizedBox(height: 16),
 
-                  // Selector de fecha
-                  OutlinedButton.icon(
-                    onPressed: () => _selectDate(context),
-                    icon: const Icon(Icons.calendar_today),
-                    label: Text(
-                      '${localizations.date}: ${_selectedDate.day}/${_selectedDate.month}/${_selectedDate.year}',
+                  if (_showDatePicker) ...[
+                    // Selector de fecha
+                    OutlinedButton.icon(
+                      onPressed: () => _selectDate(context),
+                      icon: const Icon(Icons.calendar_today),
+                      label: Text(
+                        '${localizations.date}: ${_selectedDate.day}/${_selectedDate.month}/${_selectedDate.year}',
+                      ),
                     ),
-                  ),
+                  ],
+
+                  if (!_showDatePicker) ...[
+                    OutlinedButton.icon(
+                      onPressed: () => _migrateMonth(context),
+                      icon: const Icon(Icons.calendar_today),
+                      label: Text(localizations.migrateMonth),
+                    ),
+                  ],
+
                   const SizedBox(height: 16), // Botón de guardar
                   FilledButton(
                     onPressed: _isLoading ? null : () => _saveMovement(context),

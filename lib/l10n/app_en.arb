@@ -341,5 +341,7 @@
   "signingOut": "Signing out...",
   "showSummary": "Monthly insights.",
   "confrmTagDelete":"Delete categories",
-  "confirmDeleteAllTags":"Do you want to delete all the tags from this month's movements?"
+  "confirmDeleteAllTags":"Do you want to delete all the tags from this month's movements?",
+  "migrateMonth":"Migrate to another month",
+  "selectMonthToMigrate":"It only takes the month, not the selected day"
 }

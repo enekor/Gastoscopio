@@ -570,4 +570,27 @@ class FinanceService extends ChangeNotifier {
 
     return _month.id!;
   }
+
+  Future<void> migrateMonth(
+    BuildContext context,
+    MovementValue movementValue,
+    int month,
+    int year,
+  ) async {
+    final newMonthId = await findMonthByMonthAndYear(month, year);
+    final updatedMovement = MovementValue(
+      movementValue.id,
+      newMonthId,
+      movementValue.description,
+      movementValue.amount,
+      movementValue.isExpense,
+      movementValue.day,
+      movementValue.category,
+    );
+    await _movementValueDao.updateMovementValue(updatedMovement);
+    await _updateMonthData();
+    notifyListeners();
+    // Call haveToUpload() after updating movement
+    await SharedPreferencesService().haveToUpload();
+  }
 }

@@ -1039,4 +1039,11 @@ class AppLocalizationsEs extends AppLocalizations {
   @override
   String get confirmDeleteAllTags =>
       '¿Quieres borrar las categorias de los movimientos de este mes?';
+
+  @override
+  String get migrateMonth => 'Migrar a otro mes';
+
+  @override
+  String get selectMonthToMigrate =>
+      'Solo se cogerá el mes, no el dia seleccinado';
 }
