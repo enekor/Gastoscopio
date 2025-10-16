@@ -7,7 +7,7 @@ class Saves {
 
   final int monthId;
   final double amount;
-
+  DateTime date;
   final bool isInitialValue;
 
   Saves({
@@ -15,6 +15,7 @@ class Saves {
     required this.monthId,
     required this.amount,
     required this.isInitialValue,
+    required this.date,
   });
 
   Map<String, dynamic> toJson() {
@@ -22,6 +23,7 @@ class Saves {
       'monthId': monthId,
       'amount': amount,
       'isInitialValue': isInitialValue,
+      'date': date,
     };
   }
 }

@@ -29,7 +29,8 @@ abstract class AppDatabase extends FloorDatabase {
       'id INTEGER PRIMARY KEY AUTOINCREMENT, '
       'monthId INTEGER NOT NULL, '
       'amount REAL NOT NULL, '
-      'isInitialValue INTEGER NOT NULL CHECK (isInitialValue IN (0, 1))'
+      'isInitialValue INTEGER NOT NULL CHECK (isInitialValue IN (0, 1)), '
+      'date TEXT NOT NULL'
       ')',
     );
   });
