@@ -5,6 +5,8 @@ import 'package:cashly/data/dao/movement_value_dao.dart';
 import 'package:cashly/data/models/movement_value.dart';
 import 'package:cashly/data/dao/fixed_movement_dao.dart';
 import 'package:cashly/data/models/fixed_movement.dart';
+import 'package:cashly/data/models/saves.dart';
+import 'package:cashly/data/dao/saves_dao.dart';
 import 'package:floor/floor.dart';
 import 'package:sqflite/sqflite.dart' as sqflite;
 import 'package:cashly/data/dao/month_dao.dart';
@@ -13,11 +15,24 @@ import 'package:path/path.dart' as p;
 
 part 'sqlite_service.g.dart';
 
-@Database(version: 3, entities: [Month, MovementValue, FixedMovement])
+@Database(version: 4, entities: [Month, MovementValue, FixedMovement, Saves])
 abstract class AppDatabase extends FloorDatabase {
   MonthDao get monthDao;
   MovementValueDao get movementValueDao;
   FixedMovementDao get fixedMovementDao;
+  SavesDao get savesDao;
+
+  static Migration migration3to4 = Migration(3, 4, (database) async {
+    // Create Saves table
+    await database.execute(
+      'CREATE TABLE IF NOT EXISTS Saves ('
+      'id INTEGER PRIMARY KEY AUTOINCREMENT, '
+      'monthId INTEGER NOT NULL, '
+      'amount REAL NOT NULL, '
+      'isInitialValue INTEGER NOT NULL CHECK (isInitialValue IN (0, 1))'
+      ')',
+    );
+  });
 }
 
 class SqliteService {
@@ -102,6 +117,7 @@ class SqliteService {
           await $FloorAppDatabase
               .databaseBuilder(path)
               .addCallback(callback)
+              .addMigrations([AppDatabase.migration3to4])
               .build();
 
       isInitialized = true;

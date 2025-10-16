@@ -78,13 +78,15 @@ class _$AppDatabase extends AppDatabase {
 
   FixedMovementDao? _fixedMovementDaoInstance;
 
+  SavesDao? _savesDaoInstance;
+
   Future<sqflite.Database> open(
     String path,
     List<Migration> migrations, [
     Callback? callback,
   ]) async {
     final databaseOptions = sqflite.OpenDatabaseOptions(
-      version: 3,
+      version: 4,
       onConfigure: (database) async {
         await database.execute('PRAGMA foreign_keys = ON');
         await callback?.onConfigure?.call(database);
@@ -105,6 +107,8 @@ class _$AppDatabase extends AppDatabase {
             'CREATE TABLE IF NOT EXISTS `MovementValue` (`id` INTEGER PRIMARY KEY AUTOINCREMENT, `monthId` INTEGER NOT NULL, `description` TEXT NOT NULL, `amount` REAL NOT NULL, `isExpense` INTEGER NOT NULL, `day` INTEGER NOT NULL, `category` TEXT)');
         await database.execute(
             'CREATE TABLE IF NOT EXISTS `FixedMovement` (`id` INTEGER PRIMARY KEY AUTOINCREMENT, `description` TEXT NOT NULL, `amount` REAL NOT NULL, `isExpense` INTEGER NOT NULL, `day` INTEGER NOT NULL, `category` TEXT)');
+        await database.execute(
+            'CREATE TABLE IF NOT EXISTS `Saves` (`id` INTEGER PRIMARY KEY AUTOINCREMENT, `monthId` INTEGER NOT NULL, `amount` REAL NOT NULL, `isInitialValue` INTEGER NOT NULL)');
 
         await callback?.onCreate?.call(database, version);
       },
@@ -127,6 +131,11 @@ class _$AppDatabase extends AppDatabase {
   FixedMovementDao get fixedMovementDao {
     return _fixedMovementDaoInstance ??=
         _$FixedMovementDao(database, changeListener);
+  }
+
+  @override
+  SavesDao get savesDao {
+    return _savesDaoInstance ??= _$SavesDao(database, changeListener);
   }
 }
 
@@ -471,5 +480,101 @@ class _$FixedMovementDao extends FixedMovementDao {
   @override
   Future<void> deleteFixedMovement(FixedMovement fixedMovement) async {
     await _fixedMovementDeletionAdapter.delete(fixedMovement);
+  }
+}
+
+class _$SavesDao extends SavesDao {
+  _$SavesDao(
+    this.database,
+    this.changeListener,
+  )   : _queryAdapter = QueryAdapter(database),
+        _savesInsertionAdapter = InsertionAdapter(
+            database,
+            'Saves',
+            (Saves item) => <String, Object?>{
+                  'id': item.id,
+                  'monthId': item.monthId,
+                  'amount': item.amount,
+                  'isInitialValue': item.isInitialValue ? 1 : 0
+                }),
+        _savesUpdateAdapter = UpdateAdapter(
+            database,
+            'Saves',
+            ['id'],
+            (Saves item) => <String, Object?>{
+                  'id': item.id,
+                  'monthId': item.monthId,
+                  'amount': item.amount,
+                  'isInitialValue': item.isInitialValue ? 1 : 0
+                }),
+        _savesDeletionAdapter = DeletionAdapter(
+            database,
+            'Saves',
+            ['id'],
+            (Saves item) => <String, Object?>{
+                  'id': item.id,
+                  'monthId': item.monthId,
+                  'amount': item.amount,
+                  'isInitialValue': item.isInitialValue ? 1 : 0
+                });
+
+  final sqflite.DatabaseExecutor database;
+
+  final StreamController<String> changeListener;
+
+  final QueryAdapter _queryAdapter;
+
+  final InsertionAdapter<Saves> _savesInsertionAdapter;
+
+  final UpdateAdapter<Saves> _savesUpdateAdapter;
+
+  final DeletionAdapter<Saves> _savesDeletionAdapter;
+
+  @override
+  Future<List<Saves>> findAllSaves() async {
+    return _queryAdapter.queryList('SELECT * FROM Saves',
+        mapper: (Map<String, Object?> row) => Saves(
+            id: row['id'] as int?,
+            monthId: row['monthId'] as int,
+            amount: row['amount'] as double,
+            isInitialValue: (row['isInitialValue'] as int) != 0));
+  }
+
+  @override
+  Future<Saves?> findSavesByMonthId(int monthId) async {
+    return _queryAdapter.query('SELECT * FROM Saves WHERE monthId = ?1',
+        mapper: (Map<String, Object?> row) => Saves(
+            id: row['id'] as int?,
+            monthId: row['monthId'] as int,
+            amount: row['amount'] as double,
+            isInitialValue: (row['isInitialValue'] as int) != 0),
+        arguments: [monthId]);
+  }
+
+  @override
+  Future<List<Saves>> findSavesByIsInitialValue(bool isInitialValue) async {
+    return _queryAdapter.queryList(
+        'SELECT * FROM Saves WHERE isInitialValue = ?1',
+        mapper: (Map<String, Object?> row) => Saves(
+            id: row['id'] as int?,
+            monthId: row['monthId'] as int,
+            amount: row['amount'] as double,
+            isInitialValue: (row['isInitialValue'] as int) != 0),
+        arguments: [isInitialValue ? 1 : 0]);
+  }
+
+  @override
+  Future<void> insertSaves(Saves saves) async {
+    await _savesInsertionAdapter.insert(saves, OnConflictStrategy.abort);
+  }
+
+  @override
+  Future<void> updateSaves(Saves saves) async {
+    await _savesUpdateAdapter.update(saves, OnConflictStrategy.abort);
+  }
+
+  @override
+  Future<void> deleteSaves(Saves saves) async {
+    await _savesDeletionAdapter.delete(saves);
   }
 }
