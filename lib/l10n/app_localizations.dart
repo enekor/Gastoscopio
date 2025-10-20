@@ -1987,6 +1987,12 @@ abstract class AppLocalizations {
   /// In es, this message translates to:
   /// **'Solo se cogerá el mes, no el dia seleccinado'**
   String get selectMonthToMigrate;
+
+  /// No description provided for @savings.
+  ///
+  /// In es, this message translates to:
+  /// **'Ahorros'**
+  String get savings;
 }
 
 class _AppLocalizationsDelegate

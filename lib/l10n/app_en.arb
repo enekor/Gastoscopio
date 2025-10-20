@@ -308,6 +308,7 @@
   "biometricAuthFailed": "Biometric authentication failed",
   "verify": "Verify",
   "a":"flutter gen-l10n",
+  "savings": "Savings",
   "welcome": "Welcome to Cashly",
   "welcomeSubtitle": "Your personal finance companion",
   "getStarted": "Get Started",

@@ -7,15 +7,21 @@ class Saves {
 
   final int monthId;
   final double amount;
-  DateTime date;
+  @ColumnInfo(name: 'date')
+  String dateStr;
   final bool isInitialValue;
+
+  DateTime get date => DateTime.parse(dateStr);
+  void set date(DateTime date) {
+    dateStr = date.toString();
+  }
 
   Saves({
     this.id,
     required this.monthId,
     required this.amount,
     required this.isInitialValue,
-    required this.date,
+    required this.dateStr,
   });
 
   Map<String, dynamic> toJson() {
@@ -23,7 +29,7 @@ class Saves {
       'monthId': monthId,
       'amount': amount,
       'isInitialValue': isInitialValue,
-      'date': date,
+      'date': dateStr,
     };
   }
 }

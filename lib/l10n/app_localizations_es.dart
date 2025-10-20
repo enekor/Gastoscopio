@@ -1046,4 +1046,7 @@ class AppLocalizationsEs extends AppLocalizations {
   @override
   String get selectMonthToMigrate =>
       'Solo se cogerá el mes, no el dia seleccinado';
+
+  @override
+  String get savings => 'Ahorros';
 }

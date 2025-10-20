@@ -20,5 +20,4 @@ abstract class SavesDao {
 
   @delete
   Future<void> deleteSaves(Saves saves);
-
 }

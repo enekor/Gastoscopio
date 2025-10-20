@@ -6,6 +6,9 @@ abstract class MonthDao {
   @Query('SELECT * FROM Month')
   Future<List<Month>> findAllMonths();
 
+  @Query('SELECT id FROM Month')
+  Future<List<int>> findAllMonthIds();
+
   @Query('SELECT * FROM Month WHERE id = :id')
   Future<Month?> findMonthById(int id);
 

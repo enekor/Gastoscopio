@@ -108,7 +108,7 @@ class _$AppDatabase extends AppDatabase {
         await database.execute(
             'CREATE TABLE IF NOT EXISTS `FixedMovement` (`id` INTEGER PRIMARY KEY AUTOINCREMENT, `description` TEXT NOT NULL, `amount` REAL NOT NULL, `isExpense` INTEGER NOT NULL, `day` INTEGER NOT NULL, `category` TEXT)');
         await database.execute(
-            'CREATE TABLE IF NOT EXISTS `Saves` (`id` INTEGER PRIMARY KEY AUTOINCREMENT, `monthId` INTEGER NOT NULL, `amount` REAL NOT NULL, `isInitialValue` INTEGER NOT NULL)');
+            'CREATE TABLE IF NOT EXISTS `Saves` (`id` INTEGER PRIMARY KEY AUTOINCREMENT, `monthId` INTEGER NOT NULL, `amount` REAL NOT NULL, `date` TEXT NOT NULL, `isInitialValue` INTEGER NOT NULL)');
 
         await callback?.onCreate?.call(database, version);
       },
@@ -189,6 +189,12 @@ class _$MonthDao extends MonthDao {
         mapper: (Map<String, Object?> row) => Month(
             row['month'] as int, row['year'] as int,
             id: row['id'] as int?));
+  }
+
+  @override
+  Future<List<int>> findAllMonthIds() async {
+    return _queryAdapter.queryList('SELECT id FROM Month',
+        mapper: (Map<String, Object?> row) => row.values.first as int);
   }
 
   @override
@@ -495,6 +501,7 @@ class _$SavesDao extends SavesDao {
                   'id': item.id,
                   'monthId': item.monthId,
                   'amount': item.amount,
+                  'date': item.dateStr,
                   'isInitialValue': item.isInitialValue ? 1 : 0
                 }),
         _savesUpdateAdapter = UpdateAdapter(
@@ -505,6 +512,7 @@ class _$SavesDao extends SavesDao {
                   'id': item.id,
                   'monthId': item.monthId,
                   'amount': item.amount,
+                  'date': item.dateStr,
                   'isInitialValue': item.isInitialValue ? 1 : 0
                 }),
         _savesDeletionAdapter = DeletionAdapter(
@@ -515,6 +523,7 @@ class _$SavesDao extends SavesDao {
                   'id': item.id,
                   'monthId': item.monthId,
                   'amount': item.amount,
+                  'date': item.dateStr,
                   'isInitialValue': item.isInitialValue ? 1 : 0
                 });
 
@@ -537,7 +546,8 @@ class _$SavesDao extends SavesDao {
             id: row['id'] as int?,
             monthId: row['monthId'] as int,
             amount: row['amount'] as double,
-            isInitialValue: (row['isInitialValue'] as int) != 0));
+            isInitialValue: (row['isInitialValue'] as int) != 0,
+            dateStr: row['date'] as String));
   }
 
   @override
@@ -547,7 +557,8 @@ class _$SavesDao extends SavesDao {
             id: row['id'] as int?,
             monthId: row['monthId'] as int,
             amount: row['amount'] as double,
-            isInitialValue: (row['isInitialValue'] as int) != 0),
+            isInitialValue: (row['isInitialValue'] as int) != 0,
+            dateStr: row['date'] as String),
         arguments: [monthId]);
   }
 
@@ -559,7 +570,8 @@ class _$SavesDao extends SavesDao {
             id: row['id'] as int?,
             monthId: row['monthId'] as int,
             amount: row['amount'] as double,
-            isInitialValue: (row['isInitialValue'] as int) != 0),
+            isInitialValue: (row['isInitialValue'] as int) != 0,
+            dateStr: row['date'] as String),
         arguments: [isInitialValue ? 1 : 0]);
   }
 

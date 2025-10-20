@@ -1031,4 +1031,7 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get selectMonthToMigrate =>
       'It only takes the month, not the selected day';
+
+  @override
+  String get savings => 'Savings';
 }

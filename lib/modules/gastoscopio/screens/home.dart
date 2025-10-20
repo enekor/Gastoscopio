@@ -10,6 +10,7 @@ import 'package:cashly/modules/gastoscopio/widgets/finance_widgets.dart';
 import 'package:cashly/data/models/movement_value.dart';
 import 'package:cashly/common/tag_list.dart';
 import 'package:cashly/modules/settings.dart/settings.dart';
+import 'package:cashly/modules/saves/home_saves.dart';
 import 'package:flutter/material.dart';
 import 'package:cashly/l10n/app_localizations.dart';
 
@@ -221,6 +222,8 @@ class _GastoscopioHomeScreenState extends State<GastoscopioHomeScreen> {
               const SizedBox(height: 16),
               _buildFixedMovementsButton(),
               const SizedBox(height: 8),
+              _buildSavesButton(),
+              const SizedBox(height: 8),
               _isLastDaysOfTheWeek() ? _buildShowSummaryButton() : Container(),
               _ChartPart(_moneda),
             ],
@@ -423,7 +426,52 @@ class _GastoscopioHomeScreenState extends State<GastoscopioHomeScreen> {
               color: Theme.of(context).colorScheme.primary,
             ),
             label: Text(
-              AppLocalizations.of(context)!.manageRecurringMovements,
+              AppLocalizations.of(context).manageRecurringMovements,
+              style: TextStyle(
+                color: Theme.of(context).colorScheme.primary,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: Theme.of(
+                context,
+              ).colorScheme.secondary.withAlpha(25),
+              foregroundColor: Theme.of(context).colorScheme.primary,
+              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(12),
+                side: BorderSide(
+                  color: Theme.of(context).colorScheme.primary.withOpacity(0.3),
+                  width: 1,
+                ),
+              ),
+              elevation: 1,
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildSavesButton() {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 6.0),
+      child: Center(
+        child: SizedBox(
+          width: double.infinity,
+          child: ElevatedButton.icon(
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => HomeSaves()),
+              );
+            },
+            icon: Icon(
+              Icons.savings,
+              color: Theme.of(context).colorScheme.primary,
+            ),
+            label: Text(
+              AppLocalizations.of(context).savings,
               style: TextStyle(
                 color: Theme.of(context).colorScheme.primary,
                 fontWeight: FontWeight.w600,

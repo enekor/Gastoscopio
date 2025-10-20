@@ -1250,6 +1250,7 @@
   "confrmTagDelete":"Borrar categorias",
   "confirmDeleteAllTags":"¿Quieres borrar las categorias de los movimientos de este mes?",
   "migrateMonth":"Migrar a otro mes",
-  "selectMonthToMigrate":"Solo se cogerá el mes, no el dia seleccinado"
+  "selectMonthToMigrate":"Solo se cogerá el mes, no el dia seleccinado",
+  "savings": "Ahorros"
 
 }
