@@ -51,6 +51,19 @@ class _HomeSavesState extends State<HomeSaves> {
     });
   }
 
+  void _resetAllSaves() async {
+    await widget.savesService.resetAllSaves();
+    refreshSavesList();
+  }
+
+  void _deleteInitialSave() async {
+    await widget.savesService.deleteInitialSave();
+    refreshSavesList();
+    setState(() {
+      _hasInitialSave = false;
+    });
+  }
+
   void generateSaves() async {
     if (widget.saves.isEmpty) {
       await widget.savesService.generateAllSaves();
@@ -123,6 +136,18 @@ class _HomeSavesState extends State<HomeSaves> {
             onPressed: _refreshDatePopUp,
             label: Text('Refresh saves for a month'),
             icon: Icon(Icons.date_range),
+          ),
+          const SizedBox(height: 16),
+          ElevatedButton.icon(
+            onPressed: _resetAllSaves,
+            label: Text('Refresh all saves'),
+            icon: Icon(Icons.delete),
+          ),
+          const SizedBox(height: 16),
+          ElevatedButton.icon(
+            onPressed: _deleteInitialSave,
+            label: Text('Delete initial save'),
+            icon: Icon(Icons.delete),
           ),
           const SizedBox(height: 16),
           SavesWidgets.LinearChart(widget.saves),

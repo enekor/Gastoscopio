@@ -116,4 +116,16 @@ class SavesService extends ChangeNotifier {
 
     return _monthExpenses;
   }
+
+  Future<void> resetAllSaves() async {
+    await _savesDao.deleteAllNonInitialSaves();
+    await generateAllSaves();
+  }
+
+  Future<void> deleteInitialSave() async {
+    final saves = await _savesDao.findSavesByIsInitialValue(true);
+    if (saves.isNotEmpty) {
+      await _savesDao.deleteSaves(saves.first);
+    }
+  }
 }

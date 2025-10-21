@@ -20,4 +20,7 @@ abstract class SavesDao {
 
   @delete
   Future<void> deleteSaves(Saves saves);
+
+  @Query('DELETE FROM Saves where isInitialValue = 0')
+  Future<void> deleteAllNonInitialSaves();
 }
