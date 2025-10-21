@@ -7,10 +7,13 @@ class SavesWidgets {
     required BuildContext context,
     required Function(double) onPressed,
   }) {
-    return ElevatedButton.icon(
+    return FilledButton.icon(
       onPressed: () => _showAddSaveFormPopUp(onPressed, context),
-      icon: Icon(Icons.add),
-      label: Text('Add Initial Save'),
+      icon: const Icon(Icons.add, size: 20),
+      label: const Text('Add Initial Save'),
+      style: FilledButton.styleFrom(
+        minimumSize: const Size(double.infinity, 48),
+      ),
     );
   }
 
@@ -25,22 +28,48 @@ class SavesWidgets {
       context: context,
       builder: (context) {
         return AlertDialog(
-          title: Text('Add Initial Save'),
+          title: Row(
+            children: [
+              Icon(
+                Icons.account_balance_wallet,
+                color: Theme.of(context).colorScheme.primary,
+                size: 24,
+              ),
+              const SizedBox(width: 12),
+              const Text('Add Initial Save'),
+            ],
+          ),
           content: Form(
             key: _formKey,
-            child: TextFormField(
-              controller: _amountController,
-              keyboardType: TextInputType.numberWithOptions(decimal: true),
-              decoration: InputDecoration(labelText: 'Amount'),
-              validator: (value) {
-                if (value == null || value.isEmpty) {
-                  return 'Please enter an amount';
-                }
-                if (double.tryParse(value) == null) {
-                  return 'Please enter a valid number';
-                }
-                return null;
-              },
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text(
+                  'Enter your initial savings amount to start tracking your financial progress.',
+                  style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                    color: Theme.of(context).colorScheme.onSurfaceVariant,
+                  ),
+                ),
+                const SizedBox(height: 20),
+                TextFormField(
+                  controller: _amountController,
+                  keyboardType: TextInputType.numberWithOptions(decimal: true),
+                  decoration: InputDecoration(
+                    labelText: 'Amount',
+                    hintText: 'Enter amount...',
+                    prefixIcon: const Icon(Icons.attach_money),
+                  ),
+                  validator: (value) {
+                    if (value == null || value.isEmpty) {
+                      return 'Please enter an amount';
+                    }
+                    if (double.tryParse(value) == null) {
+                      return 'Please enter a valid number';
+                    }
+                    return null;
+                  },
+                ),
+              ],
             ),
           ),
           actions: [
@@ -48,9 +77,9 @@ class SavesWidgets {
               onPressed: () {
                 Navigator.of(context).pop();
               },
-              child: Text('Cancel'),
+              child: const Text('Cancel'),
             ),
-            ElevatedButton(
+            FilledButton(
               onPressed: () {
                 if (_formKey.currentState!.validate()) {
                   final amount = double.parse(_amountController.text);
@@ -58,7 +87,7 @@ class SavesWidgets {
                   Navigator.of(context).pop();
                 }
               },
-              child: Text('Add'),
+              child: const Text('Add Save'),
             ),
           ],
         );

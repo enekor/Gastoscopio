@@ -113,45 +113,101 @@ class _HomeSavesState extends State<HomeSaves> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(),
-      body: Column(
-        children: [
-          if (!_hasInitialSave)
-            SavesWidgets.AddSaveButton(
-              context: context,
-              onPressed: (amount) {
-                widget.savesService.addSave(amount);
-                _hasInitialSave = true;
-                refreshSavesList();
-              },
+      appBar: AppBar(
+        title: Text(
+          'Savings Management',
+          style: Theme.of(context).textTheme.headlineSmall?.copyWith(
+            fontWeight: FontWeight.w600,
+          ),
+        ),
+        centerTitle: true,
+        backgroundColor: Theme.of(context).colorScheme.surface,
+        foregroundColor: Theme.of(context).colorScheme.onSurface,
+      ),
+      body: SingleChildScrollView(
+        padding: const EdgeInsets.all(24.0),
+        child: Column(
+          children: [
+            if (!_hasInitialSave)
+              SavesWidgets.AddSaveButton(
+                context: context,
+                onPressed: (amount) {
+                  widget.savesService.addSave(amount);
+                  _hasInitialSave = true;
+                  refreshSavesList();
+                },
+              ),
+            const SizedBox(height: 16),
+            FilledButton.icon(
+              onPressed: generateSaves,
+              icon: const Icon(Icons.auto_awesome, size: 20),
+              label: const Text('Generate remaining saves'),
+              style: FilledButton.styleFrom(
+                minimumSize: const Size(double.infinity, 48),
+              ),
             ),
-          const SizedBox(height: 16),
-          ElevatedButton.icon(
-            onPressed: generateSaves,
-            label: Text('Generate remaining saves'),
-            icon: Icon(Icons.refresh),
-          ),
-          const SizedBox(height: 16),
-          ElevatedButton.icon(
-            onPressed: _refreshDatePopUp,
-            label: Text('Refresh saves for a month'),
-            icon: Icon(Icons.date_range),
-          ),
-          const SizedBox(height: 16),
-          ElevatedButton.icon(
-            onPressed: _resetAllSaves,
-            label: Text('Refresh all saves'),
-            icon: Icon(Icons.delete),
-          ),
-          const SizedBox(height: 16),
-          ElevatedButton.icon(
-            onPressed: _deleteInitialSave,
-            label: Text('Delete initial save'),
-            icon: Icon(Icons.delete),
-          ),
-          const SizedBox(height: 16),
-          SavesWidgets.LinearChart(widget.saves),
-        ],
+            const SizedBox(height: 16),
+            OutlinedButton.icon(
+              onPressed: _refreshDatePopUp,
+              icon: const Icon(Icons.date_range, size: 20),
+              label: const Text('Refresh saves for a month'),
+              style: OutlinedButton.styleFrom(
+                minimumSize: const Size(double.infinity, 48),
+              ),
+            ),
+            const SizedBox(height: 16),
+            OutlinedButton.icon(
+              onPressed: _resetAllSaves,
+              icon: const Icon(Icons.refresh, size: 20),
+              label: const Text('Refresh all saves'),
+              style: OutlinedButton.styleFrom(
+                minimumSize: const Size(double.infinity, 48),
+                foregroundColor: Theme.of(context).colorScheme.error,
+                side: BorderSide(color: Theme.of(context).colorScheme.error),
+              ),
+            ),
+            const SizedBox(height: 16),
+            OutlinedButton.icon(
+              onPressed: _deleteInitialSave,
+              icon: const Icon(Icons.delete_outline, size: 20),
+              label: const Text('Delete initial save'),
+              style: OutlinedButton.styleFrom(
+                minimumSize: const Size(double.infinity, 48),
+                foregroundColor: Theme.of(context).colorScheme.error,
+                side: BorderSide(color: Theme.of(context).colorScheme.error),
+              ),
+            ),
+            const SizedBox(height: 24),
+            Card(
+              child: Padding(
+                padding: const EdgeInsets.all(20.0),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      children: [
+                        Icon(
+                          Icons.trending_up,
+                          color: Theme.of(context).colorScheme.primary,
+                          size: 24,
+                        ),
+                        const SizedBox(width: 12),
+                        Text(
+                          'Savings Overview',
+                          style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 20),
+                    SavesWidgets.LinearChart(widget.saves),
+                  ],
+                ),
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
