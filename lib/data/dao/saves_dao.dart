@@ -3,13 +3,16 @@ import '../models/saves.dart';
 
 @dao
 abstract class SavesDao {
-  @Query('SELECT * FROM Saves')
+  @Query('SELECT * FROM Saves WHERE')
   Future<List<Saves>> findAllSaves();
+
+  @Query('SELECT * FROM Saves WHERE dateStr like "%:anno-%"')
+  Future<List<Saves>> findAllSavesByYear(int anno);
 
   @Query('SELECT * FROM Saves WHERE monthId = :monthId')
   Future<Saves?> findSavesByMonthId(int monthId);
 
-  @Query('SELECT * FROM Saves WHERE isInitialValue = :isInitialValue')
+  @Query('SELECT * FROM Saves WHERE isInitialValue = :isInitialValue ')
   Future<List<Saves>> findSavesByIsInitialValue(bool isInitialValue);
 
   @insert

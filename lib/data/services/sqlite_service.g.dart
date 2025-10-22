@@ -576,6 +576,12 @@ class _$SavesDao extends SavesDao {
   }
 
   @override
+  Future<void> deleteAllNonInitialSaves() async {
+    await _queryAdapter
+        .queryNoReturn('DELETE FROM Saves where isInitialValue = 0');
+  }
+
+  @override
   Future<void> insertSaves(Saves saves) async {
     await _savesInsertionAdapter.insert(saves, OnConflictStrategy.abort);
   }
