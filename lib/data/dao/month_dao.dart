@@ -6,6 +6,9 @@ abstract class MonthDao {
   @Query('SELECT * FROM Month')
   Future<List<Month>> findAllMonths();
 
+  @Query('SELECT count(*) FROM Month')
+  Future<int?> countAllMonths();
+
   @Query('SELECT id FROM Month')
   Future<List<int>> findAllMonthIds();
 

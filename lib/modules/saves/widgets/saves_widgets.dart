@@ -128,10 +128,25 @@ class SavesWidgets {
         .map((e) => e.amount)
         .reduce((a, b) => a > b ? a : b);
 
-    // Agregar un poco de margen al rango
+    // Agregar un poco de margen al rango y asegurar un rango mínimo
     double range = maxY - minY;
-    minY = minY - (range * 0.1);
-    maxY = maxY + (range * 0.1);
+    if (range < 1) {
+      // Si el rango es muy pequeño, establecer un rango mínimo
+      double avg = (maxY + minY) / 2;
+      minY = avg - 0.5;
+      maxY = avg + 0.5;
+      range = 1.0;
+    } else {
+      // Agregar margen al rango existente
+      minY = minY - (range * 0.1);
+      maxY = maxY + (range * 0.1);
+      range = maxY - minY;
+    }
+
+    // Calcular un intervalo horizontal razonable
+    double horizontalInterval = range / 5;
+    // Asegurar que el intervalo nunca sea cero
+    if (horizontalInterval < 0.1) horizontalInterval = 0.1;
 
     return Container(
       height: 200,
@@ -141,7 +156,7 @@ class SavesWidgets {
           gridData: FlGridData(
             show: true,
             drawVerticalLine: true,
-            horizontalInterval: (maxY - minY) / 5,
+            horizontalInterval: horizontalInterval,
             verticalInterval: 1,
             getDrawingHorizontalLine: (value) {
               return FlLine(

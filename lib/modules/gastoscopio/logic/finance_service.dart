@@ -4,6 +4,7 @@ import 'package:cashly/data/dao/fixed_movement_dao.dart';
 import 'package:cashly/data/models/month.dart';
 import 'package:cashly/data/models/movement_value.dart';
 import 'package:cashly/data/models/fixed_movement.dart';
+import 'package:cashly/data/models/saves.dart';
 import 'package:cashly/data/services/shared_preferences_service.dart';
 import 'package:cashly/data/services/sqlite_service.dart';
 import 'package:cashly/l10n/app_localizations.dart';
@@ -120,6 +121,8 @@ class FinanceService extends ChangeNotifier {
     } else {
       _todayMovements = [];
     }
+
+    await generateSavesByMonth(_monthTotal);
 
     notifyListeners();
   }
@@ -592,5 +595,22 @@ class FinanceService extends ChangeNotifier {
     notifyListeners();
     // Call haveToUpload() after updating movement
     await SharedPreferencesService().haveToUpload();
+  }
+
+  Future<void> generateSavesByMonth(double savings) async {
+    Saves save = Saves(
+      monthId: _currentMonth!.id!,
+      amount: savings,
+      isInitialValue: false,
+      dateStr: DateTime(
+        _currentMonth!.year,
+        _currentMonth!.month,
+        1,
+      ).toString(),
+    );
+
+    final db = SqliteService().db;
+    await db.savesDao.deleteSavesByMonthId(_currentMonth!.id!);
+    await db.savesDao.insertSaves(save);
   }
 }

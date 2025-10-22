@@ -192,6 +192,12 @@ class _$MonthDao extends MonthDao {
   }
 
   @override
+  Future<int?> countAllMonths() async {
+    return _queryAdapter.query('SELECT count(*) FROM Month',
+        mapper: (Map<String, Object?> row) => row.values.first as int);
+  }
+
+  @override
   Future<List<int>> findAllMonthIds() async {
     return _queryAdapter.queryList('SELECT id FROM Month',
         mapper: (Map<String, Object?> row) => row.values.first as int);
@@ -541,13 +547,27 @@ class _$SavesDao extends SavesDao {
 
   @override
   Future<List<Saves>> findAllSaves() async {
-    return _queryAdapter.queryList('SELECT * FROM Saves',
+    return _queryAdapter.queryList(
+        'SELECT * FROM Saves where isInitialValue = 0',
         mapper: (Map<String, Object?> row) => Saves(
             id: row['id'] as int?,
             monthId: row['monthId'] as int,
             amount: row['amount'] as double,
             isInitialValue: (row['isInitialValue'] as int) != 0,
             dateStr: row['date'] as String));
+  }
+
+  @override
+  Future<List<Saves>> findAllSavesByYear(String anno) async {
+    return _queryAdapter.queryList(
+        'SELECT * FROM Saves WHERE date LIKE ?1 || \"-%\"',
+        mapper: (Map<String, Object?> row) => Saves(
+            id: row['id'] as int?,
+            monthId: row['monthId'] as int,
+            amount: row['amount'] as double,
+            isInitialValue: (row['isInitialValue'] as int) != 0,
+            dateStr: row['date'] as String),
+        arguments: [anno]);
   }
 
   @override
@@ -576,9 +596,22 @@ class _$SavesDao extends SavesDao {
   }
 
   @override
+  Future<int?> countNonInitialSaves() async {
+    return _queryAdapter.query(
+        'Select count(*) from saves where isInitialValue = 0',
+        mapper: (Map<String, Object?> row) => row.values.first as int);
+  }
+
+  @override
   Future<void> deleteAllNonInitialSaves() async {
     await _queryAdapter
         .queryNoReturn('DELETE FROM Saves where isInitialValue = 0');
+  }
+
+  @override
+  Future<void> deleteSavesByMonthId(int monthId) async {
+    await _queryAdapter.queryNoReturn('DELETE FROM Saves WHERE monthId = ?1',
+        arguments: [monthId]);
   }
 
   @override
