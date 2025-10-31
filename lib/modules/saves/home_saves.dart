@@ -4,7 +4,6 @@ import 'package:cashly/modules/saves/logic/saves_service.dart';
 import 'package:cashly/modules/saves/widgets/saves_widgets.dart';
 import 'package:flutter/material.dart';
 
-//statefull widget that shows a list of saves
 class HomeSaves extends StatefulWidget {
   HomeSaves({super.key}) {
     final _db = SqliteService().db;
@@ -91,174 +90,195 @@ class _HomeSavesState extends State<HomeSaves> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(
-          'Savings Management',
-          style: Theme.of(
-            context,
-          ).textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.w600),
+        toolbarHeight: kToolbarHeight + 32,
+        title: Padding(
+          padding: const EdgeInsets.only(top: 35.0),
+          child: Text(
+            'Savings Management',
+            style: Theme.of(
+              context,
+            ).textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.w600),
+          ),
         ),
         centerTitle: true,
         backgroundColor: Theme.of(context).colorScheme.surface,
         foregroundColor: Theme.of(context).colorScheme.onSurface,
+        automaticallyImplyLeading: false,
+        leading: Padding(
+          padding: const EdgeInsets.only(top: 35.0),
+          child: IconButton(
+            onPressed: () => Navigator.pop(context),
+            icon: Icon(Icons.arrow_back_ios_new),
+          ),
+        ),
       ),
       body: FutureBuilder(
         future: _initializationFuture,
-        builder: (context, asyncSnapshot) {
-          if (asyncSnapshot.connectionState == ConnectionState.waiting) {
+        builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
             return const Center(child: CircularProgressIndicator());
           }
-          if (asyncSnapshot.hasError) {
-            return Center(
-              child: Text(
-                'Error: ${asyncSnapshot.error}',
-                style: Theme.of(context).textTheme.bodyMedium,
-              ),
-            );
-          }
 
-          if (!asyncSnapshot.hasData) {
-            return SingleChildScrollView(
-              padding: const EdgeInsets.all(24.0),
-              child: Column(
-                children: [
-                  // Vista por año/mes switch
-                  Card(
-                    child: Padding(
-                      padding: const EdgeInsets.all(16.0),
-                      child: Column(
-                        children: [
-                          Row(
-                            children: [
-                              Icon(
-                                _viewByYear
-                                    ? Icons.calendar_today
-                                    : Icons.calendar_month,
-                                color: Theme.of(context).colorScheme.primary,
+          return SingleChildScrollView(
+            padding: const EdgeInsets.all(24.0),
+            child: Column(
+              children: [
+                Card(
+                  child: Padding(
+                    padding: const EdgeInsets.all(16.0),
+                    child: Column(
+                      children: [
+                        Row(
+                          children: [
+                            Icon(
+                              _viewByYear
+                                  ? Icons.calendar_today
+                                  : Icons.calendar_month,
+                              color: Theme.of(context).colorScheme.primary,
+                            ),
+                            const SizedBox(width: 12),
+                            Expanded(
+                              child: Text(
+                                _viewByYear ? 'Yearly View' : 'Monthly View',
+                                style: Theme.of(context).textTheme.titleMedium,
                               ),
-                              const SizedBox(width: 12),
-                              Expanded(
-                                child: Text(
-                                  _viewByYear ? 'Yearly View' : 'Monthly View',
-                                  style: Theme.of(
-                                    context,
-                                  ).textTheme.titleMedium,
-                                ),
-                              ),
-                              Switch(
-                                value: _viewByYear,
-                                onChanged: (value) {
-                                  setState(() {
-                                    _viewByYear = value;
-                                    widget.searchByWholeYear = value;
-                                  });
-                                  _loadData();
-                                },
-                              ),
-                            ],
-                          ),
-                          if (_viewByYear) ...[
-                            const SizedBox(height: 16),
-                            DropdownButton<int>(
-                              value: widget.anno,
-                              isExpanded: true,
-                              items: List.generate(
-                                5,
-                                (index) => DropdownMenuItem(
-                                  value: DateTime.now().year - index,
-                                  child: Text('${DateTime.now().year - index}'),
-                                ),
-                              ),
-                              onChanged: (selectedYear) {
-                                if (selectedYear != null) {
-                                  setState(() {
-                                    widget.anno = selectedYear;
-                                  });
-                                  _loadData();
-                                }
+                            ),
+                            Switch(
+                              value: _viewByYear,
+                              onChanged: (value) {
+                                setState(() {
+                                  _viewByYear = value;
+                                  widget.searchByWholeYear = value;
+                                });
+                                _loadData();
                               },
                             ),
                           ],
+                        ),
+                        if (_viewByYear) ...[
+                          const SizedBox(height: 16),
+                          FutureBuilder<List<int>>(
+                            future: SqliteService().db.monthDao
+                                .findAllDistinctYears(),
+                            builder: (context, snapshot) {
+                              if (snapshot.connectionState ==
+                                  ConnectionState.waiting) {
+                                return const Center(
+                                  child: CircularProgressIndicator(),
+                                );
+                              }
+
+                              final years = snapshot.data ?? [];
+                              if (years.isEmpty) {
+                                return const Text('No data available');
+                              }
+
+                              return DropdownButton<int>(
+                                value: years.contains(widget.anno)
+                                    ? widget.anno
+                                    : years.first,
+                                isExpanded: true,
+                                items: years
+                                    .map(
+                                      (year) => DropdownMenuItem(
+                                        value: year,
+                                        child: Text('$year'),
+                                      ),
+                                    )
+                                    .toList(),
+                                onChanged: (selectedYear) {
+                                  if (selectedYear != null) {
+                                    setState(() {
+                                      widget.anno = selectedYear;
+                                    });
+                                    _loadData();
+                                  }
+                                },
+                              );
+                            },
+                          ),
                         ],
+                      ],
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 24),
+
+                if (!_hasInitialSave)
+                  SavesWidgets.AddSaveButton(
+                    context: context,
+                    onPressed: (amount) async {
+                      await widget.savesService.addSave(amount);
+                      _loadData();
+                    },
+                  )
+                else
+                  OutlinedButton.icon(
+                    onPressed: () async {
+                      await widget.savesService.deleteInitialSave();
+                      _loadData();
+                    },
+                    icon: const Icon(Icons.delete_outline, size: 20),
+                    label: const Text('Delete Initial Save'),
+                    style: OutlinedButton.styleFrom(
+                      minimumSize: const Size(double.infinity, 48),
+                      foregroundColor: Theme.of(context).colorScheme.error,
+                      side: BorderSide(
+                        color: Theme.of(context).colorScheme.error,
                       ),
                     ),
                   ),
-                  const SizedBox(height: 24),
-
-                  // Botón condicional (Añadir/Eliminar ahorro inicial)
-                  if (!_hasInitialSave)
-                    SavesWidgets.AddSaveButton(
-                      context: context,
-                      onPressed: (amount) async {
-                        await widget.savesService.addSave(amount);
-                        _loadData();
-                      },
-                    )
-                  else
-                    OutlinedButton.icon(
-                      onPressed: () async {
-                        await widget.savesService.deleteInitialSave();
-                        _loadData();
-                      },
-                      icon: const Icon(Icons.delete_outline, size: 20),
-                      label: const Text('Delete Initial Save'),
-                      style: OutlinedButton.styleFrom(
-                        minimumSize: const Size(double.infinity, 48),
-                        foregroundColor: Theme.of(context).colorScheme.error,
-                        side: BorderSide(
-                          color: Theme.of(context).colorScheme.error,
-                        ),
-                      ),
-                    ),
-                  const SizedBox(height: 24),
-                  Card(
-                    child: Padding(
-                      padding: const EdgeInsets.all(20.0),
-                      child: _isLoading
-                          ? const Center(
-                              child: Padding(
-                                padding: EdgeInsets.all(32.0),
-                                child: CircularProgressIndicator(),
+                const SizedBox(height: 24),
+                Card(
+                  child: Padding(
+                    padding: const EdgeInsets.all(20.0),
+                    child: _isLoading
+                        ? const Center(
+                            child: Padding(
+                              padding: EdgeInsets.all(32.0),
+                              child: CircularProgressIndicator(),
+                            ),
+                          )
+                        : Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Row(
+                                children: [
+                                  Icon(
+                                    Icons.trending_up,
+                                    color: Theme.of(
+                                      context,
+                                    ).colorScheme.primary,
+                                    size: 24,
+                                  ),
+                                  const SizedBox(width: 12),
+                                  Text(
+                                    'Savings Overview',
+                                    style: Theme.of(context)
+                                        .textTheme
+                                        .titleLarge
+                                        ?.copyWith(fontWeight: FontWeight.w600),
+                                  ),
+                                ],
                               ),
-                            )
-                          : Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Row(
-                                  children: [
-                                    Icon(
-                                      Icons.trending_up,
+                              const SizedBox(height: 20),
+                              Text(
+                                'Total: ${widget.saves.fold<double>(0, (sum, save) => sum + save.amount).toStringAsFixed(2)}€',
+                                style: Theme.of(context).textTheme.titleLarge
+                                    ?.copyWith(
+                                      fontWeight: FontWeight.bold,
                                       color: Theme.of(
                                         context,
                                       ).colorScheme.primary,
-                                      size: 24,
                                     ),
-                                    const SizedBox(width: 12),
-                                    Text(
-                                      'Savings Overview',
-                                      style: Theme.of(context)
-                                          .textTheme
-                                          .titleLarge
-                                          ?.copyWith(
-                                            fontWeight: FontWeight.w600,
-                                          ),
-                                    ),
-                                  ],
-                                ),
-                                const SizedBox(height: 20),
-                                SavesWidgets.LinearChart(widget.saves),
-                              ],
-                            ),
-                    ),
+                              ),
+                              const SizedBox(height: 16),
+                              SavesWidgets.LinearChart(widget.saves),
+                            ],
+                          ),
                   ),
-                ],
-              ),
-            );
-          }
-
-          return Center(
-            child: Text(
-              'No savings data available.',
-              style: Theme.of(context).textTheme.bodyMedium,
+                ),
+              ],
             ),
           );
         },

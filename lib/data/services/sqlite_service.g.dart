@@ -226,6 +226,13 @@ class _$MonthDao extends MonthDao {
   }
 
   @override
+  Future<List<int>> findAllDistinctYears() async {
+    return _queryAdapter.queryList(
+        'SELECT DISTINCT year FROM Month ORDER BY year DESC',
+        mapper: (Map<String, Object?> row) => row.values.first as int);
+  }
+
+  @override
   Future<void> deleteAllMonths() async {
     await _queryAdapter.queryNoReturn('DELETE FROM Month');
   }

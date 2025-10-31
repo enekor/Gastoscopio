@@ -18,6 +18,9 @@ abstract class MonthDao {
   @Query('SELECT * FROM Month WHERE month = :month AND year = :year LIMIT 1')
   Future<Month?> findMonthByMonthAndYear(int month, int year);
 
+  @Query('SELECT DISTINCT year FROM Month ORDER BY year DESC')
+  Future<List<int>> findAllDistinctYears();
+
   @Insert(onConflict: OnConflictStrategy.replace)
   Future<void> insertMonth(Month month);
 
