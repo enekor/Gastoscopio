@@ -230,30 +230,6 @@ class _HomeSavesState extends State<HomeSaves> {
             padding: const EdgeInsets.all(24.0),
             child: Column(
               children: [
-                FutureBuilder<double>(
-                  future: widget.savesService.getTotalSavings(),
-                  builder: (context, snapshot) {
-                    if (snapshot.connectionState == ConnectionState.waiting) {
-                      return const Center(child: CircularProgressIndicator());
-                    }
-                    return SavesWidgets.GoalProgressCard(
-                      context: context,
-                      currentAmount: snapshot.data ?? 0.0,
-                      goalAmount: _savingGoal,
-                      onEditGoal: () => _showEditGoalDialog(context),
-                    );
-                  },
-                ),
-                const SizedBox(height: 24),
-                SavesWidgets.KeyMetricsCard(
-                  context: context,
-                  metricsFunction: () => Future.wait([
-                    widget.savesService.getMonthlyAverage(),
-                    widget.savesService.getBestMonth(),
-                    widget.savesService.getWorstMonth(),
-                  ]),
-                ),
-                const SizedBox(height: 24),
                 SavesWidgets.ViewSelectionCard(
                   context: context,
                   viewByYear: _viewByYear,
@@ -284,26 +260,42 @@ class _HomeSavesState extends State<HomeSaves> {
                     },
                   )
                 else
-                  OutlinedButton.icon(
+                  SavesWidgets.DeleteInitialSaveButton(
+                    context: context,
                     onPressed: () async {
                       await widget.savesService.deleteInitialSave();
                       _loadData();
                     },
-                    icon: const Icon(Icons.delete_outline, size: 20),
-                    label: const Text('Delete Initial Save'),
-                    style: OutlinedButton.styleFrom(
-                      minimumSize: const Size(double.infinity, 48),
-                      foregroundColor: Theme.of(context).colorScheme.error,
-                      side: BorderSide(
-                        color: Theme.of(context).colorScheme.error,
-                      ),
-                    ),
                   ),
                 const SizedBox(height: 24),
                 SavesWidgets.OverviewCard(
                   context: context,
                   isLoading: _isLoading,
                   saves: widget.saves,
+                ),
+                const SizedBox(height: 24),
+                SavesWidgets.KeyMetricsCard(
+                  context: context,
+                  metricsFunction: () => Future.wait([
+                    widget.savesService.getMonthlyAverage(),
+                    widget.savesService.getBestMonth(),
+                    widget.savesService.getWorstMonth(),
+                  ]),
+                ),
+                const SizedBox(height: 24),
+                FutureBuilder<double>(
+                  future: widget.savesService.getTotalSavings(),
+                  builder: (context, snapshot) {
+                    if (snapshot.connectionState == ConnectionState.waiting) {
+                      return const Center(child: CircularProgressIndicator());
+                    }
+                    return SavesWidgets.GoalProgressCard(
+                      context: context,
+                      currentAmount: snapshot.data ?? 0.0,
+                      goalAmount: _savingGoal,
+                      onEditGoal: () => _showEditGoalDialog(context),
+                    );
+                  },
                 ),
               ],
             ),

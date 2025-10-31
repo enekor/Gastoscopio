@@ -339,6 +339,22 @@ class SavesWidgets {
     );
   }
 
+  static Widget DeleteInitialSaveButton({
+    required BuildContext context,
+    required VoidCallback onPressed,
+  }) {
+    return OutlinedButton.icon(
+      onPressed: onPressed,
+      icon: const Icon(Icons.delete_outline, size: 20),
+      label: const Text('Delete Initial Save'),
+      style: OutlinedButton.styleFrom(
+        minimumSize: const Size(double.infinity, 48),
+        foregroundColor: Theme.of(context).colorScheme.error,
+        side: BorderSide(color: Theme.of(context).colorScheme.error),
+      ),
+    );
+  }
+
   static Widget AddSaveButton({
     required BuildContext context,
     required Function(double) onPressed,
