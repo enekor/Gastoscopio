@@ -610,6 +610,13 @@ class _$SavesDao extends SavesDao {
   }
 
   @override
+  Future<double?> sumNonInitialSaves() async {
+    return _queryAdapter.query(
+        'SELECT SUM(amount) FROM Saves WHERE isInitialValue = 0',
+        mapper: (Map<String, Object?> row) => row.values.first as double);
+  }
+
+  @override
   Future<void> deleteAllNonInitialSaves() async {
     await _queryAdapter
         .queryNoReturn('DELETE FROM Saves where isInitialValue = 0');

@@ -163,6 +163,10 @@ class SavesService extends ChangeNotifier {
     );
   }
 
+  Future<double> getTotalSavings() async {
+    return await _savesDao.sumNonInitialSaves() ?? 0.0;
+  }
+
   Future<void> exportToCSV() async {
     // TODO: Implementar exportación a CSV
   }

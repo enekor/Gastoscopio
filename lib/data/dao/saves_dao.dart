@@ -18,6 +18,9 @@ abstract class SavesDao {
   @Query('Select count(*) from saves where isInitialValue = 0')
   Future<int?> countNonInitialSaves();
 
+  @Query('SELECT SUM(amount) FROM Saves WHERE isInitialValue = 0')
+  Future<double?> sumNonInitialSaves();
+
   @insert
   Future<void> insertSaves(Saves saves);
 

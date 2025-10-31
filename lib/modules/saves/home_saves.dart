@@ -1,4 +1,5 @@
 import 'package:cashly/data/models/saves.dart';
+import 'package:cashly/data/services/shared_preferences_service.dart';
 import 'package:cashly/data/services/sqlite_service.dart';
 import 'package:cashly/modules/saves/logic/saves_service.dart';
 import 'package:cashly/modules/saves/widgets/saves_widgets.dart';
@@ -26,6 +27,7 @@ class _HomeSavesState extends State<HomeSaves> {
   bool _hasInitialSave = false;
   bool _isLoading = true;
   bool _viewByYear = false;
+  double _savingGoal = 0.0;
   late final Future<void> _initializationFuture;
 
   // Removed _buildMetricRow as it's now in SavesWidgets
@@ -41,6 +43,14 @@ class _HomeSavesState extends State<HomeSaves> {
     if (needToGenerate) {
       await widget.savesService.generateAllSaves();
     }
+
+    final goalValue = await SharedPreferencesService().getDoubleValue(
+      SharedPreferencesKeys.savingGoal,
+    );
+    setState(() {
+      _savingGoal = goalValue ?? 0.0;
+    });
+
     await _loadData();
   }
 
@@ -60,6 +70,92 @@ class _HomeSavesState extends State<HomeSaves> {
     setState(() {
       _hasInitialSave = true;
     });
+  }
+
+  void _showEditGoalDialog(BuildContext context) {
+    final _formKey = GlobalKey<FormState>();
+    final _goalController = TextEditingController(
+      text: _savingGoal > 0 ? _savingGoal.toString() : '',
+    );
+
+    showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: Row(
+            children: [
+              Icon(
+                Icons.flag,
+                color: Theme.of(context).colorScheme.primary,
+                size: 24,
+              ),
+              const SizedBox(width: 12),
+              const Text('Set Savings Goal'),
+            ],
+          ),
+          content: Form(
+            key: _formKey,
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text(
+                  'Enter your target savings amount to track your progress.',
+                  style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                    color: Theme.of(context).colorScheme.onSurfaceVariant,
+                  ),
+                ),
+                const SizedBox(height: 20),
+                TextFormField(
+                  controller: _goalController,
+                  keyboardType: TextInputType.numberWithOptions(decimal: true),
+                  decoration: InputDecoration(
+                    labelText: 'Goal Amount',
+                    hintText: 'Enter amount...',
+                    prefixIcon: const Icon(Icons.euro),
+                  ),
+                  validator: (value) {
+                    if (value == null || value.isEmpty) {
+                      return 'Please enter an amount';
+                    }
+                    if (double.tryParse(value) == null) {
+                      return 'Please enter a valid number';
+                    }
+                    if (double.parse(value) <= 0) {
+                      return 'Please enter an amount greater than 0';
+                    }
+                    return null;
+                  },
+                ),
+              ],
+            ),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+              child: const Text('Cancel'),
+            ),
+            FilledButton(
+              onPressed: () async {
+                if (_formKey.currentState!.validate()) {
+                  final newGoal = double.parse(_goalController.text);
+                  await SharedPreferencesService().setDoubleValue(
+                    SharedPreferencesKeys.savingGoal,
+                    newGoal,
+                  );
+                  setState(() {
+                    _savingGoal = newGoal;
+                  });
+                  Navigator.of(context).pop();
+                }
+              },
+              child: const Text('Save Goal'),
+            ),
+          ],
+        );
+      },
+    );
   }
 
   Future<void> _loadData() async {
@@ -134,6 +230,21 @@ class _HomeSavesState extends State<HomeSaves> {
             padding: const EdgeInsets.all(24.0),
             child: Column(
               children: [
+                FutureBuilder<double>(
+                  future: widget.savesService.getTotalSavings(),
+                  builder: (context, snapshot) {
+                    if (snapshot.connectionState == ConnectionState.waiting) {
+                      return const Center(child: CircularProgressIndicator());
+                    }
+                    return SavesWidgets.GoalProgressCard(
+                      context: context,
+                      currentAmount: snapshot.data ?? 0.0,
+                      goalAmount: _savingGoal,
+                      onEditGoal: () => _showEditGoalDialog(context),
+                    );
+                  },
+                ),
+                const SizedBox(height: 24),
                 SavesWidgets.KeyMetricsCard(
                   context: context,
                   metricsFunction: () => Future.wait([
