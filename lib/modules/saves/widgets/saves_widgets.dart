@@ -3,6 +3,246 @@ import 'package:flutter/material.dart';
 import 'package:fl_chart/fl_chart.dart';
 
 class SavesWidgets {
+  static Widget _buildMetricRow(
+    BuildContext context,
+    IconData icon,
+    String label,
+    String value, {
+    String? subtitle,
+  }) {
+    return Row(
+      children: [
+        Icon(icon, size: 24, color: Theme.of(context).colorScheme.primary),
+        const SizedBox(width: 16),
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(label, style: Theme.of(context).textTheme.titleMedium),
+              if (subtitle != null)
+                Text(
+                  subtitle,
+                  style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                    color: Theme.of(context).colorScheme.onSurfaceVariant,
+                  ),
+                ),
+            ],
+          ),
+        ),
+        Text(
+          value,
+          style: Theme.of(context).textTheme.titleMedium?.copyWith(
+            fontWeight: FontWeight.bold,
+            color: Theme.of(context).colorScheme.primary,
+          ),
+        ),
+      ],
+    );
+  }
+
+  static Widget KeyMetricsCard({
+    required BuildContext context,
+    required Future<List<dynamic>> Function() metricsFunction,
+  }) {
+    return Card(
+      child: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                Icon(
+                  Icons.insights,
+                  color: Theme.of(context).colorScheme.primary,
+                ),
+                const SizedBox(width: 12),
+                Text(
+                  'Key Metrics',
+                  style: Theme.of(
+                    context,
+                  ).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w600),
+                ),
+              ],
+            ),
+            const SizedBox(height: 16),
+            FutureBuilder<List<dynamic>>(
+              future: metricsFunction(),
+              builder: (context, snapshot) {
+                if (snapshot.connectionState == ConnectionState.waiting) {
+                  return const Center(
+                    child: Padding(
+                      padding: EdgeInsets.all(16.0),
+                      child: CircularProgressIndicator(),
+                    ),
+                  );
+                }
+
+                final average = snapshot.data?[0] as double? ?? 0.0;
+                final bestMonth = snapshot.data?[1] as Saves?;
+                final worstMonth = snapshot.data?[2] as Saves?;
+
+                return Column(
+                  children: [
+                    _buildMetricRow(
+                      context,
+                      Icons.trending_up,
+                      'Monthly Average',
+                      '${average.toStringAsFixed(2)}€',
+                    ),
+                    if (bestMonth != null) ...[
+                      const SizedBox(height: 12),
+                      _buildMetricRow(
+                        context,
+                        Icons.emoji_events,
+                        'Best Month',
+                        '${bestMonth.amount.toStringAsFixed(2)}€',
+                        subtitle:
+                            '${bestMonth.date.month}/${bestMonth.date.year}',
+                      ),
+                    ],
+                    if (worstMonth != null) ...[
+                      const SizedBox(height: 12),
+                      _buildMetricRow(
+                        context,
+                        Icons.trending_down,
+                        'Worst Month',
+                        '${worstMonth.amount.toStringAsFixed(2)}€',
+                        subtitle:
+                            '${worstMonth.date.month}/${worstMonth.date.year}',
+                      ),
+                    ],
+                  ],
+                );
+              },
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  static Widget ViewSelectionCard({
+    required BuildContext context,
+    required bool viewByYear,
+    required Function(bool) onViewChanged,
+    required int currentYear,
+    required Future<List<int>> Function() yearsFunction,
+    required Function(int) onYearChanged,
+  }) {
+    return Card(
+      child: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Column(
+          children: [
+            Row(
+              children: [
+                Icon(
+                  viewByYear ? Icons.calendar_today : Icons.calendar_month,
+                  color: Theme.of(context).colorScheme.primary,
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Text(
+                    viewByYear ? 'Yearly View' : 'Monthly View',
+                    style: Theme.of(context).textTheme.titleMedium,
+                  ),
+                ),
+                Switch(value: viewByYear, onChanged: onViewChanged),
+              ],
+            ),
+            if (viewByYear) ...[
+              const SizedBox(height: 16),
+              FutureBuilder<List<int>>(
+                future: yearsFunction(),
+                builder: (context, snapshot) {
+                  if (snapshot.connectionState == ConnectionState.waiting) {
+                    return const Center(child: CircularProgressIndicator());
+                  }
+
+                  final years = snapshot.data ?? [];
+                  if (years.isEmpty) {
+                    return const Text('No data available');
+                  }
+
+                  return DropdownButton<int>(
+                    value: years.contains(currentYear)
+                        ? currentYear
+                        : years.first,
+                    isExpanded: true,
+                    items: years
+                        .map(
+                          (year) => DropdownMenuItem(
+                            value: year,
+                            child: Text('$year'),
+                          ),
+                        )
+                        .toList(),
+                    onChanged: (selectedYear) {
+                      if (selectedYear != null) {
+                        onYearChanged(selectedYear);
+                      }
+                    },
+                  );
+                },
+              ),
+            ],
+          ],
+        ),
+      ),
+    );
+  }
+
+  static Widget OverviewCard({
+    required BuildContext context,
+    required bool isLoading,
+    required List<Saves> saves,
+  }) {
+    return Card(
+      child: Padding(
+        padding: const EdgeInsets.all(20.0),
+        child: isLoading
+            ? const Center(
+                child: Padding(
+                  padding: EdgeInsets.all(32.0),
+                  child: CircularProgressIndicator(),
+                ),
+              )
+            : Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    children: [
+                      Icon(
+                        Icons.trending_up,
+                        color: Theme.of(context).colorScheme.primary,
+                        size: 24,
+                      ),
+                      const SizedBox(width: 12),
+                      Text(
+                        'Savings Overview',
+                        style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 20),
+                  Text(
+                    'Total: ${saves.fold<double>(0, (sum, save) => sum + save.amount).toStringAsFixed(2)}€',
+                    style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                      fontWeight: FontWeight.bold,
+                      color: Theme.of(context).colorScheme.primary,
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+                  LinearChart(saves),
+                ],
+              ),
+      ),
+    );
+  }
+
   static Widget AddSaveButton({
     required BuildContext context,
     required Function(double) onPressed,

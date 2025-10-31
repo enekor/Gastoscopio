@@ -22,6 +22,17 @@ class SharedPreferencesService {
     return ret;
   }
 
+  Future<double?> getDoubleValue(SharedPreferencesKeys key) async {
+    final prefs = await SharedPreferences.getInstance();
+    var ret = prefs.getDouble(key.toString());
+    return ret;
+  }
+
+  Future<void> setDoubleValue(SharedPreferencesKeys key, double value) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setDouble(key.toString(), value);
+  }
+
   Future<List<String>> getStringListValue(SharedPreferencesKeys key) async {
     final prefs = await SharedPreferences.getInstance();
     var ret = prefs.getStringList(key.toString());
@@ -76,7 +87,8 @@ enum SharedPreferencesKeys {
   isSvgAvatar('is_svg_avatar'),
   numberOfMovements('number_of_movements'),
   isOpaqueBottomNav('is_opaque_bottom_nav'),
-  selectedLanguage('selected_language');
+  selectedLanguage('selected_language'),
+  savingGoal('saving_goal');
 
   final String value;
   const SharedPreferencesKeys(this.value);

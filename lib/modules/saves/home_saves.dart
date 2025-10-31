@@ -28,6 +28,8 @@ class _HomeSavesState extends State<HomeSaves> {
   bool _viewByYear = false;
   late final Future<void> _initializationFuture;
 
+  // Removed _buildMetricRow as it's now in SavesWidgets
+
   @override
   void initState() {
     super.initState();
@@ -89,6 +91,15 @@ class _HomeSavesState extends State<HomeSaves> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      floatingActionButton: FloatingActionButton(
+        onPressed: () {
+          // TODO: Implementar exportación
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('Export feature coming soon')),
+          );
+        },
+        child: const Icon(Icons.download),
+      ),
       appBar: AppBar(
         toolbarHeight: kToolbarHeight + 32,
         title: Padding(
@@ -123,87 +134,36 @@ class _HomeSavesState extends State<HomeSaves> {
             padding: const EdgeInsets.all(24.0),
             child: Column(
               children: [
-                Card(
-                  child: Padding(
-                    padding: const EdgeInsets.all(16.0),
-                    child: Column(
-                      children: [
-                        Row(
-                          children: [
-                            Icon(
-                              _viewByYear
-                                  ? Icons.calendar_today
-                                  : Icons.calendar_month,
-                              color: Theme.of(context).colorScheme.primary,
-                            ),
-                            const SizedBox(width: 12),
-                            Expanded(
-                              child: Text(
-                                _viewByYear ? 'Yearly View' : 'Monthly View',
-                                style: Theme.of(context).textTheme.titleMedium,
-                              ),
-                            ),
-                            Switch(
-                              value: _viewByYear,
-                              onChanged: (value) {
-                                setState(() {
-                                  _viewByYear = value;
-                                  widget.searchByWholeYear = value;
-                                });
-                                _loadData();
-                              },
-                            ),
-                          ],
-                        ),
-                        if (_viewByYear) ...[
-                          const SizedBox(height: 16),
-                          FutureBuilder<List<int>>(
-                            future: SqliteService().db.monthDao
-                                .findAllDistinctYears(),
-                            builder: (context, snapshot) {
-                              if (snapshot.connectionState ==
-                                  ConnectionState.waiting) {
-                                return const Center(
-                                  child: CircularProgressIndicator(),
-                                );
-                              }
-
-                              final years = snapshot.data ?? [];
-                              if (years.isEmpty) {
-                                return const Text('No data available');
-                              }
-
-                              return DropdownButton<int>(
-                                value: years.contains(widget.anno)
-                                    ? widget.anno
-                                    : years.first,
-                                isExpanded: true,
-                                items: years
-                                    .map(
-                                      (year) => DropdownMenuItem(
-                                        value: year,
-                                        child: Text('$year'),
-                                      ),
-                                    )
-                                    .toList(),
-                                onChanged: (selectedYear) {
-                                  if (selectedYear != null) {
-                                    setState(() {
-                                      widget.anno = selectedYear;
-                                    });
-                                    _loadData();
-                                  }
-                                },
-                              );
-                            },
-                          ),
-                        ],
-                      ],
-                    ),
-                  ),
+                SavesWidgets.KeyMetricsCard(
+                  context: context,
+                  metricsFunction: () => Future.wait([
+                    widget.savesService.getMonthlyAverage(),
+                    widget.savesService.getBestMonth(),
+                    widget.savesService.getWorstMonth(),
+                  ]),
                 ),
                 const SizedBox(height: 24),
-
+                SavesWidgets.ViewSelectionCard(
+                  context: context,
+                  viewByYear: _viewByYear,
+                  onViewChanged: (value) {
+                    setState(() {
+                      _viewByYear = value;
+                      widget.searchByWholeYear = value;
+                    });
+                    _loadData();
+                  },
+                  currentYear: widget.anno,
+                  yearsFunction: () =>
+                      SqliteService().db.monthDao.findAllDistinctYears(),
+                  onYearChanged: (selectedYear) {
+                    setState(() {
+                      widget.anno = selectedYear;
+                    });
+                    _loadData();
+                  },
+                ),
+                const SizedBox(height: 24),
                 if (!_hasInitialSave)
                   SavesWidgets.AddSaveButton(
                     context: context,
@@ -229,54 +189,10 @@ class _HomeSavesState extends State<HomeSaves> {
                     ),
                   ),
                 const SizedBox(height: 24),
-                Card(
-                  child: Padding(
-                    padding: const EdgeInsets.all(20.0),
-                    child: _isLoading
-                        ? const Center(
-                            child: Padding(
-                              padding: EdgeInsets.all(32.0),
-                              child: CircularProgressIndicator(),
-                            ),
-                          )
-                        : Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Row(
-                                children: [
-                                  Icon(
-                                    Icons.trending_up,
-                                    color: Theme.of(
-                                      context,
-                                    ).colorScheme.primary,
-                                    size: 24,
-                                  ),
-                                  const SizedBox(width: 12),
-                                  Text(
-                                    'Savings Overview',
-                                    style: Theme.of(context)
-                                        .textTheme
-                                        .titleLarge
-                                        ?.copyWith(fontWeight: FontWeight.w600),
-                                  ),
-                                ],
-                              ),
-                              const SizedBox(height: 20),
-                              Text(
-                                'Total: ${widget.saves.fold<double>(0, (sum, save) => sum + save.amount).toStringAsFixed(2)}€',
-                                style: Theme.of(context).textTheme.titleLarge
-                                    ?.copyWith(
-                                      fontWeight: FontWeight.bold,
-                                      color: Theme.of(
-                                        context,
-                                      ).colorScheme.primary,
-                                    ),
-                              ),
-                              const SizedBox(height: 16),
-                              SavesWidgets.LinearChart(widget.saves),
-                            ],
-                          ),
-                  ),
+                SavesWidgets.OverviewCard(
+                  context: context,
+                  isLoading: _isLoading,
+                  saves: widget.saves,
                 ),
               ],
             ),

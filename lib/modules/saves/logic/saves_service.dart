@@ -136,4 +136,44 @@ class SavesService extends ChangeNotifier {
     int monthCount = await _monthDao.countAllMonths() ?? 0;
     return monthCount != savesCount;
   }
+
+  Future<double> getMonthlyAverage() async {
+    final saves = await _savesDao.findAllSaves();
+    if (saves.isEmpty) return 0.0;
+
+    double total = saves.fold(0.0, (sum, save) => sum + save.amount);
+    return total / saves.length;
+  }
+
+  Future<Saves?> getBestMonth() async {
+    final saves = await _savesDao.findAllSaves();
+    if (saves.isEmpty) return null;
+
+    return saves.reduce(
+      (curr, next) => curr.amount > next.amount ? curr : next,
+    );
+  }
+
+  Future<Saves?> getWorstMonth() async {
+    final saves = await _savesDao.findAllSaves();
+    if (saves.isEmpty) return null;
+
+    return saves.reduce(
+      (curr, next) => curr.amount < next.amount ? curr : next,
+    );
+  }
+
+  Future<void> exportToCSV() async {
+    // TODO: Implementar exportación a CSV
+  }
+
+  double calculateProjectedDate(
+    double currentAmount,
+    double targetAmount,
+    double monthlyAverage,
+  ) {
+    if (monthlyAverage <= 0) return -1;
+    double remaining = targetAmount - currentAmount;
+    return remaining / monthlyAverage;
+  }
 }
