@@ -3,6 +3,7 @@ import 'package:cashly/data/services/shared_preferences_service.dart';
 import 'package:cashly/data/services/sqlite_service.dart';
 import 'package:cashly/modules/saves/logic/saves_service.dart';
 import 'package:cashly/modules/saves/widgets/saves_widgets.dart';
+import 'package:cashly/l10n/app_localizations.dart';
 import 'package:flutter/material.dart';
 
 class HomeSaves extends StatefulWidget {
@@ -90,7 +91,7 @@ class _HomeSavesState extends State<HomeSaves> {
                 size: 24,
               ),
               const SizedBox(width: 12),
-              const Text('Set Savings Goal'),
+              Text(AppLocalizations.of(context).setSavingsGoal),
             ],
           ),
           content: Form(
@@ -99,7 +100,7 @@ class _HomeSavesState extends State<HomeSaves> {
               mainAxisSize: MainAxisSize.min,
               children: [
                 Text(
-                  'Enter your target savings amount to track your progress.',
+                  AppLocalizations.of(context).enterTargetSavings,
                   style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                     color: Theme.of(context).colorScheme.onSurfaceVariant,
                   ),
@@ -109,19 +110,19 @@ class _HomeSavesState extends State<HomeSaves> {
                   controller: _goalController,
                   keyboardType: TextInputType.numberWithOptions(decimal: true),
                   decoration: InputDecoration(
-                    labelText: 'Goal Amount',
-                    hintText: 'Enter amount...',
+                    labelText: AppLocalizations.of(context).goalAmount,
+                    hintText: AppLocalizations.of(context).enterAmountHint,
                     prefixIcon: const Icon(Icons.euro),
                   ),
                   validator: (value) {
                     if (value == null || value.isEmpty) {
-                      return 'Please enter an amount';
+                      return AppLocalizations.of(context).pleaseEnterAmount;
                     }
                     if (double.tryParse(value) == null) {
-                      return 'Please enter a valid number';
+                      return AppLocalizations.of(context).pleaseEnterValidNumber;
                     }
                     if (double.parse(value) <= 0) {
-                      return 'Please enter an amount greater than 0';
+                      return AppLocalizations.of(context).pleaseEnterValidAmountGreaterThanZero;
                     }
                     return null;
                   },
@@ -134,7 +135,7 @@ class _HomeSavesState extends State<HomeSaves> {
               onPressed: () {
                 Navigator.of(context).pop();
               },
-              child: const Text('Cancel'),
+              child: Text(AppLocalizations.of(context).cancel),
             ),
             FilledButton(
               onPressed: () async {
@@ -150,7 +151,7 @@ class _HomeSavesState extends State<HomeSaves> {
                   Navigator.of(context).pop();
                 }
               },
-              child: const Text('Save Goal'),
+              child: Text(AppLocalizations.of(context).saveGoal),
             ),
           ],
         );
@@ -191,7 +192,7 @@ class _HomeSavesState extends State<HomeSaves> {
         onPressed: () {
           // TODO: Implementar exportación
           ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('Export feature coming soon')),
+            SnackBar(content: Text(AppLocalizations.of(context).exportComingSoon)),
           );
         },
         child: const Icon(Icons.download),
@@ -201,7 +202,7 @@ class _HomeSavesState extends State<HomeSaves> {
         title: Padding(
           padding: const EdgeInsets.only(top: 35.0),
           child: Text(
-            'Savings Management',
+            AppLocalizations.of(context).savingsManagement,
             style: Theme.of(
               context,
             ).textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.w600),

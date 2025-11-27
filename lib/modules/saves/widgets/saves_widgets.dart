@@ -1,6 +1,7 @@
 import 'package:cashly/data/models/saves.dart';
 import 'package:flutter/material.dart';
 import 'package:fl_chart/fl_chart.dart';
+import 'package:cashly/l10n/app_localizations.dart';
 
 class SavesWidgets {
   static Widget GoalProgressCard({
@@ -25,7 +26,7 @@ class SavesWidgets {
                 const SizedBox(width: 12),
                 Expanded(
                   child: Text(
-                    'Savings Goal',
+                    AppLocalizations.of(context).savingsGoal,
                     style: Theme.of(context).textTheme.titleLarge?.copyWith(
                       fontWeight: FontWeight.w600,
                     ),
@@ -34,7 +35,7 @@ class SavesWidgets {
                 IconButton(
                   icon: Icon(Icons.edit),
                   onPressed: onEditGoal,
-                  tooltip: 'Edit Goal',
+                  tooltip: AppLocalizations.of(context).editGoal,
                 ),
               ],
             ),
@@ -71,21 +72,21 @@ class SavesWidgets {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Text(
-                  '$percentageComplete% Complete',
+                  AppLocalizations.of(context).percentComplete(percentageComplete),
                   style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                     color: Theme.of(context).colorScheme.onSurfaceVariant,
                   ),
                 ),
                 if (remaining > 0)
                   Text(
-                    '${remaining.toStringAsFixed(2)}€ to go',
+                    '${remaining.toStringAsFixed(2)}€ ${AppLocalizations.of(context).toGo}',
                     style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                       color: Theme.of(context).colorScheme.onSurfaceVariant,
                     ),
                   )
                 else
                   Text(
-                    'Goal Achieved! 🎉',
+                    AppLocalizations.of(context).goalAchieved,
                     style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                       color: Colors.green,
                       fontWeight: FontWeight.bold,
@@ -154,7 +155,7 @@ class SavesWidgets {
                 ),
                 const SizedBox(width: 12),
                 Text(
-                  'Key Metrics',
+                  AppLocalizations.of(context).keyMetrics,
                   style: Theme.of(
                     context,
                   ).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w600),
@@ -183,7 +184,7 @@ class SavesWidgets {
                     _buildMetricRow(
                       context,
                       Icons.trending_up,
-                      'Monthly Average',
+                      AppLocalizations.of(context).monthlyAverage,
                       '${average.toStringAsFixed(2)}€',
                     ),
                     if (bestMonth != null) ...[
@@ -191,7 +192,7 @@ class SavesWidgets {
                       _buildMetricRow(
                         context,
                         Icons.emoji_events,
-                        'Best Month',
+                        AppLocalizations.of(context).bestMonth,
                         '${bestMonth.amount.toStringAsFixed(2)}€',
                         subtitle:
                             '${bestMonth.date.month}/${bestMonth.date.year}',
@@ -202,7 +203,7 @@ class SavesWidgets {
                       _buildMetricRow(
                         context,
                         Icons.trending_down,
-                        'Worst Month',
+                        AppLocalizations.of(context).worstMonth,
                         '${worstMonth.amount.toStringAsFixed(2)}€',
                         subtitle:
                             '${worstMonth.date.month}/${worstMonth.date.year}',
@@ -240,7 +241,7 @@ class SavesWidgets {
                 const SizedBox(width: 12),
                 Expanded(
                   child: Text(
-                    viewByYear ? 'Yearly View' : 'Monthly View',
+                    viewByYear ? AppLocalizations.of(context).yearlyView : AppLocalizations.of(context).monthlyView,
                     style: Theme.of(context).textTheme.titleMedium,
                   ),
                 ),
@@ -258,7 +259,7 @@ class SavesWidgets {
 
                   final years = snapshot.data ?? [];
                   if (years.isEmpty) {
-                    return const Text('No data available');
+                    return Text(AppLocalizations.of(context).noDataAvailable);
                   }
 
                   return DropdownButton<int>(
@@ -316,7 +317,7 @@ class SavesWidgets {
                       ),
                       const SizedBox(width: 12),
                       Text(
-                        'Savings Overview',
+                        AppLocalizations.of(context).savingsOverview,
                         style: Theme.of(context).textTheme.titleLarge?.copyWith(
                           fontWeight: FontWeight.w600,
                         ),
@@ -325,7 +326,7 @@ class SavesWidgets {
                   ),
                   const SizedBox(height: 20),
                   Text(
-                    'Total: ${saves.fold<double>(0, (sum, save) => sum + save.amount).toStringAsFixed(2)}€',
+                    '${AppLocalizations.of(context).total}: ${saves.fold<double>(0, (sum, save) => sum + save.amount).toStringAsFixed(2)}€',
                     style: Theme.of(context).textTheme.titleLarge?.copyWith(
                       fontWeight: FontWeight.bold,
                       color: Theme.of(context).colorScheme.primary,
@@ -346,7 +347,7 @@ class SavesWidgets {
     return OutlinedButton.icon(
       onPressed: onPressed,
       icon: const Icon(Icons.delete_outline, size: 20),
-      label: const Text('Delete Initial Save'),
+      label: Text(AppLocalizations.of(context).deleteInitialSave),
       style: OutlinedButton.styleFrom(
         minimumSize: const Size(double.infinity, 48),
         foregroundColor: Theme.of(context).colorScheme.error,
@@ -362,7 +363,7 @@ class SavesWidgets {
     return FilledButton.icon(
       onPressed: () => _showAddSaveFormPopUp(onPressed, context),
       icon: const Icon(Icons.add, size: 20),
-      label: const Text('Add Initial Save'),
+      label: Text(AppLocalizations.of(context).addInitialSave),
       style: FilledButton.styleFrom(
         minimumSize: const Size(double.infinity, 48),
       ),
@@ -388,7 +389,7 @@ class SavesWidgets {
                 size: 24,
               ),
               const SizedBox(width: 12),
-              const Text('Add Initial Save'),
+              Text(AppLocalizations.of(context).addInitialSaveTitle),
             ],
           ),
           content: Form(
@@ -397,7 +398,7 @@ class SavesWidgets {
               mainAxisSize: MainAxisSize.min,
               children: [
                 Text(
-                  'Enter your initial savings amount to start tracking your financial progress.',
+                  AppLocalizations.of(context).addInitialSaveDescription,
                   style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                     color: Theme.of(context).colorScheme.onSurfaceVariant,
                   ),
@@ -407,16 +408,16 @@ class SavesWidgets {
                   controller: _amountController,
                   keyboardType: TextInputType.numberWithOptions(decimal: true),
                   decoration: InputDecoration(
-                    labelText: 'Amount',
-                    hintText: 'Enter amount...',
+                    labelText: AppLocalizations.of(context).amount,
+                    hintText: AppLocalizations.of(context).enterAmountHint,
                     prefixIcon: const Icon(Icons.attach_money),
                   ),
                   validator: (value) {
                     if (value == null || value.isEmpty) {
-                      return 'Please enter an amount';
+                      return AppLocalizations.of(context).pleaseEnterAmount;
                     }
                     if (double.tryParse(value) == null) {
-                      return 'Please enter a valid number';
+                      return AppLocalizations.of(context).pleaseEnterValidNumber;
                     }
                     return null;
                   },
@@ -429,7 +430,7 @@ class SavesWidgets {
               onPressed: () {
                 Navigator.of(context).pop();
               },
-              child: const Text('Cancel'),
+              child: Text(AppLocalizations.of(context).cancel),
             ),
             FilledButton(
               onPressed: () {
@@ -439,7 +440,7 @@ class SavesWidgets {
                   Navigator.of(context).pop();
                 }
               },
-              child: const Text('Add Save'),
+              child: Text(AppLocalizations.of(context).addSave),
             ),
           ],
         );
@@ -451,7 +452,7 @@ class SavesWidgets {
     if (values.isEmpty) {
       return Container(
         height: 200,
-        child: Center(child: Text('No data available')),
+        child: Center(child: Text(AppLocalizations.of(context).noDataAvailable)),
       );
     }
 
@@ -524,7 +525,7 @@ class SavesWidgets {
                 getTitlesWidget: (value, meta) {
                   if (value.toInt() < sortedValues.length) {
                     final text = sortedValues[value.toInt()].isInitialValue
-                        ? 'Initial'
+                        ? AppLocalizations.of(context).initialLabel
                         : '${sortedValues[value.toInt()].date.month}/${sortedValues[value.toInt()].date.year}';
                     return Transform.rotate(
                       angle: -0.5,
