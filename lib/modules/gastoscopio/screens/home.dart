@@ -166,6 +166,26 @@ class _GastoscopioHomeScreenState extends State<GastoscopioHomeScreen> {
 
     return Scaffold(
       // Floating Action Button más moderno
+      floatingActionButton: Padding(
+        padding: const EdgeInsets.only(bottom: 70.0),
+        child: FloatingActionButton(
+          child: const Icon(Icons.add_card, size: 28),
+          onPressed: () {
+            showModalBottomSheet(
+              context: context,
+              isScrollControlled: true,
+              showDragHandle: true,
+              useSafeArea: true,
+              builder: (BuildContext context) => MovementFormScreen(),
+            );
+          },
+
+          elevation: 6,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(16),
+          ),
+        ),
+      ),
       body: SafeArea(
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
@@ -513,11 +533,10 @@ class _GastoscopioHomeScreenState extends State<GastoscopioHomeScreen> {
   Widget _buildActionGrid() {
     return GridView.count(
       shrinkWrap: true,
-      physics: const NeverScrollableScrollPhysics(),
-      crossAxisCount: 2,
+      crossAxisCount: 3,
       crossAxisSpacing: 12,
       mainAxisSpacing: 12,
-      childAspectRatio: 1.5, // Más anchos que altos
+      childAspectRatio: 1, // Más anchos que altos
       children: [
         _buildActionCard(
           icon: Icons.repeat,
@@ -539,45 +558,30 @@ class _GastoscopioHomeScreenState extends State<GastoscopioHomeScreen> {
             MaterialPageRoute(builder: (context) => HomeSaves()),
           ),
         ),
-        if (_isLastDaysOfTheWeek()) ...[
-          _buildActionCard(
-            icon: Icons.summarize,
-            title: AppLocalizations.of(context)!.showSummary,
-            color: Colors.purpleAccent,
-            onTap: () => Navigator.push(
-              context,
-              MaterialPageRoute(builder: (context) => const SummaryScreen()),
-            ),
-          ),
-          _buildActionCard(
-            icon: Icons.calendar_month,
-            title: AppLocalizations.of(context)!.createNextMonth,
-            color: Colors.teal,
-            onTap: () async {
-              await FinanceService.getInstance(
-                SqliteService().db.monthDao,
-                SqliteService().db.movementValueDao,
-                SqliteService().db.fixedMovementDao,
-              ).createNextMonth(context);
-              setState(() {});
-            },
-          ),
-        ],
+        //if (_isLastDaysOfTheWeek()) ...[
         _buildActionCard(
-          icon: Icons.add_card, // Icono moderno
-          title: "Añadir Gasto",
-          color: Colors.redAccent, // Color llamativo para gastos
-          onTap: () {
-            // AQUÍ ESTÁ TU FUNCIÓN EXACTA
-            showModalBottomSheet(
-              context: context,
-              isScrollControlled: true,
-              showDragHandle: true,
-              useSafeArea: true,
-              builder: (BuildContext context) => MovementFormScreen(),
-            );
+          icon: Icons.summarize,
+          title: AppLocalizations.of(context)!.showSummary,
+          color: Colors.purpleAccent,
+          onTap: () => Navigator.push(
+            context,
+            MaterialPageRoute(builder: (context) => const SummaryScreen()),
+          ),
+        ),
+        _buildActionCard(
+          icon: Icons.calendar_month,
+          title: AppLocalizations.of(context)!.createNextMonth,
+          color: Colors.teal,
+          onTap: () async {
+            await FinanceService.getInstance(
+              SqliteService().db.monthDao,
+              SqliteService().db.movementValueDao,
+              SqliteService().db.fixedMovementDao,
+            ).createNextMonth(context);
+            setState(() {});
           },
         ),
+        //],
       ],
     );
   }
@@ -602,8 +606,8 @@ class _GastoscopioHomeScreenState extends State<GastoscopioHomeScreen> {
         child: Padding(
           padding: const EdgeInsets.all(16.0),
           child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            crossAxisAlignment: CrossAxisAlignment.center,
+            mainAxisAlignment: MainAxisAlignment.spaceAround,
             children: [
               Container(
                 padding: const EdgeInsets.all(8),
