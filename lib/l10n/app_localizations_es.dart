@@ -1049,4 +1049,89 @@ class AppLocalizationsEs extends AppLocalizations {
 
   @override
   String get savings => 'Ahorros';
+
+  @override
+  String get savingsManagement => 'Gestión de ahorros';
+
+  @override
+  String get exportComingSoon => 'Función de exportar próximamente';
+
+  @override
+  String get setSavingsGoal => 'Establecer objetivo de ahorro';
+
+  @override
+  String get enterTargetSavings =>
+      'Introduce tu objetivo de ahorro para seguir tu progreso.';
+
+  @override
+  String get goalAmount => 'Cantidad objetivo';
+
+  @override
+  String get enterAmountHint => 'Introduce la cantidad...';
+
+  @override
+  String get saveGoal => 'Guardar objetivo';
+
+  @override
+  String get savingsGoal => 'Objetivo de ahorro';
+
+  @override
+  String get editGoal => 'Editar objetivo';
+
+  @override
+  String percentComplete(Object percent) {
+    return '$percent% completado';
+  }
+
+  @override
+  String get toGo => 'restantes';
+
+  @override
+  String get goalAchieved => '¡Objetivo alcanzado! 🎉';
+
+  @override
+  String get keyMetrics => 'Métricas clave';
+
+  @override
+  String get monthlyAverage => 'Promedio mensual';
+
+  @override
+  String get bestMonth => 'Mejor mes';
+
+  @override
+  String get worstMonth => 'Peor mes';
+
+  @override
+  String get yearlyView => 'Vista anual';
+
+  @override
+  String get monthlyView => 'Vista mensual';
+
+  @override
+  String get noDataAvailable => 'No hay datos disponibles';
+
+  @override
+  String get savingsOverview => 'Resumen de ahorros';
+
+  @override
+  String get deleteInitialSave => 'Eliminar ahorro inicial';
+
+  @override
+  String get addInitialSave => 'Añadir ahorro inicial';
+
+  @override
+  String get addInitialSaveTitle => 'Añadir ahorro inicial';
+
+  @override
+  String get addInitialSaveDescription =>
+      'Introduce tu ahorro inicial para empezar a seguir tu progreso financiero.';
+
+  @override
+  String get addSave => 'Añadir ahorro';
+
+  @override
+  String get initialLabel => 'Inicial';
+
+  @override
+  String get createNextMonth => '¿crear el mes siguiente?';
 }

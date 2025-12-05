@@ -72,7 +72,9 @@ class SavesWidgets {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Text(
-                  AppLocalizations.of(context).percentComplete(percentageComplete),
+                  AppLocalizations.of(
+                    context,
+                  ).percentComplete(percentageComplete),
                   style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                     color: Theme.of(context).colorScheme.onSurfaceVariant,
                   ),
@@ -241,7 +243,9 @@ class SavesWidgets {
                 const SizedBox(width: 12),
                 Expanded(
                   child: Text(
-                    viewByYear ? AppLocalizations.of(context).yearlyView : AppLocalizations.of(context).monthlyView,
+                    viewByYear
+                        ? AppLocalizations.of(context).yearlyView
+                        : AppLocalizations.of(context).monthlyView,
                     style: Theme.of(context).textTheme.titleMedium,
                   ),
                 ),
@@ -333,7 +337,7 @@ class SavesWidgets {
                     ),
                   ),
                   const SizedBox(height: 16),
-                  LinearChart(saves),
+                  LinearChart(saves, context),
                 ],
               ),
       ),
@@ -417,7 +421,9 @@ class SavesWidgets {
                       return AppLocalizations.of(context).pleaseEnterAmount;
                     }
                     if (double.tryParse(value) == null) {
-                      return AppLocalizations.of(context).pleaseEnterValidNumber;
+                      return AppLocalizations.of(
+                        context,
+                      ).pleaseEnterValidNumber;
                     }
                     return null;
                   },
@@ -448,11 +454,13 @@ class SavesWidgets {
     );
   }
 
-  static Widget LinearChart(List<Saves> values) {
+  static Widget LinearChart(List<Saves> values, BuildContext context) {
     if (values.isEmpty) {
       return Container(
         height: 200,
-        child: Center(child: Text(AppLocalizations.of(context).noDataAvailable)),
+        child: Center(
+          child: Text(AppLocalizations.of(context).noDataAvailable),
+        ),
       );
     }
 

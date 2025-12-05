@@ -1993,6 +1993,168 @@ abstract class AppLocalizations {
   /// In es, this message translates to:
   /// **'Ahorros'**
   String get savings;
+
+  /// No description provided for @savingsManagement.
+  ///
+  /// In es, this message translates to:
+  /// **'Gestión de ahorros'**
+  String get savingsManagement;
+
+  /// No description provided for @exportComingSoon.
+  ///
+  /// In es, this message translates to:
+  /// **'Función de exportar próximamente'**
+  String get exportComingSoon;
+
+  /// No description provided for @setSavingsGoal.
+  ///
+  /// In es, this message translates to:
+  /// **'Establecer objetivo de ahorro'**
+  String get setSavingsGoal;
+
+  /// No description provided for @enterTargetSavings.
+  ///
+  /// In es, this message translates to:
+  /// **'Introduce tu objetivo de ahorro para seguir tu progreso.'**
+  String get enterTargetSavings;
+
+  /// No description provided for @goalAmount.
+  ///
+  /// In es, this message translates to:
+  /// **'Cantidad objetivo'**
+  String get goalAmount;
+
+  /// No description provided for @enterAmountHint.
+  ///
+  /// In es, this message translates to:
+  /// **'Introduce la cantidad...'**
+  String get enterAmountHint;
+
+  /// No description provided for @saveGoal.
+  ///
+  /// In es, this message translates to:
+  /// **'Guardar objetivo'**
+  String get saveGoal;
+
+  /// No description provided for @savingsGoal.
+  ///
+  /// In es, this message translates to:
+  /// **'Objetivo de ahorro'**
+  String get savingsGoal;
+
+  /// No description provided for @editGoal.
+  ///
+  /// In es, this message translates to:
+  /// **'Editar objetivo'**
+  String get editGoal;
+
+  /// No description provided for @percentComplete.
+  ///
+  /// In es, this message translates to:
+  /// **'{percent}% completado'**
+  String percentComplete(Object percent);
+
+  /// No description provided for @toGo.
+  ///
+  /// In es, this message translates to:
+  /// **'restantes'**
+  String get toGo;
+
+  /// No description provided for @goalAchieved.
+  ///
+  /// In es, this message translates to:
+  /// **'¡Objetivo alcanzado! 🎉'**
+  String get goalAchieved;
+
+  /// No description provided for @keyMetrics.
+  ///
+  /// In es, this message translates to:
+  /// **'Métricas clave'**
+  String get keyMetrics;
+
+  /// No description provided for @monthlyAverage.
+  ///
+  /// In es, this message translates to:
+  /// **'Promedio mensual'**
+  String get monthlyAverage;
+
+  /// No description provided for @bestMonth.
+  ///
+  /// In es, this message translates to:
+  /// **'Mejor mes'**
+  String get bestMonth;
+
+  /// No description provided for @worstMonth.
+  ///
+  /// In es, this message translates to:
+  /// **'Peor mes'**
+  String get worstMonth;
+
+  /// No description provided for @yearlyView.
+  ///
+  /// In es, this message translates to:
+  /// **'Vista anual'**
+  String get yearlyView;
+
+  /// No description provided for @monthlyView.
+  ///
+  /// In es, this message translates to:
+  /// **'Vista mensual'**
+  String get monthlyView;
+
+  /// No description provided for @noDataAvailable.
+  ///
+  /// In es, this message translates to:
+  /// **'No hay datos disponibles'**
+  String get noDataAvailable;
+
+  /// No description provided for @savingsOverview.
+  ///
+  /// In es, this message translates to:
+  /// **'Resumen de ahorros'**
+  String get savingsOverview;
+
+  /// No description provided for @deleteInitialSave.
+  ///
+  /// In es, this message translates to:
+  /// **'Eliminar ahorro inicial'**
+  String get deleteInitialSave;
+
+  /// No description provided for @addInitialSave.
+  ///
+  /// In es, this message translates to:
+  /// **'Añadir ahorro inicial'**
+  String get addInitialSave;
+
+  /// No description provided for @addInitialSaveTitle.
+  ///
+  /// In es, this message translates to:
+  /// **'Añadir ahorro inicial'**
+  String get addInitialSaveTitle;
+
+  /// No description provided for @addInitialSaveDescription.
+  ///
+  /// In es, this message translates to:
+  /// **'Introduce tu ahorro inicial para empezar a seguir tu progreso financiero.'**
+  String get addInitialSaveDescription;
+
+  /// No description provided for @addSave.
+  ///
+  /// In es, this message translates to:
+  /// **'Añadir ahorro'**
+  String get addSave;
+
+  /// No description provided for @initialLabel.
+  ///
+  /// In es, this message translates to:
+  /// **'Inicial'**
+  String get initialLabel;
+
+  /// No description provided for @createNextMonth.
+  ///
+  /// In es, this message translates to:
+  /// **'¿crear el mes siguiente?'**
+  String get createNextMonth;
 }
 
 class _AppLocalizationsDelegate

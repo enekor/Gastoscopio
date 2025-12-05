@@ -613,4 +613,12 @@ class FinanceService extends ChangeNotifier {
     await db.savesDao.deleteSavesByMonthId(_currentMonth!.id!);
     await db.savesDao.insertSaves(save);
   }
+
+  Future<void> createNextMonth(BuildContext context) async {
+    final now = DateTime.now();
+    int nextMonth = now.month + 1 == 13 ? 1 : now.month + 1;
+    int nextYear = now.month + 1 == 13 ? now.year + 1 : now.year;
+
+    await handleMonthSelection(nextMonth, nextYear, context);
+  }
 }

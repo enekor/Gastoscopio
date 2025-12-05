@@ -370,5 +370,6 @@
   "addInitialSaveTitle": "Add Initial Save",
   "addInitialSaveDescription": "Enter your initial savings amount to start tracking your financial progress.",
   "addSave": "Add Save",
-  "initialLabel": "Initial"
+  "initialLabel": "Initial",
+  "createNextMonth": "Create next month?"
 }

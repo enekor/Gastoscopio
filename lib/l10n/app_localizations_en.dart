@@ -1034,4 +1034,89 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get savings => 'Savings';
+
+  @override
+  String get savingsManagement => 'Savings Management';
+
+  @override
+  String get exportComingSoon => 'Export feature coming soon';
+
+  @override
+  String get setSavingsGoal => 'Set Savings Goal';
+
+  @override
+  String get enterTargetSavings =>
+      'Enter your target savings amount to track your progress.';
+
+  @override
+  String get goalAmount => 'Goal Amount';
+
+  @override
+  String get enterAmountHint => 'Enter amount...';
+
+  @override
+  String get saveGoal => 'Save Goal';
+
+  @override
+  String get savingsGoal => 'Savings Goal';
+
+  @override
+  String get editGoal => 'Edit Goal';
+
+  @override
+  String percentComplete(Object percent) {
+    return '$percent% Complete';
+  }
+
+  @override
+  String get toGo => 'to go';
+
+  @override
+  String get goalAchieved => 'Goal Achieved! 🎉';
+
+  @override
+  String get keyMetrics => 'Key Metrics';
+
+  @override
+  String get monthlyAverage => 'Monthly Average';
+
+  @override
+  String get bestMonth => 'Best Month';
+
+  @override
+  String get worstMonth => 'Worst Month';
+
+  @override
+  String get yearlyView => 'Yearly View';
+
+  @override
+  String get monthlyView => 'Monthly View';
+
+  @override
+  String get noDataAvailable => 'No data available';
+
+  @override
+  String get savingsOverview => 'Savings Overview';
+
+  @override
+  String get deleteInitialSave => 'Delete Initial Save';
+
+  @override
+  String get addInitialSave => 'Add Initial Save';
+
+  @override
+  String get addInitialSaveTitle => 'Add Initial Save';
+
+  @override
+  String get addInitialSaveDescription =>
+      'Enter your initial savings amount to start tracking your financial progress.';
+
+  @override
+  String get addSave => 'Add Save';
+
+  @override
+  String get initialLabel => 'Initial';
+
+  @override
+  String get createNextMonth => 'Create next month?';
 }

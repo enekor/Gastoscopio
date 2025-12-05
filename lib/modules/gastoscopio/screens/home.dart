@@ -224,7 +224,9 @@ class _GastoscopioHomeScreenState extends State<GastoscopioHomeScreen> {
               const SizedBox(height: 8),
               _buildSavesButton(),
               const SizedBox(height: 8),
-              _isLastDaysOfTheWeek() ? _buildShowSummaryButton() : Container(),
+              // _isLastDaysOfTheWeek() ? _buildFinalDaysButtons() : Container(),
+              _buildFinalDaysButtons(),
+              const SizedBox(height: 16),
               _ChartPart(_moneda),
             ],
           ),
@@ -361,6 +363,16 @@ class _GastoscopioHomeScreenState extends State<GastoscopioHomeScreen> {
     );
   }
 
+  Widget _buildFinalDaysButtons() {
+    return Column(
+      children: [
+        _buildShowSummaryButton(),
+        const SizedBox(height: 8),
+        _buildShowCreateNextMonth(),
+      ],
+    );
+  }
+
   Widget _buildShowSummaryButton() {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 6.0),
@@ -380,6 +392,55 @@ class _GastoscopioHomeScreenState extends State<GastoscopioHomeScreen> {
             ),
             label: Text(
               AppLocalizations.of(context)!.showSummary,
+              style: TextStyle(
+                color: Theme.of(context).colorScheme.primary,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: Theme.of(
+                context,
+              ).colorScheme.secondary.withAlpha(25),
+              foregroundColor: Theme.of(context).colorScheme.primary,
+              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(12),
+                side: BorderSide(
+                  color: Theme.of(context).colorScheme.primary.withOpacity(0.3),
+                  width: 1,
+                ),
+              ),
+              elevation: 1,
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildShowCreateNextMonth() {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 6.0),
+      child: Center(
+        child: SizedBox(
+          width: double.infinity,
+          child: ElevatedButton.icon(
+            onPressed: () async {
+              // Acción para crear el próximo mes
+              await FinanceService.getInstance(
+                SqliteService().db.monthDao,
+                SqliteService().db.movementValueDao,
+                SqliteService().db.fixedMovementDao,
+              ).createNextMonth(context);
+
+              setState(() {});
+            },
+            icon: Icon(
+              Icons.calendar_today,
+              color: Theme.of(context).colorScheme.primary,
+            ),
+            label: Text(
+              AppLocalizations.of(context)!.createNextMonth,
               style: TextStyle(
                 color: Theme.of(context).colorScheme.primary,
                 fontWeight: FontWeight.w600,
