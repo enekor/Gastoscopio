@@ -305,11 +305,7 @@ class _MainScreenState extends State<MainScreen>
                 ? Theme.of(context).colorScheme.onPrimary.withAlpha(50)
                 : Theme.of(context).colorScheme.primary.withAlpha(50),
             isOpaque: _isOpaqueBottomNav,
-            margin: EdgeInsets.only(
-              left: 24.0,
-              right: _selectedIndex != 2 ? 75.0 : 24.0,
-              bottom: 18.0,
-            ),
+            margin: EdgeInsets.only(left: 24.0, right: 24.0, bottom: 18.0),
             borderRadius: BorderRadius.circular(24),
             border: _isOpaqueBottomNav
                 ? null

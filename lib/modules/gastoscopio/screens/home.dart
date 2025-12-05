@@ -30,7 +30,8 @@ class GastoscopioHomeScreen extends StatefulWidget {
 }
 
 class _GastoscopioHomeScreenState extends State<GastoscopioHomeScreen> {
-  String _greeting = '';
+  String _greetingTitle = '';
+  String _greetingSubtitle = ''; // Separé el saludo para mejor estilo
   bool _isSvg = false;
   bool _isOpaqueBottomNav = false;
   int _r = 255;
@@ -101,7 +102,6 @@ class _GastoscopioHomeScreenState extends State<GastoscopioHomeScreen> {
 
   Future<void> _loadInitialData() async {
     try {
-      // Establecer el mes actual y cargar sus datos
       final service = FinanceService.getInstance(
         SqliteService().db.monthDao,
         SqliteService().db.movementValueDao,
@@ -119,8 +119,10 @@ class _GastoscopioHomeScreenState extends State<GastoscopioHomeScreen> {
       today.year,
       today.month + 1,
       1,
-    ).add(Duration(days: -1));
-    DateTime lastLimitDaysOfTheWeek = lastDayOfTheWeek.add(Duration(days: -5));
+    ).add(const Duration(days: -1));
+    DateTime lastLimitDaysOfTheWeek = lastDayOfTheWeek.add(
+      const Duration(days: -5),
+    );
 
     return today.isAfter(lastLimitDaysOfTheWeek) &&
         (today.isBefore(lastDayOfTheWeek) ||
@@ -136,14 +138,21 @@ class _GastoscopioHomeScreenState extends State<GastoscopioHomeScreen> {
     if (mounted) {
       setState(() {
         if (hour < 12) {
-          _greeting =
-              '¡${AppLocalizations.of(context)!.goodMorning}$nameGreeting! ✨\n${AppLocalizations.of(context)!.startDayWithEnergy}';
+          _greetingTitle =
+              '¡${AppLocalizations.of(context)!.goodMorning}$nameGreeting!';
+          _greetingSubtitle = AppLocalizations.of(context)!.startDayWithEnergy;
         } else if (hour < 18) {
-          _greeting =
-              '¡${AppLocalizations.of(context)!.goodAfternoon}$nameGreeting! ☀️\n${AppLocalizations.of(context)!.keepBuildingFinancialFuture}';
+          _greetingTitle =
+              '¡${AppLocalizations.of(context)!.goodAfternoon}$nameGreeting!';
+          _greetingSubtitle = AppLocalizations.of(
+            context,
+          )!.keepBuildingFinancialFuture;
         } else {
-          _greeting =
-              '¡${AppLocalizations.of(context)!.goodEvening}$nameGreeting! 🌟\n${AppLocalizations.of(context)!.perfectTimeToReviewFinances}';
+          _greetingTitle =
+              '¡${AppLocalizations.of(context)!.goodEvening}$nameGreeting!';
+          _greetingSubtitle = AppLocalizations.of(
+            context,
+          )!.perfectTimeToReviewFinances;
         }
       });
     }
@@ -151,128 +160,66 @@ class _GastoscopioHomeScreenState extends State<GastoscopioHomeScreen> {
 
   @override
   Widget build(BuildContext context) {
+    // Definimos un color primario local para usar en gradientes si el del tema es plano
+    final primaryColor = Theme.of(context).colorScheme.primary;
+    final secondaryColor = Theme.of(context).colorScheme.secondary;
+
     return Scaffold(
-      floatingActionButton: Card(
-        color: _isOpaqueBottomNav
-            ? Theme.of(context).colorScheme.primary.withAlpha(200)
-            : Theme.of(context).colorScheme.secondary.withAlpha(25),
-        elevation: _isOpaqueBottomNav ? 4 : 8,
-        shape: CircleBorder(
-          side: _isOpaqueBottomNav
-              ? BorderSide.none
-              : BorderSide(
-                  color: Theme.of(context).colorScheme.primary.withOpacity(0.3),
-                  width: 2,
-                ),
-        ),
-        child: Container(
-          width: 45,
-          height: 45,
-          decoration: BoxDecoration(
-            shape: BoxShape.circle,
-            border: _isOpaqueBottomNav
-                ? null
-                : Border.all(
+      // Floating Action Button más moderno
+      body: SafeArea(
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+          child: SingleChildScrollView(
+            physics: const BouncingScrollPhysics(),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                _buildHeader(),
+                const SizedBox(height: 20),
+                if (_showIaBanner) ...[
+                  _buildIaBanner(context),
+                  const SizedBox(height: 16),
+                ],
+                _buildModernBalanceCard(primaryColor, secondaryColor),
+                const SizedBox(height: 24),
+
+                // Título de sección Acciones Rápidas
+                Text(
+                  "Acciones Rápidas", // Puedes usar localizaciones aquí
+                  style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                    fontWeight: FontWeight.bold,
                     color: Theme.of(
                       context,
-                    ).colorScheme.primary.withOpacity(0.3),
-                    width: 2,
+                    ).colorScheme.onSurface.withOpacity(0.7),
                   ),
-          ),
-          child: FloatingActionButton.small(
-            backgroundColor: Colors.transparent,
-            elevation: 0,
-            onPressed: () {
-              showModalBottomSheet(
-                context: context,
-                isScrollControlled: true,
-                showDragHandle: true,
-                useSafeArea: true,
-                builder: (BuildContext context) => MovementFormScreen(),
-              );
-            },
-            child: Icon(
-              Icons.add,
-              color: _isOpaqueBottomNav
-                  ? Theme.of(context).colorScheme.onPrimary
-                  : Theme.of(context).colorScheme.primary,
-            ),
-            heroTag: 'home_fab',
-          ),
-        ),
-      ),
-      body: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 25),
-        child: SingleChildScrollView(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              if (_showIaBanner) _buildIaBanner(context),
-              _buildGreetingsPart(),
-              const SizedBox(height: 30),
-              SizedBox(
-                height: 200,
-                child: Row(
+                ),
+                const SizedBox(height: 12),
+                _buildActionGrid(),
+
+                const SizedBox(height: 24),
+                // Título de sección Movimientos
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Expanded(flex: 5, child: _buildTotalPart()),
-                    Expanded(flex: 5, child: _buildLastInteractionsPart()),
+                    Text(
+                      AppLocalizations.of(context)!.lastMovements,
+                      style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                        fontWeight: FontWeight.bold,
+                        color: Theme.of(
+                          context,
+                        ).colorScheme.onSurface.withOpacity(0.7),
+                      ),
+                    ),
+                    // Icono opcional para "Ver todo" si quisieras implementarlo
                   ],
                 ),
-              ),
-              const SizedBox(height: 16),
-              _buildFixedMovementsButton(),
-              const SizedBox(height: 8),
-              _buildSavesButton(),
-              const SizedBox(height: 8),
-              _isLastDaysOfTheWeek() ? _buildFinalDaysButtons() : Container(),
-              // _buildFinalDaysButtons(),
-              const SizedBox(height: 16),
-              _ChartPart(_moneda),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
+                const SizedBox(height: 12),
+                _buildLastInteractionsPart(),
 
-  Widget _buildIaBanner(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 18.0),
-      child: GestureDetector(
-        onTap: () => _showIaInfoDialog(context),
-        child: Card(
-          color: Colors.amber.shade100,
-          elevation: 4,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(16),
-            side: BorderSide(color: Colors.amber.shade400, width: 2),
-          ),
-          child: Padding(
-            padding: const EdgeInsets.all(18.0),
-            child: Row(
-              children: [
-                Icon(Icons.flash_on, color: Colors.amber.shade800, size: 32),
-                const SizedBox(width: 16),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        AppLocalizations.of(context)!.activateIaFeatures,
-                        style: Theme.of(context).textTheme.titleMedium
-                            ?.copyWith(
-                              color: Colors.amber.shade900,
-                              fontWeight: FontWeight.bold,
-                            ),
-                      ),
-                    ],
-                  ),
-                ),
-                const Icon(
-                  Icons.arrow_forward_ios,
-                  color: Colors.amber,
-                  size: 20,
-                ),
+                const SizedBox(height: 24),
+                _ChartPart(_moneda),
+                // Espacio extra para que el FAB no tape contenido
+                const SizedBox(height: 80),
               ],
             ),
           ),
@@ -281,6 +228,538 @@ class _GastoscopioHomeScreenState extends State<GastoscopioHomeScreen> {
     );
   }
 
+  // --- NUEVO HEADER ---
+  Widget _buildHeader() {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: [
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                _greetingTitle,
+                style: Theme.of(context).textTheme.headlineSmall?.copyWith(
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+              const SizedBox(height: 4),
+              Text(
+                _greetingSubtitle,
+                style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                  color: Theme.of(
+                    context,
+                  ).colorScheme.onSurface.withOpacity(0.6),
+                ),
+              ),
+            ],
+          ),
+        ),
+        const SizedBox(width: 10),
+        // Avatar más pequeño y elegante
+        Container(
+          height: 50,
+          width: 50,
+          decoration: BoxDecoration(
+            color: Theme.of(context).colorScheme.surfaceVariant,
+            shape: BoxShape.circle,
+            border: Border.all(
+              color: Theme.of(context).colorScheme.outline.withOpacity(0.2),
+            ),
+          ),
+          padding: const EdgeInsets.all(4),
+          child: ClipOval(
+            child: _isSvg
+                ? SvgPicture.asset(
+                    'assets/logo.svg',
+                    color: Color.fromARGB(255, _r, _g, _b),
+                    fit: BoxFit.contain,
+                  )
+                : Image.asset('assets/logo.png', fit: BoxFit.contain),
+          ),
+        ),
+      ],
+    );
+  }
+
+  // --- TARJETA DE BALANCE PRINCIPAL (MODERNA) ---
+  Widget _buildModernBalanceCard(Color primary, Color secondary) {
+    final service = FinanceService.getInstance(
+      SqliteService().db.monthDao,
+      SqliteService().db.movementValueDao,
+      SqliteService().db.fixedMovementDao,
+    );
+
+    return AnimatedBuilder(
+      animation: service,
+      builder: (context, child) {
+        final total = service.monthTotal;
+        final incomes = service.monthIncomes;
+        final expenses = service.monthExpenses;
+        final isPositive = total >= 0;
+
+        return Container(
+          width: double.infinity,
+          height: 180,
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(28),
+            gradient: LinearGradient(
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+              colors: [
+                primary,
+                primary.withOpacity(0.7), // Gradiente sutil
+              ],
+            ),
+            boxShadow: [
+              BoxShadow(
+                color: primary.withOpacity(0.4),
+                blurRadius: 15,
+                offset: const Offset(0, 8),
+              ),
+            ],
+          ),
+          child: Stack(
+            children: [
+              // Decoración de fondo (círculos abstractos)
+              Positioned(
+                right: -30,
+                top: -30,
+                child: CircleAvatar(
+                  radius: 60,
+                  backgroundColor: Colors.white.withOpacity(0.1),
+                ),
+              ),
+              Positioned(
+                bottom: -20,
+                left: 20,
+                child: CircleAvatar(
+                  radius: 40,
+                  backgroundColor: Colors.white.withOpacity(0.1),
+                ),
+              ),
+
+              // Contenido
+              Padding(
+                padding: const EdgeInsets.all(24.0),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text(
+                          service.currentMonthName(),
+                          style: TextStyle(
+                            color: Colors.white.withOpacity(0.9),
+                            fontSize: 16,
+                            fontWeight: FontWeight.w500,
+                          ),
+                        ),
+                        Icon(
+                          Icons.account_balance_wallet,
+                          color: Colors.white.withOpacity(0.8),
+                        ),
+                      ],
+                    ),
+
+                    // Carrusel Vertical para el Total / Desglose
+                    Expanded(
+                      child: CarouselSlider(
+                        carouselController: _carouselController,
+                        options: CarouselOptions(
+                          scrollDirection: Axis.vertical,
+                          viewportFraction: 1.0,
+                          enableInfiniteScroll: false,
+                          height: 100, // Ajustar altura interna
+                        ),
+                        items: [
+                          // Página 1: Balance Total
+                          Center(
+                            child: Column(
+                              mainAxisSize: MainAxisSize.min,
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  AppLocalizations.of(context)!.monthBalance,
+                                  style: TextStyle(
+                                    color: Colors.white.withOpacity(0.7),
+                                    fontSize: 14,
+                                  ),
+                                ),
+                                FittedBox(
+                                  fit: BoxFit.scaleDown,
+                                  child: Text(
+                                    '${total < 0 ? '-' : ''}${total.abs().toStringAsFixed(2)}$_moneda',
+                                    style: const TextStyle(
+                                      color: Colors.white,
+                                      fontSize: 36,
+                                      fontWeight: FontWeight.bold,
+                                      letterSpacing: -0.5,
+                                    ),
+                                  ),
+                                ),
+                                GestureDetector(
+                                  onTap: () => _carouselController.nextPage(
+                                    curve: Curves.easeOut,
+                                  ),
+                                  child: Container(
+                                    padding: const EdgeInsets.only(top: 5),
+                                    child: Row(
+                                      mainAxisSize: MainAxisSize.min,
+                                      children: [
+                                        Text(
+                                          "Ver desglose",
+                                          style: TextStyle(
+                                            color: Colors.white.withOpacity(
+                                              0.6,
+                                            ),
+                                            fontSize: 12,
+                                          ),
+                                        ),
+                                        Icon(
+                                          Icons.arrow_drop_down,
+                                          color: Colors.white.withOpacity(0.6),
+                                          size: 16,
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                          // Página 2: Ingresos vs Gastos
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceAround,
+                            children: [
+                              _buildBalanceDetailItem(
+                                Icons.arrow_downward,
+                                "Ingresos",
+                                incomes,
+                                Colors.greenAccent,
+                              ),
+                              Container(
+                                width: 1,
+                                height: 40,
+                                color: Colors.white.withOpacity(0.3),
+                              ),
+                              _buildBalanceDetailItem(
+                                Icons.arrow_upward,
+                                "Gastos",
+                                expenses,
+                                Colors.redAccent.shade100,
+                              ),
+                              IconButton(
+                                icon: Icon(
+                                  Icons.arrow_drop_up,
+                                  color: Colors.white.withOpacity(0.6),
+                                ),
+                                onPressed: () => _carouselController
+                                    .previousPage(curve: Curves.easeOut),
+                              ),
+                            ],
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
+  Widget _buildBalanceDetailItem(
+    IconData icon,
+    String label,
+    double amount,
+    Color color,
+  ) {
+    return Column(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        Row(
+          children: [
+            Icon(icon, color: color, size: 16),
+            const SizedBox(width: 4),
+            Text(
+              label,
+              style: TextStyle(
+                color: Colors.white.withOpacity(0.8),
+                fontSize: 12,
+              ),
+            ),
+          ],
+        ),
+        const SizedBox(height: 4),
+        Text(
+          '${amount.abs().toStringAsFixed(0)}$_moneda',
+          style: const TextStyle(
+            color: Colors.white,
+            fontWeight: FontWeight.bold,
+            fontSize: 18,
+          ),
+        ),
+      ],
+    );
+  }
+
+  // --- GRID DE ACCIONES (Botones cuadrados modernos) ---
+  Widget _buildActionGrid() {
+    return GridView.count(
+      shrinkWrap: true,
+      physics: const NeverScrollableScrollPhysics(),
+      crossAxisCount: 2,
+      crossAxisSpacing: 12,
+      mainAxisSpacing: 12,
+      childAspectRatio: 1.5, // Más anchos que altos
+      children: [
+        _buildActionCard(
+          icon: Icons.repeat,
+          title: AppLocalizations.of(context).manageRecurringMovements,
+          color: Colors.blueAccent,
+          onTap: () => Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => const FixedMovementsScreen(),
+            ),
+          ),
+        ),
+        _buildActionCard(
+          icon: Icons.savings,
+          title: AppLocalizations.of(context).savings,
+          color: Colors.amber,
+          onTap: () => Navigator.push(
+            context,
+            MaterialPageRoute(builder: (context) => HomeSaves()),
+          ),
+        ),
+        if (_isLastDaysOfTheWeek()) ...[
+          _buildActionCard(
+            icon: Icons.summarize,
+            title: AppLocalizations.of(context)!.showSummary,
+            color: Colors.purpleAccent,
+            onTap: () => Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => const SummaryScreen()),
+            ),
+          ),
+          _buildActionCard(
+            icon: Icons.calendar_month,
+            title: AppLocalizations.of(context)!.createNextMonth,
+            color: Colors.teal,
+            onTap: () async {
+              await FinanceService.getInstance(
+                SqliteService().db.monthDao,
+                SqliteService().db.movementValueDao,
+                SqliteService().db.fixedMovementDao,
+              ).createNextMonth(context);
+              setState(() {});
+            },
+          ),
+        ],
+        _buildActionCard(
+          icon: Icons.add_card, // Icono moderno
+          title: "Añadir Gasto",
+          color: Colors.redAccent, // Color llamativo para gastos
+          onTap: () {
+            // AQUÍ ESTÁ TU FUNCIÓN EXACTA
+            showModalBottomSheet(
+              context: context,
+              isScrollControlled: true,
+              showDragHandle: true,
+              useSafeArea: true,
+              builder: (BuildContext context) => MovementFormScreen(),
+            );
+          },
+        ),
+      ],
+    );
+  }
+
+  Widget _buildActionCard({
+    required IconData icon,
+    required String title,
+    required Color color,
+    required VoidCallback onTap,
+  }) {
+    // Usamos el color del tema actual para el fondo de las tarjetas
+    final cardBg = Theme.of(context).colorScheme.surface;
+
+    return Material(
+      color: cardBg,
+      borderRadius: BorderRadius.circular(20),
+      elevation: 2,
+      shadowColor: Colors.black.withOpacity(0.1),
+      child: InkWell(
+        borderRadius: BorderRadius.circular(20),
+        onTap: onTap,
+        child: Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Container(
+                padding: const EdgeInsets.all(8),
+                decoration: BoxDecoration(
+                  color: color.withOpacity(0.15),
+                  shape: BoxShape.circle,
+                ),
+                child: Icon(icon, color: color, size: 24),
+              ),
+              Text(
+                title,
+                maxLines: 2,
+                overflow: TextOverflow.ellipsis,
+                style: const TextStyle(
+                  fontWeight: FontWeight.w600,
+                  fontSize: 13,
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  // --- LISTA DE MOVIMIENTOS RECIENTES (Sin borde feo) ---
+  Widget _buildLastInteractionsPart() {
+    final service = FinanceService.getInstance(
+      SqliteService().db.monthDao,
+      SqliteService().db.movementValueDao,
+      SqliteService().db.fixedMovementDao,
+    );
+    return AnimatedBuilder(
+      animation: service,
+      builder: (context, child) {
+        final movements = service.todayMovements;
+
+        if (movements.isEmpty) {
+          return Container(
+            padding: const EdgeInsets.all(30),
+            decoration: BoxDecoration(
+              color: Theme.of(context).colorScheme.surface,
+              borderRadius: BorderRadius.circular(20),
+              border: Border.all(
+                color: Theme.of(context).dividerColor.withOpacity(0.1),
+              ),
+            ),
+            child: Center(
+              child: Column(
+                children: [
+                  Icon(
+                    Icons.receipt_long,
+                    size: 40,
+                    color: Theme.of(context).disabledColor,
+                  ),
+                  const SizedBox(height: 10),
+                  Text(
+                    AppLocalizations.of(context)!.noMovementsToShow,
+                    style: TextStyle(color: Theme.of(context).disabledColor),
+                  ),
+                ],
+              ),
+            ),
+          );
+        }
+
+        return Container(
+          decoration: BoxDecoration(
+            color: Theme.of(context).colorScheme.surface,
+            borderRadius: BorderRadius.circular(20),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withOpacity(0.05),
+                blurRadius: 10,
+                offset: const Offset(0, 4),
+              ),
+            ],
+          ),
+          child: ListView.separated(
+            physics: const NeverScrollableScrollPhysics(),
+            shrinkWrap: true,
+            padding: EdgeInsets.zero,
+            itemCount: movements.length,
+            separatorBuilder: (_, __) => Divider(
+              height: 1,
+              color: Theme.of(context).dividerColor.withOpacity(0.2),
+            ),
+            itemBuilder: (context, index) {
+              final movement = movements[index];
+              return MovementCard(
+                description: movement.description,
+                amount: movement.amount,
+                isExpense: movement.isExpense,
+                category: movement.category,
+                moneda: _moneda,
+              );
+            },
+          ),
+        );
+      },
+    );
+  }
+
+  // --- IA BANNER (Rediseñado ligeramente) ---
+  Widget _buildIaBanner(BuildContext context) {
+    return GestureDetector(
+      onTap: () => _showIaInfoDialog(context),
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            colors: [Colors.amber.shade100, Colors.amber.shade200],
+          ),
+          borderRadius: BorderRadius.circular(16),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.amber.withOpacity(0.2),
+              blurRadius: 8,
+              offset: Offset(0, 2),
+            ),
+          ],
+        ),
+        child: Row(
+          children: [
+            Container(
+              padding: EdgeInsets.all(6),
+              decoration: BoxDecoration(
+                color: Colors.white.withOpacity(0.5),
+                shape: BoxShape.circle,
+              ),
+              child: Icon(
+                Icons.auto_awesome,
+                color: Colors.amber.shade900,
+                size: 20,
+              ),
+            ),
+            const SizedBox(width: 12),
+            Expanded(
+              child: Text(
+                AppLocalizations.of(context)!.activateIaFeatures,
+                style: TextStyle(
+                  color: Colors.amber.shade900,
+                  fontWeight: FontWeight.bold,
+                  fontSize: 13,
+                ),
+              ),
+            ),
+            Icon(Icons.chevron_right, color: Colors.amber.shade900),
+          ],
+        ),
+      ),
+    );
+  }
+
+  // (Mantengo tus funciones auxiliares como _showIaInfoDialog sin cambios mayores,
+  // solo asegúrate de que existen en tu archivo o cópialas del anterior)
   void _showIaInfoDialog(BuildContext context) {
     showDialog(
       context: context,
@@ -317,7 +796,6 @@ class _GastoscopioHomeScreenState extends State<GastoscopioHomeScreen> {
           TextButton(
             onPressed: () {
               Navigator.of(ctx).pop();
-              // Navegar a ajustes (puedes cambiar esto por tu ruta de settings)
               Navigator.of(context).push(
                 MaterialPageRoute(
                   builder: (context) {
@@ -332,426 +810,9 @@ class _GastoscopioHomeScreenState extends State<GastoscopioHomeScreen> {
       ),
     );
   }
-
-  Widget _buildGreetingsPart() {
-    return Row(
-      children: [
-        _isSvg
-            ? SvgPicture.asset(
-                height: 140,
-                width: 140,
-                'assets/logo.svg',
-                color: Color.fromARGB(255, _r, _g, _b),
-              )
-            : Image.asset('assets/logo.png', height: 140, width: 140),
-        Expanded(
-          flex: 7,
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              Text(
-                _greeting,
-                textAlign: TextAlign.center,
-                style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-            ],
-          ),
-        ),
-      ],
-    );
-  }
-
-  Widget _buildFinalDaysButtons() {
-    return Column(
-      children: [
-        _buildShowSummaryButton(),
-        const SizedBox(height: 8),
-        _buildShowCreateNextMonth(),
-      ],
-    );
-  }
-
-  Widget _buildShowSummaryButton() {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 6.0),
-      child: Center(
-        child: SizedBox(
-          width: double.infinity,
-          child: ElevatedButton.icon(
-            onPressed: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(builder: (context) => const SummaryScreen()),
-              );
-            },
-            icon: Icon(
-              Icons.repeat,
-              color: Theme.of(context).colorScheme.primary,
-            ),
-            label: Text(
-              AppLocalizations.of(context)!.showSummary,
-              style: TextStyle(
-                color: Theme.of(context).colorScheme.primary,
-                fontWeight: FontWeight.w600,
-              ),
-            ),
-            style: ElevatedButton.styleFrom(
-              backgroundColor: Theme.of(
-                context,
-              ).colorScheme.secondary.withAlpha(25),
-              foregroundColor: Theme.of(context).colorScheme.primary,
-              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(12),
-                side: BorderSide(
-                  color: Theme.of(context).colorScheme.primary.withOpacity(0.3),
-                  width: 1,
-                ),
-              ),
-              elevation: 1,
-            ),
-          ),
-        ),
-      ),
-    );
-  }
-
-  Widget _buildShowCreateNextMonth() {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 6.0),
-      child: Center(
-        child: SizedBox(
-          width: double.infinity,
-          child: ElevatedButton.icon(
-            onPressed: () async {
-              // Acción para crear el próximo mes
-              await FinanceService.getInstance(
-                SqliteService().db.monthDao,
-                SqliteService().db.movementValueDao,
-                SqliteService().db.fixedMovementDao,
-              ).createNextMonth(context);
-
-              setState(() {});
-            },
-            icon: Icon(
-              Icons.calendar_today,
-              color: Theme.of(context).colorScheme.primary,
-            ),
-            label: Text(
-              AppLocalizations.of(context)!.createNextMonth,
-              style: TextStyle(
-                color: Theme.of(context).colorScheme.primary,
-                fontWeight: FontWeight.w600,
-              ),
-            ),
-            style: ElevatedButton.styleFrom(
-              backgroundColor: Theme.of(
-                context,
-              ).colorScheme.secondary.withAlpha(25),
-              foregroundColor: Theme.of(context).colorScheme.primary,
-              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(12),
-                side: BorderSide(
-                  color: Theme.of(context).colorScheme.primary.withOpacity(0.3),
-                  width: 1,
-                ),
-              ),
-              elevation: 1,
-            ),
-          ),
-        ),
-      ),
-    );
-  }
-
-  Widget _buildFixedMovementsButton() {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 6.0),
-      child: Center(
-        child: SizedBox(
-          width: double.infinity,
-          child: ElevatedButton.icon(
-            onPressed: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => const FixedMovementsScreen(),
-                ),
-              );
-            },
-            icon: Icon(
-              Icons.repeat,
-              color: Theme.of(context).colorScheme.primary,
-            ),
-            label: Text(
-              AppLocalizations.of(context).manageRecurringMovements,
-              style: TextStyle(
-                color: Theme.of(context).colorScheme.primary,
-                fontWeight: FontWeight.w600,
-              ),
-            ),
-            style: ElevatedButton.styleFrom(
-              backgroundColor: Theme.of(
-                context,
-              ).colorScheme.secondary.withAlpha(25),
-              foregroundColor: Theme.of(context).colorScheme.primary,
-              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(12),
-                side: BorderSide(
-                  color: Theme.of(context).colorScheme.primary.withOpacity(0.3),
-                  width: 1,
-                ),
-              ),
-              elevation: 1,
-            ),
-          ),
-        ),
-      ),
-    );
-  }
-
-  Widget _buildSavesButton() {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 6.0),
-      child: Center(
-        child: SizedBox(
-          width: double.infinity,
-          child: ElevatedButton.icon(
-            onPressed: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(builder: (context) => HomeSaves()),
-              );
-            },
-            icon: Icon(
-              Icons.savings,
-              color: Theme.of(context).colorScheme.primary,
-            ),
-            label: Text(
-              AppLocalizations.of(context).savings,
-              style: TextStyle(
-                color: Theme.of(context).colorScheme.primary,
-                fontWeight: FontWeight.w600,
-              ),
-            ),
-            style: ElevatedButton.styleFrom(
-              backgroundColor: Theme.of(
-                context,
-              ).colorScheme.secondary.withAlpha(25),
-              foregroundColor: Theme.of(context).colorScheme.primary,
-              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(12),
-                side: BorderSide(
-                  color: Theme.of(context).colorScheme.primary.withOpacity(0.3),
-                  width: 1,
-                ),
-              ),
-              elevation: 1,
-            ),
-          ),
-        ),
-      ),
-    );
-  }
-
-  Widget _buildLastInteractionsPart() {
-    final service = FinanceService.getInstance(
-      SqliteService().db.monthDao,
-      SqliteService().db.movementValueDao,
-      SqliteService().db.fixedMovementDao,
-    );
-    return AnimatedBuilder(
-      animation: service,
-      builder: (context, child) {
-        final movements = service.todayMovements;
-
-        return Column(
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: [
-            Text(
-              AppLocalizations.of(context)!.lastMovements,
-              style: Theme.of(context).textTheme.titleMedium,
-              textAlign: TextAlign.center,
-            ),
-            Expanded(
-              child: Card(
-                color: Theme.of(context).colorScheme.surface,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(16),
-                  side: BorderSide(
-                    color: Theme.of(context).colorScheme.primary.withAlpha(90),
-                  ),
-                ),
-                child: Center(
-                  child: SingleChildScrollView(
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        if (movements.isEmpty) ...[
-                          Padding(
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 16.0,
-                            ),
-                            child: Center(
-                              child: Text(
-                                AppLocalizations.of(context)!.noMovementsToShow,
-                                textAlign: TextAlign.center,
-                                style: Theme.of(context).textTheme.bodyMedium
-                                    ?.copyWith(
-                                      color: Theme.of(
-                                        context,
-                                      ).colorScheme.secondary,
-                                    ),
-                              ),
-                            ),
-                          ),
-                        ] else ...[
-                          ListView.builder(
-                            physics: const NeverScrollableScrollPhysics(),
-                            shrinkWrap: true,
-                            itemCount: movements.length,
-                            itemBuilder: (context, index) {
-                              final movement = movements[index];
-                              return MovementCard(
-                                description: movement.description,
-                                amount: movement.amount,
-                                isExpense: movement.isExpense,
-                                category: movement.category,
-                                moneda: _moneda,
-                              );
-                            },
-                          ),
-                        ],
-                      ],
-                    ),
-                  ),
-                ),
-              ),
-            ),
-          ],
-        );
-      },
-    );
-  }
-
-  Widget _buildTotalPart() {
-    final service = FinanceService.getInstance(
-      SqliteService().db.monthDao,
-      SqliteService().db.movementValueDao,
-      SqliteService().db.fixedMovementDao,
-    );
-
-    Widget _firstPage(double total, bool isPositive) => Column(
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: [
-        Text(service.currentMonthName()),
-
-        Text(
-          '${AppLocalizations.of(context)!.total}: ${total < 0 ? '-' : ''}${total.abs().toStringAsFixed(2)}${_moneda}',
-          style: Theme.of(context).textTheme.titleLarge?.copyWith(
-            color: isPositive
-                ? Theme.of(context).colorScheme.primary
-                : Theme.of(context).colorScheme.error,
-            fontWeight: FontWeight.bold,
-          ),
-        ),
-        InkWell(
-          onTap: () => setState(() {
-            _carouselController.nextPage(
-              duration: const Duration(milliseconds: 300),
-              curve: Curves.easeInOut,
-            );
-          }),
-          child: Icon(Icons.expand_more),
-        ),
-      ],
-    );
-
-    Widget _secondPage(double incomes, double expenses) => Column(
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: [
-        InkWell(
-          onTap: () => setState(() {
-            _carouselController.previousPage(
-              duration: const Duration(milliseconds: 300),
-              curve: Curves.easeInOut,
-            );
-          }),
-          child: Icon(
-            Icons.expand_less,
-            color: Theme.of(context).colorScheme.primary,
-          ),
-        ),
-        Text(
-          '${AppLocalizations.of(context)!.incomes}: ${incomes.abs().toStringAsFixed(2)}${_moneda}',
-          style: Theme.of(context).textTheme.titleMedium?.copyWith(
-            color: Theme.of(context).colorScheme.primary,
-            fontWeight: FontWeight.bold,
-          ),
-        ),
-        const SizedBox(height: 8),
-        Text(
-          '${AppLocalizations.of(context)!.expenses}: -${expenses.abs().toStringAsFixed(2)}${_moneda}',
-          style: Theme.of(context).textTheme.titleMedium?.copyWith(
-            color: Theme.of(context).colorScheme.error,
-            fontWeight: FontWeight.bold,
-          ),
-        ),
-      ],
-    );
-
-    return AnimatedBuilder(
-      animation: service,
-      builder: (context, child) {
-        final total = service.monthTotal;
-        final incomes = service.monthIncomes;
-        final expenses = service.monthExpenses;
-        final isPositive = total >= 0;
-
-        return Column(
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: [
-            Text(
-              AppLocalizations.of(context)!.monthBalance,
-              style: Theme.of(context).textTheme.titleMedium,
-              textAlign: TextAlign.center,
-            ),
-            Expanded(
-              child: Card(
-                color: Theme.of(context).colorScheme.secondary.withAlpha(25),
-                child: Center(
-                  child: CarouselSlider(
-                    carouselController: _carouselController,
-                    options: CarouselOptions(
-                      scrollDirection: Axis.vertical,
-                      height: 280,
-                      viewportFraction: 0.9,
-                      enlargeCenterPage: true,
-                      enableInfiniteScroll: false,
-                      autoPlay: false,
-                      pageSnapping: true,
-                      padEnds: true,
-                    ),
-                    items: [
-                      _firstPage(total, isPositive),
-                      _secondPage(incomes, expenses),
-                    ],
-                  ),
-                ),
-              ),
-            ),
-          ],
-        );
-      },
-    );
-  }
 }
 
+// --- CHART PART (Rediseñado para encajar en una tarjeta limpia) ---
 class _ChartPart extends StatelessWidget {
   const _ChartPart(this.moneda);
   final String moneda;
@@ -766,20 +827,15 @@ class _ChartPart extends StatelessWidget {
     for (var tag in localizedTags) {
       categoryTotals[tag] = 0;
     }
-
-    // Calculate totals for each category
     for (var movement in expenses) {
       if (movement.category != null) {
         categoryTotals[movement.category!] =
             (categoryTotals[movement.category!] ?? 0) + movement.amount;
       }
     }
-
     final sortedEntries =
         categoryTotals.entries.where((e) => e.value > 0).toList()
           ..sort((a, b) => b.value.compareTo(a.value));
-
-    // Tomar solo las 3 primeras categorías
     return Map.fromEntries(sortedEntries.take(3));
   }
 
@@ -811,18 +867,29 @@ class _ChartPart extends StatelessWidget {
               context,
             );
 
-            return Card(
-              color: Theme.of(context).colorScheme.secondary.withAlpha(25),
+            if (categoryData.isEmpty) return const SizedBox.shrink();
+
+            return Container(
+              decoration: BoxDecoration(
+                color: Theme.of(context).colorScheme.surface,
+                borderRadius: BorderRadius.circular(24),
+                // Borde sutil en lugar de sombra pesada
+                border: Border.all(
+                  color: Theme.of(context).dividerColor.withOpacity(0.1),
+                ),
+              ),
               child: Padding(
-                padding: const EdgeInsets.all(16),
+                padding: const EdgeInsets.all(20),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
                       AppLocalizations.of(context).expensesByCategory,
-                      style: Theme.of(context).textTheme.titleLarge,
+                      style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                        fontWeight: FontWeight.bold,
+                      ),
                     ),
-                    const SizedBox(height: 16),
+                    const SizedBox(height: 20),
                     HomeCategoryChart(
                       categoryData: categoryData,
                       moneda: moneda,
@@ -850,7 +917,6 @@ class HomeCategoryChart extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // Calcular el total para los porcentajes
     final total = categoryData.values.fold<double>(
       0,
       (sum, value) => sum + value,
@@ -870,38 +936,40 @@ class HomeCategoryChart extends StatelessWidget {
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Expanded(child: Text(category)),
-                  SizedBox(width: 8),
-                  Row(
-                    children: [
-                      Text(
-                        '${amount.toStringAsFixed(2)}$moneda',
-                        style: const TextStyle(fontWeight: FontWeight.bold),
-                      ),
-                      Text(
-                        ' (${percentage.toStringAsFixed(1)}%)',
-                        style: TextStyle(
-                          color: Theme.of(context).colorScheme.secondary,
-                          fontSize: 12,
-                        ),
-                      ),
-                    ],
+                  Text(
+                    category,
+                    style: const TextStyle(fontWeight: FontWeight.w500),
+                  ),
+                  Text(
+                    '${percentage.toStringAsFixed(1)}%',
+                    style: TextStyle(
+                      color: Theme.of(context).colorScheme.primary,
+                      fontWeight: FontWeight.bold,
+                      fontSize: 12,
+                    ),
                   ),
                 ],
               ),
-              const SizedBox(height: 4),
-              LinearProgressIndicator(
-                value: percentage / 100,
-                backgroundColor: Theme.of(
-                  context,
-                ).colorScheme.primary.withOpacity(0.1),
-                valueColor: AlwaysStoppedAnimation(
-                  HSLColor.fromColor(
+              const SizedBox(height: 6),
+              // Barra de progreso más gruesa y redondeada
+              ClipRRect(
+                borderRadius: BorderRadius.circular(10),
+                child: LinearProgressIndicator(
+                  value: percentage / 100,
+                  backgroundColor: Theme.of(context).colorScheme.surfaceVariant,
+                  valueColor: AlwaysStoppedAnimation(
                     Theme.of(context).colorScheme.primary,
-                  ).withLightness(0.5).toColor(),
+                  ),
+                  minHeight: 10,
                 ),
-                minHeight: 8,
-                borderRadius: BorderRadius.circular(4),
+              ),
+              const SizedBox(height: 4),
+              Text(
+                '${amount.toStringAsFixed(2)}$moneda',
+                style: TextStyle(
+                  color: Theme.of(context).textTheme.bodySmall?.color,
+                  fontSize: 11,
+                ),
               ),
             ],
           ),

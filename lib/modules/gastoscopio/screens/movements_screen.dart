@@ -521,7 +521,7 @@ class _MovementsScreenState extends State<MovementsScreen>
           ],
         ),
       ),
-      floatingActionButton: _buildFAB(),
+      //floatingActionButton: _buildFAB(),
     );
   }
 
