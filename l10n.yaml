@@ -3,5 +3,5 @@ template-arb-file: app_es.arb
 output-localization-file: app_localizations.dart
 output-class: AppLocalizations
 preferred-supported-locales: [es, en]
-synthetic-package: false
 nullable-getter: false
+
