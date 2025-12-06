@@ -343,8 +343,8 @@ class _GastoscopioHomeScreenState extends State<GastoscopioHomeScreen> {
             children: [
               // Decoración de fondo (círculos abstractos)
               Positioned(
-                right: -30,
-                top: -30,
+                right: -10,
+                top: -10,
                 child: CircleAvatar(
                   radius: 60,
                   backgroundColor: Colors.white.withOpacity(0.1),
@@ -531,49 +531,51 @@ class _GastoscopioHomeScreenState extends State<GastoscopioHomeScreen> {
 
   // --- GRID DE ACCIONES (Botones cuadrados modernos) ---
   Widget _buildActionGrid() {
-    return SingleChildScrollView(
-      scrollDirection: Axis.horizontal,
-      child: Row(
-        children: [
-          //if (_isLastDaysOfTheWeek()) ...[
-          _buildActionCard(
-            icon: Icons.calendar_month,
-            title: AppLocalizations.of(context)!.createNextMonth,
-            color: Colors.teal,
-            onTap: () async {
-              await FinanceService.getInstance(
-                SqliteService().db.monthDao,
-                SqliteService().db.movementValueDao,
-                SqliteService().db.fixedMovementDao,
-              ).createNextMonth(context);
-              setState(() {});
-            },
-          ),
-
-          // ],
-          _buildActionCard(
-            icon: Icons.repeat,
-            title: AppLocalizations.of(context).manageRecurringMovements,
-            color: Colors.blueAccent,
-            onTap: () => Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (context) => const FixedMovementsScreen(),
+    return Center(
+      child: SingleChildScrollView(
+        scrollDirection: Axis.horizontal,
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.center,
+          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+          children: [
+            if (_isLastDaysOfTheWeek()) ...[
+              _buildActionCard(
+                icon: Icons.calendar_month_rounded,
+                title: AppLocalizations.of(context)!.createNextMonth,
+                color: Colors.teal,
+                onTap: () async {
+                  await FinanceService.getInstance(
+                    SqliteService().db.monthDao,
+                    SqliteService().db.movementValueDao,
+                    SqliteService().db.fixedMovementDao,
+                  ).createNextMonth(context);
+                  setState(() {});
+                },
+              ),
+            ],
+            _buildActionCard(
+              icon: Icons.repeat_rounded,
+              title: AppLocalizations.of(context).manageRecurringMovements,
+              color: Colors.blueAccent,
+              onTap: () => Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => const FixedMovementsScreen(),
+                ),
               ),
             ),
-          ),
 
-          _buildActionCard(
-            icon: Icons.savings,
-            title: AppLocalizations.of(context).savings,
-            color: Colors.amber,
-            onTap: () => Navigator.push(
-              context,
-              MaterialPageRoute(builder: (context) => HomeSaves()),
+            _buildActionCard(
+              icon: Icons.savings_rounded,
+              title: AppLocalizations.of(context).savings,
+              color: Colors.amber,
+              onTap: () => Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => HomeSaves()),
+              ),
             ),
-          ),
-          const SizedBox(width: 12),
-        ],
+          ],
+        ),
       ),
     );
   }
