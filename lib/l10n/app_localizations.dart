@@ -551,7 +551,7 @@ abstract class AppLocalizations {
   /// Título para gestionar movimientos recurrentes
   ///
   /// In es, this message translates to:
-  /// **'Gestionar Movimientos Recurrentes'**
+  /// **'Recurrentes'**
   String get manageRecurringMovements;
 
   /// Mensaje cuando no hay movimientos
@@ -1961,7 +1961,7 @@ abstract class AppLocalizations {
   /// No description provided for @showSummary.
   ///
   /// In es, this message translates to:
-  /// **'¿Cómo ha ido el mes?'**
+  /// **'Resumen mensual'**
   String get showSummary;
 
   /// No description provided for @confrmTagDelete.
@@ -2153,7 +2153,7 @@ abstract class AppLocalizations {
   /// No description provided for @createNextMonth.
   ///
   /// In es, this message translates to:
-  /// **'¿crear el mes siguiente?'**
+  /// **'Siguiente mes'**
   String get createNextMonth;
 }
 

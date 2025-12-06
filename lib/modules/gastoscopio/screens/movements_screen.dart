@@ -267,279 +267,170 @@ class _MovementsScreenState extends State<MovementsScreen>
     }
 
     final filteredMovements = _filterMovements(_cachedMovements);
+    final totalAmount = filteredMovements.fold<double>(
+      0,
+      (sum, movement) =>
+          sum + (movement.isExpense ? -movement.amount : movement.amount),
+    );
+
+    // Color temático según si vemos gastos o ingresos
+    final themeColor = _showExpenses
+        ? Theme.of(context).colorScheme.error
+        : Theme.of(context).colorScheme.primary;
 
     return Scaffold(
       body: SafeArea(
         child: Column(
           children: [
-            // Selector de tipo (expenses/incomes)
-            Container(
-              width: double.infinity,
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+            const SizedBox(height: 10),
+            // 1. Selector Superior (Más limpio)
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
               child: _buildTypeSelector(),
             ),
-            // Row con total y botones
+
+            // 2. Tarjeta "Hero" con Gradiente (Resumen del filtro actual)
             Padding(
-              padding: const EdgeInsets.only(left: 4, right: 16),
-              child: Row(
-                children: [
-                  // Total indicator expandido
-                  Expanded(
-                    child: _buildTotalIndicator(filteredMovements, _moneda),
-                  ),
-                  // Botones
-                  Card(
-                    color: _isOpaqueBottomNav
-                        ? Theme.of(context).colorScheme.primary.withAlpha(200)
-                        : Theme.of(context).colorScheme.secondary.withAlpha(25),
-                    elevation: _isOpaqueBottomNav ? 2 : 4,
-                    shape: CircleBorder(
-                      side: _isOpaqueBottomNav
-                          ? BorderSide.none
-                          : BorderSide(
-                              color: Theme.of(
-                                context,
-                              ).colorScheme.primary.withOpacity(0.3),
-                              width: 1,
-                            ),
-                    ),
-                    child: Container(
-                      width: 35,
-                      height: 35,
-                      decoration: BoxDecoration(
-                        shape: BoxShape.circle,
-                        border: _isOpaqueBottomNav
-                            ? null
-                            : Border.all(
-                                color: Theme.of(
-                                  context,
-                                ).colorScheme.primary.withOpacity(0.3),
-                                width: 1,
-                              ),
-                      ),
-                      child: IconButton(
-                        padding: EdgeInsets.zero,
-                        iconSize: 18,
-                        icon: Icon(
-                          Icons.filter_list,
-                          color: _isOpaqueBottomNav
-                              ? Theme.of(context).colorScheme.onPrimary
-                              : Theme.of(context).colorScheme.primary,
-                        ),
-                        onPressed: () {
-                          setState(() {
-                            _expandedItems['filters'] =
-                                !(_expandedItems['filters'] ?? false);
-                          });
-                        },
-                      ),
-                    ),
-                  ),
-                  const SizedBox(width: 1),
-                  Card(
-                    color: _isOpaqueBottomNav
-                        ? Theme.of(context).colorScheme.primary.withAlpha(200)
-                        : Theme.of(context).colorScheme.secondary.withAlpha(25),
-                    elevation: _isOpaqueBottomNav ? 2 : 4,
-                    shape: CircleBorder(
-                      side: _isOpaqueBottomNav
-                          ? BorderSide.none
-                          : BorderSide(
-                              color: Theme.of(
-                                context,
-                              ).colorScheme.primary.withOpacity(0.3),
-                              width: 1,
-                            ),
-                    ),
-                    child: Container(
-                      width: 35,
-                      height: 35,
-                      decoration: BoxDecoration(
-                        shape: BoxShape.circle,
-                        border: _isOpaqueBottomNav
-                            ? null
-                            : Border.all(
-                                color: Theme.of(
-                                  context,
-                                ).colorScheme.primary.withOpacity(0.3),
-                                width: 1,
-                              ),
-                      ),
-                      child: IconButton(
-                        padding: EdgeInsets.zero,
-                        iconSize: 18,
-                        icon: Icon(
-                          Icons.sort,
-                          color: _isOpaqueBottomNav
-                              ? Theme.of(context).colorScheme.onPrimary
-                              : Theme.of(context).colorScheme.primary,
-                        ),
-                        onPressed: () => _showSortMenu(context),
-                      ),
-                    ),
-                  ),
-                  const SizedBox(width: 1),
-                  Card(
-                    color: _isOpaqueBottomNav
-                        ? Theme.of(context).colorScheme.primary.withAlpha(200)
-                        : Theme.of(context).colorScheme.secondary.withAlpha(25),
-                    elevation: _isOpaqueBottomNav ? 2 : 4,
-                    shape: CircleBorder(
-                      side: _isOpaqueBottomNav
-                          ? BorderSide.none
-                          : BorderSide(
-                              color: Theme.of(
-                                context,
-                              ).colorScheme.primary.withOpacity(0.3),
-                              width: 1,
-                            ),
-                    ),
-                    child: Container(
-                      width: 35,
-                      height: 35,
-                      decoration: BoxDecoration(
-                        shape: BoxShape.circle,
-                        border: _isOpaqueBottomNav
-                            ? null
-                            : Border.all(
-                                color: Theme.of(
-                                  context,
-                                ).colorScheme.primary.withOpacity(0.3),
-                                width: 1,
-                              ),
-                      ),
-                      child: GestureDetector(
-                        onLongPress: () {
-                          _deleteAllTags();
-                        },
-                        child: IconButton(
-                          padding: EdgeInsets.zero,
-                          iconSize: 18,
-                          icon: Icon(
-                            Icons.auto_awesome,
-                            color: _isOpaqueBottomNav
-                                ? Theme.of(context).colorScheme.onPrimary
-                                : Theme.of(context).colorScheme.primary,
-                          ),
-                          onPressed: () async {
-                            await _autoGenerateTags();
-                            await _loadMovements();
-                          },
-                        ),
-                      ),
-                    ),
-                  ),
-                ],
+              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
+              child: _buildModernTotalCard(
+                totalAmount,
+                filteredMovements.length,
+                themeColor,
               ),
             ),
-            // Card de filtros (condicional)
+
+            // 3. Barra de Herramientas (Filtros, Orden, IA)
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+              child: _buildModernToolBar(context),
+            ),
+
+            // 4. Panel de Filtros Expandible
             if (_expandedItems['filters'] ?? false) _buildFilters(),
+
+            // 5. Movimientos Futuros (Si aplica)
             if (_financeService.currentMonth!.month == DateTime.now().month &&
-                filteredMovements
-                    .where((mov) => mov.day > DateTime.now().day)
-                    .toList()
-                    .isNotEmpty)
+                filteredMovements.any((mov) => mov.day > DateTime.now().day))
               _buildFutureMovementsCard(
                 filteredMovements
                     .where((mov) => mov.day > DateTime.now().day)
                     .toList(),
               ),
 
-            // Card principal con los movimientos
+            // 6. Lista de Movimientos (Sin Card envolvente, diseño limpio)
             Expanded(
               child: _cachedMovements.isEmpty
                   ? Center(
-                      child: Text(
-                        _showExpenses
-                            ? AppLocalizations.of(context).noExpenses
-                            : AppLocalizations.of(context).noIncomes,
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Icon(
+                            _showExpenses
+                                ? Icons.money_off
+                                : Icons.attach_money,
+                            size: 64,
+                            color: Theme.of(
+                              context,
+                            ).disabledColor.withOpacity(0.3),
+                          ),
+                          const SizedBox(height: 16),
+                          Text(
+                            _showExpenses
+                                ? AppLocalizations.of(context).noExpenses
+                                : AppLocalizations.of(context).noIncomes,
+                            style: TextStyle(
+                              color: Theme.of(context).disabledColor,
+                              fontSize: 16,
+                            ),
+                          ),
+                        ],
                       ),
                     )
-                  : Card(
-                      margin: const EdgeInsets.all(16),
-                      elevation: 0,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12),
-                        side: BorderSide(
-                          color: Theme.of(
-                            context,
-                          ).colorScheme.outline.withOpacity(0.2),
-                        ),
-                      ),
-
-                      child: AnimatedBuilder(
-                        animation: _listFadeAnimation,
-                        builder: (context, child) {
-                          return Opacity(
-                            opacity: _listFadeAnimation.value,
-                            child: ListView.builder(
-                              padding: EdgeInsets.zero,
-                              itemCount:
+                  : AnimatedBuilder(
+                      animation: _listFadeAnimation,
+                      builder: (context, child) {
+                        return Opacity(
+                          opacity: _listFadeAnimation.value,
+                          child: ListView.separated(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 20,
+                              vertical: 10,
+                            ),
+                            itemCount:
+                                _financeService.currentMonth!.month <
+                                    DateTime.now().month
+                                ? filteredMovements.length
+                                : filteredMovements
+                                      .where(
+                                        (mov) => mov.day <= DateTime.now().day,
+                                      )
+                                      .length,
+                            separatorBuilder: (context, index) =>
+                                const SizedBox(
+                                  height: 12,
+                                ), // Espacio entre items
+                            itemBuilder: (context, index) {
+                              final movement =
                                   _financeService.currentMonth!.month <
                                       DateTime.now().month
-                                  ? filteredMovements.length
+                                  ? filteredMovements.toList()[index]
                                   : filteredMovements
                                         .where(
                                           (mov) =>
                                               mov.day <= DateTime.now().day,
                                         )
-                                        .toList()
-                                        .length,
-                              itemBuilder: (context, index) {
-                                final movement =
-                                    _financeService.currentMonth!.month <
-                                        DateTime.now().month
-                                    ? filteredMovements.toList()[index]
-                                    : filteredMovements
-                                          .where(
-                                            (mov) =>
-                                                mov.day <= DateTime.now().day,
-                                          )
-                                          .toList()[index];
-                                final isExpanded =
-                                    _expandedItems[movement.id.toString()] ??
-                                    false;
+                                        .toList()[index];
 
-                                return MovementTile(
-                                  movement: movement,
-                                  isExpanded: isExpanded,
-                                  currency: _moneda,
-                                  onTap: () =>
-                                      _toggleMovementExpansion(movement.id!),
-                                  expandedContent: _buildExpandedContent(
-                                    context,
-                                    movement,
-                                  ),
-                                );
-                              },
-                            ),
-                          );
-                        },
-                      ),
+                              final isExpanded =
+                                  _expandedItems[movement.id.toString()] ??
+                                  false;
+
+                              // Aquí usamos tu MovementTile existente, pero podrías envolverlo
+                              // en un Container con decoración si MovementTile no tiene sombra propia.
+                              return MovementTile(
+                                movement: movement,
+                                isExpanded: isExpanded,
+                                currency: _moneda,
+                                onTap: () =>
+                                    _toggleMovementExpansion(movement.id!),
+                                expandedContent: _buildExpandedContent(
+                                  context,
+                                  movement,
+                                ),
+                              );
+                            },
+                          ),
+                        );
+                      },
                     ),
             ),
           ],
         ),
       ),
-      //floatingActionButton: _buildFAB(),
     );
   }
 
+  // --- WIDGETS NUEVOS Y REDISEÑADOS ---
+
   Widget _buildTypeSelector() {
-    return Container(
-      decoration: BoxDecoration(
-        color: Theme.of(context).colorScheme.primaryContainer.withOpacity(0.1),
-        borderRadius: BorderRadius.circular(28),
-      ),
+    return SizedBox(
+      width: double.infinity,
       child: SegmentedButton<bool>(
         showSelectedIcon: false,
         style: ButtonStyle(
-          tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-          side: MaterialStateProperty.all(BorderSide.none),
           visualDensity: VisualDensity.comfortable,
+          shape: MaterialStateProperty.all(
+            RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+          ),
+          side: MaterialStateProperty.all(
+            BorderSide(color: Theme.of(context).dividerColor.withOpacity(0.2)),
+          ),
           backgroundColor: MaterialStateProperty.resolveWith((states) {
             if (states.contains(MaterialState.selected)) {
-              return Theme.of(context).colorScheme.primaryContainer;
+              // Color diferente para Gastos (Rojo suave) vs Ingresos (Primario)
+              return _showExpenses
+                  ? Theme.of(context).colorScheme.errorContainer
+                  : Theme.of(context).colorScheme.primaryContainer;
             }
             return Colors.transparent;
           }),
@@ -550,22 +441,28 @@ class _MovementsScreenState extends State<MovementsScreen>
             label: Text(
               AppLocalizations.of(context).incomes,
               style: TextStyle(
+                fontWeight: !_showExpenses
+                    ? FontWeight.bold
+                    : FontWeight.normal,
                 color: !_showExpenses
                     ? Theme.of(context).colorScheme.onPrimaryContainer
-                    : Theme.of(context).colorScheme.onSurface,
+                    : null,
               ),
             ),
+            icon: Icon(Icons.arrow_upward, size: 16),
           ),
           ButtonSegment<bool>(
             value: true,
             label: Text(
               AppLocalizations.of(context).expenses,
               style: TextStyle(
+                fontWeight: _showExpenses ? FontWeight.bold : FontWeight.normal,
                 color: _showExpenses
-                    ? Theme.of(context).colorScheme.onPrimaryContainer
-                    : Theme.of(context).colorScheme.onSurface,
+                    ? Theme.of(context).colorScheme.onErrorContainer
+                    : null,
               ),
             ),
+            icon: Icon(Icons.arrow_downward, size: 16),
           ),
         ],
         selected: {_showExpenses},
@@ -578,59 +475,167 @@ class _MovementsScreenState extends State<MovementsScreen>
     );
   }
 
-  Widget _buildFAB() {
-    return Card(
-      color: _isOpaqueBottomNav
-          ? Theme.of(context).colorScheme.primary.withAlpha(200)
-          : Theme.of(context).colorScheme.secondary.withAlpha(25),
-      elevation: _isOpaqueBottomNav ? 4 : 8,
-      shape: CircleBorder(
-        side: _isOpaqueBottomNav
-            ? BorderSide.none
-            : BorderSide(
-                color: Theme.of(context).colorScheme.primary.withOpacity(0.3),
-                width: 2,
-              ),
-      ),
-      child: Container(
-        width: 45,
-        height: 45,
-        decoration: BoxDecoration(
-          shape: BoxShape.circle,
-          border: _isOpaqueBottomNav
-              ? null
-              : Border.all(
-                  color: Theme.of(context).colorScheme.primary.withOpacity(0.3),
-                  width: 2,
-                ),
+  // Tarjeta moderna que reemplaza al indicador total antiguo
+  Widget _buildModernTotalCard(double total, int count, Color color) {
+    return Container(
+      width: double.infinity,
+      height: 100,
+      padding: const EdgeInsets.all(20),
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          colors: [color, color.withOpacity(0.7)],
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
         ),
-        child: FloatingActionButton.small(
-          backgroundColor: Colors.transparent,
-          elevation: 0,
-          onPressed: () async {
-            final result = await showModalBottomSheet<bool>(
-              context: context,
-              isScrollControlled: true,
-              showDragHandle: true,
-              useSafeArea: true,
-              builder: (BuildContext context) =>
-                  MovementFormScreen(isExpense: _showExpenses),
-            );
-
-            // Si se agregó un movimiento, recargar los datos
-            if (result == true) {
-              await _loadMovements();
-            }
-          },
-          child: Icon(
-            Icons.add,
-            color: _isOpaqueBottomNav
-                ? Theme.of(context).colorScheme.onPrimary
-                : Theme.of(context).colorScheme.primary,
+        borderRadius: BorderRadius.circular(24),
+        boxShadow: [
+          BoxShadow(
+            color: color.withOpacity(0.3),
+            blurRadius: 12,
+            offset: const Offset(0, 6),
           ),
-          heroTag: 'movements_fab',
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text(
+                _showExpenses
+                    ? AppLocalizations.of(context).expenses
+                    : AppLocalizations.of(
+                        context,
+                      ).incomes, // Asegúrate de tener estas keys o usa strings fijos
+                style: const TextStyle(
+                  color: Colors.white70,
+                  fontSize: 14,
+                  fontWeight: FontWeight.w500,
+                ),
+              ),
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 8),
+                decoration: BoxDecoration(
+                  color: Colors.white.withOpacity(0.2),
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: Text(
+                  '$count movs.',
+                  style: const TextStyle(color: Colors.white, fontSize: 12),
+                ),
+              ),
+            ],
+          ),
+          Center(
+            child: Text(
+              '${total < 0 ? '-' : ''}${total.abs().toStringAsFixed(2)}$_moneda',
+              style: const TextStyle(
+                color: Colors.white,
+                fontSize: 30,
+                fontWeight: FontWeight.bold,
+                letterSpacing: -0.5,
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  // Barra de herramientas limpia (Filtro, Ordenar, IA)
+  Widget _buildModernToolBar(BuildContext context) {
+    // Definimos el estilo base de los botones para consistencia
+    final buttonStyle = ButtonStyle(
+      backgroundColor: MaterialStateProperty.all(
+        Theme.of(context).colorScheme.surface,
+      ),
+      elevation: MaterialStateProperty.all(2),
+      shadowColor: MaterialStateProperty.all(Colors.black.withOpacity(0.1)),
+      padding: MaterialStateProperty.all(
+        const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+      ),
+      shape: MaterialStateProperty.all(
+        RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(16),
+          side: BorderSide(
+            color: Theme.of(context).colorScheme.outline.withOpacity(0.1),
+          ),
         ),
       ),
+    );
+
+    return Row(
+      children: [
+        // Botón Filtros
+        Expanded(
+          child: ElevatedButton.icon(
+            style: buttonStyle.copyWith(
+              backgroundColor: MaterialStateProperty.resolveWith(
+                (states) => (_expandedItems['filters'] ?? false)
+                    ? Theme.of(context).colorScheme.primaryContainer
+                    : Theme.of(context).colorScheme.surface,
+              ),
+            ),
+            onPressed: () {
+              setState(() {
+                _expandedItems['filters'] =
+                    !(_expandedItems['filters'] ?? false);
+              });
+            },
+            icon: Icon(
+              Icons.filter_list,
+              size: 20,
+              color: Theme.of(context).colorScheme.onSurface,
+            ),
+            label: Text(
+              "Filtrar",
+              style: TextStyle(
+                color: Theme.of(context).colorScheme.onSurface,
+                fontSize: 13,
+              ),
+            ),
+          ),
+        ),
+        const SizedBox(width: 10),
+
+        // Botón Ordenar (Solo icono para ahorrar espacio o Texto si cabe)
+        IconButton.filledTonal(
+          style: IconButton.styleFrom(
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(14),
+            ),
+            padding: const EdgeInsets.all(12),
+          ),
+          onPressed: () => _showSortMenu(context),
+          icon: const Icon(Icons.sort),
+          tooltip: "Ordenar",
+        ),
+
+        const SizedBox(width: 10),
+
+        // Botón IA (Magic Tags)
+        GestureDetector(
+          onLongPress: () {
+            _deleteAllTags();
+          },
+          child: IconButton.filled(
+            style: IconButton.styleFrom(
+              backgroundColor: Colors.amber.shade100,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(14),
+              ),
+              padding: const EdgeInsets.all(12),
+            ),
+            onPressed: () async {
+              await _autoGenerateTags();
+              await _loadMovements();
+            },
+            icon: Icon(Icons.auto_awesome, color: Colors.amber.shade900),
+            tooltip: "Auto-etiquetar",
+          ),
+        ),
+      ],
     );
   }
 
@@ -694,7 +699,6 @@ class _MovementsScreenState extends State<MovementsScreen>
         _financeService.currentMonth!.month == DateTime.now().month;
     return Scaffold(
       appBar: _buildAppBar(),
-      floatingActionButton: _buildFAB(),
       body: Column(
         children: [
           _buildTotalIndicator(movements, moneda),

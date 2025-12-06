@@ -334,7 +334,7 @@
   "@loading": {
     "description": "Texto de carga"
   },
-  "manageRecurringMovements": "Gestionar Movimientos Recurrentes",
+  "manageRecurringMovements": "Recurrentes",
   "@manageRecurringMovements": {
     "description": "Título para gestionar movimientos recurrentes"
   },
@@ -1246,7 +1246,7 @@
   "signingOut": "Cerrando sesión...",
   "authenticateToAccess": "Por favor, autentícate para acceder a la aplicación",
   "biometricAuthFailed": "Autenticación biométrica fallida",
-  "showSummary": "¿Cómo ha ido el mes?",
+  "showSummary": "Resumen mensual",
   "confrmTagDelete":"Borrar categorias",
   "confirmDeleteAllTags":"¿Quieres borrar las categorias de los movimientos de este mes?",
   "migrateMonth":"Migrar a otro mes",
@@ -1278,6 +1278,6 @@
   "addInitialSaveDescription": "Introduce tu ahorro inicial para empezar a seguir tu progreso financiero.",
   "addSave": "Añadir ahorro",
   "initialLabel": "Inicial",
-  "createNextMonth": "¿crear el mes siguiente?"
+  "createNextMonth": "Siguiente mes"
 
 }

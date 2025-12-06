@@ -531,58 +531,60 @@ class _GastoscopioHomeScreenState extends State<GastoscopioHomeScreen> {
 
   // --- GRID DE ACCIONES (Botones cuadrados modernos) ---
   Widget _buildActionGrid() {
-    return GridView.count(
-      shrinkWrap: true,
-      crossAxisCount: 3,
-      crossAxisSpacing: 12,
-      mainAxisSpacing: 12,
-      childAspectRatio: 1, // Más anchos que altos
-      children: [
-        _buildActionCard(
-          icon: Icons.repeat,
-          title: AppLocalizations.of(context).manageRecurringMovements,
-          color: Colors.blueAccent,
-          onTap: () => Navigator.push(
-            context,
-            MaterialPageRoute(
-              builder: (context) => const FixedMovementsScreen(),
+    return SingleChildScrollView(
+      scrollDirection: Axis.horizontal,
+      child: Row(
+        // Más anchos que altos
+        children: [
+          _buildActionCard(
+            icon: Icons.repeat,
+            title: AppLocalizations.of(context).manageRecurringMovements,
+            color: Colors.blueAccent,
+            onTap: () => Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => const FixedMovementsScreen(),
+              ),
             ),
           ),
-        ),
-        _buildActionCard(
-          icon: Icons.savings,
-          title: AppLocalizations.of(context).savings,
-          color: Colors.amber,
-          onTap: () => Navigator.push(
-            context,
-            MaterialPageRoute(builder: (context) => HomeSaves()),
+          const SizedBox(width: 12),
+          _buildActionCard(
+            icon: Icons.savings,
+            title: AppLocalizations.of(context).savings,
+            color: Colors.amber,
+            onTap: () => Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => HomeSaves()),
+            ),
           ),
-        ),
-        //if (_isLastDaysOfTheWeek()) ...[
-        _buildActionCard(
-          icon: Icons.summarize,
-          title: AppLocalizations.of(context)!.showSummary,
-          color: Colors.purpleAccent,
-          onTap: () => Navigator.push(
-            context,
-            MaterialPageRoute(builder: (context) => const SummaryScreen()),
+          const SizedBox(width: 12),
+          //if (_isLastDaysOfTheWeek()) ...[
+          _buildActionCard(
+            icon: Icons.summarize,
+            title: AppLocalizations.of(context)!.showSummary,
+            color: Colors.purpleAccent,
+            onTap: () => Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => const SummaryScreen()),
+            ),
           ),
-        ),
-        _buildActionCard(
-          icon: Icons.calendar_month,
-          title: AppLocalizations.of(context)!.createNextMonth,
-          color: Colors.teal,
-          onTap: () async {
-            await FinanceService.getInstance(
-              SqliteService().db.monthDao,
-              SqliteService().db.movementValueDao,
-              SqliteService().db.fixedMovementDao,
-            ).createNextMonth(context);
-            setState(() {});
-          },
-        ),
-        //],
-      ],
+          const SizedBox(width: 12),
+          _buildActionCard(
+            icon: Icons.calendar_month,
+            title: AppLocalizations.of(context)!.createNextMonth,
+            color: Colors.teal,
+            onTap: () async {
+              await FinanceService.getInstance(
+                SqliteService().db.monthDao,
+                SqliteService().db.movementValueDao,
+                SqliteService().db.fixedMovementDao,
+              ).createNextMonth(context);
+              setState(() {});
+            },
+          ),
+          //],
+        ],
+      ),
     );
   }
 
@@ -593,40 +595,46 @@ class _GastoscopioHomeScreenState extends State<GastoscopioHomeScreen> {
     required VoidCallback onTap,
   }) {
     // Usamos el color del tema actual para el fondo de las tarjetas
-    final cardBg = Theme.of(context).colorScheme.surface;
+    final cardBg = Theme.of(context).colorScheme.primary.withAlpha(15);
 
-    return Material(
-      color: cardBg,
-      borderRadius: BorderRadius.circular(20),
-      elevation: 2,
-      shadowColor: Colors.black.withOpacity(0.1),
-      child: InkWell(
+    return SizedBox(
+      width: 150,
+      height: 110,
+      child: Material(
+        color: cardBg,
         borderRadius: BorderRadius.circular(20),
-        onTap: onTap,
-        child: Padding(
-          padding: const EdgeInsets.all(16.0),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.center,
-            mainAxisAlignment: MainAxisAlignment.spaceAround,
-            children: [
-              Container(
-                padding: const EdgeInsets.all(8),
-                decoration: BoxDecoration(
-                  color: color.withOpacity(0.15),
-                  shape: BoxShape.circle,
+        elevation: 2,
+        shadowColor: Colors.black.withOpacity(0.1),
+        child: InkWell(
+          borderRadius: BorderRadius.circular(20),
+          onTap: onTap,
+          child: Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.center,
+              mainAxisAlignment: MainAxisAlignment.spaceAround,
+              children: [
+                Container(
+                  padding: const EdgeInsets.all(8),
+                  decoration: BoxDecoration(
+                    color: color.withOpacity(0.15),
+                    shape: BoxShape.circle,
+                  ),
+                  child: Icon(icon, color: color, size: 30),
                 ),
-                child: Icon(icon, color: color, size: 24),
-              ),
-              Text(
-                title,
-                maxLines: 2,
-                overflow: TextOverflow.ellipsis,
-                style: const TextStyle(
-                  fontWeight: FontWeight.w600,
-                  fontSize: 13,
+                const SizedBox(height: 8),
+                Text(
+                  title,
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
+                  style: const TextStyle(
+                    fontWeight: FontWeight.w600,
+                    fontSize: 10,
+                  ),
+                  textAlign: TextAlign.center,
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
         ),
       ),

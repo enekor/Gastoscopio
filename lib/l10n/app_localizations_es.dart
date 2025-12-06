@@ -252,7 +252,7 @@ class AppLocalizationsEs extends AppLocalizations {
   String get loading => 'Cargando...';
 
   @override
-  String get manageRecurringMovements => 'Gestionar Movimientos Recurrentes';
+  String get manageRecurringMovements => 'Recurrentes';
 
   @override
   String get noMovementsToShow => 'No hay movimientos para mostrar.';
@@ -1031,7 +1031,7 @@ class AppLocalizationsEs extends AppLocalizations {
   String get biometricAuthFailed => 'Autenticación biométrica fallida';
 
   @override
-  String get showSummary => '¿Cómo ha ido el mes?';
+  String get showSummary => 'Resumen mensual';
 
   @override
   String get confrmTagDelete => 'Borrar categorias';
@@ -1133,5 +1133,5 @@ class AppLocalizationsEs extends AppLocalizations {
   String get initialLabel => 'Inicial';
 
   @override
-  String get createNextMonth => '¿crear el mes siguiente?';
+  String get createNextMonth => 'Siguiente mes';
 }

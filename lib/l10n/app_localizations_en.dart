@@ -250,7 +250,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get loading => 'Loading...';
 
   @override
-  String get manageRecurringMovements => 'Manage Recurring Movements';
+  String get manageRecurringMovements => 'Recurring';
 
   @override
   String get noMovementsToShow => 'No movements to show.';
@@ -1118,5 +1118,5 @@ class AppLocalizationsEn extends AppLocalizations {
   String get initialLabel => 'Initial';
 
   @override
-  String get createNextMonth => 'Create next month?';
+  String get createNextMonth => 'Next month';
 }
