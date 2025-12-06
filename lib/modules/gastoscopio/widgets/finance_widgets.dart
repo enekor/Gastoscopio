@@ -130,7 +130,6 @@ class MovementCard extends StatelessWidget {
             ),
           ),
         ),
-        const Divider(height: 1, thickness: 1, indent: 16, endIndent: 16),
       ],
     );
   }

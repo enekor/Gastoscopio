@@ -2155,6 +2155,12 @@ abstract class AppLocalizations {
   /// In es, this message translates to:
   /// **'Siguiente mes'**
   String get createNextMonth;
+
+  /// No description provided for @quickActions.
+  ///
+  /// In es, this message translates to:
+  /// **'Acciones rápidas'**
+  String get quickActions;
 }
 
 class _AppLocalizationsDelegate

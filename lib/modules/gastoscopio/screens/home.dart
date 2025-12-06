@@ -194,19 +194,21 @@ class _GastoscopioHomeScreenState extends State<GastoscopioHomeScreen> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                _buildHeader(),
-                const SizedBox(height: 20),
                 if (_showIaBanner) ...[
                   _buildIaBanner(context),
                   const SizedBox(height: 16),
                 ],
+                _buildHeader(),
+                const SizedBox(height: 20),
                 _buildModernBalanceCard(primaryColor, secondaryColor),
                 const SizedBox(height: 24),
 
                 // Título de sección Acciones Rápidas
                 Text(
-                  "Acciones Rápidas", // Puedes usar localizaciones aquí
-                  style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                  AppLocalizations.of(
+                    context,
+                  )!.quickActions, // Puedes usar localizaciones aquí
+                  style: Theme.of(context).textTheme.titleSmall?.copyWith(
                     fontWeight: FontWeight.bold,
                     color: Theme.of(
                       context,
@@ -215,15 +217,14 @@ class _GastoscopioHomeScreenState extends State<GastoscopioHomeScreen> {
                 ),
                 const SizedBox(height: 12),
                 _buildActionGrid(),
-
-                const SizedBox(height: 24),
+                const SizedBox(height: 12),
                 // Título de sección Movimientos
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     Text(
                       AppLocalizations.of(context)!.lastMovements,
-                      style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                      style: Theme.of(context).textTheme.titleSmall?.copyWith(
                         fontWeight: FontWeight.bold,
                         color: Theme.of(
                           context,
@@ -259,7 +260,7 @@ class _GastoscopioHomeScreenState extends State<GastoscopioHomeScreen> {
             children: [
               Text(
                 _greetingTitle,
-                style: Theme.of(context).textTheme.headlineSmall?.copyWith(
+                style: Theme.of(context).textTheme.headlineMedium?.copyWith(
                   fontWeight: FontWeight.bold,
                 ),
               ),
@@ -278,16 +279,15 @@ class _GastoscopioHomeScreenState extends State<GastoscopioHomeScreen> {
         const SizedBox(width: 10),
         // Avatar más pequeño y elegante
         Container(
-          height: 50,
-          width: 50,
+          height: 70,
+          width: 70,
           decoration: BoxDecoration(
-            color: Theme.of(context).colorScheme.surfaceVariant,
+            //color: Theme.of(context).colorScheme.surfaceVariant,
             shape: BoxShape.circle,
-            border: Border.all(
-              color: Theme.of(context).colorScheme.outline.withOpacity(0.2),
-            ),
+            // border: Border.all(
+            //   color: Theme.of(context).colorScheme.outline.withOpacity(0.2),
+            // ),
           ),
-          padding: const EdgeInsets.all(4),
           child: ClipOval(
             child: _isSvg
                 ? SvgPicture.asset(
@@ -534,41 +534,8 @@ class _GastoscopioHomeScreenState extends State<GastoscopioHomeScreen> {
     return SingleChildScrollView(
       scrollDirection: Axis.horizontal,
       child: Row(
-        // Más anchos que altos
         children: [
-          _buildActionCard(
-            icon: Icons.repeat,
-            title: AppLocalizations.of(context).manageRecurringMovements,
-            color: Colors.blueAccent,
-            onTap: () => Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (context) => const FixedMovementsScreen(),
-              ),
-            ),
-          ),
-          const SizedBox(width: 12),
-          _buildActionCard(
-            icon: Icons.savings,
-            title: AppLocalizations.of(context).savings,
-            color: Colors.amber,
-            onTap: () => Navigator.push(
-              context,
-              MaterialPageRoute(builder: (context) => HomeSaves()),
-            ),
-          ),
-          const SizedBox(width: 12),
           //if (_isLastDaysOfTheWeek()) ...[
-          _buildActionCard(
-            icon: Icons.summarize,
-            title: AppLocalizations.of(context)!.showSummary,
-            color: Colors.purpleAccent,
-            onTap: () => Navigator.push(
-              context,
-              MaterialPageRoute(builder: (context) => const SummaryScreen()),
-            ),
-          ),
-          const SizedBox(width: 12),
           _buildActionCard(
             icon: Icons.calendar_month,
             title: AppLocalizations.of(context)!.createNextMonth,
@@ -582,7 +549,30 @@ class _GastoscopioHomeScreenState extends State<GastoscopioHomeScreen> {
               setState(() {});
             },
           ),
-          //],
+
+          // ],
+          _buildActionCard(
+            icon: Icons.repeat,
+            title: AppLocalizations.of(context).manageRecurringMovements,
+            color: Colors.blueAccent,
+            onTap: () => Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => const FixedMovementsScreen(),
+              ),
+            ),
+          ),
+
+          _buildActionCard(
+            icon: Icons.savings,
+            title: AppLocalizations.of(context).savings,
+            color: Colors.amber,
+            onTap: () => Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => HomeSaves()),
+            ),
+          ),
+          const SizedBox(width: 12),
         ],
       ),
     );
@@ -598,10 +588,10 @@ class _GastoscopioHomeScreenState extends State<GastoscopioHomeScreen> {
     final cardBg = Theme.of(context).colorScheme.primary.withAlpha(15);
 
     return SizedBox(
-      width: 150,
+      width: 100,
       height: 110,
       child: Material(
-        color: cardBg,
+        //color: cardBg,
         borderRadius: BorderRadius.circular(20),
         elevation: 2,
         shadowColor: Colors.black.withOpacity(0.1),
@@ -609,7 +599,7 @@ class _GastoscopioHomeScreenState extends State<GastoscopioHomeScreen> {
           borderRadius: BorderRadius.circular(20),
           onTap: onTap,
           child: Padding(
-            padding: const EdgeInsets.all(16.0),
+            padding: const EdgeInsets.all(5.0),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.center,
               mainAxisAlignment: MainAxisAlignment.spaceAround,
@@ -617,19 +607,19 @@ class _GastoscopioHomeScreenState extends State<GastoscopioHomeScreen> {
                 Container(
                   padding: const EdgeInsets.all(8),
                   decoration: BoxDecoration(
-                    color: color.withOpacity(0.15),
-                    shape: BoxShape.circle,
+                    color: color.withAlpha(15),
+                    shape: BoxShape.rectangle,
+                    borderRadius: BorderRadius.circular(16),
                   ),
-                  child: Icon(icon, color: color, size: 30),
+                  child: Icon(icon, color: color, size: 50),
                 ),
-                const SizedBox(height: 8),
                 Text(
                   title,
                   maxLines: 2,
                   overflow: TextOverflow.ellipsis,
                   style: const TextStyle(
-                    fontWeight: FontWeight.w600,
-                    fontSize: 10,
+                    fontWeight: FontWeight.w400,
+                    fontSize: 13,
                   ),
                   textAlign: TextAlign.center,
                 ),

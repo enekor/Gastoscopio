@@ -1119,4 +1119,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get createNextMonth => 'Next month';
+
+  @override
+  String get quickActions => 'Quick Actions';
 }

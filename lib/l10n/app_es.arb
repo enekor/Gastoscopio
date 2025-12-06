@@ -1278,6 +1278,6 @@
   "addInitialSaveDescription": "Introduce tu ahorro inicial para empezar a seguir tu progreso financiero.",
   "addSave": "Añadir ahorro",
   "initialLabel": "Inicial",
-  "createNextMonth": "Siguiente mes"
-
+  "createNextMonth": "Siguiente mes",
+  "quickActions": "Acciones rápidas"
 }
