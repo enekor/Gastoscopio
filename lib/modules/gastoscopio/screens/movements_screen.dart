@@ -407,6 +407,14 @@ class _MovementsScreenState extends State<MovementsScreen>
           ],
         ),
       ),
+      floatingActionButton: Padding(
+        padding: const EdgeInsets.only(bottom: 70.0),
+        child: FloatingActionButton(
+          onPressed: _createNewMovement,
+          child: const Icon(Icons.add_card, size: 28),
+          tooltip: 'Añadir movimiento',
+        ),
+      ),
     );
   }
 
@@ -1712,6 +1720,21 @@ class _MovementsScreenState extends State<MovementsScreen>
         );
       },
     );
+  }
+
+  Future<void> _createNewMovement() async {
+    final result = await showModalBottomSheet<bool>(
+      context: context,
+      isScrollControlled: true,
+      showDragHandle: true,
+      useSafeArea: true,
+      builder: (BuildContext context) => MovementFormScreen(),
+    );
+
+    // Si se creó un movimiento, recargar los datos
+    if (result == true) {
+      await _loadMovements();
+    }
   }
 
   Future<void> _showEditDialog(MovementValue movement) async {
