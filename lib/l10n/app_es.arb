@@ -252,6 +252,11 @@
   "@navigationStyleDescription": {
     "description": "Descripción de estilo de navegación"
   },
+  "backgroundImage": "Imagen de fondo",
+  "backgroundImageDescription": "Selecciona una imagen para usar como fondo en las pantallas de inicio de sesión e inicio.",
+  "selectImage": "Seleccionar imagen",
+  "removeImage": "Eliminar imagen",
+  "imageChangedSuccessfully": "Imagen de fondo actualizada correctamente",
   "artificialIntelligence": "Inteligencia Artificial",
   "@artificialIntelligence": {
     "description": "Sección de IA"

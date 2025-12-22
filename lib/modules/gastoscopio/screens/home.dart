@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:cashly/data/services/shared_preferences_service.dart';
 import 'package:cashly/data/services/sqlite_service.dart';
@@ -41,6 +43,7 @@ class _GastoscopioHomeScreenState extends State<GastoscopioHomeScreen> {
   final CarouselSliderController _carouselController =
       CarouselSliderController();
   bool _showIaBanner = false;
+  String? _backgroundImagePath;
 
   @override
   void initState() {
@@ -82,6 +85,13 @@ class _GastoscopioHomeScreenState extends State<GastoscopioHomeScreen> {
         .then((apiKey) {
           setState(() {
             _showIaBanner = (apiKey == null || apiKey.trim().isEmpty);
+          });
+        });
+    SharedPreferencesService()
+        .getStringValue(SharedPreferencesKeys.backgroundImage)
+        .then((path) {
+          setState(() {
+            _backgroundImagePath = path;
           });
         });
   }
@@ -163,8 +173,10 @@ class _GastoscopioHomeScreenState extends State<GastoscopioHomeScreen> {
     // Definimos un color primario local para usar en gradientes si el del tema es plano
     final primaryColor = Theme.of(context).colorScheme.primary;
     final secondaryColor = Theme.of(context).colorScheme.secondary;
+    final hasBackground = _backgroundImagePath != null && _backgroundImagePath!.isNotEmpty;
 
     return Scaffold(
+      backgroundColor: Colors.transparent,
       // Floating Action Button más moderno
       floatingActionButton: Padding(
         padding: const EdgeInsets.only(bottom: 70.0),
@@ -198,7 +210,7 @@ class _GastoscopioHomeScreenState extends State<GastoscopioHomeScreen> {
                   _buildIaBanner(context),
                   const SizedBox(height: 16),
                 ],
-                _buildHeader(),
+                _buildHeader(hasBackground),
                 const SizedBox(height: 20),
                 _buildModernBalanceCard(primaryColor, secondaryColor),
                 const SizedBox(height: 24),
@@ -210,9 +222,9 @@ class _GastoscopioHomeScreenState extends State<GastoscopioHomeScreen> {
                   )!.quickActions, // Puedes usar localizaciones aquí
                   style: Theme.of(context).textTheme.titleSmall?.copyWith(
                     fontWeight: FontWeight.bold,
-                    color: Theme.of(
-                      context,
-                    ).colorScheme.onSurface.withOpacity(0.7),
+                    color: hasBackground 
+                        ? Colors.white.withOpacity(0.9)
+                        : Theme.of(context).colorScheme.onSurface.withOpacity(0.7),
                   ),
                 ),
                 const SizedBox(height: 12),
@@ -250,7 +262,7 @@ class _GastoscopioHomeScreenState extends State<GastoscopioHomeScreen> {
   }
 
   // --- NUEVO HEADER ---
-  Widget _buildHeader() {
+  Widget _buildHeader(bool hasBackground) {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
@@ -262,15 +274,30 @@ class _GastoscopioHomeScreenState extends State<GastoscopioHomeScreen> {
                 _greetingTitle,
                 style: Theme.of(context).textTheme.headlineMedium?.copyWith(
                   fontWeight: FontWeight.bold,
+                  color: hasBackground ? Colors.white : null,
+                  shadows: hasBackground ? [
+                    const Shadow(
+                      blurRadius: 10.0,
+                      color: Colors.black54,
+                      offset: Offset(2.0, 2.0),
+                    ),
+                  ] : null,
                 ),
               ),
               const SizedBox(height: 4),
               Text(
                 _greetingSubtitle,
                 style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                  color: Theme.of(
-                    context,
-                  ).colorScheme.onSurface.withOpacity(0.6),
+                  color: hasBackground 
+                      ? Colors.white.withOpacity(0.9)
+                      : Theme.of(context).colorScheme.onSurface.withOpacity(0.6),
+                  shadows: hasBackground ? [
+                    const Shadow(
+                      blurRadius: 10.0,
+                      color: Colors.black54,
+                      offset: Offset(1.0, 1.0),
+                    ),
+                  ] : null,
                 ),
               ),
             ],

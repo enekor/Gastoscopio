@@ -1,4 +1,7 @@
+import 'dart:io';
+
 import 'package:cashly/data/services/login_service.dart';
+import 'package:cashly/data/services/shared_preferences_service.dart';
 import 'package:cashly/modules/gastoscopio/widgets/loading.dart';
 import 'package:flutter/material.dart';
 import 'package:google_sign_in/google_sign_in.dart';
@@ -19,11 +22,24 @@ class _GoogleLoginScreenState extends State<GoogleLoginScreen> {
   String _statusMessage = '';
   bool _isError = false;
   GoogleSignInAccount? _currentUser;
+  String? _backgroundImagePath;
 
   @override
   void initState() {
     super.initState();
     _checkExistingUser();
+    _loadBackgroundImage();
+  }
+
+  Future<void> _loadBackgroundImage() async {
+    final path = await SharedPreferencesService().getStringValue(
+      SharedPreferencesKeys.backgroundImage,
+    );
+    if (mounted) {
+      setState(() {
+        _backgroundImagePath = path;
+      });
+    }
   }
 
   void changeLoginStatus() {
@@ -77,52 +93,74 @@ class _GoogleLoginScreenState extends State<GoogleLoginScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.all(24.0),
-          child: Column(
-            children: [
-              const SizedBox(height: 40),
-              _buildHeader(context),
-              const SizedBox(height: 32),
-              Expanded(
-                child: SingleChildScrollView(
-                  child: Column(
-                    children: [
-                      _buildUserCard(context),
-                      const SizedBox(height: 24),
-                      _buildActionsCard(context),
-                      const SizedBox(height: 24),
-                      if (_statusMessage.isNotEmpty)
-                        _buildStatusMessage(context),
-                      if (_isLoading) ...[
-                        const SizedBox(height: 24),
-                        Loading(context),
-                      ],
-                    ],
-                  ),
-                ),
+      body: Stack(
+        children: [
+          if (_backgroundImagePath != null && _backgroundImagePath!.isNotEmpty)
+            Positioned.fill(
+              child: Image.file(
+                File(_backgroundImagePath!),
+                fit: BoxFit.cover,
               ),
-            ],
+            ),
+          if (_backgroundImagePath != null && _backgroundImagePath!.isNotEmpty)
+            Positioned.fill(
+              child: Container(
+                color: Colors.black.withOpacity(0.3),
+              ),
+            ),
+          SafeArea(
+            child: Padding(
+              padding: const EdgeInsets.all(24.0),
+              child: Column(
+                children: [
+                  const SizedBox(height: 40),
+                  _buildHeader(context),
+                  const SizedBox(height: 32),
+                  Expanded(
+                    child: SingleChildScrollView(
+                      child: Column(
+                        children: [
+                          _buildUserCard(context),
+                          const SizedBox(height: 24),
+                          _buildActionsCard(context),
+                          const SizedBox(height: 24),
+                          if (_statusMessage.isNotEmpty)
+                            _buildStatusMessage(context),
+                          if (_isLoading) ...[
+                            const SizedBox(height: 24),
+                            Loading(context),
+                          ],
+                        ],
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
           ),
-        ),
+        ],
       ),
     );
   }
 
   Widget _buildHeader(BuildContext context) {
+    final hasBackground = _backgroundImagePath != null && _backgroundImagePath!.isNotEmpty;
     return Column(
       children: [
         Container(
           padding: const EdgeInsets.all(16),
           decoration: BoxDecoration(
-            color: Theme.of(context).colorScheme.primary.withAlpha(25),
+            color: hasBackground 
+                ? Colors.white.withOpacity(0.2)
+                : Theme.of(context).colorScheme.primary.withAlpha(25),
             shape: BoxShape.circle,
           ),
           child: Icon(
             Icons.account_circle,
             size: 64,
-            color: Theme.of(context).colorScheme.primary,
+            color: hasBackground 
+                ? Colors.white 
+                : Theme.of(context).colorScheme.primary,
           ),
         ),
         const SizedBox(height: 16),
@@ -130,14 +168,19 @@ class _GoogleLoginScreenState extends State<GoogleLoginScreen> {
           AppLocalizations.of(context).welcomeToApp,
           style: Theme.of(
             context,
-          ).textTheme.headlineMedium?.copyWith(fontWeight: FontWeight.bold),
+          ).textTheme.headlineMedium?.copyWith(
+            fontWeight: FontWeight.bold,
+            color: hasBackground ? Colors.white : null,
+          ),
           textAlign: TextAlign.center,
         ),
         const SizedBox(height: 8),
         Text(
           AppLocalizations.of(context).connectGoogleAccount,
           style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-            color: Theme.of(context).colorScheme.onSurfaceVariant,
+            color: hasBackground 
+                ? Colors.white.withOpacity(0.9) 
+                : Theme.of(context).colorScheme.onSurfaceVariant,
           ),
           textAlign: TextAlign.center,
         ),
@@ -147,7 +190,7 @@ class _GoogleLoginScreenState extends State<GoogleLoginScreen> {
 
   Widget _buildUserCard(BuildContext context) {
     return Card(
-      color: Theme.of(context).colorScheme.secondary.withAlpha(25),
+      color: Theme.of(context).colorScheme.secondary.withAlpha(200),
       elevation: 0,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(16),
@@ -178,6 +221,7 @@ class _GoogleLoginScreenState extends State<GoogleLoginScreen> {
               ),
               const SizedBox(height: 16),
               Row(
+                mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   const Icon(Icons.check_circle, color: Colors.green, size: 20),
                   const SizedBox(width: 8),
@@ -237,7 +281,7 @@ class _GoogleLoginScreenState extends State<GoogleLoginScreen> {
 
   Widget _buildActionsCard(BuildContext context) {
     return Card(
-      color: Theme.of(context).colorScheme.secondary.withAlpha(25),
+      color: Theme.of(context).colorScheme.secondary.withAlpha(200),
       elevation: 0,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(16),
@@ -275,7 +319,13 @@ class _GoogleLoginScreenState extends State<GoogleLoginScreen> {
               const SizedBox(height: 12),
               TextButton(
                 onPressed: widget.onLoginOk,
-                child: Text(AppLocalizations.of(context).continueWithoutLogin),
+                child: Text(
+                  AppLocalizations.of(context).continueWithoutLogin,
+                  style: TextStyle(
+                    color: Theme.of(context).colorScheme.primary,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
               ),
             ] else ...[
               ElevatedButton.icon(

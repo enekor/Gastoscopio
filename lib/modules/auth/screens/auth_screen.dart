@@ -1,3 +1,6 @@
+import 'dart:io';
+
+import 'package:cashly/data/services/shared_preferences_service.dart';
 import 'package:cashly/modules/gastoscopio/widgets/loading.dart';
 import 'package:cashly/modules/main_screen.dart';
 import 'package:flutter/material.dart';
@@ -17,11 +20,24 @@ class _AuthScreenState extends State<AuthScreen> {
   bool _isLoading = false;
   bool _showPin = false;
   bool _checkingBiometrics = false;
+  String? _backgroundImagePath;
 
   @override
   void initState() {
     super.initState();
+    _loadBackgroundImage();
     _checkBiometrics();
+  }
+
+  Future<void> _loadBackgroundImage() async {
+    final path = await SharedPreferencesService().getStringValue(
+      SharedPreferencesKeys.backgroundImage,
+    );
+    if (mounted) {
+      setState(() {
+        _backgroundImagePath = path;
+      });
+    }
   }
 
   Future<void> _checkBiometrics() async {
@@ -100,74 +116,132 @@ class _AuthScreenState extends State<AuthScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final hasBackground = _backgroundImagePath != null && _backgroundImagePath!.isNotEmpty;
+
     return Scaffold(
-      body: SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.all(24.0),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              Icon(
-                Icons.lock_outline,
-                size: 64,
-                color: Theme.of(context).colorScheme.primary,
+      extendBodyBehindAppBar: true,
+      backgroundColor: hasBackground ? Colors.transparent : Theme.of(context).colorScheme.surface,
+      body: Stack(
+        children: [
+          if (hasBackground)
+            Positioned.fill(
+              child: Image.file(
+                File(_backgroundImagePath!),
+                fit: BoxFit.cover,
+                errorBuilder: (context, error, stackTrace) => Container(
+                  color: Theme.of(context).colorScheme.surface,
+                ),
               ),
-              const SizedBox(height: 24),
-              Text(
-                AppLocalizations.of(context).enterPinToAccess,
-                style: Theme.of(context).textTheme.titleLarge,
-                textAlign: TextAlign.center,
+            ),
+          if (hasBackground)
+            Positioned.fill(
+              child: Container(
+                color: Colors.black.withOpacity(0.4),
               ),
-              const SizedBox(height: 32),
-              TextField(
-                controller: _pinController,
-                decoration: InputDecoration(
-                  labelText: AppLocalizations.of(context).pin,
-                  border: const OutlineInputBorder(),
-                  prefixIcon: const Icon(Icons.pin),
-                  suffixIcon: IconButton(
-                    icon: Icon(
-                      _showPin ? Icons.visibility_off : Icons.visibility,
+            ),
+          SafeArea(
+            child: Padding(
+              padding: const EdgeInsets.all(24.0),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  Icon(
+                    Icons.lock_outline,
+                    size: 64,
+                    color: hasBackground ? Colors.white : Theme.of(context).colorScheme.primary,
+                  ),
+                  const SizedBox(height: 24),
+                  Text(
+                    AppLocalizations.of(context).enterPinToAccess,
+                    style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                      color: hasBackground ? Colors.white : null,
                     ),
-                    onPressed: () {
-                      setState(() {
-                        _showPin = !_showPin;
-                      });
+                    textAlign: TextAlign.center,
+                  ),
+                  const SizedBox(height: 32),
+                  Card(
+                    elevation: hasBackground ? 0 : 1,
+                    color: hasBackground 
+                        ? Colors.white.withOpacity(0.15) 
+                        : Theme.of(context).colorScheme.surface,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(16),
+                      side: hasBackground ? BorderSide(color: Colors.white.withOpacity(0.3)) : BorderSide.none,
+                    ),
+                    child: Padding(
+                      padding: const EdgeInsets.all(8.0),
+                      child: TextField(
+                        controller: _pinController,
+                        decoration: InputDecoration(
+                          labelText: AppLocalizations.of(context).pin,
+                          labelStyle: TextStyle(color: hasBackground ? Colors.white70 : null),
+                          border: InputBorder.none,
+                          prefixIcon: Icon(Icons.pin, color: hasBackground ? Colors.white70 : null),
+                          suffixIcon: IconButton(
+                            icon: Icon(
+                              _showPin ? Icons.visibility_off : Icons.visibility,
+                              color: hasBackground ? Colors.white70 : null,
+                            ),
+                            onPressed: () {
+                              setState(() {
+                                _showPin = !_showPin;
+                              });
+                            },
+                          ),
+                        ),
+                        keyboardType: TextInputType.number,
+                        obscureText: !_showPin,
+                        maxLength: 4,
+                        textAlign: TextAlign.center,
+                        style: TextStyle(
+                          letterSpacing: 8, 
+                          fontSize: 24,
+                          color: hasBackground ? Colors.white : null,
+                        ),
+                        onSubmitted: (_) => _verifyPin(),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 24),
+                  FilledButton(
+                    onPressed: _isLoading ? null : _verifyPin,
+                    style: hasBackground ? FilledButton.styleFrom(
+                      backgroundColor: Colors.white.withOpacity(0.25),
+                      foregroundColor: Colors.white,
+                      side: const BorderSide(color: Colors.white54),
+                    ) : null,
+                    child: _isLoading
+                        ? SizedBox(height: 20, width: 20, child: Loading(context))
+                        : Text(AppLocalizations.of(context).verify),
+                  ),
+                  const SizedBox(height: 16),
+                  FutureBuilder<bool>(
+                    future: _authService.isBiometricsAvailable(),
+                    builder: (context, snapshot) {
+                      if (snapshot.hasData && snapshot.data!) {
+                        return TextButton.icon(
+                          onPressed: _checkingBiometrics ? null : _checkBiometrics,
+                          icon: Icon(
+                            Icons.fingerprint,
+                            color: hasBackground ? Colors.white : null,
+                          ),
+                          label: Text(
+                            AppLocalizations.of(context).useBiometrics,
+                            style: TextStyle(
+                              color: hasBackground ? Colors.white : null,
+                            ),
+                          ),
+                        );
+                      }
+                      return const SizedBox.shrink();
                     },
                   ),
-                ),
-                keyboardType: TextInputType.number,
-                obscureText: !_showPin,
-                maxLength: 4,
-                textAlign: TextAlign.center,
-                style: const TextStyle(letterSpacing: 8, fontSize: 24),
-                onSubmitted: (_) => _verifyPin(),
+                ],
               ),
-              const SizedBox(height: 24),
-              FilledButton(
-                onPressed: _isLoading ? null : _verifyPin,
-                child: _isLoading
-                    ? SizedBox(height: 20, width: 20, child: Loading(context))
-                    : Text(AppLocalizations.of(context).verify),
-              ),
-              const SizedBox(height: 16),
-              FutureBuilder<bool>(
-                future: _authService.isBiometricsAvailable(),
-                builder: (context, snapshot) {
-                  if (snapshot.hasData && snapshot.data!) {
-                    return TextButton.icon(
-                      onPressed: _checkingBiometrics ? null : _checkBiometrics,
-                      icon: const Icon(Icons.fingerprint),
-                      label: Text(AppLocalizations.of(context).useBiometrics),
-                    );
-                  }
-                  return const SizedBox.shrink();
-                },
-              ),
-            ],
+            ),
           ),
-        ),
+        ],
       ),
     );
   }

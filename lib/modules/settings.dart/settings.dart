@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:cashly/data/models/fixed_movement.dart';
 import 'package:cashly/data/models/month.dart';
 import 'package:cashly/data/models/movement_value.dart';
@@ -9,6 +11,7 @@ import 'package:cashly/modules/gastoscopio/widgets/loading.dart';
 import 'package:cashly/modules/settings.dart/widgets/apikey-generator.dart';
 import 'package:cashly/modules/settings.dart/widgets/developer_options_widget.dart';
 import 'package:cashly/modules/settings.dart/widgets/backup_restore_widget.dart';
+import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:cashly/l10n/app_localizations.dart';
 import 'package:flutter_colorpicker/flutter_colorpicker.dart';
@@ -31,6 +34,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
   int _g = 255;
   int _b = 255;
   bool _isLoggedIn = false;
+  String? _backgroundImagePath;
 
   @override
   void initState() {
@@ -224,6 +228,15 @@ class _SettingsScreenState extends State<SettingsScreen> {
         _selectedLanguage = selectedLanguage ?? 'system';
       });
     }
+
+    final backgroundImage = await SharedPreferencesService().getStringValue(
+      SharedPreferencesKeys.backgroundImage,
+    );
+    if (mounted) {
+      setState(() {
+        _backgroundImagePath = backgroundImage;
+      });
+    }
   }
 
   Future<void> _saveCurrency(String currency) async {
@@ -333,6 +346,48 @@ class _SettingsScreenState extends State<SettingsScreen> {
     }
   }
 
+  Future<void> _selectBackgroundImage() async {
+    FilePickerResult? result = await FilePicker.platform.pickFiles(
+      type: FileType.image,
+    );
+
+    if (result != null && result.files.single.path != null) {
+      String path = result.files.single.path!;
+      await SharedPreferencesService().setStringValue(
+        SharedPreferencesKeys.backgroundImage,
+        path,
+      );
+      if (mounted) {
+        setState(() {
+          _backgroundImagePath = path;
+        });
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(AppLocalizations.of(context)!.imageChangedSuccessfully),
+            behavior: SnackBarBehavior.floating,
+          ),
+        );
+      }
+    }
+  }
+
+  Future<void> _removeBackgroundImage() async {
+    final prefs = await SharedPreferencesService();
+    // SharedPreferencesService does not have remove, but setting to empty or null works if handled
+    await prefs.setStringValue(SharedPreferencesKeys.backgroundImage, "");
+    if (mounted) {
+      setState(() {
+        _backgroundImagePath = null;
+      });
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(AppLocalizations.of(context)!.imageChangedSuccessfully),
+          behavior: SnackBarBehavior.floating,
+        ),
+      );
+    }
+  }
+
   Future<void> _handleLogout() async {
     final loginService = LoginService();
     await loginService.signOut();
@@ -434,6 +489,10 @@ class _SettingsScreenState extends State<SettingsScreen> {
 
               // Logo Card
               _buildLogoCard(context),
+              const SizedBox(height: 20),
+
+              // Background Image Card
+              _buildBackgroundImageCard(context),
               const SizedBox(height: 20),
 
               // Bottom Navigation Style Card
@@ -908,6 +967,86 @@ class _SettingsScreenState extends State<SettingsScreen> {
     double luminance =
         (0.299 * color.red + 0.587 * color.green + 0.114 * color.blue) / 255;
     return luminance > 0.5 ? Colors.black : Colors.white;
+  }
+
+  Widget _buildBackgroundImageCard(BuildContext context) {
+    return Card(
+      color: Theme.of(context).colorScheme.secondary.withAlpha(25),
+      elevation: 0,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(16),
+        side: BorderSide(
+          color: Theme.of(context).colorScheme.outline.withAlpha(50),
+        ),
+      ),
+      child: Padding(
+        padding: const EdgeInsets.all(20.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                Icon(
+                  Icons.wallpaper_outlined,
+                  color: Theme.of(context).colorScheme.primary,
+                  size: 20,
+                ),
+                const SizedBox(width: 8),
+                Text(
+                  AppLocalizations.of(context)!.backgroundImage,
+                  style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 8),
+            Text(
+              AppLocalizations.of(context)!.backgroundImageDescription,
+              style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                color: Theme.of(context).colorScheme.onSurfaceVariant,
+              ),
+            ),
+            const SizedBox(height: 16),
+            if (_backgroundImagePath != null && _backgroundImagePath!.isNotEmpty) ...[
+              ClipRRect(
+                borderRadius: BorderRadius.circular(12),
+                child: Image.file(
+                  File(_backgroundImagePath!),
+                  height: 150,
+                  width: double.infinity,
+                  fit: BoxFit.cover,
+                ),
+              ),
+              const SizedBox(height: 12),
+            ],
+            Row(
+              children: [
+                Expanded(
+                  child: ElevatedButton.icon(
+                    onPressed: _selectBackgroundImage,
+                    icon: const Icon(Icons.photo_library_outlined),
+                    label: Text(AppLocalizations.of(context)!.selectImage),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Theme.of(context).colorScheme.primary,
+                      foregroundColor: Theme.of(context).colorScheme.onPrimary,
+                    ),
+                  ),
+                ),
+                if (_backgroundImagePath != null && _backgroundImagePath!.isNotEmpty) ...[
+                  const SizedBox(width: 12),
+                  IconButton(
+                    onPressed: _removeBackgroundImage,
+                    icon: const Icon(Icons.delete_outline),
+                    color: Theme.of(context).colorScheme.error,
+                  ),
+                ],
+              ],
+            ),
+          ],
+        ),
+      ),
+    );
   }
 
   Widget _buildBottomNavCard(BuildContext context) {

@@ -88,6 +88,7 @@ enum SharedPreferencesKeys {
   numberOfMovements('number_of_movements'),
   isOpaqueBottomNav('is_opaque_bottom_nav'),
   selectedLanguage('selected_language'),
+  backgroundImage('background_image'),
   savingGoal('saving_goal');
 
   final String value;

@@ -192,6 +192,23 @@ class AppLocalizationsEs extends AppLocalizations {
       'Personaliza la apariencia de la barra de navegación inferior.';
 
   @override
+  String get backgroundImage => 'Imagen de fondo';
+
+  @override
+  String get backgroundImageDescription =>
+      'Selecciona una imagen para usar como fondo en las pantallas de inicio de sesión e inicio.';
+
+  @override
+  String get selectImage => 'Seleccionar imagen';
+
+  @override
+  String get removeImage => 'Eliminar imagen';
+
+  @override
+  String get imageChangedSuccessfully =>
+      'Imagen de fondo actualizada correctamente';
+
+  @override
   String get artificialIntelligence => 'Inteligencia Artificial';
 
   @override

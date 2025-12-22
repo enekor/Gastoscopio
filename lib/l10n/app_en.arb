@@ -63,6 +63,11 @@
   "logoPersonalization": "Logo Personalization.",
   "logoDescription": "Choose between static PNG or customizable SVG with color.",
   "navigationStyleDescription": "Customize the bottom navigation bar appearance.",
+  "backgroundImage": "Background Image",
+  "backgroundImageDescription": "Select an image to use as background for login and home screens.",
+  "selectImage": "Select Image",
+  "removeImage": "Remove Image",
+  "imageChangedSuccessfully": "Background image updated successfully",
   "artificialIntelligence": "Artificial Intelligence",
   "aiDescription": "Configuration for advanced AI features.",
   "backupManagement": "Backup Management",
@@ -249,41 +254,14 @@
   "nameRequired": "Name is required",
   "invalidAmount": "Invalid amount",
   "loginRequired": "Login Required",
-  "@loginRequired": {
-    "description": "Message when login is required"
-  },
   "loginToAccess": "Sign in to access this feature",
-  "@loginToAccess": {
-    "description": "Explanatory message of why login is needed"
-  },
   "login": "Sign in",
-  "@login": {
-    "description": "Login button"
-  },
   "logout": "Sign out",
-  "@logout": {
-    "description": "Logout button"
-  },
   "loggedOutSuccessfully": "Signed out successfully",
-  "@loggedOutSuccessfully": {
-    "description": "Success message when signing out"
-  },
   "loggedInSuccessfully": "Signed in successfully",
-  "@loggedInSuccessfully": {
-    "description": "Success message when signing in"
-  },
   "loginError": "Sign in error",
-  "@loginError": {
-    "description": "Error message when signing in fails"
-  },
   "accountSection": "Account",
-  "@accountSection": {
-    "description": "Account section title in settings"
-  },
   "accountDescription": "Manage your account and sign-in options",
-  "@accountDescription": {
-    "description": "Account section description"
-  },
   "futureMovements": "Future Movements",
   "activateIaFeatures": "Enable AI Features!",
   "noIaFeaturesHomeTitle": "You are missing out on the app's smart features!\n\nEnable AI to get automatic analysis, personalized suggestions, and much more. It's free and very easy to set up.",

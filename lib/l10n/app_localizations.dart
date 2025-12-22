@@ -434,6 +434,36 @@ abstract class AppLocalizations {
   /// **'Personaliza la apariencia de la barra de navegación inferior.'**
   String get navigationStyleDescription;
 
+  /// No description provided for @backgroundImage.
+  ///
+  /// In es, this message translates to:
+  /// **'Imagen de fondo'**
+  String get backgroundImage;
+
+  /// No description provided for @backgroundImageDescription.
+  ///
+  /// In es, this message translates to:
+  /// **'Selecciona una imagen para usar como fondo en las pantallas de inicio de sesión e inicio.'**
+  String get backgroundImageDescription;
+
+  /// No description provided for @selectImage.
+  ///
+  /// In es, this message translates to:
+  /// **'Seleccionar imagen'**
+  String get selectImage;
+
+  /// No description provided for @removeImage.
+  ///
+  /// In es, this message translates to:
+  /// **'Eliminar imagen'**
+  String get removeImage;
+
+  /// No description provided for @imageChangedSuccessfully.
+  ///
+  /// In es, this message translates to:
+  /// **'Imagen de fondo actualizada correctamente'**
+  String get imageChangedSuccessfully;
+
   /// Sección de IA
   ///
   /// In es, this message translates to:

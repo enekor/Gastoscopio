@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:cashly/data/services/shared_preferences_service.dart';
 import 'package:cashly/data/services/sqlite_service.dart';
 import 'package:cashly/modules/gastoscopio/logic/finance_service.dart';
@@ -28,6 +30,7 @@ class _MainScreenState extends State<MainScreen>
   int _month = DateTime.now().month;
   late Future<bool> _initializationFuture;
   bool _isOpaqueBottomNav = false;
+  String? _backgroundImagePath;
 
   final List<CustomNavigationDestination> _destinations = const [
     CustomNavigationDestination(
@@ -79,22 +82,28 @@ class _MainScreenState extends State<MainScreen>
   }
 
   Future<bool> _initialize() async {
+    final prefs = SharedPreferencesService();
     final isFirstStartup =
-        await SharedPreferencesService().getBoolValue(
+        await prefs.getBoolValue(
           SharedPreferencesKeys.isFirstStartup,
         ) ??
         true;
 
     // Load bottom navigation style configuration
     final isOpaqueBottomNav =
-        await SharedPreferencesService().getBoolValue(
+        await prefs.getBoolValue(
           SharedPreferencesKeys.isOpaqueBottomNav,
         ) ??
         false;
 
+    final backgroundImage = await prefs.getStringValue(
+      SharedPreferencesKeys.backgroundImage,
+    );
+
     if (mounted) {
       setState(() {
         _isOpaqueBottomNav = isOpaqueBottomNav;
+        _backgroundImagePath = backgroundImage;
       });
     }
 
@@ -194,16 +203,22 @@ class _MainScreenState extends State<MainScreen>
     );
   }
 
-  Future<void> _reloadBottomNavConfig() async {
+  Future<void> _reloadConfigs() async {
+    final prefs = SharedPreferencesService();
     final isOpaqueBottomNav =
-        await SharedPreferencesService().getBoolValue(
+        await prefs.getBoolValue(
           SharedPreferencesKeys.isOpaqueBottomNav,
         ) ??
         false;
+    
+    final backgroundImage = await prefs.getStringValue(
+      SharedPreferencesKeys.backgroundImage,
+    );
 
     if (mounted) {
       setState(() {
         _isOpaqueBottomNav = isOpaqueBottomNav;
+        _backgroundImagePath = backgroundImage;
       });
     }
   }
@@ -243,11 +258,16 @@ class _MainScreenState extends State<MainScreen>
           return Scaffold(body: Center(child: Loading(context)));
         }
 
+        final hasBackground = _backgroundImagePath != null && _backgroundImagePath!.isNotEmpty;
+
         return Scaffold(
           extendBody: _selectedIndex != 2,
+          extendBodyBehindAppBar: true,
           appBar: AppBar(
             toolbarHeight: kToolbarHeight + 32,
             centerTitle: true,
+            backgroundColor: Colors.transparent,
+            elevation: 0,
             title: Padding(
               padding: const EdgeInsets.only(top: 35.0),
               child: Text(
@@ -256,6 +276,14 @@ class _MainScreenState extends State<MainScreen>
                   fontFamily: 'Pacifico',
                   fontSize: 24,
                   letterSpacing: 1.2,
+                  color: hasBackground && _selectedIndex == 0 ? Colors.white : null,
+                  shadows: hasBackground && _selectedIndex == 0 ? [
+                    const Shadow(
+                      blurRadius: 10.0,
+                      color: Colors.black54,
+                      offset: Offset(2.0, 2.0),
+                    ),
+                  ] : null,
                 ),
               ),
             ),
@@ -263,7 +291,10 @@ class _MainScreenState extends State<MainScreen>
               Padding(
                 padding: const EdgeInsets.only(top: 35.0),
                 child: IconButton(
-                  icon: const Icon(Icons.settings),
+                  icon: Icon(
+                    Icons.settings,
+                    color: hasBackground && _selectedIndex == 0 ? Colors.white : null,
+                  ),
                   onPressed: () async {
                     await Navigator.push(
                       context,
@@ -272,7 +303,7 @@ class _MainScreenState extends State<MainScreen>
                       ),
                     );
                     // Reload configuration when returning from settings
-                    await _reloadBottomNavConfig();
+                    await _reloadConfigs();
                   },
                 ),
               ),
@@ -281,15 +312,33 @@ class _MainScreenState extends State<MainScreen>
                   padding: const EdgeInsets.only(top: 35.0),
                   child: IconButton(
                     onPressed: _showMonthSelector,
-                    icon: const Icon(Icons.calendar_today),
+                    icon: Icon(
+                      Icons.calendar_today,
+                      color: hasBackground && _selectedIndex == 0 ? Colors.white : null,
+                    ),
                   ),
                 ),
             ],
           ),
-          body: TabBarView(
-            controller: _tabController,
-            physics: const ClampingScrollPhysics(),
-            children: _screens,
+          body: Stack(
+            children: [
+              if (hasBackground && _selectedIndex == 0)
+                Positioned(
+                  top: 0,
+                  left: 0,
+                  right: 0,
+                  height: MediaQuery.of(context).size.height / 2,
+                  child: Image.file(
+                    File(_backgroundImagePath!),
+                    fit: BoxFit.cover,
+                  ),
+                ),
+              TabBarView(
+                controller: _tabController,
+                physics: const ClampingScrollPhysics(),
+                children: _screens,
+              ),
+            ],
           ),
           bottomNavigationBar: CustomBottomNavigationBar(
             height: 45,

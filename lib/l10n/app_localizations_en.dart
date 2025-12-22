@@ -191,6 +191,23 @@ class AppLocalizationsEn extends AppLocalizations {
       'Customize the bottom navigation bar appearance.';
 
   @override
+  String get backgroundImage => 'Background Image';
+
+  @override
+  String get backgroundImageDescription =>
+      'Select an image to use as background for login and home screens.';
+
+  @override
+  String get selectImage => 'Select Image';
+
+  @override
+  String get removeImage => 'Remove Image';
+
+  @override
+  String get imageChangedSuccessfully =>
+      'Background image updated successfully';
+
+  @override
   String get artificialIntelligence => 'Artificial Intelligence';
 
   @override
