@@ -328,9 +328,29 @@ class _MainScreenState extends State<MainScreen>
                   left: 0,
                   right: 0,
                   height: MediaQuery.of(context).size.height / 2,
-                  child: Image.file(
-                    File(_backgroundImagePath!),
-                    fit: BoxFit.cover,
+                  child: Stack(
+                    fit: StackFit.expand,
+                    children: [
+                      Image.file(
+                        File(_backgroundImagePath!),
+                        fit: BoxFit.cover,
+                      ),
+                      // Overlay oscuro y fadeout al final
+                      Container(
+                        decoration: BoxDecoration(
+                          gradient: LinearGradient(
+                            begin: Alignment.topCenter,
+                            end: Alignment.bottomCenter,
+                            colors: [
+                              Colors.black.withOpacity(0.7), // Oscurecimiento inicial más fuerte
+                              Colors.black.withOpacity(0.3), // Parte media algo más clara
+                              Theme.of(context).colorScheme.surface, // Fadeout total al color de fondo
+                            ],
+                            stops: const [0.0, 0.7, 1.0],
+                          ),
+                        ),
+                      ),
+                    ],
                   ),
                 ),
               TabBarView(
