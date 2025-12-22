@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'dart:ui';
 
 import 'package:cashly/data/services/shared_preferences_service.dart';
 import 'package:cashly/modules/gastoscopio/widgets/loading.dart';
@@ -41,7 +42,7 @@ class _AuthScreenState extends State<AuthScreen> {
   }
 
   Future<void> _checkBiometrics() async {
-    if (_checkingBiometrics) return; // Prevent multiple simultaneous checks
+    if (_checkingBiometrics) return; 
     _checkingBiometrics = true;
 
     try {
@@ -63,7 +64,6 @@ class _AuthScreenState extends State<AuthScreen> {
             MaterialPageRoute(builder: (context) => const MainScreen()),
           );
         } else if (mounted) {
-          // Only show error if authentication failed (not if user cancelled)
           if (success == false) {
             ScaffoldMessenger.of(context).showSnackBar(
               SnackBar(
@@ -102,7 +102,7 @@ class _AuthScreenState extends State<AuthScreen> {
               behavior: SnackBarBehavior.floating,
             ),
           );
-          _pinController.clear(); // Clear the PIN on error
+          _pinController.clear(); 
         }
       }
     } finally {
@@ -120,9 +120,9 @@ class _AuthScreenState extends State<AuthScreen> {
 
     return Scaffold(
       extendBodyBehindAppBar: true,
-      backgroundColor: hasBackground ? Colors.transparent : Theme.of(context).colorScheme.surface,
       body: Stack(
         children: [
+          // Fondo
           if (hasBackground)
             Positioned.fill(
               child: Image.file(
@@ -133,111 +133,182 @@ class _AuthScreenState extends State<AuthScreen> {
                 ),
               ),
             ),
-          if (hasBackground)
-            Positioned.fill(
-              child: Container(
-                color: Colors.black.withOpacity(0.4),
-              ),
+          
+          // Overlay oscuro mucho más intenso para mejorar contraste
+          Positioned.fill(
+            child: Container(
+              color: hasBackground 
+                  ? Colors.black.withOpacity(0.75) 
+                  : Theme.of(context).colorScheme.surface,
             ),
+          ),
+
           SafeArea(
-            child: Padding(
-              padding: const EdgeInsets.all(24.0),
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
-                  Icon(
-                    Icons.lock_outline,
-                    size: 64,
-                    color: hasBackground ? Colors.white : Theme.of(context).colorScheme.primary,
-                  ),
-                  const SizedBox(height: 24),
-                  Text(
-                    AppLocalizations.of(context).enterPinToAccess,
-                    style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                      color: hasBackground ? Colors.white : null,
-                    ),
-                    textAlign: TextAlign.center,
-                  ),
-                  const SizedBox(height: 32),
-                  Card(
-                    elevation: hasBackground ? 0 : 1,
-                    color: hasBackground 
-                        ? Colors.white.withOpacity(0.15) 
-                        : Theme.of(context).colorScheme.surface,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(16),
-                      side: hasBackground ? BorderSide(color: Colors.white.withOpacity(0.3)) : BorderSide.none,
-                    ),
-                    child: Padding(
-                      padding: const EdgeInsets.all(8.0),
-                      child: TextField(
-                        controller: _pinController,
-                        decoration: InputDecoration(
-                          labelText: AppLocalizations.of(context).pin,
-                          labelStyle: TextStyle(color: hasBackground ? Colors.white70 : null),
-                          border: InputBorder.none,
-                          prefixIcon: Icon(Icons.pin, color: hasBackground ? Colors.white70 : null),
-                          suffixIcon: IconButton(
-                            icon: Icon(
-                              _showPin ? Icons.visibility_off : Icons.visibility,
-                              color: hasBackground ? Colors.white70 : null,
-                            ),
-                            onPressed: () {
-                              setState(() {
-                                _showPin = !_showPin;
-                              });
-                            },
-                          ),
-                        ),
-                        keyboardType: TextInputType.number,
-                        obscureText: !_showPin,
-                        maxLength: 4,
-                        textAlign: TextAlign.center,
-                        style: TextStyle(
-                          letterSpacing: 8, 
-                          fontSize: 24,
-                          color: hasBackground ? Colors.white : null,
-                        ),
-                        onSubmitted: (_) => _verifyPin(),
+            child: Center(
+              child: SingleChildScrollView(
+                padding: const EdgeInsets.all(32.0),
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    // Icono Lock estilizado
+                    Container(
+                      padding: const EdgeInsets.all(24),
+                      decoration: BoxDecoration(
+                        color: hasBackground ? Colors.white.withOpacity(0.1) : Theme.of(context).colorScheme.primaryContainer.withOpacity(0.3),
+                        shape: BoxShape.circle,
+                        border: hasBackground ? Border.all(color: Colors.white.withOpacity(0.2)) : null,
+                      ),
+                      child: Icon(
+                        Icons.lock_outline_rounded,
+                        size: 80,
+                        color: hasBackground ? Colors.white : Theme.of(context).colorScheme.primary,
                       ),
                     ),
-                  ),
-                  const SizedBox(height: 24),
-                  FilledButton(
-                    onPressed: _isLoading ? null : _verifyPin,
-                    style: hasBackground ? FilledButton.styleFrom(
-                      backgroundColor: Colors.white.withOpacity(0.25),
-                      foregroundColor: Colors.white,
-                      side: const BorderSide(color: Colors.white54),
-                    ) : null,
-                    child: _isLoading
-                        ? SizedBox(height: 20, width: 20, child: Loading(context))
-                        : Text(AppLocalizations.of(context).verify),
-                  ),
-                  const SizedBox(height: 16),
-                  FutureBuilder<bool>(
-                    future: _authService.isBiometricsAvailable(),
-                    builder: (context, snapshot) {
-                      if (snapshot.hasData && snapshot.data!) {
-                        return TextButton.icon(
-                          onPressed: _checkingBiometrics ? null : _checkBiometrics,
-                          icon: Icon(
-                            Icons.fingerprint,
-                            color: hasBackground ? Colors.white : null,
-                          ),
-                          label: Text(
-                            AppLocalizations.of(context).useBiometrics,
-                            style: TextStyle(
-                              color: hasBackground ? Colors.white : null,
+                    const SizedBox(height: 40),
+                    Text(
+                      AppLocalizations.of(context).enterPinToAccess,
+                      style: Theme.of(context).textTheme.headlineSmall?.copyWith(
+                        fontWeight: FontWeight.bold,
+                        color: hasBackground ? Colors.white : null,
+                        letterSpacing: 0.5,
+                      ),
+                      textAlign: TextAlign.center,
+                    ),
+                    const SizedBox(height: 48),
+                    
+                    // Contenedor PIN con Glassmorphism premium
+                    Container(
+                      constraints: const BoxConstraints(maxWidth: 300),
+                      child: ClipRRect(
+                        borderRadius: BorderRadius.circular(30),
+                        child: BackdropFilter(
+                          filter: ImageFilter.blur(sigmaX: 15, sigmaY: 15),
+                          child: Container(
+                            padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 20),
+                            decoration: BoxDecoration(
+                              color: hasBackground 
+                                  ? Colors.white.withOpacity(0.1) 
+                                  : Theme.of(context).colorScheme.surfaceVariant.withOpacity(0.5),
+                              borderRadius: BorderRadius.circular(30),
+                              border: Border.all(
+                                color: hasBackground 
+                                    ? Colors.white.withOpacity(0.2) 
+                                    : Theme.of(context).colorScheme.outline.withOpacity(0.2),
+                              ),
+                            ),
+                            child: Column(
+                              children: [
+                                TextField(
+                                  controller: _pinController,
+                                  obscureText: !_showPin,
+                                  maxLength: 4,
+                                  keyboardType: TextInputType.number,
+                                  textAlign: TextAlign.center,
+                                  autofocus: true,
+                                  cursorColor: hasBackground ? Colors.white : null,
+                                  style: TextStyle(
+                                    letterSpacing: 24, 
+                                    fontSize: 36,
+                                    fontWeight: FontWeight.bold,
+                                    color: hasBackground ? Colors.white : null,
+                                  ),
+                                  decoration: InputDecoration(
+                                    counterText: "",
+                                    border: InputBorder.none,
+                                    hintText: "••••",
+                                    hintStyle: TextStyle(
+                                      color: hasBackground ? Colors.white24 : null,
+                                      letterSpacing: 24,
+                                    ),
+                                  ),
+                                  onSubmitted: (_) => _verifyPin(),
+                                ),
+                                if (hasBackground)
+                                  Divider(color: Colors.white.withOpacity(0.1), height: 1),
+                                Align(
+                                  alignment: Alignment.centerRight,
+                                  child: IconButton(
+                                    icon: Icon(
+                                      _showPin ? Icons.visibility_off : Icons.visibility,
+                                      color: hasBackground ? Colors.white60 : null,
+                                      size: 20,
+                                    ),
+                                    onPressed: () {
+                                      setState(() {
+                                        _showPin = !_showPin;
+                                      });
+                                    },
+                                  ),
+                                ),
+                              ],
                             ),
                           ),
-                        );
-                      }
-                      return const SizedBox.shrink();
-                    },
-                  ),
-                ],
+                        ),
+                      ),
+                    ),
+                    
+                    const SizedBox(height: 48),
+                    
+                    // Botón Verify Sólido
+                    Container(
+                      width: double.infinity,
+                      constraints: const BoxConstraints(maxWidth: 300),
+                      height: 60,
+                      child: ElevatedButton(
+                        onPressed: _isLoading ? null : _verifyPin,
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: hasBackground ? Colors.white : Theme.of(context).colorScheme.primary,
+                          foregroundColor: hasBackground ? Colors.black : Theme.of(context).colorScheme.onPrimary,
+                          elevation: 0,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(20),
+                          ),
+                        ),
+                        child: _isLoading
+                            ? SizedBox(height: 24, width: 24, child: Loading(context))
+                            : Text(
+                                AppLocalizations.of(context).verify.toUpperCase(),
+                                style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w900, letterSpacing: 1.5),
+                              ),
+                      ),
+                    ),
+                    
+                    const SizedBox(height: 32),
+                    
+                    // Biometría
+                    FutureBuilder<bool>(
+                      future: _authService.isBiometricsAvailable(),
+                      builder: (context, snapshot) {
+                        if (snapshot.hasData && snapshot.data!) {
+                          return TextButton.icon(
+                            onPressed: _checkingBiometrics ? null : _checkBiometrics,
+                            icon: Icon(
+                              Icons.fingerprint_rounded,
+                              color: hasBackground ? Colors.white70 : null,
+                              size: 28,
+                            ),
+                            label: Text(
+                              AppLocalizations.of(context).useBiometrics,
+                              style: TextStyle(
+                                color: hasBackground ? Colors.white70 : null,
+                                fontSize: 16,
+                                fontWeight: FontWeight.w500,
+                              ),
+                            ),
+                            style: TextButton.styleFrom(
+                              padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 16),
+                              backgroundColor: hasBackground ? Colors.white.withOpacity(0.05) : null,
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(15),
+                              ),
+                            ),
+                          );
+                        }
+                        return const SizedBox.shrink();
+                      },
+                    ),
+                  ],
+                ),
               ),
             ),
           ),
