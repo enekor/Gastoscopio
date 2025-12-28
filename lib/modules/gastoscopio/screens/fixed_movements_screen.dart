@@ -3,6 +3,7 @@ import 'package:cashly/data/models/movement_value.dart';
 import 'package:cashly/data/services/shared_preferences_service.dart';
 import 'package:cashly/data/services/sqlite_service.dart';
 import 'package:cashly/modules/gastoscopio/logic/finance_service.dart';
+import 'package:cashly/data/services/log_file_service.dart';
 import 'package:flutter/material.dart';
 import 'package:cashly/l10n/app_localizations.dart';
 
@@ -62,6 +63,8 @@ class _FixedMovementsScreenState extends State<FixedMovementsScreen> {
           ),
         );
       }
+
+      LogFileService().appendLog('Error loading fixed movements: $e');
     }
   }
 
@@ -128,6 +131,8 @@ class _FixedMovementsScreenState extends State<FixedMovementsScreen> {
           ),
         );
       }
+
+      LogFileService().appendLog('Error creating fixed movement: $e');
     }
   }
 
@@ -369,6 +374,8 @@ class _FixedMovementsScreenState extends State<FixedMovementsScreen> {
                 ),
               );
             }
+
+            LogFileService().appendLog('Error deleting movement: $e');
           }
         },
         child: Card(
@@ -406,6 +413,8 @@ class _FixedMovementsScreenState extends State<FixedMovementsScreen> {
                     ),
                   );
                 }
+
+                LogFileService().appendLog('Error updating movement: $e');
               }
             },
             child: _buildMovementContent(movement),
@@ -874,6 +883,8 @@ class _FixedMovementDialogState extends State<_FixedMovementDialog> {
                     behavior: SnackBarBehavior.floating,
                   ),
                 );
+
+                LogFileService().appendLog('Error in dialog data: $e');
               }
             }
           },

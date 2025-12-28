@@ -1,11 +1,13 @@
 import 'package:cashly/data/models/month.dart';
 import 'package:cashly/l10n/app_localizations.dart';
+import 'package:cashly/data/services/log_file_service.dart';
 import 'package:cashly/modules/gastoscopio/widgets/loading.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:cashly/data/services/sqlite_service.dart';
 import 'package:cashly/data/services/shared_preferences_service.dart';
 import 'package:cashly/modules/settings.dart/widgets/import_from_gastoscopio.dart';
+import 'package:cashly/modules/settings.dart/widgets/logs_screen.dart';
 
 class DeveloperOptionsWidget extends StatefulWidget {
   final Function(Map<String, dynamic>)? onImportSuccess;
@@ -17,6 +19,13 @@ class DeveloperOptionsWidget extends StatefulWidget {
 }
 
 class _DeveloperOptionsWidgetState extends State<DeveloperOptionsWidget> {
+  void _showLogs() {
+    Navigator.push(
+      context,
+      MaterialPageRoute(builder: (context) => const LogsScreen()),
+    );
+  }
+
   bool _isExpanded = false;
   bool _isClearing = false;
 
@@ -125,6 +134,7 @@ class _DeveloperOptionsWidgetState extends State<DeveloperOptionsWidget> {
         );
 
         // Mostrar diálogo informativo
+        _showLogs();
         await showDialog(
           context: context,
           barrierDismissible: false,
@@ -214,6 +224,8 @@ class _DeveloperOptionsWidgetState extends State<DeveloperOptionsWidget> {
           ),
         );
       }
+
+      LogFileService().appendLog('Error clearing database: ${e.toString()}');
     } finally {
       if (mounted) {
         setState(() {
@@ -323,6 +335,81 @@ class _DeveloperOptionsWidgetState extends State<DeveloperOptionsWidget> {
 
                   const SizedBox(height: 16),
 
+                  // Sección de Ver Logs
+                  Container(
+                    width: double.infinity,
+                    padding: const EdgeInsets.all(16),
+                    decoration: BoxDecoration(
+                      color: Theme.of(context).colorScheme.surface,
+                      borderRadius: BorderRadius.circular(12),
+                      border: Border.all(
+                        color: Theme.of(
+                          context,
+                        ).colorScheme.outline.withAlpha(50),
+                      ),
+                    ),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Row(
+                          children: [
+                            Icon(
+                              Icons.description,
+                              color: Theme.of(context).colorScheme.primary,
+                              size: 20,
+                            ),
+                            const SizedBox(width: 8),
+                            Text(
+                              'Ver Logs',
+                              style: Theme.of(context).textTheme.titleSmall
+                                  ?.copyWith(fontWeight: FontWeight.w600),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 8),
+                        Text(
+                          'Visualiza los logs de la aplicación para depuración.',
+                          style: Theme.of(context).textTheme.bodySmall
+                              ?.copyWith(
+                                color: Theme.of(
+                                  context,
+                                ).colorScheme.onSurfaceVariant,
+                              ),
+                        ),
+                        const SizedBox(height: 16),
+                        SizedBox(
+                          width: double.infinity,
+                          child: ElevatedButton.icon(
+                            onPressed: () {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) => const LogsScreen(),
+                                ),
+                              );
+                            },
+                            icon: const Icon(Icons.visibility),
+                            label: const Text('Ver Logs'),
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: Theme.of(
+                                context,
+                              ).colorScheme.primary,
+                              foregroundColor: Theme.of(
+                                context,
+                              ).colorScheme.onPrimary,
+                              padding: const EdgeInsets.symmetric(vertical: 12),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(12),
+                              ),
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+
+                  const SizedBox(height: 16),
+
                   // Sección de Limpiar Base de Datos
                   Container(
                     width: double.infinity,
@@ -407,6 +494,7 @@ class _DeveloperOptionsWidgetState extends State<DeveloperOptionsWidget> {
                             ],
                           ),
                         ),
+
                         const SizedBox(height: 12),
                         SizedBox(
                           width: double.infinity,

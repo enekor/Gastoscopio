@@ -7,6 +7,7 @@ import 'package:cashly/data/dao/fixed_movement_dao.dart';
 import 'package:cashly/data/models/fixed_movement.dart';
 import 'package:cashly/data/models/saves.dart';
 import 'package:cashly/data/dao/saves_dao.dart';
+import 'package:cashly/data/services/log_file_service.dart';
 import 'package:floor/floor.dart';
 import 'package:sqflite/sqflite.dart' as sqflite;
 import 'package:cashly/data/dao/month_dao.dart';
@@ -114,16 +115,16 @@ class SqliteService {
         },
       );
 
-      database =
-          await $FloorAppDatabase
-              .databaseBuilder(path)
-              .addCallback(callback)
-              .addMigrations([AppDatabase.migration3to4])
-              .build();
+      database = await $FloorAppDatabase
+          .databaseBuilder(path)
+          .addCallback(callback)
+          .addMigrations([AppDatabase.migration3to4])
+          .build();
 
       isInitialized = true;
     } catch (e) {
       print('Error al inicializar la base de datos: $e');
+      LogFileService().appendLog('Error al inicializar la base de datos: $e');
       rethrow;
     }
   }

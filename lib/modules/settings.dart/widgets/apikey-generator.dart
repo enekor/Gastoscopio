@@ -1,6 +1,7 @@
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:cashly/data/services/shared_preferences_service.dart';
 import 'package:cashly/l10n/app_localizations.dart';
+import 'package:cashly/data/services/log_file_service.dart';
 import 'package:cashly/modules/gastoscopio/widgets/loading.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
@@ -188,6 +189,8 @@ class _ApiKeyGeneratorState extends State<ApiKeyGenerator> {
           ),
         );
       }
+
+      LogFileService().appendLog('Error saving API key: $e');
     } finally {
       if (mounted) {
         setState(() {

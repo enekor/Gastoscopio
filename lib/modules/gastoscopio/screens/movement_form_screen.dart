@@ -4,6 +4,7 @@ import 'package:cashly/data/services/shared_preferences_service.dart';
 import 'package:cashly/data/services/sqlite_service.dart';
 import 'package:cashly/data/models/movement_value.dart';
 import 'package:cashly/modules/gastoscopio/logic/finance_service.dart';
+import 'package:cashly/data/services/log_file_service.dart';
 import 'package:cashly/modules/gastoscopio/widgets/loading.dart';
 import 'package:flutter/material.dart';
 import 'package:cashly/l10n/app_localizations.dart';
@@ -242,6 +243,8 @@ class _MovementFormScreenState extends State<MovementFormScreen> {
               ),
             );
           }
+
+          LogFileService().appendLog('Error generating category: $e');
         }
       }
 
@@ -345,6 +348,8 @@ class _MovementFormScreenState extends State<MovementFormScreen> {
         errorType = 'Error inesperado';
         errorMessage = 'Ocurrió un error inesperado: ${e.toString()}';
       }
+
+      LogFileService().appendLog('$errorType: $errorMessage');
 
       if (mounted) {
         // Mostrar toast para feedback inmediato

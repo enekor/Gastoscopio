@@ -1,3 +1,4 @@
+import 'package:cashly/data/services/log_file_service.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:local_auth/local_auth.dart';
 import 'package:flutter/services.dart';
@@ -29,6 +30,7 @@ class AuthService {
       debugPrint('Available biometrics: $availableBiometrics');
       return availableBiometrics.isNotEmpty;
     } catch (e) {
+      LogFileService().appendLog('Error checking biometrics availability: $e');
       debugPrint('Error checking biometrics availability: $e');
       return false;
     }
@@ -58,11 +60,15 @@ class AuthService {
 
       return authenticated;
     } on PlatformException catch (e) {
-      debugPrint('Biometric authentication error: ${e.message}');
+      LogFileService().appendLog(
+        'Biometric authentication error: ${e.message}',
+      );
       onError?.call(e.message ?? 'Authentication error');
       return false;
     } catch (e) {
-      debugPrint('Unexpected error in biometric authentication: $e');
+      LogFileService().appendLog(
+        'Unexpected error in biometric authentication: $e',
+      );
       onError?.call('Unexpected authentication error');
       return false;
     }

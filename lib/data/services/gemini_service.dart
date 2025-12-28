@@ -2,8 +2,8 @@ import 'package:cashly/common/tag_list.dart';
 import 'package:cashly/data/models/month.dart';
 import 'package:cashly/data/models/movement_value.dart';
 import 'package:cashly/data/services/shared_preferences_service.dart';
-import 'package:cashly/modules/settings.dart/settings.dart';
 import 'package:cashly/l10n/app_localizations.dart';
+import 'package:cashly/data/services/log_file_service.dart';
 import 'package:flutter/material.dart';
 import 'package:google_generative_ai/google_generative_ai.dart';
 
@@ -30,6 +30,7 @@ class GeminiService {
       final response = await model!.generateContent(content);
       return response.text ?? AppLocalizations.of(context).noResponseGenerated;
     } catch (e) {
+      LogFileService().appendLog('GeminiService _generateContent error: $e');
       return '';
     }
   }
@@ -40,6 +41,9 @@ class GeminiService {
   ) async {
     await initializeGemini();
     if (_apiKey == null || _apiKey == "" || _apiKey!.isEmpty) {
+      LogFileService().appendLog(
+        'GeminiService _initGenerateContent: No API key found',
+      );
       return '';
     } else {
       return await _generateContent(prompt, _apiKey!, context);
@@ -128,6 +132,9 @@ class GeminiService {
     );
 
     if (response.isEmpty) {
+      LogFileService().appendLog(
+        'GeminiService generateSummary: Empty response from AI',
+      );
       return '## Error\n\nNo se pudo generar el análisis. Por favor, intenta de nuevo.';
     }
 
@@ -141,6 +148,9 @@ class GeminiService {
     response = response.replaceAll('```', '');
 
     if (response.isEmpty) {
+      LogFileService().appendLog(
+        'GeminiService generateSummary: No response generated after cleanup',
+      );
       return '## ${AppLocalizations.of(context).error}\n\n${AppLocalizations.of(context).noResponseGenerated}';
     }
 

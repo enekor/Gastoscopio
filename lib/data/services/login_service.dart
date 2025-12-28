@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:cashly/data/services/log_file_service.dart';
 import 'package:flutter/material.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:googleapis/drive/v3.dart' as drive;
@@ -95,6 +96,7 @@ class LoginService extends ChangeNotifier {
       _currentUser = await _googleSignIn.signInSilently();
       _isSignedIn = _currentUser != null;
     } catch (error) {
+      LogFileService().appendLog('Silent sign-in error: $error');
       print('Error al iniciar sesión silenciosamente: $error');
     }
   }
@@ -118,6 +120,7 @@ class LoginService extends ChangeNotifier {
       }
     } catch (error) {
       _setStatusMessage('Error al iniciar sesión: $error');
+      LogFileService().appendLog('Error al iniciar sesión con Google: $error');
       print('Error al iniciar sesión con Google: $error');
       return AuthStatus.error('Error al iniciar sesión: $error');
     } finally {
@@ -139,6 +142,7 @@ class LoginService extends ChangeNotifier {
       return AuthStatus.success('Sesión cerrada correctamente');
     } catch (error) {
       _setStatusMessage('Error al cerrar sesión: $error');
+      LogFileService().appendLog('Error al cerrar sesión: $error');
       print('Error al cerrar sesión: $error');
       return AuthStatus.error('Error al cerrar sesión: $error');
     } finally {
@@ -194,6 +198,7 @@ class LoginService extends ChangeNotifier {
       }
     } catch (e) {
       _setStatusMessage('Error al verificar backup: $e');
+      LogFileService().appendLog('Error al verificar backup: $e');
       return "Error al verificar backup: $e";
     } finally {
       _setLoading(false);
@@ -250,6 +255,7 @@ class LoginService extends ChangeNotifier {
       return success;
     } catch (e) {
       _setStatusMessage('Error al subir backup: $e');
+      LogFileService().appendLog('Error en uploadDatabase: $e');
       print('Error en uploadDatabase: $e');
       return false;
     } finally {
@@ -267,6 +273,7 @@ class LoginService extends ChangeNotifier {
       return drive.DriveApi(client);
     } catch (e) {
       print('Error al obtener DriveApi: $e');
+      LogFileService().appendLog('Error al obtener DriveApi: $e');
       return null;
     }
   }
@@ -285,6 +292,7 @@ class LoginService extends ChangeNotifier {
       }
       return null;
     } catch (e) {
+      LogFileService().appendLog('Error al buscar archivo: $e');
       print('Error al buscar archivo: $e');
       return null;
     }
@@ -320,6 +328,7 @@ class LoginService extends ChangeNotifier {
       return true;
     } catch (e) {
       print('Error al descargar archivo: $e');
+      LogFileService().appendLog('Error al descargar archivo: $e');
       return false;
     }
   }
@@ -330,10 +339,9 @@ class LoginService extends ChangeNotifier {
     File localFile,
   ) async {
     try {
-      final driveFile =
-          drive.File()
-            ..name = 'cashly_database.db'
-            ..parents = ['appDataFolder']; // Usar appDataFolder para privacidad
+      final driveFile = drive.File()
+        ..name = 'cashly_database.db'
+        ..parents = ['appDataFolder']; // Usar appDataFolder para privacidad
 
       await driveApi.files.create(
         driveFile,
@@ -343,6 +351,7 @@ class LoginService extends ChangeNotifier {
       return true;
     } catch (e) {
       print('Error al crear archivo: $e');
+      LogFileService().appendLog('Error al crear archivo: $e');
       return false;
     }
   }
@@ -365,6 +374,7 @@ class LoginService extends ChangeNotifier {
       return true;
     } catch (e) {
       print('Error al actualizar archivo: $e');
+      LogFileService().appendLog('Error al actualizar archivo: $e');
       return false;
     }
   }
@@ -392,6 +402,7 @@ class LoginService extends ChangeNotifier {
       return fileId != null;
     } catch (e) {
       print('Error al verificar existencia de backup: $e');
+      LogFileService().appendLog('Error al verificar existencia de backup: $e');
       return false;
     }
   }
@@ -423,6 +434,7 @@ class LoginService extends ChangeNotifier {
       return null;
     } catch (e) {
       print('Error al obtener información del backup: $e');
+      LogFileService().appendLog('Error al obtener información del backup: $e');
       return null;
     }
   }
@@ -433,6 +445,7 @@ class LoginService extends ChangeNotifier {
       return _currentUser != null;
     } catch (e) {
       debugPrint('Silent login error: $e');
+      LogFileService().appendLog('Silent login error: $e');
       return false;
     }
   }

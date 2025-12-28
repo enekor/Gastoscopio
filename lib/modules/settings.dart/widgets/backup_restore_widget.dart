@@ -1,3 +1,4 @@
+import 'package:cashly/data/services/log_file_service.dart';
 import 'package:cashly/modules/gastoscopio/widgets/loading.dart';
 import 'package:flutter/material.dart';
 import 'package:cashly/data/services/login_service.dart';
@@ -285,6 +286,8 @@ class _BackupRestoreWidgetState extends State<BackupRestoreWidget> {
           color: Colors.red,
         );
       }
+
+      LogFileService().appendLog('Error during backup: $e');
     }
   }
 
@@ -327,6 +330,8 @@ class _BackupRestoreWidgetState extends State<BackupRestoreWidget> {
           color: Colors.red,
         );
       }
+
+      LogFileService().appendLog('Error checking for backup: $e');
     }
   }
 
@@ -457,6 +462,8 @@ class _BackupRestoreWidgetState extends State<BackupRestoreWidget> {
           color: Colors.red,
         );
       }
+
+      LogFileService().appendLog('Error during restore: $e');
     }
   }
 

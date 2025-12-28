@@ -1,5 +1,6 @@
 import 'package:cashly/data/services/sqlite_service.dart';
 import 'package:cashly/modules/gastoscopio/logic/finance_service.dart';
+import 'package:cashly/data/services/log_file_service.dart';
 import 'package:cashly/modules/gastoscopio/widgets/loading.dart';
 import 'package:cashly/modules/main_screen.dart';
 import 'package:flutter/material.dart';
@@ -65,7 +66,7 @@ class _AppState extends State<App> with WidgetsBindingObserver {
 
       return true;
     } catch (e) {
-      debugPrint(
+      LogFileService().appendLog(
         'Error durante la inicialización: $e',
       ); // Volver a la pantalla de onboarding en caso de error
       return false;

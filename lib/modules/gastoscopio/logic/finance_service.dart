@@ -8,6 +8,7 @@ import 'package:cashly/data/models/saves.dart';
 import 'package:cashly/data/services/shared_preferences_service.dart';
 import 'package:cashly/data/services/sqlite_service.dart';
 import 'package:cashly/l10n/app_localizations.dart';
+import 'package:cashly/data/services/log_file_service.dart';
 import 'package:cashly/modules/gastoscopio/widgets/loading.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -417,6 +418,7 @@ class FinanceService extends ChangeNotifier {
           ),
         );
       }
+      LogFileService().appendLog('Error deleting movement: $e');
       return false;
     }
   }

@@ -1,3 +1,4 @@
+import 'package:cashly/data/services/log_file_service.dart';
 import 'package:flutter/material.dart';
 import 'package:cashly/data/services/shared_preferences_service.dart';
 
@@ -83,6 +84,7 @@ class LocaleService extends ChangeNotifier {
       }
     } catch (e) {
       // En caso de error, usar español por defecto
+      LogFileService().appendLog('Error obteniendo el locale del sistema: $e');
     }
 
     // Fallback a español

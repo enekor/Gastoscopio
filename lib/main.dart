@@ -3,6 +3,7 @@ import 'package:cashly/data/services/auth_service.dart';
 import 'package:cashly/data/services/gemini_service.dart';
 import 'package:cashly/data/services/locale_service.dart';
 import 'package:cashly/modules/auth/screens/auth_screen.dart';
+import 'package:cashly/data/services/log_file_service.dart';
 import 'package:cashly/modules/gastoscopio/widgets/loading.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -44,6 +45,7 @@ class _MyAppState extends State<MyApp> {
   void initState() {
     super.initState();
     _localeService.addListener(_onLocaleChanged);
+    LogFileService().initialize();
   }
 
   @override

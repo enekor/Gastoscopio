@@ -363,7 +363,9 @@ class _SettingsScreenState extends State<SettingsScreen> {
         });
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text(AppLocalizations.of(context)!.imageChangedSuccessfully),
+            content: Text(
+              AppLocalizations.of(context)!.imageChangedSuccessfully,
+            ),
             behavior: SnackBarBehavior.floating,
           ),
         );
@@ -450,6 +452,15 @@ class _SettingsScreenState extends State<SettingsScreen> {
         centerTitle: true,
         backgroundColor: Theme.of(context).colorScheme.surface,
         foregroundColor: Theme.of(context).colorScheme.onSurface,
+        leading: Padding(
+          padding: const EdgeInsets.only(top: 25.0),
+          child: IconButton(
+            icon: const Icon(Icons.arrow_back_ios_new_rounded),
+            onPressed: () {
+              Navigator.of(context).pop();
+            },
+          ),
+        ),
       ),
       body: SingleChildScrollView(
         child: Padding(
@@ -1008,7 +1019,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
               ),
             ),
             const SizedBox(height: 16),
-            if (_backgroundImagePath != null && _backgroundImagePath!.isNotEmpty) ...[
+            if (_backgroundImagePath != null &&
+                _backgroundImagePath!.isNotEmpty) ...[
               ClipRRect(
                 borderRadius: BorderRadius.circular(12),
                 child: Image.file(
@@ -1033,7 +1045,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
                     ),
                   ),
                 ),
-                if (_backgroundImagePath != null && _backgroundImagePath!.isNotEmpty) ...[
+                if (_backgroundImagePath != null &&
+                    _backgroundImagePath!.isNotEmpty) ...[
                   const SizedBox(width: 12),
                   IconButton(
                     onPressed: _removeBackgroundImage,

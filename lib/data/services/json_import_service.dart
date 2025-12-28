@@ -4,6 +4,7 @@ import 'package:cashly/data/models/fixed_movement.dart';
 import 'package:cashly/data/models/json_import_account.dart';
 import 'package:cashly/data/models/month.dart';
 import 'package:cashly/data/models/movement_value.dart';
+import 'package:cashly/data/services/log_file_service.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:path/path.dart' as p;
 import 'package:path_provider/path_provider.dart';
@@ -48,6 +49,7 @@ class JsonImportService {
 
       return null; // Usuario canceló la selección
     } catch (e) {
+      LogFileService().appendLog('Error al procesar el archivo JSON: $e');
       throw Exception('Error al procesar el archivo: $e');
     }
   }
@@ -105,6 +107,7 @@ class JsonImportService {
       }
       return _jsonAccountProccessed;
     } catch (e) {
+      LogFileService().appendLog('Error al parsear JSON: $e');
       throw Exception('Error al parsear JSON: $e');
     }
   }

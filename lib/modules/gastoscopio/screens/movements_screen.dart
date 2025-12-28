@@ -1,6 +1,7 @@
 import 'package:cashly/data/services/gemini_service.dart';
 import 'package:cashly/data/services/shared_preferences_service.dart';
 import 'package:cashly/data/services/sqlite_service.dart';
+import 'package:cashly/data/services/log_file_service.dart';
 import 'package:cashly/modules/gastoscopio/screens/movement_form_screen.dart';
 import 'package:cashly/modules/gastoscopio/widgets/loading.dart';
 import 'package:cashly/modules/gastoscopio/widgets/main_screen_widgets.dart';
@@ -141,6 +142,8 @@ class _MovementsScreenState extends State<MovementsScreen>
       setState(() {
         _isLoading = false;
       });
+
+      LogFileService().appendLog('Error loading movements: $e');
     }
   }
 
@@ -1988,6 +1991,8 @@ class _MovementsScreenState extends State<MovementsScreen>
           ),
         );
       }
+
+      LogFileService().appendLog('Error updating movement date: $e');
     }
   }
 }

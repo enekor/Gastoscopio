@@ -5,6 +5,7 @@ import 'package:cashly/data/services/shared_preferences_service.dart';
 import 'package:cashly/data/services/sqlite_service.dart';
 import 'package:cashly/data/services/login_service.dart';
 import 'package:cashly/modules/gastoscopio/logic/finance_service.dart';
+import 'package:cashly/data/services/log_file_service.dart';
 import 'package:cashly/modules/gastoscopio/screens/movement_form_screen.dart';
 import 'package:cashly/modules/gastoscopio/screens/fixed_movements_screen.dart';
 import 'package:cashly/modules/gastoscopio/screens/summary_screen.dart';
@@ -120,6 +121,7 @@ class _GastoscopioHomeScreenState extends State<GastoscopioHomeScreen> {
       await service.updateSelectedDate(widget.month, widget.year);
     } catch (e) {
       debugPrint('Error al cargar datos iniciales: $e');
+      LogFileService().appendLog('Error al cargar datos iniciales: $e');
     }
   }
 
@@ -173,7 +175,8 @@ class _GastoscopioHomeScreenState extends State<GastoscopioHomeScreen> {
     // Definimos un color primario local para usar en gradientes si el del tema es plano
     final primaryColor = Theme.of(context).colorScheme.primary;
     final secondaryColor = Theme.of(context).colorScheme.secondary;
-    final hasBackground = _backgroundImagePath != null && _backgroundImagePath!.isNotEmpty;
+    final hasBackground =
+        _backgroundImagePath != null && _backgroundImagePath!.isNotEmpty;
 
     return Scaffold(
       backgroundColor: Colors.transparent,
@@ -222,9 +225,11 @@ class _GastoscopioHomeScreenState extends State<GastoscopioHomeScreen> {
                   )!.quickActions, // Puedes usar localizaciones aquí
                   style: Theme.of(context).textTheme.titleSmall?.copyWith(
                     fontWeight: FontWeight.bold,
-                    color: hasBackground 
+                    color: hasBackground
                         ? Colors.white.withOpacity(0.9)
-                        : Theme.of(context).colorScheme.onSurface.withOpacity(0.7),
+                        : Theme.of(
+                            context,
+                          ).colorScheme.onSurface.withOpacity(0.7),
                   ),
                 ),
                 const SizedBox(height: 12),
@@ -275,29 +280,35 @@ class _GastoscopioHomeScreenState extends State<GastoscopioHomeScreen> {
                 style: Theme.of(context).textTheme.headlineMedium?.copyWith(
                   fontWeight: FontWeight.bold,
                   color: hasBackground ? Colors.white : null,
-                  shadows: hasBackground ? [
-                    const Shadow(
-                      blurRadius: 10.0,
-                      color: Colors.black54,
-                      offset: Offset(2.0, 2.0),
-                    ),
-                  ] : null,
+                  shadows: hasBackground
+                      ? [
+                          const Shadow(
+                            blurRadius: 10.0,
+                            color: Colors.black54,
+                            offset: Offset(2.0, 2.0),
+                          ),
+                        ]
+                      : null,
                 ),
               ),
               const SizedBox(height: 4),
               Text(
                 _greetingSubtitle,
                 style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                  color: hasBackground 
+                  color: hasBackground
                       ? Colors.white.withOpacity(0.9)
-                      : Theme.of(context).colorScheme.onSurface.withOpacity(0.6),
-                  shadows: hasBackground ? [
-                    const Shadow(
-                      blurRadius: 10.0,
-                      color: Colors.black54,
-                      offset: Offset(1.0, 1.0),
-                    ),
-                  ] : null,
+                      : Theme.of(
+                          context,
+                        ).colorScheme.onSurface.withOpacity(0.6),
+                  shadows: hasBackground
+                      ? [
+                          const Shadow(
+                            blurRadius: 10.0,
+                            color: Colors.black54,
+                            offset: Offset(1.0, 1.0),
+                          ),
+                        ]
+                      : null,
                 ),
               ),
             ],
