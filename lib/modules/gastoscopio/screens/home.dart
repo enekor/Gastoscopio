@@ -9,6 +9,7 @@ import 'package:cashly/data/services/log_file_service.dart';
 import 'package:cashly/modules/gastoscopio/screens/movement_form_screen.dart';
 import 'package:cashly/modules/gastoscopio/screens/fixed_movements_screen.dart';
 import 'package:cashly/modules/gastoscopio/screens/summary_screen.dart';
+import 'package:cashly/modules/gastoscopio/screens/view_movements_filtered_screen.dart';
 import 'package:cashly/modules/gastoscopio/widgets/finance_widgets.dart';
 import 'package:cashly/data/models/movement_value.dart';
 import 'package:cashly/common/tag_list.dart';
@@ -127,19 +128,10 @@ class _GastoscopioHomeScreenState extends State<GastoscopioHomeScreen> {
 
   bool _isLastDaysOfTheWeek() {
     DateTime today = DateTime.now();
-    DateTime lastDayOfTheWeek = DateTime(
-      today.year,
-      today.month + 1,
-      1,
-    ).add(const Duration(days: -1));
-    DateTime lastLimitDaysOfTheWeek = lastDayOfTheWeek.add(
-      const Duration(days: -5),
-    );
 
-    return today.isAfter(lastLimitDaysOfTheWeek) &&
-        (today.isBefore(lastDayOfTheWeek) ||
-            today.isAtSameMomentAs(lastDayOfTheWeek));
+    return today.day >= 25;
   }
+
 
   void _updateGreeting() {
     final hour = DateTime.now().hour;
@@ -468,7 +460,9 @@ class _GastoscopioHomeScreenState extends State<GastoscopioHomeScreen> {
                                       mainAxisSize: MainAxisSize.min,
                                       children: [
                                         Text(
-                                          "Ver desglose",
+                                          AppLocalizations.of(
+                                            context,
+                                          )!.viewBreakdown,
                                           style: TextStyle(
                                             color: Colors.white.withOpacity(
                                               0.6,
@@ -610,6 +604,18 @@ class _GastoscopioHomeScreenState extends State<GastoscopioHomeScreen> {
               onTap: () => Navigator.push(
                 context,
                 MaterialPageRoute(builder: (context) => HomeSaves()),
+              ),
+            ),
+
+            _buildActionCard(
+              icon: Icons.filter_alt,
+              title: AppLocalizations.of(context).filteredMovements,
+              color: Colors.grey,
+              onTap: () => Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => ViewMovementsFilteredScreen(),
+                ),
               ),
             ),
           ],
