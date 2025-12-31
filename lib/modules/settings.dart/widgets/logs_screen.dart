@@ -1,4 +1,5 @@
 import 'package:cashly/data/services/log_file_service.dart';
+import 'package:cashly/l10n/app_localizations.dart';
 import 'package:flutter/material.dart';
 
 class LogsScreen extends StatefulWidget {
@@ -32,7 +33,7 @@ class _LogsScreenState extends State<LogsScreen> {
       appBar: AppBar(
         title: Padding(
           padding: const EdgeInsets.only(top: 30.0),
-          child: const Text('Logs'),
+          child: Text(AppLocalizations.of(context).logs),
         ),
         actions: [
           Padding(

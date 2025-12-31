@@ -310,7 +310,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get generateTagsAutomatically => 'Generate tags automatically';
 
   @override
-  String get filteredMovements => 'Filtered movements:';
+  String get filteredMovements => 'My movements';
 
   @override
   String get totalMovements => 'Total movements:';
@@ -1139,4 +1139,13 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get quickActions => 'Quick Actions';
+
+  @override
+  String get logs => 'Logs';
+
+  @override
+  String get selectDateRange => 'Select a date range to see movements';
+
+  @override
+  String get viewBreakdown => 'View breakdown';
 }

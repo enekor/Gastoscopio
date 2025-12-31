@@ -350,5 +350,10 @@
   "addSave": "Add Save",
   "initialLabel": "Initial",
   "createNextMonth": "Next month",
-  "quickActions": "Quick Actions"
+  "quickActions": "Quick Actions",
+  "filteredMovements":"My movements",
+  "logs":"Logs",
+  "selectDateRange":"Select a date range to see movements",
+  "viewBreakdown":"View breakdown"
+
 }

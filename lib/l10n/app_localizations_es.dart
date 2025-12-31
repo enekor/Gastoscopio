@@ -312,7 +312,7 @@ class AppLocalizationsEs extends AppLocalizations {
   String get generateTagsAutomatically => 'Generar etiquetas automáticamente';
 
   @override
-  String get filteredMovements => 'Movimientos filtrados:';
+  String get filteredMovements => 'Mis movimientos';
 
   @override
   String get totalMovements => 'Total de movimientos:';
@@ -1154,4 +1154,14 @@ class AppLocalizationsEs extends AppLocalizations {
 
   @override
   String get quickActions => 'Acciones rápidas';
+
+  @override
+  String get logs => 'Logs';
+
+  @override
+  String get selectDateRange =>
+      'Selecciona un rango de fechas para ver los movimientos.';
+
+  @override
+  String get viewBreakdown => 'Ver desglose';
 }

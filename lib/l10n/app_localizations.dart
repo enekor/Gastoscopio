@@ -665,7 +665,7 @@ abstract class AppLocalizations {
   /// Texto para movimientos filtrados
   ///
   /// In es, this message translates to:
-  /// **'Movimientos filtrados:'**
+  /// **'Mis movimientos'**
   String get filteredMovements;
 
   /// Texto para total de movimientos
@@ -2191,6 +2191,24 @@ abstract class AppLocalizations {
   /// In es, this message translates to:
   /// **'Acciones rápidas'**
   String get quickActions;
+
+  /// No description provided for @logs.
+  ///
+  /// In es, this message translates to:
+  /// **'Logs'**
+  String get logs;
+
+  /// No description provided for @selectDateRange.
+  ///
+  /// In es, this message translates to:
+  /// **'Selecciona un rango de fechas para ver los movimientos.'**
+  String get selectDateRange;
+
+  /// No description provided for @viewBreakdown.
+  ///
+  /// In es, this message translates to:
+  /// **'Ver desglose'**
+  String get viewBreakdown;
 }
 
 class _AppLocalizationsDelegate

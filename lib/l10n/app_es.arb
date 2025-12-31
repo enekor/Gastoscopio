@@ -1284,5 +1284,9 @@
   "addSave": "Añadir ahorro",
   "initialLabel": "Inicial",
   "createNextMonth": "Siguiente mes",
-  "quickActions": "Acciones rápidas"
+  "quickActions": "Acciones rápidas",
+  "filteredMovements": "Mis movimientos",
+  "logs":"Logs",
+  "selectDateRange":"Selecciona un rango de fechas para ver los movimientos.",
+  "viewBreakdown":"Ver desglose"
 }
