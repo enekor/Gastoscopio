@@ -360,29 +360,15 @@ class _MovementsScreenState extends State<MovementsScreen>
                               vertical: 10,
                             ),
                             itemCount:
-                                _financeService.currentMonth!.month <
-                                    DateTime.now().month
-                                ? filteredMovements.length
-                                : filteredMovements
-                                      .where(
-                                        (mov) => mov.day <= DateTime.now().day,
-                                      )
-                                      .length,
+                               filteredMovements.length,
+
                             separatorBuilder: (context, index) =>
                                 const SizedBox(
                                   height: 12,
                                 ), // Espacio entre items
                             itemBuilder: (context, index) {
                               final movement =
-                                  _financeService.currentMonth!.month <
-                                      DateTime.now().month
-                                  ? filteredMovements.toList()[index]
-                                  : filteredMovements
-                                        .where(
-                                          (mov) =>
-                                              mov.day <= DateTime.now().day,
-                                        )
-                                        .toList()[index];
+                                  filteredMovements.toList()[index];
 
                               final isExpanded =
                                   _expandedItems[movement.id.toString()] ??
@@ -714,7 +700,7 @@ class _MovementsScreenState extends State<MovementsScreen>
         children: [
           _buildTotalIndicator(movements, moneda),
           _buildFilters(),
-          if (showFutureMovements)
+          if (showFutureMovements && _financeService.currentMonth!.year < DateTime.now().year)
             _buildFutureMovementsList(
               movements.where((mov) => mov.day > DateTime.now().day).toList(),
               moneda,
@@ -1653,6 +1639,15 @@ class _MovementsScreenState extends State<MovementsScreen>
       // Filtrar por categoría
       if (_selectedCategory != null && movement.category != _selectedCategory) {
         return false;
+      }
+
+      DateTime _date = DateTime(_financeService.currentMonth!.year, _financeService.currentMonth!.month, 1);
+      if(_date.isAfter(DateTime.now())){
+        DateTime _movDate = DateTime(_date.year, _date.month, movement.day);
+        if(_movDate.isAfter(DateTime.now())){
+          return false;
+        }
+
       }
 
       // Filtrar por búsqueda
