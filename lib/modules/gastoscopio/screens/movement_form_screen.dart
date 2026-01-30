@@ -1,5 +1,6 @@
 import 'package:cashly/data/models/month.dart';
 import 'package:cashly/data/services/gemini_service.dart';
+import 'package:cashly/data/services/groq_serice.dart';
 import 'package:cashly/data/services/shared_preferences_service.dart';
 import 'package:cashly/data/services/sqlite_service.dart';
 import 'package:cashly/data/models/movement_value.dart';
@@ -203,7 +204,7 @@ class _MovementFormScreenState extends State<MovementFormScreen> {
       if (_category == null) {
         try {
           // Agregar timeout para evitar que se quede colgado
-          final generatedCategory = await GeminiService()
+          final generatedCategory = await GroqService()
               .generateCategory(
                 _descriptionController.text,
                 widget.isExpense,

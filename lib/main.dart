@@ -1,6 +1,7 @@
 import 'package:cashly/app.dart';
 import 'package:cashly/data/services/auth_service.dart';
 import 'package:cashly/data/services/gemini_service.dart';
+import 'package:cashly/data/services/groq_serice.dart';
 import 'package:cashly/data/services/locale_service.dart';
 import 'package:cashly/modules/auth/screens/auth_screen.dart';
 import 'package:cashly/data/services/log_file_service.dart';
@@ -23,6 +24,7 @@ void main() async {
 
   // Inicializar servicio de Gemini para cargar API Key existente
   await GeminiService().initializeGemini();
+  //await GroqService().initializeGroq();
 
   // Inicializar servicio de localización
   await LocaleService().initialize();

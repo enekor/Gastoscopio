@@ -2,6 +2,7 @@ import 'package:cashly/common/tag_list.dart';
 import 'package:cashly/data/models/movement_value.dart';
 import 'package:cashly/data/models/month.dart';
 import 'package:cashly/data/services/gemini_service.dart';
+import 'package:cashly/data/services/groq_serice.dart';
 import 'package:cashly/modules/gastoscopio/logic/finance_service.dart';
 import 'package:cashly/modules/gastoscopio/widgets/category_progress_chart.dart';
 import 'package:cashly/modules/gastoscopio/widgets/loading.dart';
@@ -53,14 +54,14 @@ class _SummaryScreenState extends State<SummaryScreen>
     _availableYears = await _financeService.getAvailableYears();
     _availableMonths = await _financeService.getAvailableMonths(_year);
     _hasData = await _financeService.getMonthMovementsCount(_month, _year) <= 5;
-    setState(() {}); // Update UI with loaded data
+    setState(() {});
   }
 
   Future<void> _loadAiAnalysis() async {
     setState(() => _isLoadingAnalysis = true);
 
     final movements = await _financeService.getMovementsForMonth(_month, _year);
-    await GeminiService()
+    await GroqService()
         .generateSummary(movements, Month(_month, _year), context)
         .then((value) {
           setState(() {
@@ -102,20 +103,16 @@ class _SummaryScreenState extends State<SummaryScreen>
                     final months = await _financeService.getAvailableMonths(
                       year,
                     );
-
                     Navigator.pop(dialogContext);
-
                     setState(() {
                       _availableMonths = months;
                       _year = year;
                     });
-
                     if (!months.contains(_month)) {
                       await _setNewDate(months.last, year);
                     } else {
                       await _setNewDate(_month, year);
                     }
-
                     _showMonthSelector();
                   },
                 ),
@@ -130,52 +127,63 @@ class _SummaryScreenState extends State<SummaryScreen>
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        automaticallyImplyLeading: false,
-        toolbarHeight: kToolbarHeight + 32,
-        title: Padding(
-          padding: const EdgeInsets.only(top: 35.0),
-          child: Row(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Text(
-                "${_getMonthName(_month)} $_year",
-                style: TextStyle(
-                  fontFamily: 'Pacifico',
-                  fontSize: 20,
-                  fontWeight: FontWeight.bold,
-                  color: Theme.of(context).colorScheme.onSurface,
+      body: NestedScrollView(
+        headerSliverBuilder: (context, innerBoxIsScrolled) => [
+          SliverAppBar(
+            expandedHeight: 150,
+            floating: true,
+            pinned: true,
+            centerTitle: true,
+            backgroundColor: Theme.of(context).colorScheme.surface,
+            flexibleSpace: FlexibleSpaceBar(
+              title: GestureDetector(
+                onTap: _showMonthSelector,
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Text(
+                      "${_getMonthName(_month)} $_year",
+                      style: TextStyle(
+                        fontFamily: 'Pacifico',
+                        fontSize: 20,
+                        fontWeight: FontWeight.bold,
+                        color: Theme.of(context).colorScheme.onSurface,
+                      ),
+                    ),
+                    const SizedBox(width: 8),
+                    Icon(
+                      Icons.calendar_month,
+                      size: 18,
+                      color: Theme.of(context).colorScheme.onSurface,
+                    ),
+                  ],
                 ),
               ),
-              IconButton(
-                icon: const Icon(Icons.calendar_month),
-                onPressed: _showMonthSelector,
-              ),
-            ],
+              centerTitle: true,
+              titlePadding: const EdgeInsets.only(bottom: 60),
+            ),
+            bottom: TabBar(
+              controller: _tabController,
+              tabs: [
+                Tab(
+                  icon: const Icon(Icons.analytics),
+                  text: AppLocalizations.of(context).summary,
+                ),
+                Tab(
+                  icon: const Icon(Icons.auto_awesome),
+                  text: AppLocalizations.of(context).aiAnalysis,
+                ),
+              ],
+            ),
           ),
-        ),
-        centerTitle: true,
-        bottom: TabBar(
+        ],
+        body: TabBarView(
           controller: _tabController,
-          tabs: [
-            Tab(
-              icon: Icon(Icons.analytics),
-              text: AppLocalizations.of(context).summary,
-            ),
-            Tab(
-              icon: Icon(Icons.auto_awesome),
-              text: AppLocalizations.of(context).aiAnalysis,
-            ),
-          ],
-        ),
-      ),
-      body: TabBarView(
-        controller: _tabController,
-        children: [
-          // Primera pestaña - Resumen
-          SingleChildScrollView(
-            child: Column(
-              children: [
+          children: [
+            // Primera pestaña - Resumen
+            CustomScrollView(
+              physics: const BouncingScrollPhysics(),
+              slivers: [
                 AnimatedBuilder(
                   animation: _financeService,
                   builder: (context, child) {
@@ -187,11 +195,15 @@ class _SummaryScreenState extends State<SummaryScreen>
                       builder: (context, snapshot) {
                         if (snapshot.connectionState ==
                             ConnectionState.waiting) {
-                          return Center(child: Loading(context));
+                          return SliverFillRemaining(
+                            child: Center(child: Loading(context)),
+                          );
                         }
 
                         if (!snapshot.hasData || snapshot.data!.isEmpty) {
-                          return _buildEmptyState();
+                          return SliverFillRemaining(
+                            child: _buildEmptyState(),
+                          );
                         }
 
                         final movements = snapshot.data!;
@@ -202,11 +214,10 @@ class _SummaryScreenState extends State<SummaryScreen>
                           expenses,
                         );
 
-                        return Padding(
+                        return SliverPadding(
                           padding: const EdgeInsets.all(16),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
+                          sliver: SliverList(
+                            delegate: SliverChildListDelegate([
                               _buildMonthlyOverview(movements),
                               const SizedBox(height: 24),
                               Text(
@@ -219,7 +230,8 @@ class _SummaryScreenState extends State<SummaryScreen>
                               CategoryProgressChart(categoryData: categoryData),
                               const SizedBox(height: 24),
                               _buildDailySpendingChart(expenses),
-                            ],
+                              const SizedBox(height: 80),
+                            ]),
                           ),
                         );
                       },
@@ -228,91 +240,101 @@ class _SummaryScreenState extends State<SummaryScreen>
                 ),
               ],
             ),
-          ), // Segunda pestaña - Análisis IA
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Padding(
-                padding: const EdgeInsets.all(16),
-                child: Row(
-                  children: [
-                    Text(
-                      AppLocalizations.of(context).aiAnalysisTitle,
-                      style: Theme.of(context).textTheme.titleLarge,
+            // Segunda pestaña - Análisis IA
+            CustomScrollView(
+              physics: const BouncingScrollPhysics(),
+              slivers: [
+                SliverPadding(
+                  padding: const EdgeInsets.all(16),
+                  sliver: SliverToBoxAdapter(
+                    child: Row(
+                      children: [
+                        Text(
+                          AppLocalizations.of(context).aiAnalysisTitle,
+                          style: Theme.of(context).textTheme.titleLarge,
+                        ),
+                        const SizedBox(width: 16),
+                        ElevatedButton.icon(
+                          onPressed: _loadAiAnalysis,
+                          icon: const Icon(Icons.auto_awesome),
+                          label: Text(AppLocalizations.of(context).generate),
+                        ),
+                      ],
                     ),
-                    const SizedBox(width: 16),
-                    ElevatedButton.icon(
-                      onPressed: _loadAiAnalysis,
-                      icon: const Icon(Icons.auto_awesome),
-                      label: Text(AppLocalizations.of(context).generate),
-                    ),
-                  ],
+                  ),
                 ),
-              ),
-              if (_hasData)
-                _buildEmptyState()
-              else if (_isLoadingAnalysis)
-                Center(child: Loading(context))
-              else
-                Expanded(
-                  child: Card(
-                    color: Theme.of(
-                      context,
-                    ).colorScheme.secondary.withAlpha(25),
-                    margin: const EdgeInsets.all(16),
-                    child: LayoutBuilder(
-                      builder: (context, constraints) => SizedBox(
-                        width: constraints.maxWidth,
-                        child: Markdown(
-                          data: _aiAnalysis.isEmpty
-                              ? AppLocalizations.of(
-                                  context,
-                                ).generateAnalysisHint
-                              : _aiAnalysis,
-                          styleSheet: MarkdownStyleSheet(
-                            h1: Theme.of(context).textTheme.titleLarge,
-                            h2: Theme.of(context).textTheme.titleMedium,
-                            p: Theme.of(context).textTheme.bodyMedium,
+                if (_hasData)
+                  SliverFillRemaining(
+                    hasScrollBody: false,
+                    child: _buildEmptyState(),
+                  )
+                else if (_isLoadingAnalysis)
+                  SliverFillRemaining(
+                    child: Center(child: Loading(context)),
+                  )
+                else
+                  SliverPadding(
+                    padding: const EdgeInsets.all(16),
+                    sliver: SliverToBoxAdapter(
+                      child: Card(
+                        color: Theme.of(
+                          context,
+                        ).colorScheme.secondary.withAlpha(25),
+                        child: LayoutBuilder(
+                          builder: (context, constraints) => SizedBox(
+                            width: constraints.maxWidth,
+                            child: Padding(
+                              padding: const EdgeInsets.all(12.0),
+                              child: MarkdownBody(
+                                data: _aiAnalysis.isEmpty
+                                    ? AppLocalizations.of(
+                                        context,
+                                      ).generateAnalysisHint
+                                    : _aiAnalysis,
+                                styleSheet: MarkdownStyleSheet(
+                                  h1: Theme.of(context).textTheme.titleLarge,
+                                  h2: Theme.of(context).textTheme.titleMedium,
+                                  p: Theme.of(context).textTheme.bodyMedium,
+                                ),
+                              ),
+                            ),
                           ),
                         ),
                       ),
                     ),
                   ),
-                ),
-            ],
-          ),
-        ],
+              ],
+            ),
+          ],
+        ),
       ),
     );
   }
 
   Widget _buildEmptyState() {
-    return Padding(
-      padding: const EdgeInsets.all(16.0),
-      child: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Icon(
-              Icons.folder_open,
-              size: 64,
-              color: Theme.of(context).colorScheme.secondary,
-            ),
-            const SizedBox(height: 16),
-            Text(
-              AppLocalizations.of(
-                context,
-              ).noDataForMonth(_month.toString(), _year),
-              style: Theme.of(context).textTheme.titleMedium,
-            ),
-            const SizedBox(height: 8),
-            Text(
-              AppLocalizations.of(context).dataWillAppear,
-              style: Theme.of(context).textTheme.bodyMedium,
-              textAlign: TextAlign.center,
-            ),
-          ],
-        ),
+    return Center(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Icon(
+            Icons.folder_open,
+            size: 64,
+            color: Theme.of(context).colorScheme.secondary,
+          ),
+          const SizedBox(height: 16),
+          Text(
+            AppLocalizations.of(
+              context,
+            ).noDataForMonth(_month.toString(), _year),
+            style: Theme.of(context).textTheme.titleMedium,
+          ),
+          const SizedBox(height: 8),
+          Text(
+            AppLocalizations.of(context).dataWillAppear,
+            style: Theme.of(context).textTheme.bodyMedium,
+            textAlign: TextAlign.center,
+          ),
+        ],
       ),
     );
   }
@@ -443,7 +465,7 @@ class _SummaryScreenState extends State<SummaryScreen>
                         reservedSize: 60,
                         getTitlesWidget: (value, meta) {
                           return Text(
-                            '${value.toInt()}€', // TODO: Use moneda variable instead of hardcoded €
+                            '${value.toInt()}€',
                             style: TextStyle(
                               color: Theme.of(
                                 context,
@@ -458,7 +480,7 @@ class _SummaryScreenState extends State<SummaryScreen>
                       sideTitles: SideTitles(
                         showTitles: true,
                         reservedSize: 30,
-                        interval: 2, // Mostrar cada dos días
+                        interval: 2,
                         getTitlesWidget: (value, meta) {
                           if (value < 1 || value > 31) return const Text('');
                           return Padding(
@@ -476,10 +498,10 @@ class _SummaryScreenState extends State<SummaryScreen>
                         },
                       ),
                     ),
-                    rightTitles: AxisTitles(
+                    rightTitles: const AxisTitles(
                       sideTitles: SideTitles(showTitles: false),
                     ),
-                    topTitles: AxisTitles(
+                    topTitles: const AxisTitles(
                       sideTitles: SideTitles(showTitles: false),
                     ),
                   ),
@@ -528,12 +550,10 @@ class _SummaryScreenState extends State<SummaryScreen>
       (sum, movement) => sum + movement.amount,
     );
 
-    // Initialize all categories to 0
     for (var tag in getTagList(AppLocalizations.of(context).localeName)) {
       categoryTotals[tag] = 0;
     }
 
-    // Calculate totals for each category
     for (var movement in expenses) {
       if (movement.category != null) {
         categoryTotals[movement.category!] =
@@ -541,7 +561,6 @@ class _SummaryScreenState extends State<SummaryScreen>
       }
     }
 
-    // Convert to percentages
     final percentages = <String, double>{};
     categoryTotals.forEach((category, amount) {
       percentages[category] = total > 0 ? (amount / total) * 100 : 0;

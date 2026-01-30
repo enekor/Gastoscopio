@@ -89,7 +89,6 @@ class _MainScreenState extends State<MainScreen>
         ) ??
         true;
 
-    // Load bottom navigation style configuration
     final isOpaqueBottomNav =
         await prefs.getBoolValue(
           SharedPreferencesKeys.isOpaqueBottomNav,
@@ -109,7 +108,6 @@ class _MainScreenState extends State<MainScreen>
 
     if (!isFirstStartup) {
       await SqliteService().initializeDatabase();
-      // Esperamos al siguiente frame para asegurarnos de que el singleton está listo
       await Future.microtask(() async {
         final financeService = FinanceService.getInstance(
           SqliteService().db.monthDao,
@@ -174,24 +172,16 @@ class _MainScreenState extends State<MainScreen>
                     final months = await financeService.getAvailableMonths(
                       year,
                     );
-
-                    // Cerrar el diálogo actual
                     Navigator.pop(dialogContext);
-
-                    // Actualizar ambos estados de forma sincronizada
                     setState(() {
                       _availableMonths = months;
                       _year = year;
                     });
-
-                    // Manejar el cambio de mes si es necesario
                     if (!months.contains(_month)) {
                       await _setNewDate(months.last, year);
                     } else {
                       await _setNewDate(_month, year);
                     }
-
-                    // Mostrar el diálogo actualizado
                     _showMonthSelector();
                   },
                 ),
@@ -247,79 +237,20 @@ class _MainScreenState extends State<MainScreen>
         }
 
         if (snapshot.data == true) {
-          // Programar la navegación para después del frame actual
           WidgetsBinding.instance.addPostFrameCallback((_) {
             Navigator.pushReplacement(
               context,
               MaterialPageRoute(builder: (context) => const OnboardingScreen()),
             );
           });
-          // Mientras tanto, mostrar una pantalla de carga
           return Scaffold(body: Center(child: Loading(context)));
         }
 
         final hasBackground = _backgroundImagePath != null && _backgroundImagePath!.isNotEmpty;
 
         return Scaffold(
-          extendBody: _selectedIndex != 2,
+          extendBody: true,
           extendBodyBehindAppBar: true,
-          appBar: AppBar(
-            toolbarHeight: kToolbarHeight + 32,
-            centerTitle: true,
-            backgroundColor: Colors.transparent,
-            elevation: 0,
-            title: Padding(
-              padding: const EdgeInsets.only(top: 35.0),
-              child: Text(
-                AppLocalizations.of(context)!.appTitle,
-                style: TextStyle(
-                  fontFamily: 'Pacifico',
-                  fontSize: 24,
-                  letterSpacing: 1.2,
-                  color: hasBackground && _selectedIndex == 0 ? Colors.white : null,
-                  shadows: hasBackground && _selectedIndex == 0 ? [
-                    const Shadow(
-                      blurRadius: 10.0,
-                      color: Colors.black54,
-                      offset: Offset(2.0, 2.0),
-                    ),
-                  ] : null,
-                ),
-              ),
-            ),
-            actions: [
-              Padding(
-                padding: const EdgeInsets.only(top: 35.0),
-                child: IconButton(
-                  icon: Icon(
-                    Icons.settings,
-                    color: hasBackground && _selectedIndex == 0 ? Colors.white : null,
-                  ),
-                  onPressed: () async {
-                    await Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => const SettingsScreen(),
-                      ),
-                    );
-                    // Reload configuration when returning from settings
-                    await _reloadConfigs();
-                  },
-                ),
-              ),
-              if (_selectedIndex != 2)
-                Padding(
-                  padding: const EdgeInsets.only(top: 35.0),
-                  child: IconButton(
-                    onPressed: _showMonthSelector,
-                    icon: Icon(
-                      Icons.calendar_today,
-                      color: hasBackground && _selectedIndex == 0 ? Colors.white : null,
-                    ),
-                  ),
-                ),
-            ],
-          ),
           body: Stack(
             children: [
               if (hasBackground && _selectedIndex == 0)
@@ -335,16 +266,15 @@ class _MainScreenState extends State<MainScreen>
                         File(_backgroundImagePath!),
                         fit: BoxFit.cover,
                       ),
-                      // Overlay oscuro y fadeout al final
                       Container(
                         decoration: BoxDecoration(
                           gradient: LinearGradient(
                             begin: Alignment.topCenter,
                             end: Alignment.bottomCenter,
                             colors: [
-                              Colors.black.withOpacity(0.7), // Oscurecimiento inicial más fuerte
-                              Colors.black.withOpacity(0.3), // Parte media algo más clara
-                              Theme.of(context).colorScheme.surface, // Fadeout total al color de fondo
+                              Colors.black.withOpacity(0.7),
+                              Colors.black.withOpacity(0.3),
+                              Theme.of(context).colorScheme.surface,
                             ],
                             stops: const [0.0, 0.7, 1.0],
                           ),
@@ -353,10 +283,62 @@ class _MainScreenState extends State<MainScreen>
                     ],
                   ),
                 ),
-              TabBarView(
-                controller: _tabController,
-                physics: const ClampingScrollPhysics(),
-                children: _screens,
+              
+              CustomScrollView(
+                physics: const BouncingScrollPhysics(),
+                slivers: [
+                  SliverAppBar.large(
+                    backgroundColor: Colors.transparent,
+                    elevation: 0,
+                    centerTitle: true,
+                    title: Text(
+                      AppLocalizations.of(context)!.appTitle,
+                      style: TextStyle(
+                        fontFamily: 'Pacifico',
+                        color: hasBackground && _selectedIndex == 0 ? Colors.white : null,
+                        shadows: hasBackground && _selectedIndex == 0 ? [
+                          const Shadow(
+                            blurRadius: 10.0,
+                            color: Colors.black54,
+                            offset: Offset(2.0, 2.0),
+                          ),
+                        ] : null,
+                      ),
+                    ),
+                    actions: [
+                      IconButton(
+                        icon: Icon(
+                          Icons.settings,
+                          color: hasBackground && _selectedIndex == 0 ? Colors.white : null,
+                        ),
+                        onPressed: () async {
+                          await Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => const SettingsScreen(),
+                            ),
+                          );
+                          await _reloadConfigs();
+                        },
+                      ),
+                      if (_selectedIndex != 2)
+                        IconButton(
+                          onPressed: _showMonthSelector,
+                          icon: Icon(
+                            Icons.calendar_today,
+                            color: hasBackground && _selectedIndex == 0 ? Colors.white : null,
+                          ),
+                        ),
+                    ],
+                  ),
+                  SliverFillRemaining(
+                    child: TabBarView(
+                      controller: _tabController,
+                      physics: const ClampingScrollPhysics(),
+                      children: _screens,
+                    ),
+                  ),
+                ],
               ),
             ],
           ),
@@ -374,7 +356,7 @@ class _MainScreenState extends State<MainScreen>
                 ? Theme.of(context).colorScheme.onPrimary.withAlpha(50)
                 : Theme.of(context).colorScheme.primary.withAlpha(50),
             isOpaque: _isOpaqueBottomNav,
-            margin: EdgeInsets.only(left: 24.0, right: 24.0, bottom: 18.0),
+            margin: const EdgeInsets.only(left: 24.0, right: 24.0, bottom: 18.0),
             borderRadius: BorderRadius.circular(24),
             border: _isOpaqueBottomNav
                 ? null

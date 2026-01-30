@@ -45,6 +45,7 @@ class _ViewMovementsFilteredScreenState
 
   Future<void> _loadMovements() async {
     movements = [];
+    months = [];
 
     for (
       DateTime date = selectedDateRange!.start;
@@ -87,218 +88,237 @@ class _ViewMovementsFilteredScreenState
   @override
   Widget build(BuildContext context) {
     final localizations = AppLocalizations.of(context)!;
+    final filtered = _filterMovements();
 
     return Scaffold(
-      appBar: AppBar(
-        title: Padding(
-          padding: const EdgeInsets.only(top: 35.0),
-          child: Text(localizations.filteredMovements),
-        ),
-        leading: Padding(
-          padding: const EdgeInsets.only(top: 25.0),
-          child: IconButton(
-            icon: const Icon(Icons.arrow_back_ios_new_rounded),
-            onPressed: () {
-              Navigator.of(context).pop();
-            },
-          ),
-        ),
-      ),
-      body: Padding(
-        padding: const EdgeInsets.all(20.0),
-        child: Column(
-          children: [
-            // Filtros
-            Container(
-              margin: const EdgeInsets.all(8.0),
-              padding: const EdgeInsets.all(16.0),
-              decoration: BoxDecoration(
-                color: Theme.of(context).colorScheme.surface,
-                borderRadius: BorderRadius.circular(12),
-                border: Border.all(
-                  color: Theme.of(context).colorScheme.outline.withAlpha(50),
+      body: CustomScrollView(
+        physics: const BouncingScrollPhysics(),
+        slivers: [
+          SliverAppBar(
+            expandedHeight: 120,
+            floating: true,
+            pinned: true,
+            centerTitle: true,
+            backgroundColor: Theme.of(context).colorScheme.surface,
+            leading: IconButton(
+              icon: const Icon(Icons.arrow_back_ios_new_rounded),
+              onPressed: () => Navigator.of(context).pop(),
+            ),
+            flexibleSpace: FlexibleSpaceBar(
+              title: Text(
+                localizations.filteredMovements,
+                style: TextStyle(
+                  color: Theme.of(context).colorScheme.onSurface,
+                  fontWeight: FontWeight.bold,
                 ),
               ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  // Selector de tipo
-                  Row(
-                    children: [
-                      Text(
-                        '${localizations.movementType}: ',
-                        style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                          fontWeight: FontWeight.w500,
-                        ),
-                      ),
-                      const SizedBox(width: 8),
-                      Expanded(
-                        child: ToggleButtons(
-                          isSelected: [isExpense, !isExpense],
-                          onPressed: (index) {
-                            setState(() {
-                              isExpense = index == 0;
-                            });
-                            if (selectedDateRange != null) {
-                              _loadMovements();
-                            }
-                          },
-                          borderRadius: BorderRadius.circular(8),
-                          selectedColor: Theme.of(
-                            context,
-                          ).colorScheme.onPrimary,
-                          fillColor: Theme.of(context).colorScheme.primary,
-                          color: Theme.of(context).colorScheme.onSurface,
-                          children: [
-                            Padding(
-                              padding: const EdgeInsets.symmetric(
-                                horizontal: 16.0,
-                                vertical: 8.0,
-                              ),
-                              child: Text(localizations.expenses),
-                            ),
-                            Padding(
-                              padding: const EdgeInsets.symmetric(
-                                horizontal: 16.0,
-                                vertical: 8.0,
-                              ),
-                              child: Text(localizations.incomes),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 12),
-                  // Selector de rango de fechas
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        localizations.date,
-                        style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                          fontWeight: FontWeight.w500,
-                        ),
-                      ),
-                      const SizedBox(height: 8),
-                      OutlinedButton.icon(
-                        onPressed: () async {
-                          final DateTimeRange? picked =
-                              await showDateRangePicker(
-                                saveText: localizations.save,
-                                cancelText: localizations.cancel,
-                                confirmText: localizations.accept,
-                                helpText: localizations.selectDateRange,
-                                barrierColor: Colors.transparent,
-                                builder: (context, child) => Padding(
-                                  padding: const EdgeInsets.symmetric(vertical: 35, horizontal: 15),
-                                  child: Card(child: child)
-                                ),
-                                context: context,
+              centerTitle: true,
+              titlePadding: const EdgeInsets.only(bottom: 16),
+            ),
+          ),
 
-                                firstDate: DateTime(2000),
-                                lastDate: DateTime.now(),
-                                initialDateRange: selectedDateRange,
-                              );
-                          if (picked != null) {
-                            setState(() {
-                              selectedDateRange = picked;
-                            });
-                            await _loadMovements();
-                          }
-                        },
-                        icon: const Icon(Icons.calendar_today),
-                        label: Text(
-                          selectedDateRange == null
-                              ? localizations.selectDate
-                              : '${selectedDateRange!.start.toLocal().toString().split(' ')[0]} - ${selectedDateRange!.end.toLocal().toString().split(' ')[0]}',
-                        ),
-                        style: OutlinedButton.styleFrom(
-                          minimumSize: const Size(double.infinity, 48),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(8),
-                          ),
-                        ),
-                      ),
-                    ],
+          // Filtros
+          SliverToBoxAdapter(
+            child: Padding(
+              padding: const EdgeInsets.fromLTRB(20, 10, 20, 10),
+              child: Container(
+                padding: const EdgeInsets.all(16.0),
+                decoration: BoxDecoration(
+                  color: Theme.of(context).colorScheme.surface,
+                  borderRadius: BorderRadius.circular(12),
+                  border: Border.all(
+                    color: Theme.of(context).colorScheme.outline.withAlpha(50),
                   ),
-                  const SizedBox(height: 12),
-                  // Buscador por nombre
-                  if (movements.isNotEmpty)
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
                       children: [
-                        TextField(
-                          controller: _searchController,
-                          decoration: InputDecoration(
-                            hintText: localizations.search,
-                            prefixIcon: const Icon(Icons.search),
-                            border: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(8),
-                            ),
-                            contentPadding: const EdgeInsets.symmetric(
-                              horizontal: 16,
-                              vertical: 12,
-                            ),
+                        Text(
+                          '${localizations.movementType}: ',
+                          style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                            fontWeight: FontWeight.w500,
                           ),
-                          onChanged: (value) {
-                            setState(() {
-                              _searchQuery = value;
-                            });
-                          },
+                        ),
+                        const SizedBox(width: 8),
+                        Expanded(
+                          child: ToggleButtons(
+                            isSelected: [isExpense, !isExpense],
+                            onPressed: (index) {
+                              setState(() {
+                                isExpense = index == 0;
+                              });
+                              if (selectedDateRange != null) {
+                                _loadMovements();
+                              }
+                            },
+                            borderRadius: BorderRadius.circular(8),
+                            selectedColor: Theme.of(
+                              context,
+                            ).colorScheme.onPrimary,
+                            fillColor: Theme.of(context).colorScheme.primary,
+                            color: Theme.of(context).colorScheme.onSurface,
+                            children: [
+                              Padding(
+                                padding: const EdgeInsets.symmetric(horizontal: 16),
+                                child: Text(localizations.expenses),
+                              ),
+                              Padding(
+                                padding: const EdgeInsets.symmetric(horizontal: 16),
+                                child: Text(localizations.incomes),
+                              ),
+                            ],
+                          ),
                         ),
                       ],
                     ),
-                ],
+                    const SizedBox(height: 12),
+                    Text(
+                      localizations.date,
+                      style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
+                    const SizedBox(height: 8),
+                    OutlinedButton.icon(
+                      onPressed: () async {
+                        final DateTimeRange? picked =
+                            await showDateRangePicker(
+                              saveText: localizations.save,
+                              cancelText: localizations.cancel,
+                              confirmText: localizations.accept,
+                              helpText: localizations.selectDateRange,
+                              barrierColor: Colors.transparent,
+                              builder: (context, child) => Padding(
+                                padding: const EdgeInsets.symmetric(vertical: 35, horizontal: 15),
+                                child: Card(child: child)
+                              ),
+                              context: context,
+                              firstDate: DateTime(2000),
+                              lastDate: DateTime.now(),
+                              initialDateRange: selectedDateRange,
+                            );
+                        if (picked != null) {
+                          setState(() {
+                            selectedDateRange = picked;
+                          });
+                          await _loadMovements();
+                        }
+                      },
+                      icon: const Icon(Icons.calendar_today),
+                      label: Text(
+                        selectedDateRange == null
+                            ? localizations.selectDate
+                            : '${selectedDateRange!.start.toLocal().toString().split(' ')[0]} - ${selectedDateRange!.end.toLocal().toString().split(' ')[0]}',
+                      ),
+                      style: OutlinedButton.styleFrom(
+                        minimumSize: const Size(double.infinity, 48),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                      ),
+                    ),
+                    if (movements.isNotEmpty) ...[
+                      const SizedBox(height: 12),
+                      TextField(
+                        controller: _searchController,
+                        decoration: InputDecoration(
+                          hintText: localizations.search,
+                          prefixIcon: const Icon(Icons.search),
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                          contentPadding: const EdgeInsets.symmetric(
+                            horizontal: 16,
+                            vertical: 12,
+                          ),
+                        ),
+                        onChanged: (value) {
+                          setState(() {
+                            _searchQuery = value;
+                          });
+                        },
+                      ),
+                    ],
+                  ],
+                ),
               ),
             ),
-            Expanded(
-              child: _filterMovements().isEmpty && selectedDateRange == null
-                  ? Center(
-                      child: Text(localizations.selectDateRange),
-                    )
-                  : ListView.builder(
-                      itemCount: _filterMovements().length,
-                      itemBuilder: (context, index) {
-                        final movement = _filterMovements()[index];
-                        return ListTile(
-                          title: Text(movement.description),
-                          subtitle: Text('${movement.day}/${months.firstWhere((month) => month.id == movement.monthId).month}/${months.firstWhere((month) => month.id == movement.monthId).year}'),
-                          leading: Icon(movement.isExpense
-                              ? Icons.arrow_downward
-                              : Icons.arrow_upward,
-                          color: movement.isExpense
-                              ? Colors.red
-                              : Colors.green,),
-                            trailing: Text(
-                              '${movement.amount}$_moneda',
-                              style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                                color: movement.isExpense ? Colors.red : Colors.green,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            )
-                        );
-                      },
-                    ),
+          ),
+
+          // Lista de resultados
+          if (filtered.isEmpty && selectedDateRange == null)
+            SliverFillRemaining(
+              hasScrollBody: false,
+              child: Center(child: Text(localizations.selectDateRange)),
+            )
+          else
+            SliverPadding(
+              padding: const EdgeInsets.symmetric(horizontal: 20),
+              sliver: SliverList(
+                delegate: SliverChildBuilderDelegate(
+                  (context, index) {
+                    final movement = filtered[index];
+                    final month = months.firstWhere(
+                      (m) => m.id == movement.monthId,
+                      orElse: () => Month(0, 0),
+                    );
+                    return ListTile(
+                      contentPadding: EdgeInsets.zero,
+                      title: Text(movement.description),
+                      subtitle: Text('${movement.day}/${month.month}/${month.year}'),
+                      leading: Icon(
+                        movement.isExpense
+                            ? Icons.arrow_downward
+                            : Icons.arrow_upward,
+                        color: movement.isExpense ? Colors.red : Colors.green,
+                      ),
+                      trailing: Text(
+                        '${movement.amount}$_moneda',
+                        style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                          color: movement.isExpense ? Colors.red : Colors.green,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    );
+                  },
+                  childCount: filtered.length,
+                ),
+              ),
+            ),
+          const SliverToBoxAdapter(child: SizedBox(height: 100)),
+        ],
+      ),
+      bottomSheet: Container(
+        padding: const EdgeInsets.all(20),
+        decoration: BoxDecoration(
+          color: Theme.of(context).colorScheme.surface,
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withOpacity(0.05),
+              blurRadius: 10,
+              offset: const Offset(0, -5),
             ),
           ],
         ),
-      ),
-      bottomNavigationBar: BottomAppBar(
-        child: Container(
-          height: 60,
-          padding: const EdgeInsets.symmetric(horizontal: 16),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Text(
-                '${localizations.total}: ${_filterMovements().fold(0.0, (previousValue, element) => previousValue + element.amount).toStringAsFixed(2)}$_moneda',
-                style: Theme.of(
-                  context,
-                ).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Text(
+              localizations.total,
+              style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                fontWeight: FontWeight.bold,
               ),
-            ],
-          ),
+            ),
+            Text(
+              '${filtered.fold(0.0, (sum, item) => sum + item.amount).toStringAsFixed(2)}$_moneda',
+              style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                fontWeight: FontWeight.bold,
+                color: isExpense ? Colors.red : Colors.green,
+              ),
+            ),
+          ],
         ),
       ),
     );

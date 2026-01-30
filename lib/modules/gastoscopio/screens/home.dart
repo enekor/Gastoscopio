@@ -35,7 +35,7 @@ class GastoscopioHomeScreen extends StatefulWidget {
 
 class _GastoscopioHomeScreenState extends State<GastoscopioHomeScreen> {
   String _greetingTitle = '';
-  String _greetingSubtitle = ''; // Separé el saludo para mejor estilo
+  String _greetingSubtitle = '';
   bool _isSvg = false;
   bool _isOpaqueBottomNav = false;
   int _r = 255;
@@ -81,7 +81,6 @@ class _GastoscopioHomeScreenState extends State<GastoscopioHomeScreen> {
             _b = int.tryParse(value?.split(",")[2] ?? "255") ?? 255;
           });
         });
-    // IA API KEY
     SharedPreferencesService()
         .getStringValue(SharedPreferencesKeys.apiKey)
         .then((apiKey) {
@@ -128,10 +127,8 @@ class _GastoscopioHomeScreenState extends State<GastoscopioHomeScreen> {
 
   bool _isLastDaysOfTheWeek() {
     DateTime today = DateTime.now();
-
     return today.day >= 25;
   }
-
 
   void _updateGreeting() {
     final hour = DateTime.now().hour;
@@ -164,7 +161,6 @@ class _GastoscopioHomeScreenState extends State<GastoscopioHomeScreen> {
 
   @override
   Widget build(BuildContext context) {
-    // Definimos un color primario local para usar en gradientes si el del tema es plano
     final primaryColor = Theme.of(context).colorScheme.primary;
     final secondaryColor = Theme.of(context).colorScheme.secondary;
     final hasBackground =
@@ -172,7 +168,6 @@ class _GastoscopioHomeScreenState extends State<GastoscopioHomeScreen> {
 
     return Scaffold(
       backgroundColor: Colors.transparent,
-      // Floating Action Button más moderno
       floatingActionButton: Padding(
         padding: const EdgeInsets.only(bottom: 70.0),
         child: FloatingActionButton(
@@ -186,35 +181,45 @@ class _GastoscopioHomeScreenState extends State<GastoscopioHomeScreen> {
               builder: (BuildContext context) => MovementFormScreen(),
             );
           },
-
           elevation: 6,
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(16),
           ),
         ),
       ),
-      body: SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-          child: SingleChildScrollView(
-            physics: const BouncingScrollPhysics(),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
+      body: CustomScrollView(
+        physics: const BouncingScrollPhysics(),
+        slivers: [
+          // SliverAppBar Moderno
+          SliverAppBar(
+            expandedHeight: 120,
+            floating: true,
+            pinned: false,
+            backgroundColor: Colors.transparent,
+            elevation: 0,
+            flexibleSpace: FlexibleSpaceBar(
+              background: SafeArea(
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 20),
+                  child: _buildHeader(hasBackground),
+                ),
+              ),
+            ),
+          ),
+
+          // Contenido principal
+          SliverPadding(
+            padding: const EdgeInsets.symmetric(horizontal: 20),
+            sliver: SliverList(
+              delegate: SliverChildListDelegate([
                 if (_showIaBanner) ...[
                   _buildIaBanner(context),
                   const SizedBox(height: 16),
                 ],
-                _buildHeader(hasBackground),
-                const SizedBox(height: 20),
                 _buildModernBalanceCard(primaryColor, secondaryColor),
                 const SizedBox(height: 24),
-
-                // Título de sección Acciones Rápidas
                 Text(
-                  AppLocalizations.of(
-                    context,
-                  )!.quickActions, // Puedes usar localizaciones aquí
+                  AppLocalizations.of(context)!.quickActions,
                   style: Theme.of(context).textTheme.titleSmall?.copyWith(
                     fontWeight: FontWeight.bold,
                     color: hasBackground
@@ -226,8 +231,7 @@ class _GastoscopioHomeScreenState extends State<GastoscopioHomeScreen> {
                 ),
                 const SizedBox(height: 12),
                 _buildActionGrid(),
-                const SizedBox(height: 12),
-                // Título de sección Movimientos
+                const SizedBox(height: 24),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
@@ -240,25 +244,36 @@ class _GastoscopioHomeScreenState extends State<GastoscopioHomeScreen> {
                         ).colorScheme.onSurface.withOpacity(0.7),
                       ),
                     ),
-                    // Icono opcional para "Ver todo" si quisieras implementarlo
                   ],
                 ),
                 const SizedBox(height: 12),
-                _buildLastInteractionsPart(),
-
-                const SizedBox(height: 24),
-                _ChartPart(_moneda),
-                // Espacio extra para que el FAB no tape contenido
-                const SizedBox(height: 80),
-              ],
+              ]),
             ),
           ),
-        ),
+
+          // Lista de movimientos como Sliver
+          SliverPadding(
+            padding: const EdgeInsets.symmetric(horizontal: 20),
+            sliver: _buildLastInteractionsSliver(),
+          ),
+
+          // Gráfico y espacio final
+          SliverPadding(
+            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 24),
+            sliver: SliverToBoxAdapter(
+              child: Column(
+                children: [
+                  _ChartPart(_moneda),
+                  const SizedBox(height: 100),
+                ],
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }
 
-  // --- NUEVO HEADER ---
   Widget _buildHeader(bool hasBackground) {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -266,6 +281,7 @@ class _GastoscopioHomeScreenState extends State<GastoscopioHomeScreen> {
         Expanded(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisAlignment: MainAxisAlignment.center,
             children: [
               Text(
                 _greetingTitle,
@@ -307,17 +323,10 @@ class _GastoscopioHomeScreenState extends State<GastoscopioHomeScreen> {
           ),
         ),
         const SizedBox(width: 10),
-        // Avatar más pequeño y elegante
         Container(
-          height: 70,
-          width: 70,
-          decoration: BoxDecoration(
-            //color: Theme.of(context).colorScheme.surfaceVariant,
-            shape: BoxShape.circle,
-            // border: Border.all(
-            //   color: Theme.of(context).colorScheme.outline.withOpacity(0.2),
-            // ),
-          ),
+          height: 60,
+          width: 60,
+          decoration: const BoxDecoration(shape: BoxShape.circle),
           child: ClipOval(
             child: _isSvg
                 ? SvgPicture.asset(
@@ -332,7 +341,6 @@ class _GastoscopioHomeScreenState extends State<GastoscopioHomeScreen> {
     );
   }
 
-  // --- TARJETA DE BALANCE PRINCIPAL (MODERNA) ---
   Widget _buildModernBalanceCard(Color primary, Color secondary) {
     final service = FinanceService.getInstance(
       SqliteService().db.monthDao,
@@ -346,7 +354,6 @@ class _GastoscopioHomeScreenState extends State<GastoscopioHomeScreen> {
         final total = service.monthTotal;
         final incomes = service.monthIncomes;
         final expenses = service.monthExpenses;
-        final isPositive = total >= 0;
 
         return Container(
           width: double.infinity,
@@ -356,10 +363,7 @@ class _GastoscopioHomeScreenState extends State<GastoscopioHomeScreen> {
             gradient: LinearGradient(
               begin: Alignment.topLeft,
               end: Alignment.bottomRight,
-              colors: [
-                primary,
-                primary.withOpacity(0.7), // Gradiente sutil
-              ],
+              colors: [primary, primary.withOpacity(0.7)],
             ),
             boxShadow: [
               BoxShadow(
@@ -371,7 +375,6 @@ class _GastoscopioHomeScreenState extends State<GastoscopioHomeScreen> {
           ),
           child: Stack(
             children: [
-              // Decoración de fondo (círculos abstractos)
               Positioned(
                 right: -10,
                 top: -10,
@@ -388,8 +391,6 @@ class _GastoscopioHomeScreenState extends State<GastoscopioHomeScreen> {
                   backgroundColor: Colors.white.withOpacity(0.1),
                 ),
               ),
-
-              // Contenido
               Padding(
                 padding: const EdgeInsets.all(24.0),
                 child: Column(
@@ -413,8 +414,6 @@ class _GastoscopioHomeScreenState extends State<GastoscopioHomeScreen> {
                         ),
                       ],
                     ),
-
-                    // Carrusel Vertical para el Total / Desglose
                     Expanded(
                       child: CarouselSlider(
                         carouselController: _carouselController,
@@ -422,10 +421,9 @@ class _GastoscopioHomeScreenState extends State<GastoscopioHomeScreen> {
                           scrollDirection: Axis.vertical,
                           viewportFraction: 1.0,
                           enableInfiniteScroll: false,
-                          height: 100, // Ajustar altura interna
+                          height: 100,
                         ),
                         items: [
-                          // Página 1: Balance Total
                           Center(
                             child: Column(
                               mainAxisSize: MainAxisSize.min,
@@ -482,7 +480,6 @@ class _GastoscopioHomeScreenState extends State<GastoscopioHomeScreen> {
                               ],
                             ),
                           ),
-                          // Página 2: Ingresos vs Gastos
                           Row(
                             mainAxisAlignment: MainAxisAlignment.spaceAround,
                             children: [
@@ -561,7 +558,6 @@ class _GastoscopioHomeScreenState extends State<GastoscopioHomeScreen> {
     );
   }
 
-  // --- GRID DE ACCIONES (Botones cuadrados modernos) ---
   Widget _buildActionGrid() {
     return Center(
       child: SingleChildScrollView(
@@ -596,7 +592,6 @@ class _GastoscopioHomeScreenState extends State<GastoscopioHomeScreen> {
                 ),
               ),
             ),
-
             _buildActionCard(
               icon: Icons.savings_rounded,
               title: AppLocalizations.of(context).savings,
@@ -606,7 +601,6 @@ class _GastoscopioHomeScreenState extends State<GastoscopioHomeScreen> {
                 MaterialPageRoute(builder: (context) => HomeSaves()),
               ),
             ),
-
             _buildActionCard(
               icon: Icons.filter_alt,
               title: AppLocalizations.of(context).filteredMovements,
@@ -630,14 +624,10 @@ class _GastoscopioHomeScreenState extends State<GastoscopioHomeScreen> {
     required Color color,
     required VoidCallback onTap,
   }) {
-    // Usamos el color del tema actual para el fondo de las tarjetas
-    final cardBg = Theme.of(context).colorScheme.primary.withAlpha(15);
-
     return SizedBox(
       width: 100,
       height: 110,
       child: Material(
-        //color: cardBg,
         borderRadius: BorderRadius.circular(20),
         elevation: 2,
         shadowColor: Colors.black.withOpacity(0.1),
@@ -677,8 +667,7 @@ class _GastoscopioHomeScreenState extends State<GastoscopioHomeScreen> {
     );
   }
 
-  // --- LISTA DE MOVIMIENTOS RECIENTES (Sin borde feo) ---
-  Widget _buildLastInteractionsPart() {
+  Widget _buildLastInteractionsSliver() {
     final service = FinanceService.getInstance(
       SqliteService().db.monthDao,
       SqliteService().db.movementValueDao,
@@ -690,72 +679,93 @@ class _GastoscopioHomeScreenState extends State<GastoscopioHomeScreen> {
         final movements = service.todayMovements;
 
         if (movements.isEmpty) {
-          return Container(
-            padding: const EdgeInsets.all(30),
-            decoration: BoxDecoration(
-              color: Theme.of(context).colorScheme.surface,
-              borderRadius: BorderRadius.circular(20),
-              border: Border.all(
-                color: Theme.of(context).dividerColor.withOpacity(0.1),
+          return SliverToBoxAdapter(
+            child: Container(
+              padding: const EdgeInsets.all(30),
+              decoration: BoxDecoration(
+                color: Theme.of(context).colorScheme.surface,
+                borderRadius: BorderRadius.circular(20),
+                border: Border.all(
+                  color: Theme.of(context).dividerColor.withOpacity(0.1),
+                ),
               ),
-            ),
-            child: Center(
-              child: Column(
-                children: [
-                  Icon(
-                    Icons.receipt_long,
-                    size: 40,
-                    color: Theme.of(context).disabledColor,
-                  ),
-                  const SizedBox(height: 10),
-                  Text(
-                    AppLocalizations.of(context)!.noMovementsToShow,
-                    style: TextStyle(color: Theme.of(context).disabledColor),
-                  ),
-                ],
+              child: Center(
+                child: Column(
+                  children: [
+                    Icon(
+                      Icons.receipt_long,
+                      size: 40,
+                      color: Theme.of(context).disabledColor,
+                    ),
+                    const SizedBox(height: 10),
+                    Text(
+                      AppLocalizations.of(context)!.noMovementsToShow,
+                      style: TextStyle(color: Theme.of(context).disabledColor),
+                    ),
+                  ],
+                ),
               ),
             ),
           );
         }
 
-        return Container(
-          decoration: BoxDecoration(
-            color: Theme.of(context).colorScheme.surface,
-            borderRadius: BorderRadius.circular(20),
-            boxShadow: [
-              BoxShadow(
-                color: Colors.black.withOpacity(0.05),
-                blurRadius: 10,
-                offset: const Offset(0, 4),
+        return SliverMainAxisGroup(
+          slivers: [
+            SliverToBoxAdapter(
+              child: ClipRRect(
+                borderRadius: const BorderRadius.vertical(
+                  top: Radius.circular(20),
+                ),
+                child: Container(
+                  color: Theme.of(context).colorScheme.surface,
+                  height: 1,
+                ),
               ),
-            ],
-          ),
-          child: ListView.separated(
-            physics: const NeverScrollableScrollPhysics(),
-            shrinkWrap: true,
-            padding: EdgeInsets.zero,
-            itemCount: movements.length,
-            separatorBuilder: (_, __) => Divider(
-              height: 1,
-              color: Theme.of(context).dividerColor.withOpacity(0.2),
             ),
-            itemBuilder: (context, index) {
-              final movement = movements[index];
-              return MovementCard(
-                description: movement.description,
-                amount: movement.amount,
-                isExpense: movement.isExpense,
-                category: movement.category,
-                moneda: _moneda,
-              );
-            },
-          ),
+            SliverList(
+              delegate: SliverChildBuilderDelegate(
+                (context, index) {
+                  final movement = movements[index];
+                  final isLast = index == movements.length - 1;
+                  return Container(
+                    decoration: BoxDecoration(
+                      color: Theme.of(context).colorScheme.surface,
+                      borderRadius: isLast
+                          ? const BorderRadius.vertical(
+                              bottom: Radius.circular(20),
+                            )
+                          : null,
+                    ),
+                    child: Column(
+                      children: [
+                        MovementCard(
+                          description: movement.description,
+                          amount: movement.amount,
+                          isExpense: movement.isExpense,
+                          category: movement.category,
+                          moneda: _moneda,
+                        ),
+                        if (!isLast)
+                          Divider(
+                            height: 1,
+                            indent: 20,
+                            endIndent: 20,
+                            color:
+                                Theme.of(context).dividerColor.withOpacity(0.2),
+                          ),
+                      ],
+                    ),
+                  );
+                },
+                childCount: movements.length,
+              ),
+            ),
+          ],
         );
       },
     );
   }
 
-  // --- IA BANNER (Rediseñado ligeramente) ---
   Widget _buildIaBanner(BuildContext context) {
     return GestureDetector(
       onTap: () => _showIaInfoDialog(context),
@@ -770,14 +780,14 @@ class _GastoscopioHomeScreenState extends State<GastoscopioHomeScreen> {
             BoxShadow(
               color: Colors.amber.withOpacity(0.2),
               blurRadius: 8,
-              offset: Offset(0, 2),
+              offset: const Offset(0, 2),
             ),
           ],
         ),
         child: Row(
           children: [
             Container(
-              padding: EdgeInsets.all(6),
+              padding: const EdgeInsets.all(6),
               decoration: BoxDecoration(
                 color: Colors.white.withOpacity(0.5),
                 shape: BoxShape.circle,
@@ -806,8 +816,6 @@ class _GastoscopioHomeScreenState extends State<GastoscopioHomeScreen> {
     );
   }
 
-  // (Mantengo tus funciones auxiliares como _showIaInfoDialog sin cambios mayores,
-  // solo asegúrate de que existen en tu archivo o cópialas del anterior)
   void _showIaInfoDialog(BuildContext context) {
     showDialog(
       context: context,
@@ -860,7 +868,6 @@ class _GastoscopioHomeScreenState extends State<GastoscopioHomeScreen> {
   }
 }
 
-// --- CHART PART (Rediseñado para encajar en una tarjeta limpia) ---
 class _ChartPart extends StatelessWidget {
   const _ChartPart(this.moneda);
   final String moneda;
@@ -905,8 +912,9 @@ class _ChartPart extends StatelessWidget {
             service.currentMonth!.year,
           ),
           builder: (context, snapshot) {
-            if (!snapshot.hasData || snapshot.data!.isEmpty)
+            if (!snapshot.hasData || snapshot.data!.isEmpty) {
               return const SizedBox.shrink();
+            }
 
             final movements = snapshot.data!;
             final expenses = movements.where((m) => m.isExpense).toList();
@@ -921,7 +929,6 @@ class _ChartPart extends StatelessWidget {
               decoration: BoxDecoration(
                 color: Theme.of(context).colorScheme.surface,
                 borderRadius: BorderRadius.circular(24),
-                // Borde sutil en lugar de sombra pesada
                 border: Border.all(
                   color: Theme.of(context).dividerColor.withOpacity(0.1),
                 ),
@@ -999,7 +1006,6 @@ class HomeCategoryChart extends StatelessWidget {
                 ],
               ),
               const SizedBox(height: 6),
-              // Barra de progreso más gruesa y redondeada
               ClipRRect(
                 borderRadius: BorderRadius.circular(10),
                 child: LinearProgressIndicator(

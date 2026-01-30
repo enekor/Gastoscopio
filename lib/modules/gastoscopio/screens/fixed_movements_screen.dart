@@ -30,7 +30,6 @@ class _FixedMovementsScreenState extends State<FixedMovementsScreen> {
           }),
         );
 
-    // Cargar configuración de opacidad de navegación inferior
     SharedPreferencesService()
         .getBoolValue(SharedPreferencesKeys.isOpaqueBottomNav)
         .then(
@@ -52,7 +51,6 @@ class _FixedMovementsScreenState extends State<FixedMovementsScreen> {
         });
       }
     } catch (e) {
-      // En caso de error, mantener la lista actual y mostrar mensaje
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
@@ -63,7 +61,6 @@ class _FixedMovementsScreenState extends State<FixedMovementsScreen> {
           ),
         );
       }
-
       LogFileService().appendLog('Error loading fixed movements: $e');
     }
   }
@@ -78,7 +75,6 @@ class _FixedMovementsScreenState extends State<FixedMovementsScreen> {
         await SqliteService().database.fixedMovementDao.insertFixedMovement(
           result[0],
         );
-        // Call haveToUpload() after creating fixed movement
         await SharedPreferencesService().haveToUpload();
         await _loadFixedMovements();
 
@@ -95,7 +91,6 @@ class _FixedMovementsScreenState extends State<FixedMovementsScreen> {
               result[0].description,
               result[0].amount,
               result[0].isExpense,
-              // Si el día es mayor que el último día del mes actual, usar el último día del mes
               DateTime.now().day > result[0].day &&
                       DateTime.now().month == DateTime.now().month
                   ? DateTime(
@@ -131,7 +126,6 @@ class _FixedMovementsScreenState extends State<FixedMovementsScreen> {
           ),
         );
       }
-
       LogFileService().appendLog('Error creating fixed movement: $e');
     }
   }
@@ -139,85 +133,105 @@ class _FixedMovementsScreenState extends State<FixedMovementsScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        centerTitle: true,
-        toolbarHeight: kToolbarHeight + 32,
-        title: Padding(
-          padding: const EdgeInsets.only(top: 35.0),
-          child: Text(
-            AppLocalizations.of(context)!.fixedMovements,
-            style: TextStyle(
-              fontFamily: 'Pacifico',
-              fontSize: 20,
-              fontWeight: FontWeight.bold,
-              color: Theme.of(context).colorScheme.onSurface,
+      body: CustomScrollView(
+        physics: const BouncingScrollPhysics(),
+        slivers: [
+          SliverAppBar(
+            expandedHeight: 120,
+            floating: true,
+            pinned: true,
+            centerTitle: true,
+            backgroundColor: Theme.of(context).colorScheme.surface,
+            flexibleSpace: FlexibleSpaceBar(
+              title: Text(
+                AppLocalizations.of(context)!.fixedMovements,
+                style: TextStyle(
+                  fontFamily: 'Pacifico',
+                  fontSize: 20,
+                  fontWeight: FontWeight.bold,
+                  color: Theme.of(context).colorScheme.onSurface,
+                ),
+              ),
+              centerTitle: true,
+              titlePadding: const EdgeInsets.only(bottom: 16),
             ),
           ),
-        ),
-        elevation: 0,
-        backgroundColor: Theme.of(context).colorScheme.surface,
-        foregroundColor: Theme.of(context).colorScheme.onSurface,
-      ),
-      body: Column(
-        children: [
+
           // Info Card
-          Container(
-            width: double.infinity,
-            margin: const EdgeInsets.all(16),
-            padding: const EdgeInsets.all(16),
-            decoration: BoxDecoration(
-              color: Colors.blue.withOpacity(0.1),
-              borderRadius: BorderRadius.circular(12),
-              border: Border.all(color: Colors.blue.withOpacity(0.2)),
-            ),
-            child: Row(
-              children: [
-                Container(
-                  padding: const EdgeInsets.all(8),
-                  decoration: BoxDecoration(
-                    color: Colors.blue,
-                    borderRadius: BorderRadius.circular(8),
+          SliverToBoxAdapter(
+            child: Container(
+              width: double.infinity,
+              margin: const EdgeInsets.all(16),
+              padding: const EdgeInsets.all(16),
+              decoration: BoxDecoration(
+                color: Colors.blue.withOpacity(0.1),
+                borderRadius: BorderRadius.circular(12),
+                border: Border.all(color: Colors.blue.withOpacity(0.2)),
+              ),
+              child: Row(
+                children: [
+                  Container(
+                    padding: const EdgeInsets.all(8),
+                    decoration: BoxDecoration(
+                      color: Colors.blue,
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    child: const Icon(
+                      Icons.info_outline,
+                      color: Colors.white,
+                      size: 20,
+                    ),
                   ),
-                  child: const Icon(
-                    Icons.info_outline,
-                    color: Colors.white,
-                    size: 20,
-                  ),
-                ),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        AppLocalizations.of(context)!.automaticMovements,
-                        style: Theme.of(context).textTheme.titleSmall?.copyWith(
-                          fontWeight: FontWeight.bold,
-                          color: Colors.blue[800],
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          AppLocalizations.of(context)!.automaticMovements,
+                          style: Theme.of(context).textTheme.titleSmall?.copyWith(
+                            fontWeight: FontWeight.bold,
+                            color: Colors.blue[800],
+                          ),
                         ),
-                      ),
-                      const SizedBox(height: 4),
-                      Text(
-                        AppLocalizations.of(
-                          context,
-                        )!.addedAutomaticallyEachMonth,
-                        style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                          color: Colors.blue[700],
+                        const SizedBox(height: 4),
+                        Text(
+                          AppLocalizations.of(
+                            context,
+                          )!.addedAutomaticallyEachMonth,
+                          style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                            color: Colors.blue[700],
+                          ),
                         ),
-                      ),
-                    ],
+                      ],
+                    ),
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
           ),
 
           // Content
-          Expanded(
-            child: _fixedMovements.isEmpty
-                ? _buildEmptyState()
-                : _buildMovementsList(),
-          ),
+          if (_fixedMovements.isEmpty)
+            SliverFillRemaining(
+              hasScrollBody: false,
+              child: _buildEmptyState(),
+            )
+          else
+            SliverPadding(
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+              sliver: SliverList(
+                delegate: SliverChildBuilderDelegate(
+                  (context, index) {
+                    final movement = _fixedMovements[index];
+                    return _buildMovementCard(movement, index);
+                  },
+                  childCount: _fixedMovements.length,
+                ),
+              ),
+            ),
+
+          const SliverToBoxAdapter(child: SizedBox(height: 80)),
         ],
       ),
       floatingActionButton: FloatingActionButton.extended(
@@ -240,7 +254,7 @@ class _FixedMovementsScreenState extends State<FixedMovementsScreen> {
         backgroundColor: _isOpaqueBottomNav
             ? Theme.of(context).colorScheme.primary.withAlpha(200)
             : Theme.of(context).colorScheme.primary.withOpacity(0.1),
-        elevation: _isOpaqueBottomNav ? 4 : 4,
+        elevation: 4,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(16),
           side: _isOpaqueBottomNav
@@ -297,17 +311,6 @@ class _FixedMovementsScreenState extends State<FixedMovementsScreen> {
     );
   }
 
-  Widget _buildMovementsList() {
-    return ListView.builder(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-      itemCount: _fixedMovements.length,
-      itemBuilder: (context, index) {
-        final movement = _fixedMovements[index];
-        return _buildMovementCard(movement, index);
-      },
-    );
-  }
-
   Widget _buildMovementCard(FixedMovement movement, int index) {
     return Container(
       margin: const EdgeInsets.only(bottom: 12),
@@ -341,7 +344,6 @@ class _FixedMovementsScreenState extends State<FixedMovementsScreen> {
             await SqliteService().database.fixedMovementDao.deleteFixedMovement(
               movement,
             );
-            // Call haveToUpload() after deleting fixed movement
             await SharedPreferencesService().haveToUpload();
             setState(() {
               _fixedMovements.removeAt(index);
@@ -360,7 +362,6 @@ class _FixedMovementsScreenState extends State<FixedMovementsScreen> {
               );
             }
           } catch (e) {
-            // Si falla la eliminación, recargar la lista para restaurar el estado
             await _loadFixedMovements();
             if (mounted) {
               ScaffoldMessenger.of(context).showSnackBar(
@@ -374,7 +375,6 @@ class _FixedMovementsScreenState extends State<FixedMovementsScreen> {
                 ),
               );
             }
-
             LogFileService().appendLog('Error deleting movement: $e');
           }
         },
@@ -396,7 +396,6 @@ class _FixedMovementsScreenState extends State<FixedMovementsScreen> {
                 if (result != null) {
                   await SqliteService().database.fixedMovementDao
                       .updateFixedMovement(result[0] as FixedMovement);
-                  // Call haveToUpload() after updating fixed movement
                   await SharedPreferencesService().haveToUpload();
                   await _loadFixedMovements();
                 }
@@ -413,7 +412,6 @@ class _FixedMovementsScreenState extends State<FixedMovementsScreen> {
                     ),
                   );
                 }
-
                 LogFileService().appendLog('Error updating movement: $e');
               }
             },
@@ -429,7 +427,6 @@ class _FixedMovementsScreenState extends State<FixedMovementsScreen> {
       padding: const EdgeInsets.all(16),
       child: Row(
         children: [
-          // Icon
           Container(
             padding: const EdgeInsets.all(8),
             decoration: BoxDecoration(
@@ -445,8 +442,6 @@ class _FixedMovementsScreenState extends State<FixedMovementsScreen> {
             ),
           ),
           const SizedBox(width: 12),
-
-          // Content
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -495,8 +490,6 @@ class _FixedMovementsScreenState extends State<FixedMovementsScreen> {
               ],
             ),
           ),
-
-          // Amount
           Column(
             crossAxisAlignment: CrossAxisAlignment.end,
             children: [
@@ -558,7 +551,6 @@ class _FixedMovementDialogState extends State<_FixedMovementDialog> {
     _isExpense = widget.movement?.isExpense ?? true;
     _category = widget.movement?.category;
 
-    // Load currency
     SharedPreferencesService()
         .getStringValue(SharedPreferencesKeys.currency)
         .then((currency) {
@@ -617,7 +609,6 @@ class _FixedMovementDialogState extends State<_FixedMovementDialog> {
               mainAxisSize: MainAxisSize.min,
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                // Description Field
                 Text(
                   AppLocalizations.of(context)!.description,
                   style: Theme.of(context).textTheme.labelMedium?.copyWith(
@@ -640,10 +631,7 @@ class _FixedMovementDialogState extends State<_FixedMovementDialog> {
                       ? AppLocalizations.of(context)!.descriptionRequired
                       : null,
                 ),
-
                 const SizedBox(height: 20),
-
-                // Amount Field
                 Text(
                   AppLocalizations.of(context)!.quantity,
                   style: Theme.of(context).textTheme.labelMedium?.copyWith(
@@ -676,10 +664,7 @@ class _FixedMovementDialogState extends State<_FixedMovementDialog> {
                     return null;
                   },
                 ),
-
                 const SizedBox(height: 20),
-
-                // Day Field
                 Text(
                   AppLocalizations.of(context)!.dayOfMonth,
                   style: Theme.of(context).textTheme.labelMedium?.copyWith(
@@ -710,10 +695,7 @@ class _FixedMovementDialogState extends State<_FixedMovementDialog> {
                     return null;
                   },
                 ),
-
                 const SizedBox(height: 20),
-
-                // Type Selection
                 Text(
                   AppLocalizations.of(context)!.movementType,
                   style: Theme.of(context).textTheme.labelMedium?.copyWith(
@@ -824,7 +806,6 @@ class _FixedMovementDialogState extends State<_FixedMovementDialog> {
                     ),
                   ],
                 ),
-
                 const SizedBox(height: 20),
                 Center(
                   child: Row(
@@ -883,7 +864,6 @@ class _FixedMovementDialogState extends State<_FixedMovementDialog> {
                     behavior: SnackBarBehavior.floating,
                   ),
                 );
-
                 LogFileService().appendLog('Error in dialog data: $e');
               }
             }
