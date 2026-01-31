@@ -8,7 +8,6 @@ import 'package:cashly/data/services/login_service.dart';
 import 'package:cashly/data/services/shared_preferences_service.dart';
 import 'package:cashly/data/services/sqlite_service.dart';
 import 'package:cashly/modules/gastoscopio/widgets/loading.dart';
-import 'package:cashly/modules/settings.dart/widgets/apikey-generator.dart';
 import 'package:cashly/modules/settings.dart/widgets/developer_options_widget.dart';
 import 'package:cashly/modules/settings.dart/widgets/backup_restore_widget.dart';
 import 'package:file_picker/file_picker.dart';
@@ -54,47 +53,22 @@ class _SettingsScreenState extends State<SettingsScreen> {
   }
 
   void _handleImportSuccess(Map<String, dynamic>? result) async {
-    if (result == null) {
-      showDialog(
-        context: context,
-        builder: (BuildContext context) {
-          return AlertDialog(
-            title: Text(AppLocalizations.of(context)!.error),
-            content: Text(AppLocalizations.of(context)!.noDataToImport),
-            actions: [
-              TextButton(
-                onPressed: () => Navigator.pop(context),
-                child: Text(AppLocalizations.of(context)!.accept),
-              ),
-            ],
-          );
-        },
-      );
-      return;
-    }
+    if (result == null) return;
     try {
       showDialog(
         context: context,
         barrierDismissible: false,
-        builder: (BuildContext context) {
-          return AlertDialog(
-            title: Text(AppLocalizations.of(context)!.importingData),
-            content: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Loading(context),
-                const SizedBox(height: 16),
-                Text(
-                  '${AppLocalizations.of(context)!.saving} ${result['Movements'].length} ${AppLocalizations.of(context)!.movements.toLowerCase()}',
-                ),
-                ElevatedButton(
-                  onPressed: () => Navigator.pop(context),
-                  child: Text(AppLocalizations.of(context)!.ok),
-                ),
-              ],
-            ),
-          );
-        },
+        builder: (BuildContext context) => AlertDialog(
+          title: Text(AppLocalizations.of(context)!.importingData),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Loading(context),
+              const SizedBox(height: 16),
+              Text('${AppLocalizations.of(context)!.saving} ${result['Movements'].length} movimientos'),
+            ],
+          ),
+        ),
       );
 
       for (Month month in result['Months']) {
@@ -114,29 +88,18 @@ class _SettingsScreenState extends State<SettingsScreen> {
       if (mounted) Navigator.pop(context);
 
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(AppLocalizations.of(context)!.dataImportedSuccessfully),
-          behavior: SnackBarBehavior.floating,
-        ),
+        SnackBar(content: Text(AppLocalizations.of(context)!.dataImportedSuccessfully), behavior: SnackBarBehavior.floating),
       );
     } catch (e) {
       if (!mounted) return;
-      try { Navigator.pop(context); } catch (_) {}
-
+      Navigator.pop(context);
       showDialog(
         context: context,
-        builder: (BuildContext context) {
-          return AlertDialog(
-            title: Text(AppLocalizations.of(context)!.importError),
-            content: Text('${AppLocalizations.of(context)!.error}: ${e.toString()}'),
-            actions: [
-              TextButton(
-                onPressed: () => Navigator.pop(context),
-                child: Text(AppLocalizations.of(context)!.accept),
-              ),
-            ],
-          );
-        },
+        builder: (context) => AlertDialog(
+          title: Text(AppLocalizations.of(context)!.importError),
+          content: Text(e.toString()),
+          actions: [TextButton(onPressed: () => Navigator.pop(context), child: Text(AppLocalizations.of(context)!.accept))],
+        ),
       );
     }
   }
@@ -220,62 +183,57 @@ class _SettingsScreenState extends State<SettingsScreen> {
         slivers: [
           SliverAppBar.large(
             pinned: true,
-            centerTitle: true,
             backgroundColor: Theme.of(context).colorScheme.surface,
-            leading: IconButton(
-              icon: const Icon(Icons.arrow_back_ios_new_rounded),
-              onPressed: () => Navigator.of(context).pop(),
-            ),
-            title: Text(
-              AppLocalizations.of(context)!.settings,
-              style: const TextStyle(
-                fontFamily: 'Pacifico',
-              ),
+            surfaceTintColor: Theme.of(context).colorScheme.surface,
+            automaticallyImplyLeading: false,
+            title: Row(
+              children: [
+                IconButton(
+                  icon: const Icon(Icons.arrow_back_ios_new_rounded),
+                  onPressed: () => Navigator.of(context).pop(),
+                ),
+                const SizedBox(width: 8),
+                Text(
+                  AppLocalizations.of(context)!.settings,
+                  style: const TextStyle(fontFamily: 'Pacifico'),
+                ),
+              ],
             ),
           ),
-          SliverFillRemaining(
-            hasScrollBody: true,
-            child: SingleChildScrollView(
-              padding: const EdgeInsets.all(24.0),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  _buildSectionHeader(context, AppLocalizations.of(context).accountSection, AppLocalizations.of(context).accountDescription, Icons.account_circle_outlined),
-                  const SizedBox(height: 20),
-                  _buildAccountCard(context),
-                  const SizedBox(height: 10),
-                  const Divider(),
-                  const SizedBox(height: 10),
-                  _buildSectionHeader(context, AppLocalizations.of(context)!.personalization, AppLocalizations.of(context)!.personalizationSubtitle, Icons.palette_outlined),
-                  const SizedBox(height: 20),
-                  _buildLanguageCard(context),
-                  const SizedBox(height: 20),
-                  _buildCurrencyCard(context),
-                  const SizedBox(height: 20),
-                  _buildLogoCard(context),
-                  const SizedBox(height: 20),
-                  _buildBackgroundImageCard(context),
-                  const SizedBox(height: 20),
-                  _buildBottomNavCard(context),
-                  const SizedBox(height: 10),
-                  const Divider(),
-                  const SizedBox(height: 10),
-                  _buildSectionHeader(context, AppLocalizations.of(context).security, AppLocalizations.of(context).securityDescription, Icons.security),
-                  const SizedBox(height: 20),
-                  const SecuritySettingsCard(),
-                  const SizedBox(height: 10),
-                  const Divider(),
-                  const SizedBox(height: 10),
-                  _buildSectionHeader(context, AppLocalizations.of(context)!.backupManagement, AppLocalizations.of(context)!.backupDescription, Icons.backup_outlined),
-                  const SizedBox(height: 20),
-                  const BackupRestoreWidget(),
-                  const SizedBox(height: 10),
-                  const Divider(),
-                  const SizedBox(height: 10),
-                  DeveloperOptionsWidget(onImportSuccess: _handleImportSuccess),
-                  const SizedBox(height: 40),
-                ],
-              ),
+          SliverPadding(
+            padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 16.0),
+            sliver: SliverList(
+              delegate: SliverChildListDelegate([
+                _buildSectionHeader(context, AppLocalizations.of(context)!.accountSection, AppLocalizations.of(context)!.accountDescription, Icons.account_circle_outlined),
+                const SizedBox(height: 20),
+                _buildAccountCard(context),
+                const SizedBox(height: 32),
+                
+                _buildSectionHeader(context, AppLocalizations.of(context)!.personalization, AppLocalizations.of(context)!.personalizationSubtitle, Icons.palette_outlined),
+                const SizedBox(height: 20),
+                _buildLanguageCard(context),
+                const SizedBox(height: 16),
+                _buildCurrencyCard(context),
+                const SizedBox(height: 16),
+                _buildLogoCard(context),
+                const SizedBox(height: 16),
+                _buildBackgroundImageCard(context),
+                const SizedBox(height: 16),
+                _buildBottomNavCard(context),
+                const SizedBox(height: 32),
+
+                _buildSectionHeader(context, AppLocalizations.of(context)!.security, AppLocalizations.of(context)!.securityDescription, Icons.security),
+                const SizedBox(height: 20),
+                const SecuritySettingsCard(),
+                const SizedBox(height: 32),
+
+                _buildSectionHeader(context, AppLocalizations.of(context)!.backupManagement, AppLocalizations.of(context)!.backupDescription, Icons.backup_outlined),
+                const SizedBox(height: 20),
+                const BackupRestoreWidget(),
+                const SizedBox(height: 16),
+                DeveloperOptionsWidget(onImportSuccess: _handleImportSuccess),
+                const SizedBox(height: 100),
+              ]),
             ),
           ),
         ],
@@ -323,8 +281,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 Text(AppLocalizations.of(context)!.currency, style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w600)),
               ],
             ),
-            const SizedBox(height: 8),
-            Text(AppLocalizations.of(context)!.currencyDescription, style: Theme.of(context).textTheme.bodySmall?.copyWith(color: Theme.of(context).colorScheme.onSurfaceVariant)),
             const SizedBox(height: 16),
             DropdownButtonFormField<String>(
               value: _currentCurrency,
@@ -519,10 +475,10 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 children: [
                   ListTile(contentPadding: EdgeInsets.zero, leading: CircleAvatar(backgroundImage: NetworkImage(user.photoUrl ?? '')), title: Text(user.displayName ?? '', style: const TextStyle(fontWeight: FontWeight.bold)), subtitle: Text(user.email)),
                   const SizedBox(height: 12),
-                  ElevatedButton.icon(onPressed: _handleLogout, icon: const Icon(Icons.logout), label: Text(AppLocalizations.of(context).logout), style: ElevatedButton.styleFrom(backgroundColor: Theme.of(context).colorScheme.errorContainer, foregroundColor: Theme.of(context).colorScheme.onErrorContainer)),
+                  ElevatedButton.icon(onPressed: _handleLogout, icon: const Icon(Icons.logout), label: Text(AppLocalizations.of(context)!.logout), style: ElevatedButton.styleFrom(backgroundColor: Theme.of(context).colorScheme.errorContainer, foregroundColor: Theme.of(context).colorScheme.onErrorContainer)),
                 ],
               )
-            : Center(child: ElevatedButton.icon(onPressed: _handleLogin, icon: const Icon(Icons.login), label: Text(AppLocalizations.of(context).login))),
+            : Center(child: ElevatedButton.icon(onPressed: _handleLogin, icon: const Icon(Icons.login), label: Text(AppLocalizations.of(context)!.login))),
       ),
     );
   }
