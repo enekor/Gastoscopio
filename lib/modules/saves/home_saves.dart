@@ -31,8 +31,6 @@ class _HomeSavesState extends State<HomeSaves> {
   double _savingGoal = 0.0;
   late final Future<void> _initializationFuture;
 
-  // Removed _buildMetricRow as it's now in SavesWidgets
-
   @override
   void initState() {
     super.initState();
@@ -108,7 +106,7 @@ class _HomeSavesState extends State<HomeSaves> {
                 const SizedBox(height: 20),
                 TextFormField(
                   controller: _goalController,
-                  keyboardType: TextInputType.numberWithOptions(decimal: true),
+                  keyboardType: const TextInputType.numberWithOptions(decimal: true),
                   decoration: InputDecoration(
                     labelText: AppLocalizations.of(context).goalAmount,
                     hintText: AppLocalizations.of(context).enterAmountHint,
@@ -163,13 +161,11 @@ class _HomeSavesState extends State<HomeSaves> {
     setState(() => _isLoading = true);
 
     try {
-      // Cargar los datos de ahorros
       final saves = await widget.savesService.getSaves(
         widget.anno,
         _viewByYear,
       );
 
-      // Verificar si existe un ahorro inicial
       final initialSaves = await widget.savesService.getSavesByIsInitialValue();
 
       if (initialSaves.isNotEmpty && !widget.searchByWholeYear) {
@@ -190,118 +186,122 @@ class _HomeSavesState extends State<HomeSaves> {
     return Scaffold(
       floatingActionButton: FloatingActionButton(
         onPressed: () {
-          // TODO: Implementar exportación
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(content: Text(AppLocalizations.of(context).exportComingSoon)),
           );
         },
         child: const Icon(Icons.download),
       ),
-      appBar: AppBar(
-        toolbarHeight: kToolbarHeight + 32,
-        title: Padding(
-          padding: const EdgeInsets.only(top: 35.0),
-          child: Text(
-            AppLocalizations.of(context).savingsManagement,
-            style: Theme.of(
-              context,
-            ).textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.w600),
-          ),
-        ),
-        centerTitle: true,
-        backgroundColor: Theme.of(context).colorScheme.surface,
-        foregroundColor: Theme.of(context).colorScheme.onSurface,
-        automaticallyImplyLeading: false,
-        leading: Padding(
-          padding: const EdgeInsets.only(top: 35.0),
-          child: IconButton(
-            onPressed: () => Navigator.pop(context),
-            icon: Icon(Icons.arrow_back_ios_new),
-          ),
-        ),
-      ),
-      body: FutureBuilder(
-        future: _initializationFuture,
-        builder: (context, snapshot) {
-          if (snapshot.connectionState == ConnectionState.waiting) {
-            return const Center(child: CircularProgressIndicator());
-          }
-
-          return SingleChildScrollView(
-            padding: const EdgeInsets.all(24.0),
-            child: Column(
+      body: CustomScrollView(
+        physics: const BouncingScrollPhysics(),
+        slivers: [
+          SliverAppBar.large(
+            automaticallyImplyLeading: false,
+            backgroundColor: Theme.of(context).colorScheme.surface,
+            surfaceTintColor: Theme.of(context).colorScheme.surface,
+            title: Row(
               children: [
-                SavesWidgets.ViewSelectionCard(
-                  context: context,
-                  viewByYear: _viewByYear,
-                  onViewChanged: (value) {
-                    setState(() {
-                      _viewByYear = value;
-                      widget.searchByWholeYear = value;
-                    });
-                    _loadData();
-                  },
-                  currentYear: widget.anno,
-                  yearsFunction: () =>
-                      SqliteService().db.monthDao.findAllDistinctYears(),
-                  onYearChanged: (selectedYear) {
-                    setState(() {
-                      widget.anno = selectedYear;
-                    });
-                    _loadData();
-                  },
-                ),
-                const SizedBox(height: 24),
-                if (!_hasInitialSave)
-                  SavesWidgets.AddSaveButton(
-                    context: context,
-                    onPressed: (amount) async {
-                      await widget.savesService.addSave(amount);
-                      _loadData();
-                    },
-                  )
-                else
-                  SavesWidgets.DeleteInitialSaveButton(
-                    context: context,
-                    onPressed: () async {
-                      await widget.savesService.deleteInitialSave();
-                      _loadData();
-                    },
+                IconButton(
+                  onPressed: () => Navigator.pop(context),
+                  icon: const Icon(Icons.arrow_back_ios_new),
+                ) ,
+                const SizedBox(width: 8),
+                Text(
+                  AppLocalizations.of(context).savingsManagement,
+                  style: const TextStyle(
+                    fontFamily: 'Pacifico',
                   ),
-                const SizedBox(height: 24),
-                SavesWidgets.OverviewCard(
-                  context: context,
-                  isLoading: _isLoading,
-                  saves: widget.saves,
-                ),
-                const SizedBox(height: 24),
-                SavesWidgets.KeyMetricsCard(
-                  context: context,
-                  metricsFunction: () => Future.wait([
-                    widget.savesService.getMonthlyAverage(),
-                    widget.savesService.getBestMonth(),
-                    widget.savesService.getWorstMonth(),
-                  ]),
-                ),
-                const SizedBox(height: 24),
-                FutureBuilder<double>(
-                  future: widget.savesService.getTotalSavings(),
-                  builder: (context, snapshot) {
-                    if (snapshot.connectionState == ConnectionState.waiting) {
-                      return const Center(child: CircularProgressIndicator());
-                    }
-                    return SavesWidgets.GoalProgressCard(
-                      context: context,
-                      currentAmount: snapshot.data ?? 0.0,
-                      goalAmount: _savingGoal,
-                      onEditGoal: () => _showEditGoalDialog(context),
-                    );
-                  },
                 ),
               ],
             ),
-          );
-        },
+          ),
+          FutureBuilder(
+            future: _initializationFuture,
+            builder: (context, snapshot) {
+              if (snapshot.connectionState == ConnectionState.waiting) {
+                return const SliverFillRemaining(
+                  child: Center(child: CircularProgressIndicator()),
+                );
+              }
+
+              return SliverPadding(
+                padding: const EdgeInsets.all(24.0),
+                sliver: SliverList(
+                  delegate: SliverChildListDelegate([
+                    SavesWidgets.ViewSelectionCard(
+                      context: context,
+                      viewByYear: _viewByYear,
+                      onViewChanged: (value) {
+                        setState(() {
+                          _viewByYear = value;
+                          widget.searchByWholeYear = value;
+                        });
+                        _loadData();
+                      },
+                      currentYear: widget.anno,
+                      yearsFunction: () =>
+                          SqliteService().db.monthDao.findAllDistinctYears(),
+                      onYearChanged: (selectedYear) {
+                        setState(() {
+                          widget.anno = selectedYear;
+                        });
+                        _loadData();
+                      },
+                    ),
+                    const SizedBox(height: 24),
+                    if (!_hasInitialSave)
+                      SavesWidgets.AddSaveButton(
+                        context: context,
+                        onPressed: (amount) async {
+                          await widget.savesService.addSave(amount);
+                          _loadData();
+                        },
+                      )
+                    else
+                      SavesWidgets.DeleteInitialSaveButton(
+                        context: context,
+                        onPressed: () async {
+                          await widget.savesService.deleteInitialSave();
+                          _loadData();
+                        },
+                      ),
+                    const SizedBox(height: 24),
+                    SavesWidgets.OverviewCard(
+                      context: context,
+                      isLoading: _isLoading,
+                      saves: widget.saves,
+                    ),
+                    const SizedBox(height: 24),
+                    SavesWidgets.KeyMetricsCard(
+                      context: context,
+                      metricsFunction: () => Future.wait([
+                        widget.savesService.getMonthlyAverage(),
+                        widget.savesService.getBestMonth(),
+                        widget.savesService.getWorstMonth(),
+                      ]),
+                    ),
+                    const SizedBox(height: 24),
+                    FutureBuilder<double>(
+                      future: widget.savesService.getTotalSavings(),
+                      builder: (context, snapshot) {
+                        if (snapshot.connectionState == ConnectionState.waiting) {
+                          return const Center(child: CircularProgressIndicator());
+                        }
+                        return SavesWidgets.GoalProgressCard(
+                          context: context,
+                          currentAmount: snapshot.data ?? 0.0,
+                          goalAmount: _savingGoal,
+                          onEditGoal: () => _showEditGoalDialog(context),
+                        );
+                      },
+                    ),
+                    const SizedBox(height: 100),
+                  ]),
+                ),
+              );
+            },
+          ),
+        ],
       ),
     );
   }
