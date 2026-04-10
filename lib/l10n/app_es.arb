@@ -1288,5 +1288,31 @@
   "filteredMovements": "Mis movimientos",
   "logs":"Logs",
   "selectDateRange":"Selecciona un rango de fechas para ver los movimientos.",
-  "viewBreakdown":"Ver desglose"
+  "viewBreakdown":"Ver desglose",
+  "pendingNotifications": "Transacciones pendientes",
+  "pendingNotificationsDescription": "Se han detectado transacciones desde tus notificaciones. Revisa y guarda las que quieras.",
+  "pendingNotificationsSaved": "Transacciones guardadas correctamente",
+  "saveAll": "Terminado",
+  "dismissAll": "Descartar todo",
+  "savingProgress": "Guardando {current} de {total}...",
+  "@savingProgress": {
+    "placeholders": {
+      "current": { "type": "int" },
+      "total": { "type": "int" }
+    }
+  },
+  "notificationListenerTitle": "Notificaciones",
+  "notificationListenerDescription": "Detectar transacciones automáticamente desde tus notificaciones.",
+  "notificationListenerPermission": "Escucha de notificaciones",
+  "notificationListenerActive": "Escuchando transacciones en tus notificaciones.",
+  "notificationListenerInactive": "No está activo. Actívalo para detectar transacciones automáticamente.",
+  "notificationListenerGrantPermission": "Conceder permiso",
+  "notificationListenerPermissionExplanation": "Para detectar transacciones automáticamente, la app necesita acceso a tus notificaciones. Se te redirigirá a los Ajustes de Android donde debes activar el acceso a notificaciones para Gastoscopio. Solo se procesarán notificaciones que contengan símbolos de moneda (€, $).",
+  "notificationListenerPermissionDenied": "No se ha concedido acceso a las notificaciones. No se puede activar el escuchador.",
+  "fromApp": "Desde {appName}",
+  "@fromApp": {
+    "placeholders": {
+      "appName": { "type": "String" }
+    }
+  }
 }

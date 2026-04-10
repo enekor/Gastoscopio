@@ -80,13 +80,15 @@ class _$AppDatabase extends AppDatabase {
 
   SavesDao? _savesDaoInstance;
 
+  PendingNotificationMovementDao? _pendingNotificationMovementDaoInstance;
+
   Future<sqflite.Database> open(
     String path,
     List<Migration> migrations, [
     Callback? callback,
   ]) async {
     final databaseOptions = sqflite.OpenDatabaseOptions(
-      version: 4,
+      version: 5,
       onConfigure: (database) async {
         await database.execute('PRAGMA foreign_keys = ON');
         await callback?.onConfigure?.call(database);
@@ -109,6 +111,8 @@ class _$AppDatabase extends AppDatabase {
             'CREATE TABLE IF NOT EXISTS `FixedMovement` (`id` INTEGER PRIMARY KEY AUTOINCREMENT, `description` TEXT NOT NULL, `amount` REAL NOT NULL, `isExpense` INTEGER NOT NULL, `day` INTEGER NOT NULL, `category` TEXT)');
         await database.execute(
             'CREATE TABLE IF NOT EXISTS `Saves` (`id` INTEGER PRIMARY KEY AUTOINCREMENT, `monthId` INTEGER NOT NULL, `amount` REAL NOT NULL, `date` TEXT NOT NULL, `isInitialValue` INTEGER NOT NULL)');
+        await database.execute(
+            'CREATE TABLE IF NOT EXISTS `PendingNotificationMovement` (`id` INTEGER PRIMARY KEY AUTOINCREMENT, `notificationText` TEXT NOT NULL, `appName` TEXT NOT NULL, `extractedAmount` REAL NOT NULL, `timestamp` TEXT NOT NULL)');
 
         await callback?.onCreate?.call(database, version);
       },
@@ -136,6 +140,12 @@ class _$AppDatabase extends AppDatabase {
   @override
   SavesDao get savesDao {
     return _savesDaoInstance ??= _$SavesDao(database, changeListener);
+  }
+
+  @override
+  PendingNotificationMovementDao get pendingNotificationMovementDao {
+    return _pendingNotificationMovementDaoInstance ??=
+        _$PendingNotificationMovementDao(database, changeListener);
   }
 }
 
@@ -641,5 +651,83 @@ class _$SavesDao extends SavesDao {
   @override
   Future<void> deleteSaves(Saves saves) async {
     await _savesDeletionAdapter.delete(saves);
+  }
+}
+
+class _$PendingNotificationMovementDao extends PendingNotificationMovementDao {
+  _$PendingNotificationMovementDao(
+    this.database,
+    this.changeListener,
+  )   : _queryAdapter = QueryAdapter(database),
+        _pendingNotificationMovementInsertionAdapter = InsertionAdapter(
+            database,
+            'PendingNotificationMovement',
+            (PendingNotificationMovement item) => <String, Object?>{
+                  'id': item.id,
+                  'notificationText': item.notificationText,
+                  'appName': item.appName,
+                  'extractedAmount': item.extractedAmount,
+                  'timestamp': item.timestamp
+                }),
+        _pendingNotificationMovementDeletionAdapter = DeletionAdapter(
+            database,
+            'PendingNotificationMovement',
+            ['id'],
+            (PendingNotificationMovement item) => <String, Object?>{
+                  'id': item.id,
+                  'notificationText': item.notificationText,
+                  'appName': item.appName,
+                  'extractedAmount': item.extractedAmount,
+                  'timestamp': item.timestamp
+                });
+
+  final sqflite.DatabaseExecutor database;
+
+  final StreamController<String> changeListener;
+
+  final QueryAdapter _queryAdapter;
+
+  final InsertionAdapter<PendingNotificationMovement>
+      _pendingNotificationMovementInsertionAdapter;
+
+  final DeletionAdapter<PendingNotificationMovement>
+      _pendingNotificationMovementDeletionAdapter;
+
+  @override
+  Future<List<PendingNotificationMovement>> findAll() async {
+    return _queryAdapter.queryList(
+        'SELECT * FROM PendingNotificationMovement ORDER BY timestamp DESC',
+        mapper: (Map<String, Object?> row) => PendingNotificationMovement(
+            row['notificationText'] as String,
+            row['appName'] as String,
+            row['extractedAmount'] as double,
+            row['timestamp'] as String,
+            id: row['id'] as int?));
+  }
+
+  @override
+  Future<int?> countAll() async {
+    return _queryAdapter.query(
+        'SELECT COUNT(*) FROM PendingNotificationMovement',
+        mapper: (Map<String, Object?> row) => row.values.first as int);
+  }
+
+  @override
+  Future<void> deleteAll() async {
+    await _queryAdapter
+        .queryNoReturn('DELETE FROM PendingNotificationMovement');
+  }
+
+  @override
+  Future<void> insertPendingMovement(
+      PendingNotificationMovement movement) async {
+    await _pendingNotificationMovementInsertionAdapter.insert(
+        movement, OnConflictStrategy.abort);
+  }
+
+  @override
+  Future<void> deletePendingMovement(
+      PendingNotificationMovement movement) async {
+    await _pendingNotificationMovementDeletionAdapter.delete(movement);
   }
 }

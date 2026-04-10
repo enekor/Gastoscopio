@@ -16,6 +16,7 @@ import 'package:cashly/l10n/app_localizations.dart';
 import 'package:flutter_colorpicker/flutter_colorpicker.dart';
 import 'package:svg_flutter/svg.dart';
 import 'package:cashly/modules/settings.dart/widgets/security_settings_card.dart';
+import 'package:cashly/data/services/notification_capture_service.dart';
 
 class SettingsScreen extends StatefulWidget {
   const SettingsScreen({super.key});
@@ -24,7 +25,7 @@ class SettingsScreen extends StatefulWidget {
   State<SettingsScreen> createState() => _SettingsScreenState();
 }
 
-class _SettingsScreenState extends State<SettingsScreen> {
+class _SettingsScreenState extends State<SettingsScreen> with WidgetsBindingObserver {
   String _currentCurrency = '€';
   bool _isSvg = false;
   bool _isOpaqueBottomNav = false;
@@ -34,12 +35,30 @@ class _SettingsScreenState extends State<SettingsScreen> {
   int _b = 255;
   bool _isLoggedIn = false;
   String? _backgroundImagePath;
+  bool _notificationListenerEnabled = false;
+  bool _notificationPermissionGranted = false;
 
   @override
   void initState() {
     super.initState();
+    WidgetsBinding.instance.addObserver(this);
     _loadData();
     _checkLoginStatus();
+    _loadNotificationSettings();
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state == AppLifecycleState.resumed) {
+      // Refresh notification permission status when returning from system settings
+      _loadNotificationSettings();
+    }
+  }
+
+  @override
+  void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
+    super.dispose();
   }
 
   Future<void> _checkLoginStatus() async {
@@ -175,6 +194,78 @@ class _SettingsScreenState extends State<SettingsScreen> {
     if (success.isSuccess) setState(() => _isLoggedIn = true);
   }
 
+  Future<void> _loadNotificationSettings() async {
+    final enabled = await SharedPreferencesService()
+        .getBoolValue(SharedPreferencesKeys.notificationListenerEnabled);
+    final permission = await NotificationCaptureService().isPermissionGranted();
+    if (mounted) {
+      setState(() {
+        _notificationListenerEnabled = enabled ?? false;
+        _notificationPermissionGranted = permission;
+      });
+    }
+  }
+
+  Future<void> _toggleNotificationListener(bool value) async {
+    if (value) {
+      final hasPermission =
+          await NotificationCaptureService().isPermissionGranted();
+      if (!hasPermission) {
+        // Show explanation dialog before sending to system settings
+        final shouldProceed = await showDialog<bool>(
+          context: context,
+          builder: (context) => AlertDialog(
+            icon: const Icon(Icons.notifications_active_outlined),
+            title: Text(AppLocalizations.of(context)!.notificationListenerPermission),
+            content: Text(AppLocalizations.of(context)!.notificationListenerPermissionExplanation),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.pop(context, false),
+                child: Text(AppLocalizations.of(context)!.cancel),
+              ),
+              FilledButton(
+                onPressed: () => Navigator.pop(context, true),
+                child: Text(AppLocalizations.of(context)!.continueAction),
+              ),
+            ],
+          ),
+        );
+        if (shouldProceed != true) return;
+
+        await NotificationCaptureService().requestPermission();
+        // Re-check after returning from system settings
+        // Small delay to let the system settings close properly
+        await Future.delayed(const Duration(milliseconds: 500));
+        final granted =
+            await NotificationCaptureService().isPermissionGranted();
+        if (!granted) {
+          if (mounted) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text(AppLocalizations.of(context)!.notificationListenerPermissionDenied),
+                behavior: SnackBarBehavior.floating,
+              ),
+            );
+          }
+          return;
+        }
+        setState(() => _notificationPermissionGranted = true);
+      }
+    }
+
+    await SharedPreferencesService().setBoolValue(
+      SharedPreferencesKeys.notificationListenerEnabled,
+      value,
+    );
+    setState(() => _notificationListenerEnabled = value);
+
+    if (value) {
+      await NotificationCaptureService().initialize();
+    } else {
+      NotificationCaptureService().stop();
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -227,6 +318,11 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 const SecuritySettingsCard(),
                 const SizedBox(height: 32),
 
+                _buildSectionHeader(context, AppLocalizations.of(context)!.notificationListenerTitle, AppLocalizations.of(context)!.notificationListenerDescription, Icons.notifications_active_outlined),
+                const SizedBox(height: 20),
+                _buildNotificationListenerCard(context),
+                const SizedBox(height: 32),
+
                 _buildSectionHeader(context, AppLocalizations.of(context)!.backupManagement, AppLocalizations.of(context)!.backupDescription, Icons.backup_outlined),
                 const SizedBox(height: 20),
                 const BackupRestoreWidget(),
@@ -237,6 +333,49 @@ class _SettingsScreenState extends State<SettingsScreen> {
             ),
           ),
         ],
+      ),
+    );
+  }
+
+  Widget _buildNotificationListenerCard(BuildContext context) {
+    return Card(
+      color: Theme.of(context).colorScheme.secondary.withAlpha(25),
+      elevation: 0,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16), side: BorderSide(color: Theme.of(context).colorScheme.outline.withAlpha(50))),
+      child: Padding(
+        padding: const EdgeInsets.all(20.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            SwitchListTile(
+              contentPadding: EdgeInsets.zero,
+              title: Text(AppLocalizations.of(context)!.notificationListenerPermission, style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w600)),
+              subtitle: Text(
+                _notificationPermissionGranted
+                    ? AppLocalizations.of(context)!.notificationListenerActive
+                    : AppLocalizations.of(context)!.notificationListenerInactive,
+                style: Theme.of(context).textTheme.bodySmall,
+              ),
+              value: _notificationListenerEnabled,
+              onChanged: _toggleNotificationListener,
+              secondary: Icon(
+                _notificationListenerEnabled ? Icons.notifications_active : Icons.notifications_off_outlined,
+                color: Theme.of(context).colorScheme.primary,
+              ),
+            ),
+            if (_notificationListenerEnabled && !_notificationPermissionGranted) ...[
+              const SizedBox(height: 12),
+              ElevatedButton.icon(
+                onPressed: () async {
+                  await NotificationCaptureService().requestPermission();
+                  await _loadNotificationSettings();
+                },
+                icon: const Icon(Icons.settings),
+                label: Text(AppLocalizations.of(context)!.notificationListenerGrantPermission),
+              ),
+            ],
+          ],
+        ),
       ),
     );
   }

@@ -354,6 +354,32 @@
   "filteredMovements":"My movements",
   "logs":"Logs",
   "selectDateRange":"Select a date range to see movements",
-  "viewBreakdown":"View breakdown"
+  "viewBreakdown":"View breakdown",
+  "pendingNotifications": "Pending Transactions",
+  "pendingNotificationsDescription": "Transactions detected from your notifications. Review and save them.",
+  "pendingNotificationsSaved": "Transactions saved successfully",
+  "saveAll": "Done",
+  "dismissAll": "Dismiss all",
+  "savingProgress": "Saving {current} of {total}...",
+  "@savingProgress": {
+    "placeholders": {
+      "current": { "type": "int" },
+      "total": { "type": "int" }
+    }
+  },
+  "notificationListenerTitle": "Notifications",
+  "notificationListenerDescription": "Automatically detect transactions from your notifications.",
+  "notificationListenerPermission": "Notification listener",
+  "notificationListenerActive": "Listening for transactions in your notifications.",
+  "notificationListenerInactive": "Not listening. Enable to auto-detect transactions.",
+  "notificationListenerGrantPermission": "Grant permission",
+  "notificationListenerPermissionExplanation": "To detect transactions automatically, the app needs access to your notifications. You will be redirected to Android Settings where you need to enable notification access for Gastoscopio. Only notifications containing currency symbols (€, $) will be processed.",
+  "notificationListenerPermissionDenied": "Notification access was not granted. The listener cannot be activated.",
+  "fromApp": "From {appName}",
+  "@fromApp": {
+    "placeholders": {
+      "appName": { "type": "String" }
+    }
+  }
 
 }
