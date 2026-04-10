@@ -12,7 +12,7 @@ class CustomTheme {
 
     return ThemeData(
       pageTransitionsTheme: const PageTransitionsTheme(
-        builders: {
+        builders: <TargetPlatform, PageTransitionsBuilder>{
           TargetPlatform.android: PredictiveBackPageTransitionsBuilder(),
         },
       ),
