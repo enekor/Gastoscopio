@@ -70,7 +70,7 @@ class TransactionNotificationListener : NotificationListenerService() {
     private fun insertPendingMovement(text: String, appName: String, amount: Double) {
         var db: SQLiteDatabase? = null
         try {
-            val dbPath = getDatabasePath(DB_NAME)
+            val dbPath = applicationContext.getDatabasePath(DB_NAME)
 
             // Don't try to insert if the database doesn't exist yet (app never opened)
             if (!dbPath.exists()) {
@@ -117,10 +117,5 @@ class TransactionNotificationListener : NotificationListenerService() {
         } finally {
             db?.close()
         }
-    }
-
-    private fun getDatabasePath(name: String): File {
-        // sqflite stores databases in the app's databases directory
-        return applicationContext.getDatabasePath(name)
     }
 }
