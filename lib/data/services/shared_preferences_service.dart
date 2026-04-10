@@ -89,7 +89,8 @@ enum SharedPreferencesKeys {
   isOpaqueBottomNav('is_opaque_bottom_nav'),
   selectedLanguage('selected_language'),
   backgroundImage('background_image'),
-  savingGoal('saving_goal');
+  savingGoal('saving_goal'),
+  notificationListenerEnabled('notification_listener_enabled');
 
   final String value;
   const SharedPreferencesKeys(this.value);

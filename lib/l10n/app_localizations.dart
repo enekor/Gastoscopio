@@ -2209,6 +2209,96 @@ abstract class AppLocalizations {
   /// In es, this message translates to:
   /// **'Ver desglose'**
   String get viewBreakdown;
+
+  /// No description provided for @pendingNotifications.
+  ///
+  /// In es, this message translates to:
+  /// **'Transacciones pendientes'**
+  String get pendingNotifications;
+
+  /// No description provided for @pendingNotificationsDescription.
+  ///
+  /// In es, this message translates to:
+  /// **'Se han detectado transacciones desde tus notificaciones. Revisa y guarda las que quieras.'**
+  String get pendingNotificationsDescription;
+
+  /// No description provided for @pendingNotificationsSaved.
+  ///
+  /// In es, this message translates to:
+  /// **'Transacciones guardadas correctamente'**
+  String get pendingNotificationsSaved;
+
+  /// No description provided for @saveAll.
+  ///
+  /// In es, this message translates to:
+  /// **'Terminado'**
+  String get saveAll;
+
+  /// No description provided for @dismissAll.
+  ///
+  /// In es, this message translates to:
+  /// **'Descartar todo'**
+  String get dismissAll;
+
+  /// No description provided for @savingProgress.
+  ///
+  /// In es, this message translates to:
+  /// **'Guardando {current} de {total}...'**
+  String savingProgress(int current, int total);
+
+  /// No description provided for @notificationListenerTitle.
+  ///
+  /// In es, this message translates to:
+  /// **'Notificaciones'**
+  String get notificationListenerTitle;
+
+  /// No description provided for @notificationListenerDescription.
+  ///
+  /// In es, this message translates to:
+  /// **'Detectar transacciones automáticamente desde tus notificaciones.'**
+  String get notificationListenerDescription;
+
+  /// No description provided for @notificationListenerPermission.
+  ///
+  /// In es, this message translates to:
+  /// **'Escucha de notificaciones'**
+  String get notificationListenerPermission;
+
+  /// No description provided for @notificationListenerActive.
+  ///
+  /// In es, this message translates to:
+  /// **'Escuchando transacciones en tus notificaciones.'**
+  String get notificationListenerActive;
+
+  /// No description provided for @notificationListenerInactive.
+  ///
+  /// In es, this message translates to:
+  /// **'No está activo. Actívalo para detectar transacciones automáticamente.'**
+  String get notificationListenerInactive;
+
+  /// No description provided for @notificationListenerGrantPermission.
+  ///
+  /// In es, this message translates to:
+  /// **'Conceder permiso'**
+  String get notificationListenerGrantPermission;
+
+  /// No description provided for @notificationListenerPermissionExplanation.
+  ///
+  /// In es, this message translates to:
+  /// **'Para detectar transacciones automáticamente, la app necesita acceso a tus notificaciones. Se te redirigirá a los Ajustes de Android donde debes activar el acceso a notificaciones para Gastoscopio. Solo se procesarán notificaciones que contengan símbolos de moneda (€, \$).'**
+  String get notificationListenerPermissionExplanation;
+
+  /// No description provided for @notificationListenerPermissionDenied.
+  ///
+  /// In es, this message translates to:
+  /// **'No se ha concedido acceso a las notificaciones. No se puede activar el escuchador.'**
+  String get notificationListenerPermissionDenied;
+
+  /// No description provided for @fromApp.
+  ///
+  /// In es, this message translates to:
+  /// **'Desde {appName}'**
+  String fromApp(String appName);
 }
 
 class _AppLocalizationsDelegate

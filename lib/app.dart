@@ -3,6 +3,7 @@ import 'package:cashly/modules/gastoscopio/logic/finance_service.dart';
 import 'package:cashly/data/services/log_file_service.dart';
 import 'package:cashly/modules/gastoscopio/widgets/loading.dart';
 import 'package:cashly/modules/main_screen.dart';
+import 'package:cashly/modules/notifications/screens/pending_notifications_screen.dart';
 import 'package:flutter/material.dart';
 
 class App extends StatefulWidget {
@@ -15,6 +16,7 @@ class App extends StatefulWidget {
 class _AppState extends State<App> with WidgetsBindingObserver {
   late Future<bool> _initializationFuture;
   bool _isInForeground = true;
+  bool _hasPendingNotifications = false;
 
   @override
   void initState() {
@@ -64,6 +66,14 @@ class _AppState extends State<App> with WidgetsBindingObserver {
         SqliteService().db.fixedMovementDao,
       );
 
+      // Paso 4: Comprobar notificaciones pendientes
+      final pendingCount = await SqliteService()
+              .db
+              .pendingNotificationMovementDao
+              .countAll() ??
+          0;
+      _hasPendingNotifications = pendingCount > 0;
+
       return true;
     } catch (e) {
       LogFileService().appendLog(
@@ -85,6 +95,16 @@ class _AppState extends State<App> with WidgetsBindingObserver {
         if (snapshot.hasError) {
           return Scaffold(
             body: Center(child: Text('Error: ${snapshot.error}')),
+          );
+        }
+
+        if (_hasPendingNotifications) {
+          return PendingNotificationsScreen(
+            onComplete: () {
+              setState(() {
+                _hasPendingNotifications = false;
+              });
+            },
           );
         }
 

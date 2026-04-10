@@ -1148,4 +1148,59 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get viewBreakdown => 'View breakdown';
+
+  @override
+  String get pendingNotifications => 'Pending Transactions';
+
+  @override
+  String get pendingNotificationsDescription =>
+      'Transactions detected from your notifications. Review and save them.';
+
+  @override
+  String get pendingNotificationsSaved => 'Transactions saved successfully';
+
+  @override
+  String get saveAll => 'Done';
+
+  @override
+  String get dismissAll => 'Dismiss all';
+
+  @override
+  String savingProgress(int current, int total) {
+    return 'Saving $current of $total...';
+  }
+
+  @override
+  String get notificationListenerTitle => 'Notifications';
+
+  @override
+  String get notificationListenerDescription =>
+      'Automatically detect transactions from your notifications.';
+
+  @override
+  String get notificationListenerPermission => 'Notification listener';
+
+  @override
+  String get notificationListenerActive =>
+      'Listening for transactions in your notifications.';
+
+  @override
+  String get notificationListenerInactive =>
+      'Not listening. Enable to auto-detect transactions.';
+
+  @override
+  String get notificationListenerGrantPermission => 'Grant permission';
+
+  @override
+  String get notificationListenerPermissionExplanation =>
+      'To detect transactions automatically, the app needs access to your notifications. You will be redirected to Android Settings where you need to enable notification access for Gastoscopio. Only notifications containing currency symbols (€, \$) will be processed.';
+
+  @override
+  String get notificationListenerPermissionDenied =>
+      'Notification access was not granted. The listener cannot be activated.';
+
+  @override
+  String fromApp(String appName) {
+    return 'From $appName';
+  }
 }

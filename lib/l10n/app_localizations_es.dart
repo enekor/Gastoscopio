@@ -1164,4 +1164,60 @@ class AppLocalizationsEs extends AppLocalizations {
 
   @override
   String get viewBreakdown => 'Ver desglose';
+
+  @override
+  String get pendingNotifications => 'Transacciones pendientes';
+
+  @override
+  String get pendingNotificationsDescription =>
+      'Se han detectado transacciones desde tus notificaciones. Revisa y guarda las que quieras.';
+
+  @override
+  String get pendingNotificationsSaved =>
+      'Transacciones guardadas correctamente';
+
+  @override
+  String get saveAll => 'Terminado';
+
+  @override
+  String get dismissAll => 'Descartar todo';
+
+  @override
+  String savingProgress(int current, int total) {
+    return 'Guardando $current de $total...';
+  }
+
+  @override
+  String get notificationListenerTitle => 'Notificaciones';
+
+  @override
+  String get notificationListenerDescription =>
+      'Detectar transacciones automáticamente desde tus notificaciones.';
+
+  @override
+  String get notificationListenerPermission => 'Escucha de notificaciones';
+
+  @override
+  String get notificationListenerActive =>
+      'Escuchando transacciones en tus notificaciones.';
+
+  @override
+  String get notificationListenerInactive =>
+      'No está activo. Actívalo para detectar transacciones automáticamente.';
+
+  @override
+  String get notificationListenerGrantPermission => 'Conceder permiso';
+
+  @override
+  String get notificationListenerPermissionExplanation =>
+      'Para detectar transacciones automáticamente, la app necesita acceso a tus notificaciones. Se te redirigirá a los Ajustes de Android donde debes activar el acceso a notificaciones para Gastoscopio. Solo se procesarán notificaciones que contengan símbolos de moneda (€, \$).';
+
+  @override
+  String get notificationListenerPermissionDenied =>
+      'No se ha concedido acceso a las notificaciones. No se puede activar el escuchador.';
+
+  @override
+  String fromApp(String appName) {
+    return 'Desde $appName';
+  }
 }
