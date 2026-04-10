@@ -207,6 +207,13 @@ class _SettingsScreenState extends State<SettingsScreen> with WidgetsBindingObse
   }
 
   Future<void> _toggleNotificationListener(bool value) async {
+    // Save preference first, regardless of permission state
+    await SharedPreferencesService().setBoolValue(
+      SharedPreferencesKeys.notificationListenerEnabled,
+      value,
+    );
+    setState(() => _notificationListenerEnabled = value);
+
     if (value) {
       final hasPermission =
           await NotificationCaptureService().isPermissionGranted();
@@ -230,34 +237,24 @@ class _SettingsScreenState extends State<SettingsScreen> with WidgetsBindingObse
             ],
           ),
         );
-        if (shouldProceed != true) return;
 
-        await NotificationCaptureService().requestPermission();
-        // Re-check after returning from system settings
-        // Small delay to let the system settings close properly
-        await Future.delayed(const Duration(milliseconds: 500));
-        final granted =
-            await NotificationCaptureService().isPermissionGranted();
-        if (!granted) {
-          if (mounted) {
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(
-                content: Text(AppLocalizations.of(context)!.notificationListenerPermissionDenied),
-                behavior: SnackBarBehavior.floating,
-              ),
-            );
-          }
+        if (shouldProceed != true) {
+          // User cancelled — revert preference
+          await SharedPreferencesService().setBoolValue(
+            SharedPreferencesKeys.notificationListenerEnabled,
+            false,
+          );
+          setState(() => _notificationListenerEnabled = false);
           return;
         }
-        setState(() => _notificationPermissionGranted = true);
+
+        // Open system settings and gracefully close the app.
+        // Android kills the process when NotificationListenerService permission
+        // is toggled. By finishing the activity first, we avoid the "app has
+        // stopped" crash dialog. The preference is already saved above.
+        NotificationCaptureService().openNotificationSettingsAndFinish();
       }
     }
-
-    await SharedPreferencesService().setBoolValue(
-      SharedPreferencesKeys.notificationListenerEnabled,
-      value,
-    );
-    setState(() => _notificationListenerEnabled = value);
     // The native Kotlin service (TransactionNotificationListener) runs
     // independently — Android manages its lifecycle. The permission toggle
     // in system settings is what actually enables/disables the listener.
@@ -363,9 +360,9 @@ class _SettingsScreenState extends State<SettingsScreen> with WidgetsBindingObse
             if (_notificationListenerEnabled && !_notificationPermissionGranted) ...[
               const SizedBox(height: 12),
               ElevatedButton.icon(
-                onPressed: () async {
-                  await NotificationCaptureService().requestPermission();
-                  await _loadNotificationSettings();
+                onPressed: () {
+                  // Opens system settings and gracefully closes the app
+                  NotificationCaptureService().openNotificationSettingsAndFinish();
                 },
                 icon: const Icon(Icons.settings),
                 label: Text(AppLocalizations.of(context)!.notificationListenerGrantPermission),
