@@ -3,7 +3,6 @@ import 'package:cashly/data/services/auth_service.dart';
 import 'package:cashly/data/services/gemini_service.dart';
 import 'package:cashly/data/services/groq_serice.dart';
 import 'package:cashly/data/services/locale_service.dart';
-import 'package:cashly/data/services/notification_capture_service.dart';
 import 'package:cashly/modules/auth/screens/auth_screen.dart';
 import 'package:cashly/data/services/log_file_service.dart';
 import 'package:cashly/modules/gastoscopio/widgets/loading.dart';
@@ -29,9 +28,6 @@ void main() async {
 
   // Inicializar servicio de localización
   await LocaleService().initialize();
-
-  // Inicializar servicio de escucha de notificaciones
-  await NotificationCaptureService().initialize();
 
   runApp(const MyApp());
 }

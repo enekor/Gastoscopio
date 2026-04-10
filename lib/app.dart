@@ -1,3 +1,4 @@
+import 'package:cashly/data/services/notification_capture_service.dart';
 import 'package:cashly/data/services/sqlite_service.dart';
 import 'package:cashly/modules/gastoscopio/logic/finance_service.dart';
 import 'package:cashly/data/services/log_file_service.dart';
@@ -17,6 +18,7 @@ class _AppState extends State<App> with WidgetsBindingObserver {
   late Future<bool> _initializationFuture;
   bool _isInForeground = true;
   bool _hasPendingNotifications = false;
+  bool _initialized = false;
 
   @override
   void initState() {
@@ -31,28 +33,32 @@ class _AppState extends State<App> with WidgetsBindingObserver {
     super.dispose();
   }
 
-  // @override
-  // void didChangeAppLifecycleState(AppLifecycleState state) {
-  //   switch (state) {
-  //     case AppLifecycleState.resumed:
-  //       if (!_isInForeground) {
-  //         _isInForeground = true;
-  //         // Verificar recordatorio de backup cuando la app vuelve al foreground
-  //         WidgetsBinding.instance.addPostFrameCallback((_) {
-  //           if (mounted) {
-  //             BackupReminderService.checkAndShowBackupReminder(context);
-  //           }
-  //         });
-  //       }
-  //       break;
-  //     case AppLifecycleState.inactive:
-  //     case AppLifecycleState.paused:
-  //     case AppLifecycleState.detached:
-  //     case AppLifecycleState.hidden:
-  //       _isInForeground = false;
-  //       break;
-  //   }
-  // }
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state == AppLifecycleState.resumed && _initialized) {
+      // Re-check pending notifications every time the app comes back to foreground
+      _checkPendingNotifications();
+    }
+  }
+
+  Future<void> _checkPendingNotifications() async {
+    try {
+      final pendingCount = await SqliteService()
+              .db
+              .pendingNotificationMovementDao
+              .countAll() ??
+          0;
+      if (mounted && pendingCount > 0 && !_hasPendingNotifications) {
+        setState(() {
+          _hasPendingNotifications = true;
+        });
+      }
+    } catch (e) {
+      LogFileService().appendLog(
+        'Error checking pending notifications: $e',
+      );
+    }
+  }
 
   Future<bool> init() async {
     try {
@@ -66,7 +72,10 @@ class _AppState extends State<App> with WidgetsBindingObserver {
         SqliteService().db.fixedMovementDao,
       );
 
-      // Paso 4: Comprobar notificaciones pendientes
+      // Paso 4: Inicializar listener de notificaciones (después de la DB)
+      await NotificationCaptureService().initialize();
+
+      // Paso 5: Comprobar notificaciones pendientes
       final pendingCount = await SqliteService()
               .db
               .pendingNotificationMovementDao
@@ -74,11 +83,12 @@ class _AppState extends State<App> with WidgetsBindingObserver {
           0;
       _hasPendingNotifications = pendingCount > 0;
 
+      _initialized = true;
       return true;
     } catch (e) {
       LogFileService().appendLog(
         'Error durante la inicialización: $e',
-      ); // Volver a la pantalla de onboarding en caso de error
+      );
       return false;
     }
   }
