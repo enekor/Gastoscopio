@@ -1309,6 +1309,8 @@
   "notificationListenerGrantPermission": "Conceder permiso",
   "notificationListenerPermissionExplanation": "Para detectar transacciones automáticamente, la app necesita acceso a tus notificaciones. Se te redirigirá a los Ajustes de Android donde debes activar el acceso a notificaciones para Gastoscopio. Solo se procesarán notificaciones que contengan símbolos de moneda (€, $).",
   "notificationListenerPermissionDenied": "No se ha concedido acceso a las notificaciones. No se puede activar el escuchador.",
+  "notificationBannerTitle": "Detecta gastos automáticamente",
+  "notificationBannerSubtitle": "Activa la escucha de notificaciones para capturar tus gastos bancarios sin esfuerzo.",
   "fromApp": "Desde {appName}",
   "@fromApp": {
     "placeholders": {

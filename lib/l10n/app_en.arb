@@ -375,6 +375,8 @@
   "notificationListenerGrantPermission": "Grant permission",
   "notificationListenerPermissionExplanation": "To detect transactions automatically, the app needs access to your notifications. You will be redirected to Android Settings where you need to enable notification access for Gastoscopio. Only notifications containing currency symbols (€, $) will be processed.",
   "notificationListenerPermissionDenied": "Notification access was not granted. The listener cannot be activated.",
+  "notificationBannerTitle": "Detect expenses automatically",
+  "notificationBannerSubtitle": "Enable notification listening to capture your bank transactions effortlessly.",
   "fromApp": "From {appName}",
   "@fromApp": {
     "placeholders": {

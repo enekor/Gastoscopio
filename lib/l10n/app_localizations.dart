@@ -2294,6 +2294,18 @@ abstract class AppLocalizations {
   /// **'No se ha concedido acceso a las notificaciones. No se puede activar el escuchador.'**
   String get notificationListenerPermissionDenied;
 
+  /// No description provided for @notificationBannerTitle.
+  ///
+  /// In es, this message translates to:
+  /// **'Detecta gastos automáticamente'**
+  String get notificationBannerTitle;
+
+  /// No description provided for @notificationBannerSubtitle.
+  ///
+  /// In es, this message translates to:
+  /// **'Activa la escucha de notificaciones para capturar tus gastos bancarios sin esfuerzo.'**
+  String get notificationBannerSubtitle;
+
   /// No description provided for @fromApp.
   ///
   /// In es, this message translates to:

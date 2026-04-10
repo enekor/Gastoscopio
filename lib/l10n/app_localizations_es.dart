@@ -1217,6 +1217,13 @@ class AppLocalizationsEs extends AppLocalizations {
       'No se ha concedido acceso a las notificaciones. No se puede activar el escuchador.';
 
   @override
+  String get notificationBannerTitle => 'Detecta gastos automáticamente';
+
+  @override
+  String get notificationBannerSubtitle =>
+      'Activa la escucha de notificaciones para capturar tus gastos bancarios sin esfuerzo.';
+
+  @override
   String fromApp(String appName) {
     return 'Desde $appName';
   }

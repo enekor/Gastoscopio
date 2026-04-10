@@ -17,7 +17,11 @@ class NotificationCaptureService {
   NotificationCaptureService._internal();
 
   StreamSubscription<ServiceNotificationEvent>? _subscription;
+  bool _isListening = false;
 
+  bool get isListening => _isListening;
+
+  // Matches: €12.50, 12,50€, $100, 100$, € 12.50, 12.50 €, etc.
   static final RegExp _currencyRegex = RegExp(
     r'(?:[\$\u20AC]\s?)(\d+(?:[.,]\d{1,2})?)|(\d+(?:[.,]\d{1,2})?)\s?(?:[\$\u20AC])',
   );
@@ -33,10 +37,20 @@ class NotificationCaptureService {
   Future<void> initialize() async {
     final enabled = await SharedPreferencesService()
         .getBoolValue(SharedPreferencesKeys.notificationListenerEnabled);
-    if (enabled != true) return;
+    if (enabled != true) {
+      LogFileService().appendLog(
+        'NotificationCapture: not enabled in preferences, skipping',
+      );
+      return;
+    }
 
     final hasPermission = await isPermissionGranted();
-    if (!hasPermission) return;
+    if (!hasPermission) {
+      LogFileService().appendLog(
+        'NotificationCapture: permission not granted, skipping',
+      );
+      return;
+    }
 
     _startListening();
   }
@@ -45,12 +59,21 @@ class NotificationCaptureService {
     _subscription?.cancel();
     _subscription = NotificationListenerService.notificationsStream.listen(
       _onNotificationReceived,
+      onError: (error) {
+        LogFileService().appendLog(
+          'NotificationCapture: stream error: $error',
+        );
+      },
     );
+    _isListening = true;
+    LogFileService().appendLog('NotificationCapture: listening started');
   }
 
   void stop() {
     _subscription?.cancel();
     _subscription = null;
+    _isListening = false;
+    LogFileService().appendLog('NotificationCapture: listening stopped');
   }
 
   Future<void> _onNotificationReceived(ServiceNotificationEvent event) async {
@@ -60,18 +83,31 @@ class NotificationCaptureService {
       final fullText = '$title $content'.trim();
       final appName = event.packageName ?? 'Unknown';
 
-      if (!fullText.contains('\$') &&
-          !fullText.contains('\u20AC') &&
-          !fullText.contains('€')) {
+      LogFileService().appendLog(
+        'NotificationCapture: received from $appName: "$fullText"',
+      );
+
+      // Check for currency symbols: $ (U+0024) or € (U+20AC)
+      final hasCurrency =
+          fullText.contains('\u0024') || fullText.contains('\u20AC');
+      if (!hasCurrency) return;
+
+      final amount = _extractAmount(fullText);
+      if (amount == null || amount <= 0) {
+        LogFileService().appendLog(
+          'NotificationCapture: currency symbol found but no valid amount extracted',
+        );
         return;
       }
 
-      final amount = _extractAmount(fullText);
-      if (amount == null || amount <= 0) return;
-
+      LogFileService().appendLog(
+        'NotificationCapture: extracted amount $amount, saving...',
+      );
       await _insertPendingMovement(fullText, appName, amount);
     } catch (e) {
-      LogFileService().appendLog('Error processing notification: $e');
+      LogFileService().appendLog(
+        'NotificationCapture: error processing notification: $e',
+      );
     }
   }
 
@@ -109,7 +145,12 @@ class NotificationCaptureService {
         [text, appName, oneMinuteAgo.toIso8601String()],
       );
       final count = (duplicates.first['cnt'] as int?) ?? 0;
-      if (count > 0) return;
+      if (count > 0) {
+        LogFileService().appendLog(
+          'NotificationCapture: duplicate detected, skipping',
+        );
+        return;
+      }
 
       await db.insert('PendingNotificationMovement', {
         'notificationText': text,
@@ -117,6 +158,9 @@ class NotificationCaptureService {
         'extractedAmount': amount,
         'timestamp': now.toIso8601String(),
       });
+      LogFileService().appendLog(
+        'NotificationCapture: saved pending movement ($amount)',
+      );
     } finally {
       await db.close();
     }

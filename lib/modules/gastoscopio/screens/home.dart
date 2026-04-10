@@ -15,6 +15,7 @@ import 'package:cashly/data/models/movement_value.dart';
 import 'package:cashly/common/tag_list.dart';
 import 'package:cashly/modules/settings.dart/settings.dart';
 import 'package:cashly/modules/saves/home_saves.dart';
+import 'package:cashly/data/services/notification_capture_service.dart';
 import 'package:flutter/material.dart';
 import 'package:cashly/l10n/app_localizations.dart';
 
@@ -45,6 +46,7 @@ class _GastoscopioHomeScreenState extends State<GastoscopioHomeScreen> {
   final CarouselSliderController _carouselController =
       CarouselSliderController();
   bool _showIaBanner = false;
+  bool _showNotificationBanner = false;
   String? _backgroundImagePath;
 
   @override
@@ -86,6 +88,13 @@ class _GastoscopioHomeScreenState extends State<GastoscopioHomeScreen> {
         .then((path) {
           setState(() {
             _backgroundImagePath = path;
+          });
+        });
+    SharedPreferencesService()
+        .getBoolValue(SharedPreferencesKeys.notificationListenerEnabled)
+        .then((enabled) {
+          setState(() {
+            _showNotificationBanner = enabled != true;
           });
         });
   }
@@ -170,6 +179,10 @@ class _GastoscopioHomeScreenState extends State<GastoscopioHomeScreen> {
               _buildHeader(hasBackground),
               const SizedBox(height: 20),
               _buildModernBalanceCard(primaryColor, secondaryColor),
+              if (_showNotificationBanner) ...[
+                const SizedBox(height: 16),
+                _buildNotificationReminderBanner(),
+              ],
               const SizedBox(height: 24),
               Text(
                 AppLocalizations.of(context)!.quickActions,
@@ -429,6 +442,87 @@ class _GastoscopioHomeScreenState extends State<GastoscopioHomeScreen> {
         const SizedBox(height: 4),
         Text('${amount.abs().toStringAsFixed(0)}$_moneda', style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 18)),
       ],
+    );
+  }
+
+  Widget _buildNotificationReminderBanner() {
+    final theme = Theme.of(context);
+    return Container(
+      padding: const EdgeInsets.all(14),
+      decoration: BoxDecoration(
+        color: theme.colorScheme.tertiaryContainer.withAlpha(120),
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(
+          color: theme.colorScheme.tertiary.withAlpha(60),
+        ),
+      ),
+      child: Row(
+        children: [
+          Icon(
+            Icons.notifications_active_outlined,
+            color: theme.colorScheme.tertiary,
+            size: 28,
+          ),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  AppLocalizations.of(context)!.notificationBannerTitle,
+                  style: theme.textTheme.titleSmall?.copyWith(
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                const SizedBox(height: 2),
+                Text(
+                  AppLocalizations.of(context)!.notificationBannerSubtitle,
+                  style: theme.textTheme.bodySmall?.copyWith(
+                    color: theme.colorScheme.onSurfaceVariant,
+                  ),
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(width: 8),
+          IconButton(
+            icon: Icon(
+              Icons.arrow_forward_ios_rounded,
+              size: 18,
+              color: theme.colorScheme.tertiary,
+            ),
+            onPressed: () async {
+              await Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => const SettingsScreen(),
+                ),
+              );
+              // Refresh banner state when returning from settings
+              final enabled = await SharedPreferencesService()
+                  .getBoolValue(SharedPreferencesKeys.notificationListenerEnabled);
+              if (mounted) {
+                setState(() {
+                  _showNotificationBanner = enabled != true;
+                });
+              }
+            },
+          ),
+          IconButton(
+            icon: Icon(
+              Icons.close,
+              size: 18,
+              color: theme.colorScheme.onSurfaceVariant,
+            ),
+            visualDensity: VisualDensity.compact,
+            onPressed: () {
+              setState(() {
+                _showNotificationBanner = false;
+              });
+            },
+          ),
+        ],
+      ),
     );
   }
 

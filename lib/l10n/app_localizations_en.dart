@@ -1200,6 +1200,13 @@ class AppLocalizationsEn extends AppLocalizations {
       'Notification access was not granted. The listener cannot be activated.';
 
   @override
+  String get notificationBannerTitle => 'Detect expenses automatically';
+
+  @override
+  String get notificationBannerSubtitle =>
+      'Enable notification listening to capture your bank transactions effortlessly.';
+
+  @override
   String fromApp(String appName) {
     return 'From $appName';
   }
