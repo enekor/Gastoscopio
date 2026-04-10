@@ -72,8 +72,8 @@ class _AppState extends State<App> with WidgetsBindingObserver {
         SqliteService().db.fixedMovementDao,
       );
 
-      // Paso 4: Inicializar listener de notificaciones (después de la DB)
-      await NotificationCaptureService().initialize();
+      // Paso 4: Log del estado del listener nativo (debug)
+      await NotificationCaptureService().logStatus();
 
       // Paso 5: Comprobar notificaciones pendientes
       final pendingCount = await SqliteService()

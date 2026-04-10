@@ -258,12 +258,9 @@ class _SettingsScreenState extends State<SettingsScreen> with WidgetsBindingObse
       value,
     );
     setState(() => _notificationListenerEnabled = value);
-
-    if (value) {
-      await NotificationCaptureService().initialize();
-    } else {
-      NotificationCaptureService().stop();
-    }
+    // The native Kotlin service (TransactionNotificationListener) runs
+    // independently — Android manages its lifecycle. The permission toggle
+    // in system settings is what actually enables/disables the listener.
   }
 
   @override
