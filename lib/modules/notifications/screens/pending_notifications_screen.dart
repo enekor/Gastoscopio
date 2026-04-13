@@ -194,24 +194,50 @@ class _PendingNotificationsScreenState
     final theme = Theme.of(context);
 
     if (_isLoading) {
-      return Scaffold(body: Center(child: Loading(context)));
+      return Scaffold(
+        body: SafeArea(child: Center(child: Loading(context))),
+      );
     }
 
     return Scaffold(
-      appBar: AppBar(
-        title: Text(localizations.pendingNotifications),
-        automaticallyImplyLeading: false,
-        actions: [
-          TextButton(
-            onPressed: _isSaving ? null : _dismissAll,
-            child: Text(
-              localizations.dismissAll,
-              style: TextStyle(color: theme.colorScheme.error),
+      body: SafeArea(
+        bottom: false,
+        child: Column(
+          children: [
+            // Custom top bar (respects status bar via SafeArea)
+            Padding(
+              padding: const EdgeInsets.fromLTRB(16, 8, 8, 8),
+              child: Row(
+                children: [
+                  Expanded(
+                    child: Text(
+                      localizations.pendingNotifications,
+                      style: theme.textTheme.titleLarge?.copyWith(
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ),
+                  TextButton(
+                    onPressed: _isSaving ? null : _dismissAll,
+                    child: Text(
+                      localizations.dismissAll,
+                      style: TextStyle(color: theme.colorScheme.error),
+                    ),
+                  ),
+                ],
+              ),
             ),
-          ),
-        ],
+            Expanded(
+              child: _buildContent(theme, localizations),
+            ),
+          ],
+        ),
       ),
-      body: Column(
+    );
+  }
+
+  Widget _buildContent(ThemeData theme, AppLocalizations localizations) {
+    return Column(
         children: [
           // Info banner
           Container(
@@ -294,7 +320,6 @@ class _PendingNotificationsScreenState
             ),
           ),
         ],
-      ),
     );
   }
 }
