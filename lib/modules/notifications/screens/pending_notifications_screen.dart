@@ -55,8 +55,9 @@ class _PendingNotificationsScreenState
                 originalText: p.notificationText,
                 appName: p.appName,
                 timestamp: p.timestamp,
-                descriptionController:
-                    TextEditingController(text: p.notificationText),
+                descriptionController: TextEditingController(
+                  text: p.notificationText,
+                ),
                 amountController: TextEditingController(
                   text: p.extractedAmount.toStringAsFixed(2),
                 ),
@@ -93,8 +94,9 @@ class _PendingNotificationsScreenState
         setState(() => _savingCurrent = i + 1);
 
         final m = _movements[i];
-        final amount =
-            double.parse(m.amountController.text.replaceAll(',', '.'));
+        final amount = double.parse(
+          m.amountController.text.replaceAll(',', '.'),
+        );
         final date = DateTime.tryParse(m.timestamp) ?? DateTime.now();
 
         // Get or create month
@@ -112,10 +114,7 @@ class _PendingNotificationsScreenState
                 m.isExpense,
                 context,
               )
-              .timeout(
-                const Duration(seconds: 10),
-                onTimeout: () => '',
-              );
+              .timeout(const Duration(seconds: 10), onTimeout: () => '');
           if (category.isEmpty) category = '';
         } catch (e) {
           category = '';
@@ -195,83 +194,49 @@ class _PendingNotificationsScreenState
 
     if (_isLoading) {
       return Scaffold(
-        body: SafeArea(child: Center(child: Loading(context))),
+        appBar: AppBar(),
+        body: Center(child: Loading(context)),
       );
     }
 
     return Scaffold(
-      body: SafeArea(
-        bottom: false,
-        child: Column(
-          children: [
-            // Custom top bar (respects status bar via SafeArea)
-            Padding(
-              padding: const EdgeInsets.fromLTRB(16, 8, 8, 8),
-              child: Row(
-                children: [
-                  Expanded(
-                    child: Text(
-                      localizations.pendingNotifications,
-                      style: theme.textTheme.titleLarge?.copyWith(
-                        fontWeight: FontWeight.bold,
+      body: Form(
+        key: _formKey,
+        child: CustomScrollView(
+          slivers: [
+            SliverAppBar(automaticallyImplyLeading: false),
+            SliverToBoxAdapter(
+              child: Container(
+                width: double.infinity,
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 24,
+                  vertical: 12,
+                ),
+                color: theme.colorScheme.primaryContainer.withAlpha(80),
+                child: Row(
+                  children: [
+                    Icon(
+                      Icons.notifications_active_outlined,
+                      color: theme.colorScheme.primary,
+                      size: 20,
+                    ),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: Text(
+                        localizations.pendingNotificationsDescription,
+                        style: theme.textTheme.bodySmall?.copyWith(
+                          color: theme.colorScheme.onPrimaryContainer,
+                        ),
                       ),
                     ),
-                  ),
-                  TextButton(
-                    onPressed: _isSaving ? null : _dismissAll,
-                    child: Text(
-                      localizations.dismissAll,
-                      style: TextStyle(color: theme.colorScheme.error),
-                    ),
-                  ),
-                ],
+                  ],
+                ),
               ),
             ),
-            Expanded(
-              child: _buildContent(theme, localizations),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildContent(ThemeData theme, AppLocalizations localizations) {
-    return Column(
-        children: [
-          // Info banner
-          Container(
-            width: double.infinity,
-            padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
-            color: theme.colorScheme.primaryContainer.withAlpha(80),
-            child: Row(
-              children: [
-                Icon(
-                  Icons.notifications_active_outlined,
-                  color: theme.colorScheme.primary,
-                  size: 20,
-                ),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: Text(
-                    localizations.pendingNotificationsDescription,
-                    style: theme.textTheme.bodySmall?.copyWith(
-                      color: theme.colorScheme.onPrimaryContainer,
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          ),
-
-          // List
-          Expanded(
-            child: Form(
-              key: _formKey,
-              child: ListView.builder(
-                padding: const EdgeInsets.all(16),
-                itemCount: _movements.length,
-                itemBuilder: (context, index) {
+            SliverPadding(
+              padding: const EdgeInsets.all(16),
+              sliver: SliverList(
+                delegate: SliverChildBuilderDelegate((context, index) {
                   return Padding(
                     padding: const EdgeInsets.only(bottom: 12),
                     child: PendingMovementCard(
@@ -284,42 +249,38 @@ class _PendingNotificationsScreenState
                       },
                     ),
                   );
-                },
+                }, childCount: _movements.length),
+              ),
+            ),
+          ],
+        ),
+      ),
+      bottomNavigationBar: SafeArea(
+        child: Padding(
+          padding: const EdgeInsets.all(16),
+          child: SizedBox(
+            width: double.infinity,
+            child: FilledButton.icon(
+              onPressed: _isSaving ? null : _saveAll,
+              icon: _isSaving
+                  ? const SizedBox(
+                      width: 16,
+                      height: 16,
+                      child: CircularProgressIndicator(
+                        strokeWidth: 2,
+                        color: Colors.white,
+                      ),
+                    )
+                  : const Icon(Icons.check),
+              label: Text(
+                _isSaving
+                    ? localizations.savingProgress(_savingCurrent, _savingTotal)
+                    : localizations.saveAll,
               ),
             ),
           ),
-
-          // Save button
-          SafeArea(
-            child: Padding(
-              padding: const EdgeInsets.all(16),
-              child: SizedBox(
-                width: double.infinity,
-                child: FilledButton.icon(
-                  onPressed: _isSaving ? null : _saveAll,
-                  icon: _isSaving
-                      ? const SizedBox(
-                          width: 16,
-                          height: 16,
-                          child: CircularProgressIndicator(
-                            strokeWidth: 2,
-                            color: Colors.white,
-                          ),
-                        )
-                      : const Icon(Icons.check),
-                  label: Text(
-                    _isSaving
-                        ? localizations.savingProgress(
-                            _savingCurrent,
-                            _savingTotal,
-                          )
-                        : localizations.saveAll,
-                  ),
-                ),
-              ),
-            ),
-          ),
-        ],
+        ),
+      ),
     );
   }
 }
