@@ -162,6 +162,72 @@ class GroqService {
     return response;
   }
 
+  /// Parses a notification text and extracts a transaction.
+  /// Returns a map with keys: 'title' (String), 'amount' (double), 'isExpense' (bool).
+  /// Returns null if parsing fails or the notification doesn't describe a transaction.
+  Future<Map<String, dynamic>?> parseNotificationTransaction(
+    String notificationText,
+    String appName,
+    double fallbackAmount,
+    BuildContext context,
+  ) async {
+    final locale = AppLocalizations.of(context).localeName;
+    final language = locale == 'es' ? 'español' : 'english';
+
+    final prompt =
+        'Analiza el siguiente texto de una notificación de la app "$appName" y extrae los datos '
+        'de la transacción financiera que describe. Responde ÚNICAMENTE con un objeto JSON válido, '
+        'sin markdown, sin explicaciones, sin bloques de código. El JSON debe tener exactamente estas claves:\n'
+        '- "title": string corto y descriptivo en $language (máximo 40 caracteres, ej: "Compra en Mercadona", "Nómina", "Pago Netflix")\n'
+        '- "amount": number con el importe positivo (ej: 15.50)\n'
+        '- "isExpense": boolean (true si es gasto, false si es ingreso)\n\n'
+        'Si no puedes determinar si es gasto o ingreso, asume que es gasto (true). '
+        'Si no puedes extraer el importe claramente, usa $fallbackAmount.\n\n'
+        'Texto de la notificación: "$notificationText"';
+
+    String response = await _generateContent(prompt, context: context);
+
+    try {
+      // Clean possible markdown code fences
+      response = response.trim();
+      response = response.replaceAll('```json', '').replaceAll('```', '').trim();
+
+      // Extract JSON substring (in case the model adds extra text)
+      final start = response.indexOf('{');
+      final end = response.lastIndexOf('}');
+      if (start == -1 || end == -1 || end <= start) {
+        await LogFileService().appendLog(
+          'parseNotificationTransaction: no JSON in response: $response',
+        );
+        return null;
+      }
+      final jsonStr = response.substring(start, end + 1);
+      final parsed = jsonDecode(jsonStr) as Map<String, dynamic>;
+
+      final title = (parsed['title'] ?? '').toString().trim();
+      final amountRaw = parsed['amount'];
+      final isExpense = parsed['isExpense'] == true;
+
+      double amount = fallbackAmount;
+      if (amountRaw is num) {
+        amount = amountRaw.toDouble();
+      } else if (amountRaw is String) {
+        amount = double.tryParse(amountRaw.replaceAll(',', '.')) ?? fallbackAmount;
+      }
+
+      return {
+        'title': title.isEmpty ? notificationText : title,
+        'amount': amount.abs(),
+        'isExpense': isExpense,
+      };
+    } catch (e) {
+      await LogFileService().appendLog(
+        'parseNotificationTransaction: parse error $e — response: $response',
+      );
+      return null;
+    }
+  }
+
   Future<List<String>> generateTags(String names, BuildContext context) async {
     final locale = AppLocalizations.of(context).localeName;
     final tagList = getTagList(locale);

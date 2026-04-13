@@ -27,6 +27,9 @@ class _PendingNotificationsScreenState
   bool _isSaving = false;
   int _savingCurrent = 0;
   int _savingTotal = 0;
+  bool _isAiProcessing = false;
+  int _aiProcessingCurrent = 0;
+  int _aiProcessingTotal = 0;
 
   @override
   void initState() {
@@ -66,9 +69,57 @@ class _PendingNotificationsScreenState
             .toList();
         _isLoading = false;
       });
+
+      // Run AI parsing in background to populate proper titles/amounts/types
+      if (_movements.isNotEmpty && mounted) {
+        _runAiParsing(pending.map((p) => p.extractedAmount).toList());
+      }
     } catch (e) {
       LogFileService().appendLog('Error loading pending notifications: $e');
       setState(() => _isLoading = false);
+    }
+  }
+
+  Future<void> _runAiParsing(List<double> fallbackAmounts) async {
+    if (!mounted) return;
+    setState(() {
+      _isAiProcessing = true;
+      _aiProcessingTotal = _movements.length;
+      _aiProcessingCurrent = 0;
+    });
+
+    for (int i = 0; i < _movements.length; i++) {
+      if (!mounted) return;
+      final m = _movements[i];
+      setState(() => _aiProcessingCurrent = i + 1);
+
+      try {
+        final result = await GroqService().parseNotificationTransaction(
+          m.originalText,
+          m.appName,
+          fallbackAmounts[i],
+          context,
+        );
+        if (!mounted) return;
+        if (result != null) {
+          setState(() {
+            final title = result['title'] as String;
+            final amount = result['amount'] as double;
+            final isExpense = result['isExpense'] as bool;
+            m.descriptionController.text = title;
+            m.amountController.text = amount.toStringAsFixed(2);
+            m.isExpense = isExpense;
+          });
+        }
+      } catch (e) {
+        LogFileService().appendLog(
+          'AI parsing failed for notification ${m.id}: $e',
+        );
+      }
+    }
+
+    if (mounted) {
+      setState(() => _isAiProcessing = false);
     }
   }
 
@@ -215,15 +266,30 @@ class _PendingNotificationsScreenState
                 color: theme.colorScheme.primaryContainer.withAlpha(80),
                 child: Row(
                   children: [
-                    Icon(
-                      Icons.notifications_active_outlined,
-                      color: theme.colorScheme.primary,
-                      size: 20,
-                    ),
+                    if (_isAiProcessing)
+                      SizedBox(
+                        width: 20,
+                        height: 20,
+                        child: CircularProgressIndicator(
+                          strokeWidth: 2,
+                          color: theme.colorScheme.primary,
+                        ),
+                      )
+                    else
+                      Icon(
+                        Icons.notifications_active_outlined,
+                        color: theme.colorScheme.primary,
+                        size: 20,
+                      ),
                     const SizedBox(width: 12),
                     Expanded(
                       child: Text(
-                        localizations.pendingNotificationsDescription,
+                        _isAiProcessing
+                            ? localizations.savingProgress(
+                                _aiProcessingCurrent,
+                                _aiProcessingTotal,
+                              )
+                            : localizations.pendingNotificationsDescription,
                         style: theme.textTheme.bodySmall?.copyWith(
                           color: theme.colorScheme.onPrimaryContainer,
                         ),
