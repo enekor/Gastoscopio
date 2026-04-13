@@ -41,7 +41,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
 
     setState(() {
       _pages = [
-        ApiKeySetupScreen(onApiKeySet: _handleNext),
+        // ApiKeySetupScreen(onApiKeySet: _handleNext),
         GoogleLoginScreen(onLoginOk: _checkExistingBackup),
       ];
     });
@@ -105,10 +105,9 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                       width: 8,
                       decoration: BoxDecoration(
                         shape: BoxShape.circle,
-                        color:
-                            _currentPage == index
-                                ? Theme.of(context).primaryColor
-                                : Colors.grey,
+                        color: _currentPage == index
+                            ? Theme.of(context).primaryColor
+                            : Colors.grey,
                       ),
                     ),
                   ),
@@ -116,10 +115,9 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                 Text(
                   _statusMessage,
                   style: TextStyle(
-                    color:
-                        _statusMessage.isEmpty
-                            ? Colors.transparent
-                            : Colors.red,
+                    color: _statusMessage.isEmpty
+                        ? Colors.transparent
+                        : Colors.red,
                   ),
                 ),
               ],
