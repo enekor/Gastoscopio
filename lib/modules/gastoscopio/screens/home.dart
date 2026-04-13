@@ -16,6 +16,7 @@ import 'package:cashly/common/tag_list.dart';
 import 'package:cashly/modules/settings.dart/settings.dart';
 import 'package:cashly/modules/saves/home_saves.dart';
 import 'package:cashly/data/services/notification_capture_service.dart';
+import 'package:cashly/modules/notifications/screens/pending_notifications_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:cashly/l10n/app_localizations.dart';
 
@@ -34,7 +35,9 @@ class GastoscopioHomeScreen extends StatefulWidget {
   State<GastoscopioHomeScreen> createState() => _GastoscopioHomeScreenState();
 }
 
-class _GastoscopioHomeScreenState extends State<GastoscopioHomeScreen> {
+class _GastoscopioHomeScreenState extends State<GastoscopioHomeScreen>
+    with WidgetsBindingObserver {
+  bool _isCheckingPending = false;
   String _greetingTitle = '';
   String _greetingSubtitle = '';
   bool _isSvg = false;
@@ -52,7 +55,11 @@ class _GastoscopioHomeScreenState extends State<GastoscopioHomeScreen> {
   @override
   void initState() {
     super.initState();
+    WidgetsBinding.instance.addObserver(this);
     _loadInitialData();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _checkPendingNotifications();
+    });
     SharedPreferencesService()
         .getStringValue(SharedPreferencesKeys.currency)
         .then(
@@ -111,6 +118,49 @@ class _GastoscopioHomeScreenState extends State<GastoscopioHomeScreen> {
   void didChangeDependencies() {
     super.didChangeDependencies();
     _updateGreeting();
+  }
+
+  @override
+  void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
+    super.dispose();
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state == AppLifecycleState.resumed) {
+      _checkPendingNotifications();
+    }
+  }
+
+  Future<void> _checkPendingNotifications() async {
+    if (_isCheckingPending) return;
+    _isCheckingPending = true;
+    try {
+      final pendingCount = await SqliteService()
+              .db
+              .pendingNotificationMovementDao
+              .countAll() ??
+          0;
+      if (!mounted || pendingCount == 0) return;
+      await Navigator.of(context).push(
+        MaterialPageRoute(
+          builder: (context) => PendingNotificationsScreen(
+            onComplete: () {
+              if (Navigator.of(context).canPop()) {
+                Navigator.of(context).pop();
+              }
+            },
+          ),
+        ),
+      );
+    } catch (e) {
+      LogFileService().appendLog(
+        'Error checking pending notifications in home: $e',
+      );
+    } finally {
+      _isCheckingPending = false;
+    }
   }
 
   Future<void> _loadInitialData() async {
