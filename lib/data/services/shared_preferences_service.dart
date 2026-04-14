@@ -90,7 +90,8 @@ enum SharedPreferencesKeys {
   selectedLanguage('selected_language'),
   backgroundImage('background_image'),
   savingGoal('saving_goal'),
-  notificationListenerEnabled('notification_listener_enabled');
+  notificationListenerEnabled('notification_listener_enabled'),
+  googleWalletNotificationsEnabled('google_wallet_notifications_enabled');
 
   final String value;
   const SharedPreferencesKeys(this.value);

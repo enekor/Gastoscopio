@@ -377,6 +377,8 @@
   "notificationListenerPermissionDenied": "Notification access was not granted. The listener cannot be activated.",
   "notificationBannerTitle": "Detect expenses automatically",
   "notificationBannerSubtitle": "Enable notification listening to capture your bank transactions effortlessly.",
+  "googleWalletNotifications": "Google Wallet notifications",
+  "googleWalletNotificationsDescription": "Include Google Wallet notifications. Enable if your bank doesn't send its own payment notifications.",
   "fromApp": "From {appName}",
   "@fromApp": {
     "placeholders": {

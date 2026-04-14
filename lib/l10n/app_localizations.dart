@@ -2306,6 +2306,18 @@ abstract class AppLocalizations {
   /// **'Activa la escucha de notificaciones para capturar tus gastos bancarios sin esfuerzo.'**
   String get notificationBannerSubtitle;
 
+  /// No description provided for @googleWalletNotifications.
+  ///
+  /// In es, this message translates to:
+  /// **'Notificaciones de Google Wallet'**
+  String get googleWalletNotifications;
+
+  /// No description provided for @googleWalletNotificationsDescription.
+  ///
+  /// In es, this message translates to:
+  /// **'Incluir notificaciones de Google Wallet. Actívalo si tu banco no envía notificaciones propias de pagos.'**
+  String get googleWalletNotificationsDescription;
+
   /// No description provided for @fromApp.
   ///
   /// In es, this message translates to:

@@ -37,6 +37,7 @@ class _SettingsScreenState extends State<SettingsScreen> with WidgetsBindingObse
   String? _backgroundImagePath;
   bool _notificationListenerEnabled = false;
   bool _notificationPermissionGranted = false;
+  bool _googleWalletEnabled = false;
 
   @override
   void initState() {
@@ -198,10 +199,13 @@ class _SettingsScreenState extends State<SettingsScreen> with WidgetsBindingObse
     final enabled = await SharedPreferencesService()
         .getBoolValue(SharedPreferencesKeys.notificationListenerEnabled);
     final permission = await NotificationCaptureService().isPermissionGranted();
+    final walletEnabled = await SharedPreferencesService()
+        .getBoolValue(SharedPreferencesKeys.googleWalletNotificationsEnabled);
     if (mounted) {
       setState(() {
         _notificationListenerEnabled = enabled ?? false;
         _notificationPermissionGranted = permission;
+        _googleWalletEnabled = walletEnabled ?? false;
       });
     }
   }
@@ -366,6 +370,32 @@ class _SettingsScreenState extends State<SettingsScreen> with WidgetsBindingObse
                 },
                 icon: const Icon(Icons.settings),
                 label: Text(AppLocalizations.of(context)!.notificationListenerGrantPermission),
+              ),
+            ],
+            if (_notificationListenerEnabled) ...[
+              const Divider(height: 24),
+              SwitchListTile(
+                contentPadding: EdgeInsets.zero,
+                title: Text(
+                  AppLocalizations.of(context)!.googleWalletNotifications,
+                  style: Theme.of(context).textTheme.titleSmall?.copyWith(fontWeight: FontWeight.w600),
+                ),
+                subtitle: Text(
+                  AppLocalizations.of(context)!.googleWalletNotificationsDescription,
+                  style: Theme.of(context).textTheme.bodySmall,
+                ),
+                value: _googleWalletEnabled,
+                onChanged: (value) async {
+                  await SharedPreferencesService().setBoolValue(
+                    SharedPreferencesKeys.googleWalletNotificationsEnabled,
+                    value,
+                  );
+                  setState(() => _googleWalletEnabled = value);
+                },
+                secondary: Icon(
+                  Icons.account_balance_wallet_outlined,
+                  color: Theme.of(context).colorScheme.primary,
+                ),
               ),
             ],
           ],

@@ -1224,6 +1224,13 @@ class AppLocalizationsEs extends AppLocalizations {
       'Activa la escucha de notificaciones para capturar tus gastos bancarios sin esfuerzo.';
 
   @override
+  String get googleWalletNotifications => 'Notificaciones de Google Wallet';
+
+  @override
+  String get googleWalletNotificationsDescription =>
+      'Incluir notificaciones de Google Wallet. Actívalo si tu banco no envía notificaciones propias de pagos.';
+
+  @override
   String fromApp(String appName) {
     return 'Desde $appName';
   }

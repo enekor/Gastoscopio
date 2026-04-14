@@ -1207,6 +1207,13 @@ class AppLocalizationsEn extends AppLocalizations {
       'Enable notification listening to capture your bank transactions effortlessly.';
 
   @override
+  String get googleWalletNotifications => 'Google Wallet notifications';
+
+  @override
+  String get googleWalletNotificationsDescription =>
+      'Include Google Wallet notifications. Enable if your bank doesn\'t send its own payment notifications.';
+
+  @override
   String fromApp(String appName) {
     return 'From $appName';
   }

@@ -1311,6 +1311,8 @@
   "notificationListenerPermissionDenied": "No se ha concedido acceso a las notificaciones. No se puede activar el escuchador.",
   "notificationBannerTitle": "Detecta gastos automáticamente",
   "notificationBannerSubtitle": "Activa la escucha de notificaciones para capturar tus gastos bancarios sin esfuerzo.",
+  "googleWalletNotifications": "Notificaciones de Google Wallet",
+  "googleWalletNotificationsDescription": "Incluir notificaciones de Google Wallet. Actívalo si tu banco no envía notificaciones propias de pagos.",
   "fromApp": "Desde {appName}",
   "@fromApp": {
     "placeholders": {
