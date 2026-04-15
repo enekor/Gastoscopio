@@ -1320,6 +1320,9 @@
     }
   },
   "searchApps": "Buscar aplicación...",
+  "noBlockedApps": "No hay apps bloqueadas",
+  "unblock": "Desbloquear",
+  "addBlockedApp": "Añadir app a bloquear",
   "blockApp": "Bloquear app",
   "block": "Bloquear",
   "blockAppConfirmation": "¿Bloquear notificaciones de {appName}? No se leerán más transacciones de esta app. Puedes desbloquearlo en Ajustes.",

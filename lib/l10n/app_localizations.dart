@@ -2306,17 +2306,65 @@ abstract class AppLocalizations {
   /// **'Activa la escucha de notificaciones para capturar tus gastos bancarios sin esfuerzo.'**
   String get notificationBannerSubtitle;
 
-  /// No description provided for @googleWalletNotifications.
+  /// No description provided for @blockedApps.
   ///
   /// In es, this message translates to:
-  /// **'Notificaciones de Google Wallet'**
-  String get googleWalletNotifications;
+  /// **'Apps bloqueadas'**
+  String get blockedApps;
 
-  /// No description provided for @googleWalletNotificationsDescription.
+  /// No description provided for @blockedAppsDescription.
   ///
   /// In es, this message translates to:
-  /// **'Incluir notificaciones de Google Wallet. Actívalo si tu banco no envía notificaciones propias de pagos.'**
-  String get googleWalletNotificationsDescription;
+  /// **'Gestiona qué apps se ignoran al leer notificaciones.'**
+  String get blockedAppsDescription;
+
+  /// No description provided for @blockedAppsCount.
+  ///
+  /// In es, this message translates to:
+  /// **'{count} apps bloqueadas'**
+  String blockedAppsCount(int count);
+
+  /// No description provided for @searchApps.
+  ///
+  /// In es, this message translates to:
+  /// **'Buscar aplicación...'**
+  String get searchApps;
+
+  /// No description provided for @noBlockedApps.
+  ///
+  /// In es, this message translates to:
+  /// **'No hay apps bloqueadas'**
+  String get noBlockedApps;
+
+  /// No description provided for @unblock.
+  ///
+  /// In es, this message translates to:
+  /// **'Desbloquear'**
+  String get unblock;
+
+  /// No description provided for @addBlockedApp.
+  ///
+  /// In es, this message translates to:
+  /// **'Añadir app a bloquear'**
+  String get addBlockedApp;
+
+  /// No description provided for @blockApp.
+  ///
+  /// In es, this message translates to:
+  /// **'Bloquear app'**
+  String get blockApp;
+
+  /// No description provided for @block.
+  ///
+  /// In es, this message translates to:
+  /// **'Bloquear'**
+  String get block;
+
+  /// No description provided for @blockAppConfirmation.
+  ///
+  /// In es, this message translates to:
+  /// **'¿Bloquear notificaciones de {appName}? No se leerán más transacciones de esta app. Puedes desbloquearlo en Ajustes.'**
+  String blockAppConfirmation(String appName);
 
   /// No description provided for @fromApp.
   ///

@@ -386,6 +386,9 @@
     }
   },
   "searchApps": "Search app...",
+  "noBlockedApps": "No blocked apps",
+  "unblock": "Unblock",
+  "addBlockedApp": "Add app to block",
   "blockApp": "Block app",
   "block": "Block",
   "blockAppConfirmation": "Block notifications from {appName}? No more transactions will be read from this app. You can unblock it in Settings.",

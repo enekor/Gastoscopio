@@ -17,7 +17,6 @@ import 'package:flutter_colorpicker/flutter_colorpicker.dart';
 import 'package:svg_flutter/svg.dart';
 import 'package:cashly/modules/settings.dart/widgets/security_settings_card.dart';
 import 'package:cashly/data/services/notification_capture_service.dart';
-import 'package:cashly/modules/notifications/screens/blocked_apps_screen.dart';
 
 class SettingsScreen extends StatefulWidget {
   const SettingsScreen({super.key});
@@ -38,6 +37,8 @@ class _SettingsScreenState extends State<SettingsScreen> with WidgetsBindingObse
   String? _backgroundImagePath;
   bool _notificationListenerEnabled = false;
   bool _notificationPermissionGranted = false;
+  List<String> _blockedApps = [];
+  final Map<String, String> _blockedAppNames = {};
 
   @override
   void initState() {
@@ -199,11 +200,54 @@ class _SettingsScreenState extends State<SettingsScreen> with WidgetsBindingObse
     final enabled = await SharedPreferencesService()
         .getBoolValue(SharedPreferencesKeys.notificationListenerEnabled);
     final permission = await NotificationCaptureService().isPermissionGranted();
+    final blocked = await NotificationCaptureService().getBlockedApps();
     if (mounted) {
       setState(() {
         _notificationListenerEnabled = enabled ?? false;
         _notificationPermissionGranted = permission;
+        _blockedApps = blocked;
       });
+      _resolveBlockedAppNames();
+    }
+  }
+
+  Future<void> _resolveBlockedAppNames() async {
+    for (final pkg in _blockedApps) {
+      if (_blockedAppNames.containsKey(pkg)) continue;
+      try {
+        final name = await NotificationCaptureService().getAppName(pkg);
+        if (mounted) {
+          setState(() => _blockedAppNames[pkg] = name);
+        }
+      } catch (_) {}
+    }
+  }
+
+  Future<void> _unblockApp(String packageName) async {
+    await NotificationCaptureService().unblockApp(packageName);
+    setState(() {
+      _blockedApps.remove(packageName);
+    });
+  }
+
+  Future<void> _showAddAppPicker() async {
+    final added = await showModalBottomSheet<String>(
+      context: context,
+      isScrollControlled: true,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+      ),
+      builder: (context) => _InstalledAppsPicker(
+        alreadyBlocked: _blockedApps.toSet(),
+      ),
+    );
+
+    if (added != null) {
+      await NotificationCaptureService().blockApp(added);
+      setState(() {
+        _blockedApps.add(added);
+      });
+      _resolveBlockedAppNames();
     }
   }
 
@@ -371,28 +415,71 @@ class _SettingsScreenState extends State<SettingsScreen> with WidgetsBindingObse
             ],
             if (_notificationListenerEnabled) ...[
               const Divider(height: 24),
-              ListTile(
-                contentPadding: EdgeInsets.zero,
-                leading: Icon(
-                  Icons.block,
-                  color: Theme.of(context).colorScheme.primary,
-                ),
-                title: Text(
-                  AppLocalizations.of(context)!.blockedApps,
-                  style: Theme.of(context).textTheme.titleSmall?.copyWith(fontWeight: FontWeight.w600),
-                ),
-                subtitle: Text(
-                  AppLocalizations.of(context)!.blockedAppsDescription,
-                  style: Theme.of(context).textTheme.bodySmall,
-                ),
-                trailing: const Icon(Icons.arrow_forward_ios_rounded, size: 16),
-                onTap: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(builder: (context) => const BlockedAppsScreen()),
-                  );
-                },
+              Row(
+                children: [
+                  Icon(
+                    Icons.block,
+                    color: Theme.of(context).colorScheme.primary,
+                    size: 20,
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: Text(
+                      AppLocalizations.of(context)!.blockedApps,
+                      style: Theme.of(context).textTheme.titleSmall?.copyWith(fontWeight: FontWeight.w600),
+                    ),
+                  ),
+                  TextButton.icon(
+                    onPressed: _showAddAppPicker,
+                    icon: const Icon(Icons.add, size: 18),
+                    label: Text(AppLocalizations.of(context)!.add),
+                  ),
+                ],
               ),
+              const SizedBox(height: 4),
+              Text(
+                AppLocalizations.of(context)!.blockedAppsDescription,
+                style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                  color: Theme.of(context).colorScheme.onSurfaceVariant,
+                ),
+              ),
+              const SizedBox(height: 12),
+              if (_blockedApps.isEmpty)
+                Container(
+                  width: double.infinity,
+                  padding: const EdgeInsets.all(16),
+                  decoration: BoxDecoration(
+                    color: Theme.of(context).colorScheme.surfaceContainerHighest.withAlpha(80),
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: Text(
+                    AppLocalizations.of(context)!.noBlockedApps,
+                    style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                      color: Theme.of(context).colorScheme.onSurfaceVariant,
+                      fontStyle: FontStyle.italic,
+                    ),
+                    textAlign: TextAlign.center,
+                  ),
+                )
+              else
+                Wrap(
+                  spacing: 8,
+                  runSpacing: 8,
+                  children: _blockedApps.map((pkg) {
+                    final name = _blockedAppNames[pkg] ?? pkg;
+                    return Chip(
+                      avatar: Icon(
+                        Icons.block,
+                        size: 16,
+                        color: Theme.of(context).colorScheme.error,
+                      ),
+                      label: Text(name),
+                      onDeleted: () => _unblockApp(pkg),
+                      deleteIcon: const Icon(Icons.close, size: 16),
+                      deleteButtonTooltipMessage: AppLocalizations.of(context)!.unblock,
+                    );
+                  }).toList(),
+                ),
             ],
           ],
         ),
@@ -638,6 +725,139 @@ class _SettingsScreenState extends State<SettingsScreen> with WidgetsBindingObse
                 ],
               )
             : Center(child: ElevatedButton.icon(onPressed: _handleLogin, icon: const Icon(Icons.login), label: Text(AppLocalizations.of(context)!.login))),
+      ),
+    );
+  }
+}
+
+class _InstalledAppsPicker extends StatefulWidget {
+  final Set<String> alreadyBlocked;
+
+  const _InstalledAppsPicker({required this.alreadyBlocked});
+
+  @override
+  State<_InstalledAppsPicker> createState() => _InstalledAppsPickerState();
+}
+
+class _InstalledAppsPickerState extends State<_InstalledAppsPicker> {
+  List<Map<String, String>> _apps = [];
+  String _searchQuery = '';
+  bool _isLoading = true;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadApps();
+  }
+
+  Future<void> _loadApps() async {
+    final apps = await NotificationCaptureService().getInstalledApps();
+    if (!mounted) return;
+    setState(() {
+      _apps = apps
+          .where((a) => !widget.alreadyBlocked.contains(a['packageName']))
+          .toList();
+      _isLoading = false;
+    });
+  }
+
+  List<Map<String, String>> get _filtered {
+    if (_searchQuery.isEmpty) return _apps;
+    final q = _searchQuery.toLowerCase();
+    return _apps.where((a) {
+      final name = (a['appName'] ?? '').toLowerCase();
+      final pkg = (a['packageName'] ?? '').toLowerCase();
+      return name.contains(q) || pkg.contains(q);
+    }).toList();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final localizations = AppLocalizations.of(context)!;
+    final theme = Theme.of(context);
+    final mediaQuery = MediaQuery.of(context);
+
+    return Padding(
+      padding: EdgeInsets.only(bottom: mediaQuery.viewInsets.bottom),
+      child: SizedBox(
+        height: mediaQuery.size.height * 0.75,
+        child: Column(
+          children: [
+            // Handle
+            Container(
+              margin: const EdgeInsets.symmetric(vertical: 12),
+              width: 40,
+              height: 4,
+              decoration: BoxDecoration(
+                color: theme.colorScheme.onSurfaceVariant.withAlpha(80),
+                borderRadius: BorderRadius.circular(2),
+              ),
+            ),
+            // Title
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 20),
+              child: Row(
+                children: [
+                  Icon(Icons.block, color: theme.colorScheme.primary),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: Text(
+                      localizations.addBlockedApp,
+                      style: theme.textTheme.titleMedium?.copyWith(
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(height: 12),
+            // Search
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 20),
+              child: TextField(
+                decoration: InputDecoration(
+                  hintText: localizations.searchApps,
+                  prefixIcon: const Icon(Icons.search),
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  isDense: true,
+                ),
+                onChanged: (value) => setState(() => _searchQuery = value),
+              ),
+            ),
+            const SizedBox(height: 8),
+            // List
+            Expanded(
+              child: _isLoading
+                  ? const Center(child: CircularProgressIndicator())
+                  : ListView.builder(
+                      itemCount: _filtered.length,
+                      itemBuilder: (context, index) {
+                        final app = _filtered[index];
+                        final packageName = app['packageName']!;
+                        final appName = app['appName']!;
+                        return ListTile(
+                          leading: Icon(
+                            Icons.apps,
+                            color: theme.colorScheme.onSurfaceVariant,
+                          ),
+                          title: Text(appName),
+                          subtitle: Text(
+                            packageName,
+                            style: theme.textTheme.bodySmall?.copyWith(
+                              color: theme.colorScheme.onSurfaceVariant,
+                            ),
+                          ),
+                          trailing: const Icon(Icons.add),
+                          onTap: () => Navigator.pop(context, packageName),
+                        );
+                      },
+                    ),
+            ),
+          ],
+        ),
       ),
     );
   }

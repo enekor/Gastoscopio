@@ -1224,11 +1224,39 @@ class AppLocalizationsEs extends AppLocalizations {
       'Activa la escucha de notificaciones para capturar tus gastos bancarios sin esfuerzo.';
 
   @override
-  String get googleWalletNotifications => 'Notificaciones de Google Wallet';
+  String get blockedApps => 'Apps bloqueadas';
 
   @override
-  String get googleWalletNotificationsDescription =>
-      'Incluir notificaciones de Google Wallet. Actívalo si tu banco no envía notificaciones propias de pagos.';
+  String get blockedAppsDescription =>
+      'Gestiona qué apps se ignoran al leer notificaciones.';
+
+  @override
+  String blockedAppsCount(int count) {
+    return '$count apps bloqueadas';
+  }
+
+  @override
+  String get searchApps => 'Buscar aplicación...';
+
+  @override
+  String get noBlockedApps => 'No hay apps bloqueadas';
+
+  @override
+  String get unblock => 'Desbloquear';
+
+  @override
+  String get addBlockedApp => 'Añadir app a bloquear';
+
+  @override
+  String get blockApp => 'Bloquear app';
+
+  @override
+  String get block => 'Bloquear';
+
+  @override
+  String blockAppConfirmation(String appName) {
+    return '¿Bloquear notificaciones de $appName? No se leerán más transacciones de esta app. Puedes desbloquearlo en Ajustes.';
+  }
 
   @override
   String fromApp(String appName) {
