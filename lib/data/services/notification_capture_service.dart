@@ -41,6 +41,53 @@ class NotificationCaptureService {
     return hasPermission;
   }
 
+  /// Returns the list of user-blocked app package names.
+  Future<List<String>> getBlockedApps() async {
+    return await SharedPreferencesService()
+        .getStringListValue(SharedPreferencesKeys.notificationBlockedApps);
+  }
+
+  /// Adds a package name to the blocked list.
+  Future<void> blockApp(String packageName) async {
+    final current = await getBlockedApps();
+    if (!current.contains(packageName)) {
+      current.add(packageName);
+      await SharedPreferencesService().setStringListValue(
+        SharedPreferencesKeys.notificationBlockedApps,
+        current,
+      );
+    }
+  }
+
+  /// Removes a package name from the blocked list.
+  Future<void> unblockApp(String packageName) async {
+    final current = await getBlockedApps();
+    current.remove(packageName);
+    await SharedPreferencesService().setStringListValue(
+      SharedPreferencesKeys.notificationBlockedApps,
+      current,
+    );
+  }
+
+  /// Returns installed apps via native MethodChannel.
+  /// Each map has 'packageName' and 'appName'.
+  Future<List<Map<String, String>>> getInstalledApps() async {
+    final result = await _channel.invokeListMethod('getInstalledApps');
+    if (result == null) return [];
+    return result
+        .map((e) => Map<String, String>.from(e as Map))
+        .toList();
+  }
+
+  /// Resolves a package name to its human-readable app name.
+  Future<String> getAppName(String packageName) async {
+    final result = await _channel.invokeMethod<String>(
+      'getAppName',
+      {'packageName': packageName},
+    );
+    return result ?? packageName;
+  }
+
   /// Logs the current state for debugging.
   Future<void> logStatus() async {
     final enabled = await SharedPreferencesService()

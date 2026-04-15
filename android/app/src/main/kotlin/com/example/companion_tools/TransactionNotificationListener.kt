@@ -17,42 +17,22 @@ class TransactionNotificationListener : NotificationListenerService() {
         private const val TAG = "TxnNotifListener"
         private const val DB_NAME = "cashly_database.db"
         private const val PREFS_NAME = "FlutterSharedPreferences"
-        private const val PREF_GOOGLE_WALLET = "flutter.google_wallet_notifications_enabled"
+        private const val PREF_BLOCKED_APPS = "flutter.notification_blocked_apps"
 
         // Matches: €12.50, 12,50€, $100, 100$, € 12.50, 12.50 €, etc.
         private val CURRENCY_REGEX = Pattern.compile(
             """(?:[$€]\s?)(\d+(?:[.,]\d{1,2})?)|(\d+(?:[.,]\d{1,2})?)\s?(?:[$€])"""
         )
+    }
 
-        // Apps that are never financial: messaging, social media, video, etc.
-        private val BLOCKED_PACKAGES = setOf(
-            "com.whatsapp",
-            "com.whatsapp.w4b",
-            "org.telegram.messenger",
-            "org.telegram.messenger.web",
-            "com.facebook.orca",          // Messenger
-            "com.facebook.katana",        // Facebook
-            "com.instagram.android",
-            "com.twitter.android",
-            "com.snapchat.android",
-            "com.discord",
-            "com.google.android.apps.messaging", // Google Messages
-            "com.samsung.android.messaging",
-            "com.google.android.youtube",
-            "com.google.android.gm",      // Gmail
-            "com.microsoft.office.outlook",
-            "com.tiktok.android",         // TikTok (com.zhiliaoapp.musically)
-            "com.zhiliaoapp.musically",
-            "com.amazon.mShop.android.shopping",
-            "com.ebay.mobile",
-            "com.aliexpress.buyer",
-            "com.google.android.apps.maps",
-            "com.spotify.music",
-            "com.netflix.mediaclient",
-        )
-
-        // Google Wallet — allowed only if the user opts in
-        private const val GOOGLE_WALLET_PACKAGE = "com.google.android.apps.walletnfcrel"
+    private fun getBlockedApps(): Set<String> {
+        return try {
+            val prefs = applicationContext.getSharedPreferences(PREFS_NAME, MODE_PRIVATE)
+            prefs.getStringSet(PREF_BLOCKED_APPS, emptySet()) ?: emptySet()
+        } catch (e: Exception) {
+            Log.e(TAG, "Error reading blocked apps", e)
+            emptySet()
+        }
     }
 
     override fun onNotificationPosted(sbn: StatusBarNotification?) {
@@ -68,17 +48,10 @@ class TransactionNotificationListener : NotificationListenerService() {
             // Skip own notifications
             if (packageName == applicationContext.packageName) return
 
-            // Skip blocked apps (messaging, social, video, etc.)
-            if (BLOCKED_PACKAGES.contains(packageName)) return
-
-            // Google Wallet: only allow if user has opted in
-            if (packageName == GOOGLE_WALLET_PACKAGE) {
-                val prefs = applicationContext.getSharedPreferences(PREFS_NAME, MODE_PRIVATE)
-                val walletEnabled = prefs.getBoolean(PREF_GOOGLE_WALLET, false)
-                if (!walletEnabled) {
-                    Log.d(TAG, "Google Wallet notification skipped (not enabled)")
-                    return
-                }
+            // Skip user-blocked apps
+            if (getBlockedApps().contains(packageName)) {
+                Log.d(TAG, "Blocked app: $packageName, skipping")
+                return
             }
 
             Log.d(TAG, "Notification from $packageName: $fullText")

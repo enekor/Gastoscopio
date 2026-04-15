@@ -1,6 +1,7 @@
 import 'package:cashly/data/models/movement_value.dart';
 import 'package:cashly/data/services/groq_serice.dart';
 import 'package:cashly/data/services/log_file_service.dart';
+import 'package:cashly/data/services/notification_capture_service.dart';
 import 'package:cashly/data/services/shared_preferences_service.dart';
 import 'package:cashly/data/services/sqlite_service.dart';
 import 'package:cashly/modules/gastoscopio/logic/finance_service.dart';
@@ -30,6 +31,7 @@ class _PendingNotificationsScreenState
   bool _isAiProcessing = false;
   int _aiProcessingCurrent = 0;
   int _aiProcessingTotal = 0;
+  final Map<String, String> _resolvedAppNames = {};
 
   @override
   void initState() {
@@ -70,13 +72,65 @@ class _PendingNotificationsScreenState
         _isLoading = false;
       });
 
-      // Run AI parsing in background to populate proper titles/amounts/types
+      // Resolve app names and run AI parsing in parallel
       if (_movements.isNotEmpty && mounted) {
+        _resolveAppNames();
         _runAiParsing(pending.map((p) => p.extractedAmount).toList());
       }
     } catch (e) {
       LogFileService().appendLog('Error loading pending notifications: $e');
       setState(() => _isLoading = false);
+    }
+  }
+
+  Future<void> _resolveAppNames() async {
+    final uniquePackages = _movements.map((m) => m.appName).toSet();
+    for (final pkg in uniquePackages) {
+      try {
+        final name = await NotificationCaptureService().getAppName(pkg);
+        if (mounted) {
+          setState(() => _resolvedAppNames[pkg] = name);
+        }
+      } catch (_) {}
+    }
+  }
+
+  Future<void> _blockApp(int index) async {
+    final movement = _movements[index];
+    final packageName = movement.appName;
+    final appName = _resolvedAppNames[packageName] ?? packageName;
+
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        icon: const Icon(Icons.block),
+        title: Text(AppLocalizations.of(context)!.blockApp),
+        content: Text(AppLocalizations.of(context)!.blockAppConfirmation(appName)),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context, false),
+            child: Text(AppLocalizations.of(context)!.cancel),
+          ),
+          FilledButton(
+            onPressed: () => Navigator.pop(context, true),
+            child: Text(AppLocalizations.of(context)!.block),
+          ),
+        ],
+      ),
+    );
+
+    if (confirmed != true) return;
+
+    await NotificationCaptureService().blockApp(packageName);
+
+    // Remove all movements from this app
+    setState(() {
+      _movements.where((m) => m.appName == packageName).forEach((m) => m.dispose());
+      _movements.removeWhere((m) => m.appName == packageName);
+    });
+
+    if (_movements.isEmpty) {
+      _dismissAll();
     }
   }
 
@@ -307,7 +361,9 @@ class _PendingNotificationsScreenState
                     padding: const EdgeInsets.only(bottom: 12),
                     child: PendingMovementCard(
                       movement: _movements[index],
+                      resolvedAppName: _resolvedAppNames[_movements[index].appName],
                       onDelete: () => _removeMovement(index),
+                      onBlockApp: () => _blockApp(index),
                       onExpenseChanged: (isExpense) {
                         setState(() {
                           _movements[index].isExpense = isExpense;

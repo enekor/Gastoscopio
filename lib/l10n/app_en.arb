@@ -377,8 +377,23 @@
   "notificationListenerPermissionDenied": "Notification access was not granted. The listener cannot be activated.",
   "notificationBannerTitle": "Detect expenses automatically",
   "notificationBannerSubtitle": "Enable notification listening to capture your bank transactions effortlessly.",
-  "googleWalletNotifications": "Google Wallet notifications",
-  "googleWalletNotificationsDescription": "Include Google Wallet notifications. Enable if your bank doesn't send its own payment notifications.",
+  "blockedApps": "Blocked apps",
+  "blockedAppsDescription": "Manage which apps are ignored when reading notifications.",
+  "blockedAppsCount": "{count} blocked apps",
+  "@blockedAppsCount": {
+    "placeholders": {
+      "count": { "type": "int" }
+    }
+  },
+  "searchApps": "Search app...",
+  "blockApp": "Block app",
+  "block": "Block",
+  "blockAppConfirmation": "Block notifications from {appName}? No more transactions will be read from this app. You can unblock it in Settings.",
+  "@blockAppConfirmation": {
+    "placeholders": {
+      "appName": { "type": "String" }
+    }
+  },
   "fromApp": "From {appName}",
   "@fromApp": {
     "placeholders": {

@@ -1,6 +1,8 @@
 package com.N3k0chan.cashly
 
 import android.content.Intent
+import android.content.pm.ApplicationInfo
+import android.content.pm.PackageManager
 import android.os.Bundle
 import android.provider.Settings
 import android.view.View
@@ -55,11 +57,42 @@ class MainActivity : FlutterFragmentActivity() {
                     val intent = Intent(Settings.ACTION_NOTIFICATION_LISTENER_SETTINGS)
                     intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
                     startActivity(intent)
-                    // Gracefully finish the activity so Android doesn't show
-                    // "app has stopped" when the system kills the process
-                    // upon toggling NotificationListenerService permission.
                     finishAndRemoveTask()
                     result.success(true)
+                }
+                "getInstalledApps" -> {
+                    try {
+                        val pm = packageManager
+                        val apps = pm.getInstalledApplications(PackageManager.GET_META_DATA)
+                            .filter { app ->
+                                // Only show apps with a launcher intent (user-visible apps)
+                                pm.getLaunchIntentForPackage(app.packageName) != null
+                            }
+                            .map { app ->
+                                mapOf(
+                                    "packageName" to app.packageName,
+                                    "appName" to pm.getApplicationLabel(app).toString()
+                                )
+                            }
+                            .sortedBy { it["appName"]?.lowercase() }
+                        result.success(apps)
+                    } catch (e: Exception) {
+                        result.error("ERROR", "Failed to get installed apps: ${e.message}", null)
+                    }
+                }
+                "getAppName" -> {
+                    val packageName = call.argument<String>("packageName")
+                    if (packageName == null) {
+                        result.error("ERROR", "packageName required", null)
+                        return@setMethodCallHandler
+                    }
+                    try {
+                        val pm = packageManager
+                        val appInfo = pm.getApplicationInfo(packageName, 0)
+                        result.success(pm.getApplicationLabel(appInfo).toString())
+                    } catch (e: PackageManager.NameNotFoundException) {
+                        result.success(packageName)
+                    }
                 }
                 else -> result.notImplemented()
             }

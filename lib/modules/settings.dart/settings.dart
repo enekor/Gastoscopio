@@ -17,6 +17,7 @@ import 'package:flutter_colorpicker/flutter_colorpicker.dart';
 import 'package:svg_flutter/svg.dart';
 import 'package:cashly/modules/settings.dart/widgets/security_settings_card.dart';
 import 'package:cashly/data/services/notification_capture_service.dart';
+import 'package:cashly/modules/notifications/screens/blocked_apps_screen.dart';
 
 class SettingsScreen extends StatefulWidget {
   const SettingsScreen({super.key});
@@ -37,7 +38,6 @@ class _SettingsScreenState extends State<SettingsScreen> with WidgetsBindingObse
   String? _backgroundImagePath;
   bool _notificationListenerEnabled = false;
   bool _notificationPermissionGranted = false;
-  bool _googleWalletEnabled = false;
 
   @override
   void initState() {
@@ -199,13 +199,10 @@ class _SettingsScreenState extends State<SettingsScreen> with WidgetsBindingObse
     final enabled = await SharedPreferencesService()
         .getBoolValue(SharedPreferencesKeys.notificationListenerEnabled);
     final permission = await NotificationCaptureService().isPermissionGranted();
-    final walletEnabled = await SharedPreferencesService()
-        .getBoolValue(SharedPreferencesKeys.googleWalletNotificationsEnabled);
     if (mounted) {
       setState(() {
         _notificationListenerEnabled = enabled ?? false;
         _notificationPermissionGranted = permission;
-        _googleWalletEnabled = walletEnabled ?? false;
       });
     }
   }
@@ -374,28 +371,27 @@ class _SettingsScreenState extends State<SettingsScreen> with WidgetsBindingObse
             ],
             if (_notificationListenerEnabled) ...[
               const Divider(height: 24),
-              SwitchListTile(
+              ListTile(
                 contentPadding: EdgeInsets.zero,
+                leading: Icon(
+                  Icons.block,
+                  color: Theme.of(context).colorScheme.primary,
+                ),
                 title: Text(
-                  AppLocalizations.of(context)!.googleWalletNotifications,
+                  AppLocalizations.of(context)!.blockedApps,
                   style: Theme.of(context).textTheme.titleSmall?.copyWith(fontWeight: FontWeight.w600),
                 ),
                 subtitle: Text(
-                  AppLocalizations.of(context)!.googleWalletNotificationsDescription,
+                  AppLocalizations.of(context)!.blockedAppsDescription,
                   style: Theme.of(context).textTheme.bodySmall,
                 ),
-                value: _googleWalletEnabled,
-                onChanged: (value) async {
-                  await SharedPreferencesService().setBoolValue(
-                    SharedPreferencesKeys.googleWalletNotificationsEnabled,
-                    value,
+                trailing: const Icon(Icons.arrow_forward_ios_rounded, size: 16),
+                onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => const BlockedAppsScreen()),
                   );
-                  setState(() => _googleWalletEnabled = value);
                 },
-                secondary: Icon(
-                  Icons.account_balance_wallet_outlined,
-                  color: Theme.of(context).colorScheme.primary,
-                ),
               ),
             ],
           ],

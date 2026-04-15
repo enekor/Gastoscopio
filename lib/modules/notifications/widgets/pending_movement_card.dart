@@ -30,12 +30,16 @@ class PendingMovementCard extends StatelessWidget {
   final EditablePendingMovement movement;
   final VoidCallback onDelete;
   final ValueChanged<bool> onExpenseChanged;
+  final VoidCallback? onBlockApp;
+  final String? resolvedAppName;
 
   const PendingMovementCard({
     super.key,
     required this.movement,
     required this.onDelete,
     required this.onExpenseChanged,
+    this.onBlockApp,
+    this.resolvedAppName,
   });
 
   @override
@@ -57,19 +61,33 @@ class PendingMovementCard extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Header: app name chip + delete button
+            // Header: app name chip + block button + delete button
             Row(
               children: [
-                Chip(
-                  avatar: const Icon(Icons.notifications_outlined, size: 16),
-                  label: Text(
-                    movement.appName,
-                    style: theme.textTheme.labelSmall,
+                Flexible(
+                  child: Chip(
+                    avatar: const Icon(Icons.notifications_outlined, size: 16),
+                    label: Text(
+                      resolvedAppName ?? movement.appName,
+                      style: theme.textTheme.labelSmall,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                    materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                    visualDensity: VisualDensity.compact,
                   ),
-                  materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                  visualDensity: VisualDensity.compact,
                 ),
                 const Spacer(),
+                if (onBlockApp != null)
+                  IconButton(
+                    icon: Icon(
+                      Icons.block,
+                      color: theme.colorScheme.onSurfaceVariant,
+                      size: 20,
+                    ),
+                    tooltip: localizations.blockApp,
+                    onPressed: onBlockApp,
+                    visualDensity: VisualDensity.compact,
+                  ),
                 IconButton(
                   icon: Icon(
                     Icons.close,

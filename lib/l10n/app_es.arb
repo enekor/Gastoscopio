@@ -1311,8 +1311,23 @@
   "notificationListenerPermissionDenied": "No se ha concedido acceso a las notificaciones. No se puede activar el escuchador.",
   "notificationBannerTitle": "Detecta gastos automáticamente",
   "notificationBannerSubtitle": "Activa la escucha de notificaciones para capturar tus gastos bancarios sin esfuerzo.",
-  "googleWalletNotifications": "Notificaciones de Google Wallet",
-  "googleWalletNotificationsDescription": "Incluir notificaciones de Google Wallet. Actívalo si tu banco no envía notificaciones propias de pagos.",
+  "blockedApps": "Apps bloqueadas",
+  "blockedAppsDescription": "Gestiona qué apps se ignoran al leer notificaciones.",
+  "blockedAppsCount": "{count} apps bloqueadas",
+  "@blockedAppsCount": {
+    "placeholders": {
+      "count": { "type": "int" }
+    }
+  },
+  "searchApps": "Buscar aplicación...",
+  "blockApp": "Bloquear app",
+  "block": "Bloquear",
+  "blockAppConfirmation": "¿Bloquear notificaciones de {appName}? No se leerán más transacciones de esta app. Puedes desbloquearlo en Ajustes.",
+  "@blockAppConfirmation": {
+    "placeholders": {
+      "appName": { "type": "String" }
+    }
+  },
   "fromApp": "Desde {appName}",
   "@fromApp": {
     "placeholders": {
