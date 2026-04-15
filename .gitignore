@@ -46,3 +46,5 @@ app.*.map.json
 android/keystore.properties
 android/app/google-services.json
 android/app/build.gradle.kts
+config.properties
+pubspec.lock
