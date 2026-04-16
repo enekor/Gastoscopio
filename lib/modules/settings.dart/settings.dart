@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'dart:typed_data';
 
 import 'package:cashly/data/models/fixed_movement.dart';
 import 'package:cashly/data/models/month.dart';
@@ -37,8 +38,9 @@ class _SettingsScreenState extends State<SettingsScreen> with WidgetsBindingObse
   String? _backgroundImagePath;
   bool _notificationListenerEnabled = false;
   bool _notificationPermissionGranted = false;
-  List<String> _blockedApps = [];
-  final Map<String, String> _blockedAppNames = {};
+  List<String> _allowedApps = [];
+  final Map<String, String> _allowedAppNames = {};
+  final Map<String, Uint8List> _allowedAppIcons = {};
 
   @override
   void initState() {
@@ -200,33 +202,41 @@ class _SettingsScreenState extends State<SettingsScreen> with WidgetsBindingObse
     final enabled = await SharedPreferencesService()
         .getBoolValue(SharedPreferencesKeys.notificationListenerEnabled);
     final permission = await NotificationCaptureService().isPermissionGranted();
-    final blocked = await NotificationCaptureService().getBlockedApps();
+    final allowed = await NotificationCaptureService().getAllowedApps();
     if (mounted) {
       setState(() {
         _notificationListenerEnabled = enabled ?? false;
         _notificationPermissionGranted = permission;
-        _blockedApps = blocked;
+        _allowedApps = allowed;
       });
-      _resolveBlockedAppNames();
+      _resolveAllowedAppInfo();
     }
   }
 
-  Future<void> _resolveBlockedAppNames() async {
-    for (final pkg in _blockedApps) {
-      if (_blockedAppNames.containsKey(pkg)) continue;
-      try {
-        final name = await NotificationCaptureService().getAppName(pkg);
-        if (mounted) {
-          setState(() => _blockedAppNames[pkg] = name);
-        }
-      } catch (_) {}
+  Future<void> _resolveAllowedAppInfo() async {
+    final service = NotificationCaptureService();
+    for (final pkg in _allowedApps) {
+      if (!_allowedAppNames.containsKey(pkg)) {
+        try {
+          final name = await service.getAppName(pkg);
+          if (mounted) setState(() => _allowedAppNames[pkg] = name);
+        } catch (_) {}
+      }
+      if (!_allowedAppIcons.containsKey(pkg)) {
+        try {
+          final icon = await service.getAppIcon(pkg);
+          if (mounted && icon != null) {
+            setState(() => _allowedAppIcons[pkg] = icon);
+          }
+        } catch (_) {}
+      }
     }
   }
 
-  Future<void> _unblockApp(String packageName) async {
-    await NotificationCaptureService().unblockApp(packageName);
+  Future<void> _removeAllowedApp(String packageName) async {
+    await NotificationCaptureService().disallowApp(packageName);
     setState(() {
-      _blockedApps.remove(packageName);
+      _allowedApps.remove(packageName);
     });
   }
 
@@ -238,16 +248,16 @@ class _SettingsScreenState extends State<SettingsScreen> with WidgetsBindingObse
         borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
       ),
       builder: (context) => _InstalledAppsPicker(
-        alreadyBlocked: _blockedApps.toSet(),
+        alreadyAllowed: _allowedApps.toSet(),
       ),
     );
 
     if (added != null) {
-      await NotificationCaptureService().blockApp(added);
+      await NotificationCaptureService().allowApp(added);
       setState(() {
-        _blockedApps.add(added);
+        _allowedApps.add(added);
       });
-      _resolveBlockedAppNames();
+      _resolveAllowedAppInfo();
     }
   }
 
@@ -418,14 +428,14 @@ class _SettingsScreenState extends State<SettingsScreen> with WidgetsBindingObse
               Row(
                 children: [
                   Icon(
-                    Icons.block,
+                    Icons.apps,
                     color: Theme.of(context).colorScheme.primary,
                     size: 20,
                   ),
                   const SizedBox(width: 12),
                   Expanded(
                     child: Text(
-                      AppLocalizations.of(context)!.blockedApps,
+                      AppLocalizations.of(context)!.allowedApps,
                       style: Theme.of(context).textTheme.titleSmall?.copyWith(fontWeight: FontWeight.w600),
                     ),
                   ),
@@ -438,13 +448,13 @@ class _SettingsScreenState extends State<SettingsScreen> with WidgetsBindingObse
               ),
               const SizedBox(height: 4),
               Text(
-                AppLocalizations.of(context)!.blockedAppsDescription,
+                AppLocalizations.of(context)!.allowedAppsDescription,
                 style: Theme.of(context).textTheme.bodySmall?.copyWith(
                   color: Theme.of(context).colorScheme.onSurfaceVariant,
                 ),
               ),
               const SizedBox(height: 12),
-              if (_blockedApps.isEmpty)
+              if (_allowedApps.isEmpty)
                 Container(
                   width: double.infinity,
                   padding: const EdgeInsets.all(16),
@@ -453,7 +463,7 @@ class _SettingsScreenState extends State<SettingsScreen> with WidgetsBindingObse
                     borderRadius: BorderRadius.circular(12),
                   ),
                   child: Text(
-                    AppLocalizations.of(context)!.noBlockedApps,
+                    AppLocalizations.of(context)!.noAllowedApps,
                     style: Theme.of(context).textTheme.bodySmall?.copyWith(
                       color: Theme.of(context).colorScheme.onSurfaceVariant,
                       fontStyle: FontStyle.italic,
@@ -465,18 +475,20 @@ class _SettingsScreenState extends State<SettingsScreen> with WidgetsBindingObse
                 Wrap(
                   spacing: 8,
                   runSpacing: 8,
-                  children: _blockedApps.map((pkg) {
-                    final name = _blockedAppNames[pkg] ?? pkg;
+                  children: _allowedApps.map((pkg) {
+                    final name = _allowedAppNames[pkg] ?? pkg;
+                    final icon = _allowedAppIcons[pkg];
                     return Chip(
-                      avatar: Icon(
-                        Icons.block,
-                        size: 16,
-                        color: Theme.of(context).colorScheme.error,
-                      ),
+                      avatar: icon != null
+                          ? CircleAvatar(
+                              backgroundImage: MemoryImage(icon),
+                              radius: 12,
+                            )
+                          : const Icon(Icons.apps, size: 16),
                       label: Text(name),
-                      onDeleted: () => _unblockApp(pkg),
+                      onDeleted: () => _removeAllowedApp(pkg),
                       deleteIcon: const Icon(Icons.close, size: 16),
-                      deleteButtonTooltipMessage: AppLocalizations.of(context)!.unblock,
+                      deleteButtonTooltipMessage: AppLocalizations.of(context)!.remove,
                     );
                   }).toList(),
                 ),
@@ -731,9 +743,9 @@ class _SettingsScreenState extends State<SettingsScreen> with WidgetsBindingObse
 }
 
 class _InstalledAppsPicker extends StatefulWidget {
-  final Set<String> alreadyBlocked;
+  final Set<String> alreadyAllowed;
 
-  const _InstalledAppsPicker({required this.alreadyBlocked});
+  const _InstalledAppsPicker({required this.alreadyAllowed});
 
   @override
   State<_InstalledAppsPicker> createState() => _InstalledAppsPickerState();
@@ -741,6 +753,7 @@ class _InstalledAppsPicker extends StatefulWidget {
 
 class _InstalledAppsPickerState extends State<_InstalledAppsPicker> {
   List<Map<String, String>> _apps = [];
+  final Map<String, Uint8List> _icons = {};
   String _searchQuery = '';
   bool _isLoading = true;
 
@@ -751,14 +764,30 @@ class _InstalledAppsPickerState extends State<_InstalledAppsPicker> {
   }
 
   Future<void> _loadApps() async {
-    final apps = await NotificationCaptureService().getInstalledApps();
+    final service = NotificationCaptureService();
+    final apps = await service.getInstalledApps();
     if (!mounted) return;
+    final filtered = apps
+        .where((a) => !widget.alreadyAllowed.contains(a['packageName']))
+        .toList();
     setState(() {
-      _apps = apps
-          .where((a) => !widget.alreadyBlocked.contains(a['packageName']))
-          .toList();
+      _apps = filtered;
       _isLoading = false;
     });
+    _loadIcons(filtered);
+  }
+
+  Future<void> _loadIcons(List<Map<String, String>> apps) async {
+    final service = NotificationCaptureService();
+    for (final app in apps) {
+      final pkg = app['packageName']!;
+      try {
+        final icon = await service.getAppIcon(pkg);
+        if (mounted && icon != null) {
+          setState(() => _icons[pkg] = icon);
+        }
+      } catch (_) {}
+    }
   }
 
   List<Map<String, String>> get _filtered {
@@ -783,7 +812,6 @@ class _InstalledAppsPickerState extends State<_InstalledAppsPicker> {
         height: mediaQuery.size.height * 0.75,
         child: Column(
           children: [
-            // Handle
             Container(
               margin: const EdgeInsets.symmetric(vertical: 12),
               width: 40,
@@ -793,16 +821,15 @@ class _InstalledAppsPickerState extends State<_InstalledAppsPicker> {
                 borderRadius: BorderRadius.circular(2),
               ),
             ),
-            // Title
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 20),
               child: Row(
                 children: [
-                  Icon(Icons.block, color: theme.colorScheme.primary),
+                  Icon(Icons.add_circle_outline, color: theme.colorScheme.primary),
                   const SizedBox(width: 12),
                   Expanded(
                     child: Text(
-                      localizations.addBlockedApp,
+                      localizations.addAllowedApp,
                       style: theme.textTheme.titleMedium?.copyWith(
                         fontWeight: FontWeight.w600,
                       ),
@@ -812,7 +839,6 @@ class _InstalledAppsPickerState extends State<_InstalledAppsPicker> {
               ),
             ),
             const SizedBox(height: 12),
-            // Search
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 20),
               child: TextField(
@@ -828,7 +854,6 @@ class _InstalledAppsPickerState extends State<_InstalledAppsPicker> {
               ),
             ),
             const SizedBox(height: 8),
-            // List
             Expanded(
               child: _isLoading
                   ? const Center(child: CircularProgressIndicator())
@@ -838,11 +863,21 @@ class _InstalledAppsPickerState extends State<_InstalledAppsPicker> {
                         final app = _filtered[index];
                         final packageName = app['packageName']!;
                         final appName = app['appName']!;
+                        final icon = _icons[packageName];
                         return ListTile(
-                          leading: Icon(
-                            Icons.apps,
-                            color: theme.colorScheme.onSurfaceVariant,
-                          ),
+                          leading: icon != null
+                              ? CircleAvatar(
+                                  backgroundImage: MemoryImage(icon),
+                                  radius: 18,
+                                )
+                              : CircleAvatar(
+                                  radius: 18,
+                                  child: Icon(
+                                    Icons.apps,
+                                    color: theme.colorScheme.onSurfaceVariant,
+                                    size: 20,
+                                  ),
+                                ),
                           title: Text(appName),
                           subtitle: Text(
                             packageName,

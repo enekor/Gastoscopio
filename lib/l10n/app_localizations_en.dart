@@ -1207,38 +1207,31 @@ class AppLocalizationsEn extends AppLocalizations {
       'Enable notification listening to capture your bank transactions effortlessly.';
 
   @override
-  String get blockedApps => 'Blocked apps';
+  String get allowedApps => 'Allowed apps';
 
   @override
-  String get blockedAppsDescription =>
-      'Manage which apps are ignored when reading notifications.';
+  String get allowedAppsDescription =>
+      'Select which apps you want to read notifications from.';
 
   @override
-  String blockedAppsCount(int count) {
-    return '$count blocked apps';
-  }
+  String get noAllowedApps =>
+      'No apps added yet. Add an app to start reading its notifications.';
+
+  @override
+  String get addAllowedApp => 'Add app';
+
+  @override
+  String get remove => 'Remove';
 
   @override
   String get searchApps => 'Search app...';
 
   @override
-  String get noBlockedApps => 'No blocked apps';
+  String get disallowApp => 'Stop reading';
 
   @override
-  String get unblock => 'Unblock';
-
-  @override
-  String get addBlockedApp => 'Add app to block';
-
-  @override
-  String get blockApp => 'Block app';
-
-  @override
-  String get block => 'Block';
-
-  @override
-  String blockAppConfirmation(String appName) {
-    return 'Block notifications from $appName? No more transactions will be read from this app. You can unblock it in Settings.';
+  String disallowAppConfirmation(String appName) {
+    return 'Stop reading notifications from $appName? You can re-enable it in Settings.';
   }
 
   @override

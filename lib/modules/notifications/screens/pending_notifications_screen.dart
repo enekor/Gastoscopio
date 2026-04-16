@@ -95,7 +95,7 @@ class _PendingNotificationsScreenState
     }
   }
 
-  Future<void> _blockApp(int index) async {
+  Future<void> _disallowApp(int index) async {
     final movement = _movements[index];
     final packageName = movement.appName;
     final appName = _resolvedAppNames[packageName] ?? packageName;
@@ -103,9 +103,9 @@ class _PendingNotificationsScreenState
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
-        icon: const Icon(Icons.block),
-        title: Text(AppLocalizations.of(context)!.blockApp),
-        content: Text(AppLocalizations.of(context)!.blockAppConfirmation(appName)),
+        icon: const Icon(Icons.notifications_off_outlined),
+        title: Text(AppLocalizations.of(context)!.disallowApp),
+        content: Text(AppLocalizations.of(context)!.disallowAppConfirmation(appName)),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context, false),
@@ -113,7 +113,7 @@ class _PendingNotificationsScreenState
           ),
           FilledButton(
             onPressed: () => Navigator.pop(context, true),
-            child: Text(AppLocalizations.of(context)!.block),
+            child: Text(AppLocalizations.of(context)!.remove),
           ),
         ],
       ),
@@ -121,7 +121,7 @@ class _PendingNotificationsScreenState
 
     if (confirmed != true) return;
 
-    await NotificationCaptureService().blockApp(packageName);
+    await NotificationCaptureService().disallowApp(packageName);
 
     // Remove all movements from this app
     setState(() {
@@ -363,7 +363,7 @@ class _PendingNotificationsScreenState
                       movement: _movements[index],
                       resolvedAppName: _resolvedAppNames[_movements[index].appName],
                       onDelete: () => _removeMovement(index),
-                      onBlockApp: () => _blockApp(index),
+                      onDisallowApp: () => _disallowApp(index),
                       onExpenseChanged: (isExpense) {
                         setState(() {
                           _movements[index].isExpense = isExpense;

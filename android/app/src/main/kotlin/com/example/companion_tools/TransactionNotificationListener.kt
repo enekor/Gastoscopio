@@ -17,7 +17,7 @@ class TransactionNotificationListener : NotificationListenerService() {
         private const val TAG = "TxnNotifListener"
         private const val DB_NAME = "cashly_database.db"
         private const val PREFS_NAME = "FlutterSharedPreferences"
-        private const val PREF_BLOCKED_APPS = "flutter.notification_blocked_apps"
+        private const val PREF_ALLOWED_APPS = "flutter.notification_allowed_apps"
 
         // Matches: €12.50, 12,50€, $100, 100$, € 12.50, 12.50 €, etc.
         private val CURRENCY_REGEX = Pattern.compile(
@@ -25,12 +25,12 @@ class TransactionNotificationListener : NotificationListenerService() {
         )
     }
 
-    private fun getBlockedApps(): Set<String> {
+    private fun getAllowedApps(): Set<String> {
         return try {
             val prefs = applicationContext.getSharedPreferences(PREFS_NAME, MODE_PRIVATE)
-            prefs.getStringSet(PREF_BLOCKED_APPS, emptySet()) ?: emptySet()
+            prefs.getStringSet(PREF_ALLOWED_APPS, emptySet()) ?: emptySet()
         } catch (e: Exception) {
-            Log.e(TAG, "Error reading blocked apps", e)
+            Log.e(TAG, "Error reading allowed apps", e)
             emptySet()
         }
     }
@@ -48,9 +48,10 @@ class TransactionNotificationListener : NotificationListenerService() {
             // Skip own notifications
             if (packageName == applicationContext.packageName) return
 
-            // Skip user-blocked apps
-            if (getBlockedApps().contains(packageName)) {
-                Log.d(TAG, "Blocked app: $packageName, skipping")
+            // Only process notifications from user-allowed apps
+            val allowedApps = getAllowedApps()
+            if (allowedApps.isEmpty() || !allowedApps.contains(packageName)) {
+                Log.d(TAG, "App not in allowed list: $packageName, skipping")
                 return
             }
 

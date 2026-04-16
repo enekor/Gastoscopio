@@ -92,7 +92,7 @@ enum SharedPreferencesKeys {
   savingGoal('saving_goal'),
   notificationListenerEnabled('notification_listener_enabled'),
   googleWalletNotificationsEnabled('google_wallet_notifications_enabled'),
-  notificationBlockedApps('notification_blocked_apps');
+  notificationAllowedApps('notification_allowed_apps');
 
   final String value;
   const SharedPreferencesKeys(this.value);

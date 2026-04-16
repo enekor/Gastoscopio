@@ -30,7 +30,7 @@ class PendingMovementCard extends StatelessWidget {
   final EditablePendingMovement movement;
   final VoidCallback onDelete;
   final ValueChanged<bool> onExpenseChanged;
-  final VoidCallback? onBlockApp;
+  final VoidCallback? onDisallowApp;
   final String? resolvedAppName;
 
   const PendingMovementCard({
@@ -38,7 +38,7 @@ class PendingMovementCard extends StatelessWidget {
     required this.movement,
     required this.onDelete,
     required this.onExpenseChanged,
-    this.onBlockApp,
+    this.onDisallowApp,
     this.resolvedAppName,
   });
 
@@ -77,15 +77,15 @@ class PendingMovementCard extends StatelessWidget {
                   ),
                 ),
                 const Spacer(),
-                if (onBlockApp != null)
+                if (onDisallowApp != null)
                   IconButton(
                     icon: Icon(
-                      Icons.block,
+                      Icons.notifications_off_outlined,
                       color: theme.colorScheme.onSurfaceVariant,
                       size: 20,
                     ),
-                    tooltip: localizations.blockApp,
-                    onPressed: onBlockApp,
+                    tooltip: localizations.disallowApp,
+                    onPressed: onDisallowApp,
                     visualDensity: VisualDensity.compact,
                   ),
                 IconButton(

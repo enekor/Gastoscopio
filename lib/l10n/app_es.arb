@@ -1311,22 +1311,15 @@
   "notificationListenerPermissionDenied": "No se ha concedido acceso a las notificaciones. No se puede activar el escuchador.",
   "notificationBannerTitle": "Detecta gastos automáticamente",
   "notificationBannerSubtitle": "Activa la escucha de notificaciones para capturar tus gastos bancarios sin esfuerzo.",
-  "blockedApps": "Apps bloqueadas",
-  "blockedAppsDescription": "Gestiona qué apps se ignoran al leer notificaciones.",
-  "blockedAppsCount": "{count} apps bloqueadas",
-  "@blockedAppsCount": {
-    "placeholders": {
-      "count": { "type": "int" }
-    }
-  },
+  "allowedApps": "Apps permitidas",
+  "allowedAppsDescription": "Selecciona de qué apps quieres leer notificaciones.",
+  "noAllowedApps": "No hay apps añadidas. Añade una app para empezar a leer sus notificaciones.",
+  "addAllowedApp": "Añadir app",
+  "remove": "Quitar",
   "searchApps": "Buscar aplicación...",
-  "noBlockedApps": "No hay apps bloqueadas",
-  "unblock": "Desbloquear",
-  "addBlockedApp": "Añadir app a bloquear",
-  "blockApp": "Bloquear app",
-  "block": "Bloquear",
-  "blockAppConfirmation": "¿Bloquear notificaciones de {appName}? No se leerán más transacciones de esta app. Puedes desbloquearlo en Ajustes.",
-  "@blockAppConfirmation": {
+  "disallowApp": "Dejar de leer",
+  "disallowAppConfirmation": "¿Dejar de leer notificaciones de {appName}? Puedes volver a activarlo en Ajustes.",
+  "@disallowAppConfirmation": {
     "placeholders": {
       "appName": { "type": "String" }
     }

@@ -1224,38 +1224,31 @@ class AppLocalizationsEs extends AppLocalizations {
       'Activa la escucha de notificaciones para capturar tus gastos bancarios sin esfuerzo.';
 
   @override
-  String get blockedApps => 'Apps bloqueadas';
+  String get allowedApps => 'Apps permitidas';
 
   @override
-  String get blockedAppsDescription =>
-      'Gestiona qué apps se ignoran al leer notificaciones.';
+  String get allowedAppsDescription =>
+      'Selecciona de qué apps quieres leer notificaciones.';
 
   @override
-  String blockedAppsCount(int count) {
-    return '$count apps bloqueadas';
-  }
+  String get noAllowedApps =>
+      'No hay apps añadidas. Añade una app para empezar a leer sus notificaciones.';
+
+  @override
+  String get addAllowedApp => 'Añadir app';
+
+  @override
+  String get remove => 'Quitar';
 
   @override
   String get searchApps => 'Buscar aplicación...';
 
   @override
-  String get noBlockedApps => 'No hay apps bloqueadas';
+  String get disallowApp => 'Dejar de leer';
 
   @override
-  String get unblock => 'Desbloquear';
-
-  @override
-  String get addBlockedApp => 'Añadir app a bloquear';
-
-  @override
-  String get blockApp => 'Bloquear app';
-
-  @override
-  String get block => 'Bloquear';
-
-  @override
-  String blockAppConfirmation(String appName) {
-    return '¿Bloquear notificaciones de $appName? No se leerán más transacciones de esta app. Puedes desbloquearlo en Ajustes.';
+  String disallowAppConfirmation(String appName) {
+    return '¿Dejar de leer notificaciones de $appName? Puedes volver a activarlo en Ajustes.';
   }
 
   @override

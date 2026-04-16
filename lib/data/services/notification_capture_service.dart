@@ -1,3 +1,5 @@
+import 'dart:typed_data';
+
 import 'package:cashly/data/services/log_file_service.dart';
 import 'package:cashly/data/services/shared_preferences_service.dart';
 import 'package:flutter/services.dart';
@@ -41,32 +43,45 @@ class NotificationCaptureService {
     return hasPermission;
   }
 
-  /// Returns the list of user-blocked app package names.
-  Future<List<String>> getBlockedApps() async {
+  /// Returns the list of user-allowed app package names.
+  Future<List<String>> getAllowedApps() async {
     return await SharedPreferencesService()
-        .getStringListValue(SharedPreferencesKeys.notificationBlockedApps);
+        .getStringListValue(SharedPreferencesKeys.notificationAllowedApps);
   }
 
-  /// Adds a package name to the blocked list.
-  Future<void> blockApp(String packageName) async {
-    final current = await getBlockedApps();
+  /// Adds a package name to the allowed list.
+  Future<void> allowApp(String packageName) async {
+    final current = await getAllowedApps();
     if (!current.contains(packageName)) {
       current.add(packageName);
       await SharedPreferencesService().setStringListValue(
-        SharedPreferencesKeys.notificationBlockedApps,
+        SharedPreferencesKeys.notificationAllowedApps,
         current,
       );
     }
   }
 
-  /// Removes a package name from the blocked list.
-  Future<void> unblockApp(String packageName) async {
-    final current = await getBlockedApps();
+  /// Removes a package name from the allowed list.
+  Future<void> disallowApp(String packageName) async {
+    final current = await getAllowedApps();
     current.remove(packageName);
     await SharedPreferencesService().setStringListValue(
-      SharedPreferencesKeys.notificationBlockedApps,
+      SharedPreferencesKeys.notificationAllowedApps,
       current,
     );
+  }
+
+  /// Returns the app icon as PNG bytes for a given package name.
+  Future<Uint8List?> getAppIcon(String packageName) async {
+    try {
+      final result = await _channel.invokeMethod<Uint8List>(
+        'getAppIcon',
+        {'packageName': packageName},
+      );
+      return result;
+    } catch (_) {
+      return null;
+    }
   }
 
   /// Returns installed apps via native MethodChannel.

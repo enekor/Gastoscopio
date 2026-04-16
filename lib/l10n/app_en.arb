@@ -377,22 +377,15 @@
   "notificationListenerPermissionDenied": "Notification access was not granted. The listener cannot be activated.",
   "notificationBannerTitle": "Detect expenses automatically",
   "notificationBannerSubtitle": "Enable notification listening to capture your bank transactions effortlessly.",
-  "blockedApps": "Blocked apps",
-  "blockedAppsDescription": "Manage which apps are ignored when reading notifications.",
-  "blockedAppsCount": "{count} blocked apps",
-  "@blockedAppsCount": {
-    "placeholders": {
-      "count": { "type": "int" }
-    }
-  },
+  "allowedApps": "Allowed apps",
+  "allowedAppsDescription": "Select which apps you want to read notifications from.",
+  "noAllowedApps": "No apps added yet. Add an app to start reading its notifications.",
+  "addAllowedApp": "Add app",
+  "remove": "Remove",
   "searchApps": "Search app...",
-  "noBlockedApps": "No blocked apps",
-  "unblock": "Unblock",
-  "addBlockedApp": "Add app to block",
-  "blockApp": "Block app",
-  "block": "Block",
-  "blockAppConfirmation": "Block notifications from {appName}? No more transactions will be read from this app. You can unblock it in Settings.",
-  "@blockAppConfirmation": {
+  "disallowApp": "Stop reading",
+  "disallowAppConfirmation": "Stop reading notifications from {appName}? You can re-enable it in Settings.",
+  "@disallowAppConfirmation": {
     "placeholders": {
       "appName": { "type": "String" }
     }
