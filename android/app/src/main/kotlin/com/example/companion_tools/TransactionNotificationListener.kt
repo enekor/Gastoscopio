@@ -10,6 +10,7 @@ import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
 import java.util.regex.Pattern
+import org.json.JSONArray
 
 class TransactionNotificationListener : NotificationListenerService() {
 
@@ -28,7 +29,14 @@ class TransactionNotificationListener : NotificationListenerService() {
     private fun getAllowedApps(): Set<String> {
         return try {
             val prefs = applicationContext.getSharedPreferences(PREFS_NAME, MODE_PRIVATE)
-            prefs.getStringSet(PREF_ALLOWED_APPS, emptySet()) ?: emptySet()
+            // Flutter shared_preferences stores StringList as a JSON array string
+            val jsonStr = prefs.getString(PREF_ALLOWED_APPS, null) ?: return emptySet()
+            val jsonArray = JSONArray(jsonStr)
+            val result = mutableSetOf<String>()
+            for (i in 0 until jsonArray.length()) {
+                result.add(jsonArray.getString(i))
+            }
+            result
         } catch (e: Exception) {
             Log.e(TAG, "Error reading allowed apps", e)
             emptySet()
