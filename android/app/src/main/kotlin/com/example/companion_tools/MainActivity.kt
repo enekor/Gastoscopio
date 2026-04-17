@@ -69,8 +69,10 @@ class MainActivity : FlutterFragmentActivity() {
                         val pm = packageManager
                         val apps = pm.getInstalledApplications(PackageManager.GET_META_DATA)
                             .filter { app ->
-                                // Only show apps with a launcher intent (user-visible apps)
-                                pm.getLaunchIntentForPackage(app.packageName) != null
+                                // Exclude pure system apps (keep user-installed + updated system apps)
+                                val isSystem = (app.flags and ApplicationInfo.FLAG_SYSTEM) != 0
+                                val isUpdated = (app.flags and ApplicationInfo.FLAG_UPDATED_SYSTEM_APP) != 0
+                                !isSystem || isUpdated
                             }
                             .map { app ->
                                 mapOf(
