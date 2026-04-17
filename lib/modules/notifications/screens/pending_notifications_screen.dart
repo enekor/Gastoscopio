@@ -105,7 +105,9 @@ class _PendingNotificationsScreenState
       builder: (context) => AlertDialog(
         icon: const Icon(Icons.notifications_off_outlined),
         title: Text(AppLocalizations.of(context)!.disallowApp),
-        content: Text(AppLocalizations.of(context)!.disallowAppConfirmation(appName)),
+        content: Text(
+          AppLocalizations.of(context)!.disallowAppConfirmation(appName),
+        ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context, false),
@@ -125,7 +127,9 @@ class _PendingNotificationsScreenState
 
     // Remove all movements from this app
     setState(() {
-      _movements.where((m) => m.appName == packageName).forEach((m) => m.dispose());
+      _movements
+          .where((m) => m.appName == packageName)
+          .forEach((m) => m.dispose());
       _movements.removeWhere((m) => m.appName == packageName);
     });
 
@@ -361,7 +365,8 @@ class _PendingNotificationsScreenState
                     padding: const EdgeInsets.only(bottom: 12),
                     child: PendingMovementCard(
                       movement: _movements[index],
-                      resolvedAppName: _resolvedAppNames[_movements[index].appName],
+                      resolvedAppName:
+                          _resolvedAppNames[_movements[index].appName],
                       onDelete: () => _removeMovement(index),
                       onDisallowApp: () => _disallowApp(index),
                       onExpenseChanged: (isExpense) {

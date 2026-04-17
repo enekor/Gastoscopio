@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'dart:typed_data';
 
 import 'package:cashly/data/services/log_file_service.dart';
@@ -35,8 +36,9 @@ class NotificationCaptureService {
 
   /// Checks if the service is properly configured (enabled + permission granted).
   Future<bool> isActive() async {
-    final enabled = await SharedPreferencesService()
-        .getBoolValue(SharedPreferencesKeys.notificationListenerEnabled);
+    final enabled = await SharedPreferencesService().getBoolValue(
+      SharedPreferencesKeys.notificationListenerEnabled,
+    );
     if (enabled != true) return false;
 
     final hasPermission = await isPermissionGranted();
@@ -45,8 +47,9 @@ class NotificationCaptureService {
 
   /// Returns the list of user-allowed app package names.
   Future<List<String>> getAllowedApps() async {
-    return await SharedPreferencesService()
-        .getStringListValue(SharedPreferencesKeys.notificationAllowedApps);
+    return await SharedPreferencesService().getStringListValue(
+      SharedPreferencesKeys.notificationAllowedApps,
+    );
   }
 
   /// Adds a package name to the allowed list.
@@ -54,9 +57,9 @@ class NotificationCaptureService {
     final current = await getAllowedApps();
     if (!current.contains(packageName)) {
       current.add(packageName);
-      await SharedPreferencesService().setStringListValue(
+      await SharedPreferencesService().setStringValue(
         SharedPreferencesKeys.notificationAllowedApps,
-        current,
+        jsonEncode(current),
       );
     }
   }
@@ -65,19 +68,18 @@ class NotificationCaptureService {
   Future<void> disallowApp(String packageName) async {
     final current = await getAllowedApps();
     current.remove(packageName);
-    await SharedPreferencesService().setStringListValue(
+    await SharedPreferencesService().setStringValue(
       SharedPreferencesKeys.notificationAllowedApps,
-      current,
+      jsonEncode(current),
     );
   }
 
   /// Returns the app icon as PNG bytes for a given package name.
   Future<Uint8List?> getAppIcon(String packageName) async {
     try {
-      final result = await _channel.invokeMethod<Uint8List>(
-        'getAppIcon',
-        {'packageName': packageName},
-      );
+      final result = await _channel.invokeMethod<Uint8List>('getAppIcon', {
+        'packageName': packageName,
+      });
       return result;
     } catch (_) {
       return null;
@@ -89,24 +91,22 @@ class NotificationCaptureService {
   Future<List<Map<String, String>>> getInstalledApps() async {
     final result = await _channel.invokeListMethod('getInstalledApps');
     if (result == null) return [];
-    return result
-        .map((e) => Map<String, String>.from(e as Map))
-        .toList();
+    return result.map((e) => Map<String, String>.from(e as Map)).toList();
   }
 
   /// Resolves a package name to its human-readable app name.
   Future<String> getAppName(String packageName) async {
-    final result = await _channel.invokeMethod<String>(
-      'getAppName',
-      {'packageName': packageName},
-    );
+    final result = await _channel.invokeMethod<String>('getAppName', {
+      'packageName': packageName,
+    });
     return result ?? packageName;
   }
 
   /// Logs the current state for debugging.
   Future<void> logStatus() async {
-    final enabled = await SharedPreferencesService()
-        .getBoolValue(SharedPreferencesKeys.notificationListenerEnabled);
+    final enabled = await SharedPreferencesService().getBoolValue(
+      SharedPreferencesKeys.notificationListenerEnabled,
+    );
     final hasPermission = await isPermissionGranted();
 
     LogFileService().appendLog(

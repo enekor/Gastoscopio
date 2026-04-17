@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:cashly/data/services/login_service.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -35,8 +37,8 @@ class SharedPreferencesService {
 
   Future<List<String>> getStringListValue(SharedPreferencesKeys key) async {
     final prefs = await SharedPreferences.getInstance();
-    var ret = prefs.getStringList(key.toString());
-    return ret ?? [];
+    var ret = prefs.getString(key.toString());
+    return List<String>.from(jsonDecode(ret ?? '[]'));
   }
 
   Future<void> setStringListValue(
@@ -44,7 +46,7 @@ class SharedPreferencesService {
     List<String> value,
   ) async {
     final prefs = await SharedPreferences.getInstance();
-    await prefs.setStringList(key.toString(), value);
+    await prefs.setString(key.toString(), jsonEncode(value));
   }
 
   Future<void> setBoolValue(SharedPreferencesKeys key, bool value) async {

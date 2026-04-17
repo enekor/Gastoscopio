@@ -29,8 +29,8 @@ class TransactionNotificationListener : NotificationListenerService() {
     private fun getAllowedApps(): Set<String> {
         return try {
             val prefs = applicationContext.getSharedPreferences(PREFS_NAME, MODE_PRIVATE)
-            // Flutter shared_preferences stores StringList as a JSON array string
-            val jsonStr = prefs.getString(PREF_ALLOWED_APPS, null) ?: return emptySet()
+            // Flutter shared_preferences stores StringList as a JSON array string, prefixed with a specific phrase
+            var jsonStr = prefs.getString(PREF_ALLOWED_APPS, null) ?: return emptySet()
             val jsonArray = JSONArray(jsonStr)
             val result = mutableSetOf<String>()
             for (i in 0 until jsonArray.length()) {
