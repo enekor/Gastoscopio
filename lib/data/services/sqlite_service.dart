@@ -11,6 +11,8 @@ import 'package:cashly/data/dao/pending_notification_movement_dao.dart';
 import 'package:cashly/data/models/pending_notification_movement.dart';
 import 'package:cashly/data/dao/category_budget_dao.dart';
 import 'package:cashly/data/models/category_budget.dart';
+import 'package:cashly/data/dao/savings_goal_dao.dart';
+import 'package:cashly/data/models/savings_goal.dart';
 import 'package:cashly/data/services/log_file_service.dart';
 import 'package:floor/floor.dart';
 import 'package:sqflite/sqflite.dart' as sqflite;
@@ -20,7 +22,7 @@ import 'package:path/path.dart' as p;
 
 part 'sqlite_service.g.dart';
 
-@Database(version: 6, entities: [Month, MovementValue, FixedMovement, Saves, PendingNotificationMovement, CategoryBudget])
+@Database(version: 7, entities: [Month, MovementValue, FixedMovement, Saves, PendingNotificationMovement, CategoryBudget, SavingsGoal])
 abstract class AppDatabase extends FloorDatabase {
   MonthDao get monthDao;
   MovementValueDao get movementValueDao;
@@ -28,6 +30,7 @@ abstract class AppDatabase extends FloorDatabase {
   SavesDao get savesDao;
   PendingNotificationMovementDao get pendingNotificationMovementDao;
   CategoryBudgetDao get categoryBudgetDao;
+  SavingsGoalDao get savingsGoalDao;
 
   static Migration migration3to4 = Migration(3, 4, (database) async {
     // Create Saves table
@@ -60,6 +63,19 @@ abstract class AppDatabase extends FloorDatabase {
       'id INTEGER PRIMARY KEY AUTOINCREMENT, '
       'category TEXT NOT NULL, '
       'monthlyLimit REAL NOT NULL'
+      ')',
+    );
+  });
+
+  static Migration migration6to7 = Migration(6, 7, (database) async {
+    await database.execute(
+      'CREATE TABLE IF NOT EXISTS SavingsGoal ('
+      'id INTEGER PRIMARY KEY AUTOINCREMENT, '
+      'name TEXT NOT NULL, '
+      'targetAmount REAL NOT NULL, '
+      'currentAmount REAL NOT NULL, '
+      'iconName TEXT NOT NULL, '
+      'createdAt TEXT NOT NULL'
       ')',
     );
   });
@@ -150,6 +166,7 @@ class SqliteService {
             AppDatabase.migration3to4,
             AppDatabase.migration4to5,
             AppDatabase.migration5to6,
+            AppDatabase.migration6to7,
           ])
           .build();
 

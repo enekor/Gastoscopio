@@ -3,7 +3,9 @@ import 'package:cashly/data/services/groq_serice.dart';
 import 'package:cashly/data/services/log_file_service.dart';
 import 'package:cashly/data/services/notification_capture_service.dart';
 import 'package:cashly/data/services/shared_preferences_service.dart';
+import 'package:cashly/data/services/smart_alerts_service.dart';
 import 'package:cashly/data/services/sqlite_service.dart';
+import 'package:cashly/modules/gastoscopio/widgets/smart_alerts_banner.dart';
 import 'package:cashly/modules/gastoscopio/logic/finance_service.dart';
 import 'package:cashly/modules/gastoscopio/widgets/loading.dart';
 import 'package:cashly/modules/notifications/widgets/pending_movement_card.dart';
@@ -260,6 +262,31 @@ class _PendingNotificationsScreenState
               AppLocalizations.of(context)!.pendingNotificationsSaved,
             ),
             behavior: SnackBarBehavior.floating,
+          ),
+        );
+      }
+
+      // Check for smart alerts triggered by the new movements
+      final alerts =
+          await SmartAlertsService().getAlerts(now.month, now.year);
+      final shouldAlert = alerts.any(
+        (a) =>
+            a.severity == AlertSeverity.critical ||
+            a.severity == AlertSeverity.warning,
+      );
+      if (mounted && shouldAlert) {
+        final currency = await SharedPreferencesService()
+            .getStringValue(SharedPreferencesKeys.currency);
+        if (!mounted) return;
+        await showModalBottomSheet(
+          context: context,
+          isScrollControlled: true,
+          shape: const RoundedRectangleBorder(
+            borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+          ),
+          builder: (ctx) => SmartAlertsSheet(
+            alerts: alerts,
+            currency: currency ?? '€',
           ),
         );
       }

@@ -11,6 +11,7 @@ import 'package:cashly/modules/gastoscopio/screens/fixed_movements_screen.dart';
 import 'package:cashly/modules/gastoscopio/screens/summary_screen.dart';
 import 'package:cashly/modules/gastoscopio/screens/view_movements_filtered_screen.dart';
 import 'package:cashly/modules/gastoscopio/widgets/finance_widgets.dart';
+import 'package:cashly/modules/gastoscopio/widgets/smart_alerts_banner.dart';
 import 'package:cashly/data/models/movement_value.dart';
 import 'package:cashly/common/tag_list.dart';
 import 'package:cashly/modules/settings.dart/settings.dart';
@@ -233,6 +234,8 @@ class _GastoscopioHomeScreenState extends State<GastoscopioHomeScreen>
                 const SizedBox(height: 16),
                 _buildNotificationReminderBanner(),
               ],
+              const SizedBox(height: 8),
+              const SmartAlertsBanner(),
               const SizedBox(height: 24),
               Text(
                 AppLocalizations.of(context)!.quickActions,

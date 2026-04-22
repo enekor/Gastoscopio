@@ -2443,6 +2443,179 @@ abstract class AppLocalizations {
   /// In es, this message translates to:
   /// **'Superado en {amount}'**
   String budgetExceededBy(String amount);
+
+  /// No description provided for @comparison.
+  ///
+  /// In es, this message translates to:
+  /// **'Comparativa'**
+  String get comparison;
+
+  /// No description provided for @comparisonByCategory.
+  ///
+  /// In es, this message translates to:
+  /// **'Por categoría'**
+  String get comparisonByCategory;
+
+  /// No description provided for @comparisonNoData.
+  ///
+  /// In es, this message translates to:
+  /// **'No hay datos suficientes para comparar con el mes anterior.'**
+  String get comparisonNoData;
+
+  /// No description provided for @comparisonDescription.
+  ///
+  /// In es, this message translates to:
+  /// **'Comparando {prevMonth} {prevYear} con {currentMonth} {currentYear}'**
+  String comparisonDescription(
+    String prevMonth,
+    String prevYear,
+    String currentMonth,
+    String currentYear,
+  );
+
+  /// No description provided for @comparisonNew.
+  ///
+  /// In es, this message translates to:
+  /// **'Nuevo'**
+  String get comparisonNew;
+
+  /// No description provided for @savingsGoalsTitle.
+  ///
+  /// In es, this message translates to:
+  /// **'Metas de ahorro'**
+  String get savingsGoalsTitle;
+
+  /// No description provided for @savingsGoalsSubtitle.
+  ///
+  /// In es, this message translates to:
+  /// **'Controla varias metas a la vez'**
+  String get savingsGoalsSubtitle;
+
+  /// No description provided for @addGoal.
+  ///
+  /// In es, this message translates to:
+  /// **'Añadir meta'**
+  String get addGoal;
+
+  /// No description provided for @newGoal.
+  ///
+  /// In es, this message translates to:
+  /// **'Nueva meta'**
+  String get newGoal;
+
+  /// No description provided for @editGoalSheet.
+  ///
+  /// In es, this message translates to:
+  /// **'Editar meta'**
+  String get editGoalSheet;
+
+  /// No description provided for @goalName.
+  ///
+  /// In es, this message translates to:
+  /// **'Nombre'**
+  String get goalName;
+
+  /// No description provided for @goalTargetAmount.
+  ///
+  /// In es, this message translates to:
+  /// **'Cantidad objetivo'**
+  String get goalTargetAmount;
+
+  /// No description provided for @goalCurrentAmount.
+  ///
+  /// In es, this message translates to:
+  /// **'Cantidad actual'**
+  String get goalCurrentAmount;
+
+  /// No description provided for @goalIcon.
+  ///
+  /// In es, this message translates to:
+  /// **'Icono'**
+  String get goalIcon;
+
+  /// No description provided for @goalCompleted.
+  ///
+  /// In es, this message translates to:
+  /// **'¡Meta conseguida!'**
+  String get goalCompleted;
+
+  /// No description provided for @goalRemaining.
+  ///
+  /// In es, this message translates to:
+  /// **'Faltan {amount}'**
+  String goalRemaining(String amount);
+
+  /// No description provided for @noGoalsYet.
+  ///
+  /// In es, this message translates to:
+  /// **'Aún no tienes metas'**
+  String get noGoalsYet;
+
+  /// No description provided for @noGoalsDescription.
+  ///
+  /// In es, this message translates to:
+  /// **'Pulsa el botón + para crear tu primera meta de ahorro.'**
+  String get noGoalsDescription;
+
+  /// No description provided for @deleteGoalTitle.
+  ///
+  /// In es, this message translates to:
+  /// **'Eliminar meta'**
+  String get deleteGoalTitle;
+
+  /// No description provided for @deleteGoalConfirmation.
+  ///
+  /// In es, this message translates to:
+  /// **'¿Seguro que quieres eliminar \"{name}\"?'**
+  String deleteGoalConfirmation(String name);
+
+  /// No description provided for @smartAlertsTitle.
+  ///
+  /// In es, this message translates to:
+  /// **'Alertas inteligentes'**
+  String get smartAlertsTitle;
+
+  /// No description provided for @smartAlertsSummary.
+  ///
+  /// In es, this message translates to:
+  /// **'{count, plural, =1{1 alerta requiere tu atención} other{{count} alertas requieren tu atención}}'**
+  String smartAlertsSummary(int count);
+
+  /// No description provided for @alertBudgetExceededTitle.
+  ///
+  /// In es, this message translates to:
+  /// **'{category} fuera de presupuesto'**
+  String alertBudgetExceededTitle(String category);
+
+  /// No description provided for @alertBudgetExceededBody.
+  ///
+  /// In es, this message translates to:
+  /// **'Has gastado {spent} de {limit} — superado en {over}.'**
+  String alertBudgetExceededBody(String spent, String limit, String over);
+
+  /// No description provided for @alertBudgetNearTitle.
+  ///
+  /// In es, this message translates to:
+  /// **'{category} cerca del límite'**
+  String alertBudgetNearTitle(String category);
+
+  /// No description provided for @alertBudgetNearBody.
+  ///
+  /// In es, this message translates to:
+  /// **'{percent}% del presupuesto usado: {spent} de {limit}.'**
+  String alertBudgetNearBody(String percent, String spent, String limit);
+
+  /// No description provided for @alertSpendingSpikeTitle.
+  ///
+  /// In es, this message translates to:
+  /// **'Gasto alto en {category}'**
+  String alertSpendingSpikeTitle(String category);
+
+  /// No description provided for @alertSpendingSpikeBody.
+  ///
+  /// In es, this message translates to:
+  /// **'{delta} respecto a tu media reciente de {avg}.'**
+  String alertSpendingSpikeBody(String delta, String avg);
 }
 
 class _AppLocalizationsDelegate

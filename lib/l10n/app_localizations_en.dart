@@ -1287,4 +1287,121 @@ class AppLocalizationsEn extends AppLocalizations {
   String budgetExceededBy(String amount) {
     return 'Exceeded by $amount';
   }
+
+  @override
+  String get comparison => 'Comparison';
+
+  @override
+  String get comparisonByCategory => 'By category';
+
+  @override
+  String get comparisonNoData =>
+      'Not enough data to compare with the previous month.';
+
+  @override
+  String comparisonDescription(
+    String prevMonth,
+    String prevYear,
+    String currentMonth,
+    String currentYear,
+  ) {
+    return 'Comparing $prevMonth $prevYear with $currentMonth $currentYear';
+  }
+
+  @override
+  String get comparisonNew => 'New';
+
+  @override
+  String get savingsGoalsTitle => 'Savings goals';
+
+  @override
+  String get savingsGoalsSubtitle => 'Track multiple goals at once';
+
+  @override
+  String get addGoal => 'Add goal';
+
+  @override
+  String get newGoal => 'New goal';
+
+  @override
+  String get editGoalSheet => 'Edit goal';
+
+  @override
+  String get goalName => 'Name';
+
+  @override
+  String get goalTargetAmount => 'Target amount';
+
+  @override
+  String get goalCurrentAmount => 'Current amount';
+
+  @override
+  String get goalIcon => 'Icon';
+
+  @override
+  String get goalCompleted => 'Goal reached!';
+
+  @override
+  String goalRemaining(String amount) {
+    return '$amount to go';
+  }
+
+  @override
+  String get noGoalsYet => 'No goals yet';
+
+  @override
+  String get noGoalsDescription =>
+      'Tap the + button to create your first savings goal.';
+
+  @override
+  String get deleteGoalTitle => 'Delete goal';
+
+  @override
+  String deleteGoalConfirmation(String name) {
+    return 'Are you sure you want to delete \"$name\"?';
+  }
+
+  @override
+  String get smartAlertsTitle => 'Smart alerts';
+
+  @override
+  String smartAlertsSummary(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count alerts need your attention',
+      one: '1 alert needs your attention',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String alertBudgetExceededTitle(String category) {
+    return '$category over budget';
+  }
+
+  @override
+  String alertBudgetExceededBody(String spent, String limit, String over) {
+    return 'Spent $spent of $limit — exceeded by $over.';
+  }
+
+  @override
+  String alertBudgetNearTitle(String category) {
+    return '$category close to limit';
+  }
+
+  @override
+  String alertBudgetNearBody(String percent, String spent, String limit) {
+    return '$percent% of budget used: $spent of $limit.';
+  }
+
+  @override
+  String alertSpendingSpikeTitle(String category) {
+    return '$category spending up';
+  }
+
+  @override
+  String alertSpendingSpikeBody(String delta, String avg) {
+    return '$delta vs your recent average of $avg.';
+  }
 }

@@ -6,6 +6,7 @@ import 'package:cashly/modules/budgets/widgets/budgets_overview_card.dart';
 import 'package:cashly/modules/gastoscopio/logic/finance_service.dart';
 import 'package:cashly/modules/gastoscopio/widgets/category_progress_chart.dart';
 import 'package:cashly/modules/gastoscopio/widgets/loading.dart';
+import 'package:cashly/modules/gastoscopio/widgets/month_comparison.dart';
 import 'package:cashly/modules/gastoscopio/widgets/month_grid_selector.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
@@ -35,7 +36,7 @@ class _SummaryScreenState extends State<SummaryScreen>
   @override
   void initState() {
     super.initState();
-    _tabController = TabController(length: 2, vsync: this);
+    _tabController = TabController(length: 3, vsync: this);
     _financeService = FinanceService.getInstance(
       SqliteService().db.monthDao,
       SqliteService().db.movementValueDao,
@@ -130,6 +131,12 @@ class _SummaryScreenState extends State<SummaryScreen>
                 controller: _tabController,
                 children: [
                   _buildSummaryTab(),
+                  MonthComparisonView(
+                    key: ValueKey('comparison_${_month}_$_year'),
+                    financeService: _financeService,
+                    month: _month,
+                    year: _year,
+                  ),
                   _buildAiAnalysisTab(),
                 ],
               ),
@@ -161,6 +168,7 @@ class _SummaryScreenState extends State<SummaryScreen>
             unselectedLabelColor: Theme.of(context).colorScheme.onSurfaceVariant,
             tabs: [
               Tab(text: AppLocalizations.of(context)!.summary),
+              Tab(text: AppLocalizations.of(context)!.comparison),
               Tab(text: AppLocalizations.of(context)!.aiAnalysis),
             ],
           ),

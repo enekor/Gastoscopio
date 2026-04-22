@@ -84,13 +84,15 @@ class _$AppDatabase extends AppDatabase {
 
   CategoryBudgetDao? _categoryBudgetDaoInstance;
 
+  SavingsGoalDao? _savingsGoalDaoInstance;
+
   Future<sqflite.Database> open(
     String path,
     List<Migration> migrations, [
     Callback? callback,
   ]) async {
     final databaseOptions = sqflite.OpenDatabaseOptions(
-      version: 6,
+      version: 7,
       onConfigure: (database) async {
         await database.execute('PRAGMA foreign_keys = ON');
         await callback?.onConfigure?.call(database);
@@ -117,6 +119,8 @@ class _$AppDatabase extends AppDatabase {
             'CREATE TABLE IF NOT EXISTS `PendingNotificationMovement` (`id` INTEGER PRIMARY KEY AUTOINCREMENT, `notificationText` TEXT NOT NULL, `appName` TEXT NOT NULL, `extractedAmount` REAL NOT NULL, `timestamp` TEXT NOT NULL)');
         await database.execute(
             'CREATE TABLE IF NOT EXISTS `CategoryBudget` (`id` INTEGER PRIMARY KEY AUTOINCREMENT, `category` TEXT NOT NULL, `monthlyLimit` REAL NOT NULL)');
+        await database.execute(
+            'CREATE TABLE IF NOT EXISTS `SavingsGoal` (`id` INTEGER PRIMARY KEY AUTOINCREMENT, `name` TEXT NOT NULL, `targetAmount` REAL NOT NULL, `currentAmount` REAL NOT NULL, `iconName` TEXT NOT NULL, `createdAt` TEXT NOT NULL)');
 
         await callback?.onCreate?.call(database, version);
       },
@@ -156,6 +160,12 @@ class _$AppDatabase extends AppDatabase {
   CategoryBudgetDao get categoryBudgetDao {
     return _categoryBudgetDaoInstance ??=
         _$CategoryBudgetDao(database, changeListener);
+  }
+
+  @override
+  SavingsGoalDao get savingsGoalDao {
+    return _savingsGoalDaoInstance ??=
+        _$SavingsGoalDao(database, changeListener);
   }
 }
 
@@ -832,5 +842,106 @@ class _$CategoryBudgetDao extends CategoryBudgetDao {
   @override
   Future<void> deleteBudget(CategoryBudget budget) async {
     await _categoryBudgetDeletionAdapter.delete(budget);
+  }
+}
+
+class _$SavingsGoalDao extends SavingsGoalDao {
+  _$SavingsGoalDao(
+    this.database,
+    this.changeListener,
+  )   : _queryAdapter = QueryAdapter(database),
+        _savingsGoalInsertionAdapter = InsertionAdapter(
+            database,
+            'SavingsGoal',
+            (SavingsGoal item) => <String, Object?>{
+                  'id': item.id,
+                  'name': item.name,
+                  'targetAmount': item.targetAmount,
+                  'currentAmount': item.currentAmount,
+                  'iconName': item.iconName,
+                  'createdAt': item.createdAt
+                }),
+        _savingsGoalUpdateAdapter = UpdateAdapter(
+            database,
+            'SavingsGoal',
+            ['id'],
+            (SavingsGoal item) => <String, Object?>{
+                  'id': item.id,
+                  'name': item.name,
+                  'targetAmount': item.targetAmount,
+                  'currentAmount': item.currentAmount,
+                  'iconName': item.iconName,
+                  'createdAt': item.createdAt
+                }),
+        _savingsGoalDeletionAdapter = DeletionAdapter(
+            database,
+            'SavingsGoal',
+            ['id'],
+            (SavingsGoal item) => <String, Object?>{
+                  'id': item.id,
+                  'name': item.name,
+                  'targetAmount': item.targetAmount,
+                  'currentAmount': item.currentAmount,
+                  'iconName': item.iconName,
+                  'createdAt': item.createdAt
+                });
+
+  final sqflite.DatabaseExecutor database;
+
+  final StreamController<String> changeListener;
+
+  final QueryAdapter _queryAdapter;
+
+  final InsertionAdapter<SavingsGoal> _savingsGoalInsertionAdapter;
+
+  final UpdateAdapter<SavingsGoal> _savingsGoalUpdateAdapter;
+
+  final DeletionAdapter<SavingsGoal> _savingsGoalDeletionAdapter;
+
+  @override
+  Future<List<SavingsGoal>> findAll() async {
+    return _queryAdapter.queryList(
+        'SELECT * FROM SavingsGoal ORDER BY createdAt ASC',
+        mapper: (Map<String, Object?> row) => SavingsGoal(
+            id: row['id'] as int?,
+            name: row['name'] as String,
+            targetAmount: row['targetAmount'] as double,
+            currentAmount: row['currentAmount'] as double,
+            iconName: row['iconName'] as String,
+            createdAt: row['createdAt'] as String));
+  }
+
+  @override
+  Future<SavingsGoal?> findById(int id) async {
+    return _queryAdapter.query('SELECT * FROM SavingsGoal WHERE id = ?1',
+        mapper: (Map<String, Object?> row) => SavingsGoal(
+            id: row['id'] as int?,
+            name: row['name'] as String,
+            targetAmount: row['targetAmount'] as double,
+            currentAmount: row['currentAmount'] as double,
+            iconName: row['iconName'] as String,
+            createdAt: row['createdAt'] as String),
+        arguments: [id]);
+  }
+
+  @override
+  Future<void> deleteAll() async {
+    await _queryAdapter.queryNoReturn('DELETE FROM SavingsGoal');
+  }
+
+  @override
+  Future<int> insertGoal(SavingsGoal goal) {
+    return _savingsGoalInsertionAdapter.insertAndReturnId(
+        goal, OnConflictStrategy.abort);
+  }
+
+  @override
+  Future<void> updateGoal(SavingsGoal goal) async {
+    await _savingsGoalUpdateAdapter.update(goal, OnConflictStrategy.abort);
+  }
+
+  @override
+  Future<void> deleteGoal(SavingsGoal goal) async {
+    await _savingsGoalDeletionAdapter.delete(goal);
   }
 }

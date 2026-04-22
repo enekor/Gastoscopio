@@ -421,5 +421,94 @@
     "placeholders": {
       "amount": { "type": "String" }
     }
+  },
+
+  "comparison": "Comparison",
+  "comparisonByCategory": "By category",
+  "comparisonNoData": "Not enough data to compare with the previous month.",
+  "comparisonDescription": "Comparing {prevMonth} {prevYear} with {currentMonth} {currentYear}",
+  "@comparisonDescription": {
+    "placeholders": {
+      "prevMonth": { "type": "String" },
+      "prevYear": { "type": "String" },
+      "currentMonth": { "type": "String" },
+      "currentYear": { "type": "String" }
+    }
+  },
+  "comparisonNew": "New",
+
+  "savingsGoalsTitle": "Savings goals",
+  "savingsGoalsSubtitle": "Track multiple goals at once",
+  "addGoal": "Add goal",
+  "newGoal": "New goal",
+  "editGoalSheet": "Edit goal",
+  "goalName": "Name",
+  "goalTargetAmount": "Target amount",
+  "goalCurrentAmount": "Current amount",
+  "goalIcon": "Icon",
+  "goalCompleted": "Goal reached!",
+  "goalRemaining": "{amount} to go",
+  "@goalRemaining": {
+    "placeholders": {
+      "amount": { "type": "String" }
+    }
+  },
+  "noGoalsYet": "No goals yet",
+  "noGoalsDescription": "Tap the + button to create your first savings goal.",
+  "deleteGoalTitle": "Delete goal",
+  "deleteGoalConfirmation": "Are you sure you want to delete \"{name}\"?",
+  "@deleteGoalConfirmation": {
+    "placeholders": {
+      "name": { "type": "String" }
+    }
+  },
+
+  "smartAlertsTitle": "Smart alerts",
+  "smartAlertsSummary": "{count, plural, =1{1 alert needs your attention} other{{count} alerts need your attention}}",
+  "@smartAlertsSummary": {
+    "placeholders": {
+      "count": { "type": "int" }
+    }
+  },
+  "alertBudgetExceededTitle": "{category} over budget",
+  "@alertBudgetExceededTitle": {
+    "placeholders": {
+      "category": { "type": "String" }
+    }
+  },
+  "alertBudgetExceededBody": "Spent {spent} of {limit} — exceeded by {over}.",
+  "@alertBudgetExceededBody": {
+    "placeholders": {
+      "spent": { "type": "String" },
+      "limit": { "type": "String" },
+      "over": { "type": "String" }
+    }
+  },
+  "alertBudgetNearTitle": "{category} close to limit",
+  "@alertBudgetNearTitle": {
+    "placeholders": {
+      "category": { "type": "String" }
+    }
+  },
+  "alertBudgetNearBody": "{percent}% of budget used: {spent} of {limit}.",
+  "@alertBudgetNearBody": {
+    "placeholders": {
+      "percent": { "type": "String" },
+      "spent": { "type": "String" },
+      "limit": { "type": "String" }
+    }
+  },
+  "alertSpendingSpikeTitle": "{category} spending up",
+  "@alertSpendingSpikeTitle": {
+    "placeholders": {
+      "category": { "type": "String" }
+    }
+  },
+  "alertSpendingSpikeBody": "{delta} vs your recent average of {avg}.",
+  "@alertSpendingSpikeBody": {
+    "placeholders": {
+      "delta": { "type": "String" },
+      "avg": { "type": "String" }
+    }
   }
 }

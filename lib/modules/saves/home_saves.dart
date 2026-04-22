@@ -3,6 +3,7 @@ import 'package:cashly/data/services/export_service.dart';
 import 'package:cashly/data/services/shared_preferences_service.dart';
 import 'package:cashly/data/services/sqlite_service.dart';
 import 'package:cashly/modules/saves/logic/saves_service.dart';
+import 'package:cashly/modules/saves/screens/savings_goals_screen.dart';
 import 'package:cashly/modules/saves/widgets/saves_widgets.dart';
 import 'package:cashly/l10n/app_localizations.dart';
 import 'package:flutter/material.dart';
@@ -182,6 +183,64 @@ class _HomeSavesState extends State<HomeSaves> {
     }
   }
 
+  Widget _buildMultipleGoalsCard(BuildContext context) {
+    final theme = Theme.of(context);
+    final localizations = AppLocalizations.of(context);
+    return Card(
+      color: theme.colorScheme.secondary.withAlpha(25),
+      elevation: 0,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(16),
+        side: BorderSide(color: theme.colorScheme.outline.withAlpha(50)),
+      ),
+      child: InkWell(
+        borderRadius: BorderRadius.circular(16),
+        onTap: () {
+          Navigator.of(context).push(
+            MaterialPageRoute(builder: (_) => const SavingsGoalsScreen()),
+          );
+        },
+        child: Padding(
+          padding: const EdgeInsets.all(20),
+          child: Row(
+            children: [
+              CircleAvatar(
+                radius: 22,
+                backgroundColor: theme.colorScheme.primary.withAlpha(40),
+                child: Icon(
+                  Icons.flag_outlined,
+                  color: theme.colorScheme.primary,
+                ),
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      localizations.savingsGoalsTitle,
+                      style: theme.textTheme.titleMedium?.copyWith(
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                    const SizedBox(height: 4),
+                    Text(
+                      localizations.savingsGoalsSubtitle,
+                      style: theme.textTheme.bodySmall?.copyWith(
+                        color: theme.colorScheme.onSurfaceVariant,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              const Icon(Icons.chevron_right),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
   Future<void> _exportMovementsToCsv() async {
     final localizations = AppLocalizations.of(context);
     final messenger = ScaffoldMessenger.of(context);
@@ -312,6 +371,8 @@ class _HomeSavesState extends State<HomeSaves> {
                         );
                       },
                     ),
+                    const SizedBox(height: 24),
+                    _buildMultipleGoalsCard(context),
                     const SizedBox(height: 100),
                   ]),
                 ),

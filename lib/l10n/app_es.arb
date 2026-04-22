@@ -1355,5 +1355,94 @@
     "placeholders": {
       "amount": { "type": "String" }
     }
+  },
+
+  "comparison": "Comparativa",
+  "comparisonByCategory": "Por categoría",
+  "comparisonNoData": "No hay datos suficientes para comparar con el mes anterior.",
+  "comparisonDescription": "Comparando {prevMonth} {prevYear} con {currentMonth} {currentYear}",
+  "@comparisonDescription": {
+    "placeholders": {
+      "prevMonth": { "type": "String" },
+      "prevYear": { "type": "String" },
+      "currentMonth": { "type": "String" },
+      "currentYear": { "type": "String" }
+    }
+  },
+  "comparisonNew": "Nuevo",
+
+  "savingsGoalsTitle": "Metas de ahorro",
+  "savingsGoalsSubtitle": "Controla varias metas a la vez",
+  "addGoal": "Añadir meta",
+  "newGoal": "Nueva meta",
+  "editGoalSheet": "Editar meta",
+  "goalName": "Nombre",
+  "goalTargetAmount": "Cantidad objetivo",
+  "goalCurrentAmount": "Cantidad actual",
+  "goalIcon": "Icono",
+  "goalCompleted": "¡Meta conseguida!",
+  "goalRemaining": "Faltan {amount}",
+  "@goalRemaining": {
+    "placeholders": {
+      "amount": { "type": "String" }
+    }
+  },
+  "noGoalsYet": "Aún no tienes metas",
+  "noGoalsDescription": "Pulsa el botón + para crear tu primera meta de ahorro.",
+  "deleteGoalTitle": "Eliminar meta",
+  "deleteGoalConfirmation": "¿Seguro que quieres eliminar \"{name}\"?",
+  "@deleteGoalConfirmation": {
+    "placeholders": {
+      "name": { "type": "String" }
+    }
+  },
+
+  "smartAlertsTitle": "Alertas inteligentes",
+  "smartAlertsSummary": "{count, plural, =1{1 alerta requiere tu atención} other{{count} alertas requieren tu atención}}",
+  "@smartAlertsSummary": {
+    "placeholders": {
+      "count": { "type": "int" }
+    }
+  },
+  "alertBudgetExceededTitle": "{category} fuera de presupuesto",
+  "@alertBudgetExceededTitle": {
+    "placeholders": {
+      "category": { "type": "String" }
+    }
+  },
+  "alertBudgetExceededBody": "Has gastado {spent} de {limit} — superado en {over}.",
+  "@alertBudgetExceededBody": {
+    "placeholders": {
+      "spent": { "type": "String" },
+      "limit": { "type": "String" },
+      "over": { "type": "String" }
+    }
+  },
+  "alertBudgetNearTitle": "{category} cerca del límite",
+  "@alertBudgetNearTitle": {
+    "placeholders": {
+      "category": { "type": "String" }
+    }
+  },
+  "alertBudgetNearBody": "{percent}% del presupuesto usado: {spent} de {limit}.",
+  "@alertBudgetNearBody": {
+    "placeholders": {
+      "percent": { "type": "String" },
+      "spent": { "type": "String" },
+      "limit": { "type": "String" }
+    }
+  },
+  "alertSpendingSpikeTitle": "Gasto alto en {category}",
+  "@alertSpendingSpikeTitle": {
+    "placeholders": {
+      "category": { "type": "String" }
+    }
+  },
+  "alertSpendingSpikeBody": "{delta} respecto a tu media reciente de {avg}.",
+  "@alertSpendingSpikeBody": {
+    "placeholders": {
+      "delta": { "type": "String" },
+      "avg": { "type": "String" }
+    }
   }
 }
