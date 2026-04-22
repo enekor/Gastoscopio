@@ -395,6 +395,31 @@
     "placeholders": {
       "appName": { "type": "String" }
     }
-  }
+  },
 
+  "exportCsvTitle": "Export to CSV",
+  "exportCsvDescription": "Export all your movements as a CSV file to open in Excel or any spreadsheet app.",
+  "exportCsvMovements": "Export movements",
+  "exportingCsv": "Exporting...",
+  "exportCsvSuccess": "CSV exported successfully",
+  "exportCsvError": "Could not export CSV",
+
+  "budgetsTitle": "Category budgets",
+  "budgetsSectionDescription": "Set monthly spending limits per category and track your progress.",
+  "budgetsManage": "Manage budgets",
+  "budgetsDescription": "Tap a category to set or change its monthly spending limit.",
+  "budgetMonthlyLimit": "Monthly limit",
+  "budgetMonthlyAmount": "{amount} per month",
+  "@budgetMonthlyAmount": {
+    "placeholders": {
+      "amount": { "type": "String" }
+    }
+  },
+  "budgetNotSet": "No limit set",
+  "budgetExceededBy": "Exceeded by {amount}",
+  "@budgetExceededBy": {
+    "placeholders": {
+      "amount": { "type": "String" }
+    }
+  }
 }

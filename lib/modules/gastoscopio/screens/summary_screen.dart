@@ -2,6 +2,7 @@ import 'package:cashly/common/tag_list.dart';
 import 'package:cashly/data/models/movement_value.dart';
 import 'package:cashly/data/models/month.dart';
 import 'package:cashly/data/services/groq_serice.dart';
+import 'package:cashly/modules/budgets/widgets/budgets_overview_card.dart';
 import 'package:cashly/modules/gastoscopio/logic/finance_service.dart';
 import 'package:cashly/modules/gastoscopio/widgets/category_progress_chart.dart';
 import 'package:cashly/modules/gastoscopio/widgets/loading.dart';
@@ -186,6 +187,22 @@ class _SummaryScreenState extends State<SummaryScreen>
                   delegate: SliverChildListDelegate([
                     _buildMonthlyOverview(snapshot.data!),
                     const SizedBox(height: 24),
+                    FutureBuilder<int>(
+                      future: _financeService.findMonthByMonthAndYear(
+                        _month,
+                        _year,
+                      ),
+                      builder: (context, monthSnap) {
+                        if (!monthSnap.hasData) return const SizedBox.shrink();
+                        return Padding(
+                          padding: const EdgeInsets.only(bottom: 24),
+                          child: BudgetsOverviewCard(
+                            key: ValueKey('budgets_${monthSnap.data}'),
+                            monthId: monthSnap.data!,
+                          ),
+                        );
+                      },
+                    ),
                     Text(
                       AppLocalizations.of(context)!.categoryDistribution,
                       style: Theme.of(context).textTheme.titleLarge,

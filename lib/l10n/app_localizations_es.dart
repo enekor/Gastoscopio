@@ -1255,4 +1255,53 @@ class AppLocalizationsEs extends AppLocalizations {
   String fromApp(String appName) {
     return 'Desde $appName';
   }
+
+  @override
+  String get exportCsvTitle => 'Exportar a CSV';
+
+  @override
+  String get exportCsvDescription =>
+      'Exporta todos tus movimientos como un archivo CSV para abrir en Excel o cualquier app de hojas de cálculo.';
+
+  @override
+  String get exportCsvMovements => 'Exportar movimientos';
+
+  @override
+  String get exportingCsv => 'Exportando...';
+
+  @override
+  String get exportCsvSuccess => 'CSV exportado correctamente';
+
+  @override
+  String get exportCsvError => 'No se pudo exportar el CSV';
+
+  @override
+  String get budgetsTitle => 'Presupuestos por categoría';
+
+  @override
+  String get budgetsSectionDescription =>
+      'Establece límites mensuales de gasto por categoría y controla tu progreso.';
+
+  @override
+  String get budgetsManage => 'Gestionar presupuestos';
+
+  @override
+  String get budgetsDescription =>
+      'Pulsa una categoría para establecer o cambiar su límite mensual de gasto.';
+
+  @override
+  String get budgetMonthlyLimit => 'Límite mensual';
+
+  @override
+  String budgetMonthlyAmount(String amount) {
+    return '$amount al mes';
+  }
+
+  @override
+  String get budgetNotSet => 'Sin límite';
+
+  @override
+  String budgetExceededBy(String amount) {
+    return 'Superado en $amount';
+  }
 }

@@ -1,4 +1,5 @@
 import 'package:cashly/data/models/saves.dart';
+import 'package:cashly/data/services/export_service.dart';
 import 'package:cashly/data/services/shared_preferences_service.dart';
 import 'package:cashly/data/services/sqlite_service.dart';
 import 'package:cashly/modules/saves/logic/saves_service.dart';
@@ -181,15 +182,31 @@ class _HomeSavesState extends State<HomeSaves> {
     }
   }
 
+  Future<void> _exportMovementsToCsv() async {
+    final localizations = AppLocalizations.of(context);
+    final messenger = ScaffoldMessenger.of(context);
+
+    final result = await ExportService().exportMovementsToCSV();
+
+    if (!mounted) return;
+
+    if (result.wasCancelled) return;
+
+    messenger.showSnackBar(
+      SnackBar(
+        content: Text(result.success
+            ? localizations.exportCsvSuccess
+            : localizations.exportCsvError),
+        behavior: SnackBarBehavior.floating,
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       floatingActionButton: FloatingActionButton(
-        onPressed: () {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text(AppLocalizations.of(context).exportComingSoon)),
-          );
-        },
+        onPressed: _exportMovementsToCsv,
         child: const Icon(Icons.download),
       ),
       body: CustomScrollView(

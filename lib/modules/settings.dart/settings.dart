@@ -11,6 +11,8 @@ import 'package:cashly/data/services/sqlite_service.dart';
 import 'package:cashly/modules/gastoscopio/widgets/loading.dart';
 import 'package:cashly/modules/settings.dart/widgets/developer_options_widget.dart';
 import 'package:cashly/modules/settings.dart/widgets/backup_restore_widget.dart';
+import 'package:cashly/modules/settings.dart/widgets/export_csv_widget.dart';
+import 'package:cashly/modules/budgets/budgets_screen.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:cashly/l10n/app_localizations.dart';
@@ -367,6 +369,11 @@ class _SettingsScreenState extends State<SettingsScreen> with WidgetsBindingObse
                 const SecuritySettingsCard(),
                 const SizedBox(height: 32),
 
+                _buildSectionHeader(context, AppLocalizations.of(context)!.budgetsTitle, AppLocalizations.of(context)!.budgetsSectionDescription, Icons.savings_outlined),
+                const SizedBox(height: 20),
+                _buildBudgetsCard(context),
+                const SizedBox(height: 32),
+
                 _buildSectionHeader(context, AppLocalizations.of(context)!.notificationListenerTitle, AppLocalizations.of(context)!.notificationListenerDescription, Icons.notifications_active_outlined),
                 const SizedBox(height: 20),
                 _buildNotificationListenerCard(context),
@@ -376,12 +383,65 @@ class _SettingsScreenState extends State<SettingsScreen> with WidgetsBindingObse
                 const SizedBox(height: 20),
                 const BackupRestoreWidget(),
                 const SizedBox(height: 16),
+                const ExportCsvWidget(),
+                const SizedBox(height: 16),
                 DeveloperOptionsWidget(onImportSuccess: _handleImportSuccess),
                 const SizedBox(height: 100),
               ]),
             ),
           ),
         ],
+      ),
+    );
+  }
+
+  Widget _buildBudgetsCard(BuildContext context) {
+    final theme = Theme.of(context);
+    final localizations = AppLocalizations.of(context)!;
+    return Card(
+      color: theme.colorScheme.secondary.withAlpha(25),
+      elevation: 0,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(16),
+        side: BorderSide(color: theme.colorScheme.outline.withAlpha(50)),
+      ),
+      child: InkWell(
+        borderRadius: BorderRadius.circular(16),
+        onTap: () {
+          Navigator.of(context).push(
+            MaterialPageRoute(builder: (_) => const BudgetsScreen()),
+          );
+        },
+        child: Padding(
+          padding: const EdgeInsets.all(20),
+          child: Row(
+            children: [
+              Icon(Icons.pie_chart_outline, color: theme.colorScheme.primary),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      localizations.budgetsManage,
+                      style: theme.textTheme.titleMedium?.copyWith(
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                    const SizedBox(height: 4),
+                    Text(
+                      localizations.budgetsSectionDescription,
+                      style: theme.textTheme.bodySmall?.copyWith(
+                        color: theme.colorScheme.onSurfaceVariant,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              const Icon(Icons.chevron_right),
+            ],
+          ),
+        ),
       ),
     );
   }

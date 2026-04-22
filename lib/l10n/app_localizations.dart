@@ -2359,6 +2359,90 @@ abstract class AppLocalizations {
   /// In es, this message translates to:
   /// **'Desde {appName}'**
   String fromApp(String appName);
+
+  /// No description provided for @exportCsvTitle.
+  ///
+  /// In es, this message translates to:
+  /// **'Exportar a CSV'**
+  String get exportCsvTitle;
+
+  /// No description provided for @exportCsvDescription.
+  ///
+  /// In es, this message translates to:
+  /// **'Exporta todos tus movimientos como un archivo CSV para abrir en Excel o cualquier app de hojas de cálculo.'**
+  String get exportCsvDescription;
+
+  /// No description provided for @exportCsvMovements.
+  ///
+  /// In es, this message translates to:
+  /// **'Exportar movimientos'**
+  String get exportCsvMovements;
+
+  /// No description provided for @exportingCsv.
+  ///
+  /// In es, this message translates to:
+  /// **'Exportando...'**
+  String get exportingCsv;
+
+  /// No description provided for @exportCsvSuccess.
+  ///
+  /// In es, this message translates to:
+  /// **'CSV exportado correctamente'**
+  String get exportCsvSuccess;
+
+  /// No description provided for @exportCsvError.
+  ///
+  /// In es, this message translates to:
+  /// **'No se pudo exportar el CSV'**
+  String get exportCsvError;
+
+  /// No description provided for @budgetsTitle.
+  ///
+  /// In es, this message translates to:
+  /// **'Presupuestos por categoría'**
+  String get budgetsTitle;
+
+  /// No description provided for @budgetsSectionDescription.
+  ///
+  /// In es, this message translates to:
+  /// **'Establece límites mensuales de gasto por categoría y controla tu progreso.'**
+  String get budgetsSectionDescription;
+
+  /// No description provided for @budgetsManage.
+  ///
+  /// In es, this message translates to:
+  /// **'Gestionar presupuestos'**
+  String get budgetsManage;
+
+  /// No description provided for @budgetsDescription.
+  ///
+  /// In es, this message translates to:
+  /// **'Pulsa una categoría para establecer o cambiar su límite mensual de gasto.'**
+  String get budgetsDescription;
+
+  /// No description provided for @budgetMonthlyLimit.
+  ///
+  /// In es, this message translates to:
+  /// **'Límite mensual'**
+  String get budgetMonthlyLimit;
+
+  /// No description provided for @budgetMonthlyAmount.
+  ///
+  /// In es, this message translates to:
+  /// **'{amount} al mes'**
+  String budgetMonthlyAmount(String amount);
+
+  /// No description provided for @budgetNotSet.
+  ///
+  /// In es, this message translates to:
+  /// **'Sin límite'**
+  String get budgetNotSet;
+
+  /// No description provided for @budgetExceededBy.
+  ///
+  /// In es, this message translates to:
+  /// **'Superado en {amount}'**
+  String budgetExceededBy(String amount);
 }
 
 class _AppLocalizationsDelegate

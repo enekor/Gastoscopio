@@ -9,6 +9,8 @@ import 'package:cashly/data/models/saves.dart';
 import 'package:cashly/data/dao/saves_dao.dart';
 import 'package:cashly/data/dao/pending_notification_movement_dao.dart';
 import 'package:cashly/data/models/pending_notification_movement.dart';
+import 'package:cashly/data/dao/category_budget_dao.dart';
+import 'package:cashly/data/models/category_budget.dart';
 import 'package:cashly/data/services/log_file_service.dart';
 import 'package:floor/floor.dart';
 import 'package:sqflite/sqflite.dart' as sqflite;
@@ -18,13 +20,14 @@ import 'package:path/path.dart' as p;
 
 part 'sqlite_service.g.dart';
 
-@Database(version: 5, entities: [Month, MovementValue, FixedMovement, Saves, PendingNotificationMovement])
+@Database(version: 6, entities: [Month, MovementValue, FixedMovement, Saves, PendingNotificationMovement, CategoryBudget])
 abstract class AppDatabase extends FloorDatabase {
   MonthDao get monthDao;
   MovementValueDao get movementValueDao;
   FixedMovementDao get fixedMovementDao;
   SavesDao get savesDao;
   PendingNotificationMovementDao get pendingNotificationMovementDao;
+  CategoryBudgetDao get categoryBudgetDao;
 
   static Migration migration3to4 = Migration(3, 4, (database) async {
     // Create Saves table
@@ -47,6 +50,16 @@ abstract class AppDatabase extends FloorDatabase {
       'appName TEXT NOT NULL, '
       'extractedAmount REAL NOT NULL, '
       'timestamp TEXT NOT NULL'
+      ')',
+    );
+  });
+
+  static Migration migration5to6 = Migration(5, 6, (database) async {
+    await database.execute(
+      'CREATE TABLE IF NOT EXISTS CategoryBudget ('
+      'id INTEGER PRIMARY KEY AUTOINCREMENT, '
+      'category TEXT NOT NULL, '
+      'monthlyLimit REAL NOT NULL'
       ')',
     );
   });
@@ -133,7 +146,11 @@ class SqliteService {
       database = await $FloorAppDatabase
           .databaseBuilder(path)
           .addCallback(callback)
-          .addMigrations([AppDatabase.migration3to4, AppDatabase.migration4to5])
+          .addMigrations([
+            AppDatabase.migration3to4,
+            AppDatabase.migration4to5,
+            AppDatabase.migration5to6,
+          ])
           .build();
 
       isInitialized = true;
