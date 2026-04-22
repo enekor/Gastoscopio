@@ -82,13 +82,15 @@ class _$AppDatabase extends AppDatabase {
 
   PendingNotificationMovementDao? _pendingNotificationMovementDaoInstance;
 
+  CategoryBudgetDao? _categoryBudgetDaoInstance;
+
   Future<sqflite.Database> open(
     String path,
     List<Migration> migrations, [
     Callback? callback,
   ]) async {
     final databaseOptions = sqflite.OpenDatabaseOptions(
-      version: 5,
+      version: 6,
       onConfigure: (database) async {
         await database.execute('PRAGMA foreign_keys = ON');
         await callback?.onConfigure?.call(database);
@@ -113,6 +115,8 @@ class _$AppDatabase extends AppDatabase {
             'CREATE TABLE IF NOT EXISTS `Saves` (`id` INTEGER PRIMARY KEY AUTOINCREMENT, `monthId` INTEGER NOT NULL, `amount` REAL NOT NULL, `date` TEXT NOT NULL, `isInitialValue` INTEGER NOT NULL)');
         await database.execute(
             'CREATE TABLE IF NOT EXISTS `PendingNotificationMovement` (`id` INTEGER PRIMARY KEY AUTOINCREMENT, `notificationText` TEXT NOT NULL, `appName` TEXT NOT NULL, `extractedAmount` REAL NOT NULL, `timestamp` TEXT NOT NULL)');
+        await database.execute(
+            'CREATE TABLE IF NOT EXISTS `CategoryBudget` (`id` INTEGER PRIMARY KEY AUTOINCREMENT, `category` TEXT NOT NULL, `monthlyLimit` REAL NOT NULL)');
 
         await callback?.onCreate?.call(database, version);
       },
@@ -146,6 +150,12 @@ class _$AppDatabase extends AppDatabase {
   PendingNotificationMovementDao get pendingNotificationMovementDao {
     return _pendingNotificationMovementDaoInstance ??=
         _$PendingNotificationMovementDao(database, changeListener);
+  }
+
+  @override
+  CategoryBudgetDao get categoryBudgetDao {
+    return _categoryBudgetDaoInstance ??=
+        _$CategoryBudgetDao(database, changeListener);
   }
 }
 
@@ -729,5 +739,98 @@ class _$PendingNotificationMovementDao extends PendingNotificationMovementDao {
   Future<void> deletePendingMovement(
       PendingNotificationMovement movement) async {
     await _pendingNotificationMovementDeletionAdapter.delete(movement);
+  }
+}
+
+class _$CategoryBudgetDao extends CategoryBudgetDao {
+  _$CategoryBudgetDao(
+    this.database,
+    this.changeListener,
+  )   : _queryAdapter = QueryAdapter(database),
+        _categoryBudgetInsertionAdapter = InsertionAdapter(
+            database,
+            'CategoryBudget',
+            (CategoryBudget item) => <String, Object?>{
+                  'id': item.id,
+                  'category': item.category,
+                  'monthlyLimit': item.monthlyLimit
+                }),
+        _categoryBudgetUpdateAdapter = UpdateAdapter(
+            database,
+            'CategoryBudget',
+            ['id'],
+            (CategoryBudget item) => <String, Object?>{
+                  'id': item.id,
+                  'category': item.category,
+                  'monthlyLimit': item.monthlyLimit
+                }),
+        _categoryBudgetDeletionAdapter = DeletionAdapter(
+            database,
+            'CategoryBudget',
+            ['id'],
+            (CategoryBudget item) => <String, Object?>{
+                  'id': item.id,
+                  'category': item.category,
+                  'monthlyLimit': item.monthlyLimit
+                });
+
+  final sqflite.DatabaseExecutor database;
+
+  final StreamController<String> changeListener;
+
+  final QueryAdapter _queryAdapter;
+
+  final InsertionAdapter<CategoryBudget> _categoryBudgetInsertionAdapter;
+
+  final UpdateAdapter<CategoryBudget> _categoryBudgetUpdateAdapter;
+
+  final DeletionAdapter<CategoryBudget> _categoryBudgetDeletionAdapter;
+
+  @override
+  Future<List<CategoryBudget>> findAll() async {
+    return _queryAdapter.queryList('SELECT * FROM CategoryBudget',
+        mapper: (Map<String, Object?> row) => CategoryBudget(
+            id: row['id'] as int?,
+            category: row['category'] as String,
+            monthlyLimit: row['monthlyLimit'] as double));
+  }
+
+  @override
+  Future<CategoryBudget?> findByCategory(String category) async {
+    return _queryAdapter.query(
+        'SELECT * FROM CategoryBudget WHERE category = ?1 LIMIT 1',
+        mapper: (Map<String, Object?> row) => CategoryBudget(
+            id: row['id'] as int?,
+            category: row['category'] as String,
+            monthlyLimit: row['monthlyLimit'] as double),
+        arguments: [category]);
+  }
+
+  @override
+  Future<void> deleteByCategory(String category) async {
+    await _queryAdapter.queryNoReturn(
+        'DELETE FROM CategoryBudget WHERE category = ?1',
+        arguments: [category]);
+  }
+
+  @override
+  Future<void> deleteAll() async {
+    await _queryAdapter.queryNoReturn('DELETE FROM CategoryBudget');
+  }
+
+  @override
+  Future<void> insertBudget(CategoryBudget budget) async {
+    await _categoryBudgetInsertionAdapter.insert(
+        budget, OnConflictStrategy.replace);
+  }
+
+  @override
+  Future<void> updateBudget(CategoryBudget budget) async {
+    await _categoryBudgetUpdateAdapter.update(budget, OnConflictStrategy.abort);
+  }
+
+  @override
+  Future<void> deleteBudget(CategoryBudget budget) async {
+    await _categoryBudgetDeletionAdapter.delete(budget);
   }
 }
