@@ -4,6 +4,7 @@ import 'package:carousel_slider/carousel_slider.dart';
 import 'package:cashly/data/services/shared_preferences_service.dart';
 import 'package:cashly/data/services/sqlite_service.dart';
 import 'package:cashly/data/services/login_service.dart';
+import 'package:cashly/modules/budgets/budgets_screen.dart';
 import 'package:cashly/modules/gastoscopio/logic/finance_service.dart';
 import 'package:cashly/data/services/log_file_service.dart';
 import 'package:cashly/modules/gastoscopio/screens/movement_form_screen.dart';
@@ -140,10 +141,8 @@ class _GastoscopioHomeScreenState extends State<GastoscopioHomeScreen>
     if (_isCheckingPending) return;
     _isCheckingPending = true;
     try {
-      final pendingCount = await SqliteService()
-              .db
-              .pendingNotificationMovementDao
-              .countAll() ??
+      final pendingCount =
+          await SqliteService().db.pendingNotificationMovementDao.countAll() ??
           0;
       if (!mounted || pendingCount == 0) return;
       await Navigator.of(context).push(
@@ -173,18 +172,18 @@ class _GastoscopioHomeScreenState extends State<GastoscopioHomeScreen>
       // Show only in the last 3 days of the month
       if (now.day < daysInMonth - 2) return;
 
-      final currentKey =
-          '${now.year}-${now.month.toString().padLeft(2, '0')}';
+      final currentKey = '${now.year}-${now.month.toString().padLeft(2, '0')}';
       final lastShown = await SharedPreferencesService().getStringValue(
         SharedPreferencesKeys.lastMonthlySummaryPromptShown,
       );
       if (lastShown == currentKey) return;
 
       // Only meaningful if there's enough data
-      final count = await SqliteService()
-              .db
-              .movementValueDao
-              .countMovementValuesByMonth(now.month, now.year) ??
+      final count =
+          await SqliteService().db.movementValueDao.countMovementValuesByMonth(
+            now.month,
+            now.year,
+          ) ??
           0;
       if (count < 5) return;
 
@@ -193,12 +192,8 @@ class _GastoscopioHomeScreenState extends State<GastoscopioHomeScreen>
         context: context,
         builder: (ctx) => AlertDialog(
           icon: const Icon(Icons.auto_awesome),
-          title: Text(
-            AppLocalizations.of(context)!.monthlySummaryPromptTitle,
-          ),
-          content: Text(
-            AppLocalizations.of(context)!.monthlySummaryPromptBody,
-          ),
+          title: Text(AppLocalizations.of(context)!.monthlySummaryPromptTitle),
+          content: Text(AppLocalizations.of(context)!.monthlySummaryPromptBody),
           actions: [
             TextButton(
               onPressed: () => Navigator.pop(ctx, false),
@@ -207,9 +202,7 @@ class _GastoscopioHomeScreenState extends State<GastoscopioHomeScreen>
             FilledButton.icon(
               onPressed: () => Navigator.pop(ctx, true),
               icon: const Icon(Icons.auto_awesome, size: 18),
-              label: Text(
-                AppLocalizations.of(context)!.generate,
-              ),
+              label: Text(AppLocalizations.of(context)!.generate),
             ),
           ],
         ),
@@ -344,10 +337,7 @@ class _GastoscopioHomeScreenState extends State<GastoscopioHomeScreen>
           padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 24),
           sliver: SliverToBoxAdapter(
             child: Column(
-              children: [
-                _ChartPart(_moneda),
-                const SizedBox(height: 100),
-              ],
+              children: [_ChartPart(_moneda), const SizedBox(height: 100)],
             ),
           ),
         ),
@@ -535,9 +525,23 @@ class _GastoscopioHomeScreenState extends State<GastoscopioHomeScreen>
                           Row(
                             mainAxisAlignment: MainAxisAlignment.spaceAround,
                             children: [
-                              _buildBalanceDetailItem(Icons.arrow_downward, "Ingresos", incomes, Colors.greenAccent),
-                              Container(width: 1, height: 40, color: Colors.white.withOpacity(0.3)),
-                              _buildBalanceDetailItem(Icons.arrow_upward, "Gastos", expenses, Colors.redAccent.shade100),
+                              _buildBalanceDetailItem(
+                                Icons.arrow_downward,
+                                "Ingresos",
+                                incomes,
+                                Colors.greenAccent,
+                              ),
+                              Container(
+                                width: 1,
+                                height: 40,
+                                color: Colors.white.withOpacity(0.3),
+                              ),
+                              _buildBalanceDetailItem(
+                                Icons.arrow_upward,
+                                "Gastos",
+                                expenses,
+                                Colors.redAccent.shade100,
+                              ),
                             ],
                           ),
                         ],
@@ -553,7 +557,12 @@ class _GastoscopioHomeScreenState extends State<GastoscopioHomeScreen>
     );
   }
 
-  Widget _buildBalanceDetailItem(IconData icon, String label, double amount, Color color) {
+  Widget _buildBalanceDetailItem(
+    IconData icon,
+    String label,
+    double amount,
+    Color color,
+  ) {
     return Column(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
@@ -561,11 +570,24 @@ class _GastoscopioHomeScreenState extends State<GastoscopioHomeScreen>
           children: [
             Icon(icon, color: color, size: 16),
             const SizedBox(width: 4),
-            Text(label, style: TextStyle(color: Colors.white.withOpacity(0.8), fontSize: 12)),
+            Text(
+              label,
+              style: TextStyle(
+                color: Colors.white.withOpacity(0.8),
+                fontSize: 12,
+              ),
+            ),
           ],
         ),
         const SizedBox(height: 4),
-        Text('${amount.abs().toStringAsFixed(0)}$_moneda', style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 18)),
+        Text(
+          '${amount.abs().toStringAsFixed(0)}$_moneda',
+          style: const TextStyle(
+            color: Colors.white,
+            fontWeight: FontWeight.bold,
+            fontSize: 18,
+          ),
+        ),
       ],
     );
   }
@@ -577,9 +599,7 @@ class _GastoscopioHomeScreenState extends State<GastoscopioHomeScreen>
       decoration: BoxDecoration(
         color: theme.colorScheme.tertiaryContainer.withAlpha(120),
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(
-          color: theme.colorScheme.tertiary.withAlpha(60),
-        ),
+        border: Border.all(color: theme.colorScheme.tertiary.withAlpha(60)),
       ),
       child: Row(
         children: [
@@ -619,13 +639,12 @@ class _GastoscopioHomeScreenState extends State<GastoscopioHomeScreen>
             onPressed: () async {
               await Navigator.push(
                 context,
-                MaterialPageRoute(
-                  builder: (context) => const SettingsScreen(),
-                ),
+                MaterialPageRoute(builder: (context) => const SettingsScreen()),
               );
               // Refresh banner state when returning from settings
-              final enabled = await SharedPreferencesService()
-                  .getBoolValue(SharedPreferencesKeys.notificationListenerEnabled);
+              final enabled = await SharedPreferencesService().getBoolValue(
+                SharedPreferencesKeys.notificationListenerEnabled,
+              );
               if (mounted) {
                 setState(() {
                   _showNotificationBanner = enabled != true;
@@ -662,23 +681,70 @@ class _GastoscopioHomeScreenState extends State<GastoscopioHomeScreen>
               title: AppLocalizations.of(context)!.createNextMonth,
               color: Colors.teal,
               onTap: () async {
-                await FinanceService.getInstance(SqliteService().db.monthDao, SqliteService().db.movementValueDao, SqliteService().db.fixedMovementDao).createNextMonth(context);
+                await FinanceService.getInstance(
+                  SqliteService().db.monthDao,
+                  SqliteService().db.movementValueDao,
+                  SqliteService().db.fixedMovementDao,
+                ).createNextMonth(context);
                 setState(() {});
               },
             ),
             const SizedBox(width: 12),
           ],
-          _buildActionCard(icon: Icons.repeat_rounded, title: AppLocalizations.of(context).manageRecurringMovements, color: Colors.blueAccent, onTap: () => Navigator.push(context, MaterialPageRoute(builder: (context) => const FixedMovementsScreen()))),
+          _buildActionCard(
+            icon: Icons.repeat_rounded,
+            title: AppLocalizations.of(context).manageRecurringMovements,
+            color: Colors.blueAccent,
+            onTap: () => Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => const FixedMovementsScreen(),
+              ),
+            ),
+          ),
           const SizedBox(width: 12),
-          _buildActionCard(icon: Icons.savings_rounded, title: AppLocalizations.of(context).savings, color: Colors.amber, onTap: () => Navigator.push(context, MaterialPageRoute(builder: (context) => HomeSaves()))),
+          _buildActionCard(
+            icon: Icons.savings_outlined,
+            title: AppLocalizations.of(context)!.budgetsTitle,
+            color: Colors.green,
+            onTap: () => Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => const BudgetsScreen()),
+            ),
+          ),
           const SizedBox(width: 12),
-          _buildActionCard(icon: Icons.filter_alt, title: AppLocalizations.of(context).filteredMovements, color: Colors.grey, onTap: () => Navigator.push(context, MaterialPageRoute(builder: (context) => const ViewMovementsFilteredScreen()))),
+          _buildActionCard(
+            icon: Icons.savings_rounded,
+            title: AppLocalizations.of(context).savings,
+            color: Colors.amber,
+            onTap: () => Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => HomeSaves()),
+            ),
+          ),
+          const SizedBox(width: 12),
+          _buildActionCard(
+            icon: Icons.filter_alt,
+            title: AppLocalizations.of(context).filteredMovements,
+            color: Colors.grey,
+            onTap: () => Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => const ViewMovementsFilteredScreen(),
+              ),
+            ),
+          ),
         ],
       ),
     );
   }
 
-  Widget _buildActionCard({required IconData icon, required String title, required Color color, required VoidCallback onTap}) {
+  Widget _buildActionCard({
+    required IconData icon,
+    required String title,
+    required Color color,
+    required VoidCallback onTap,
+  }) {
     return SizedBox(
       width: 100,
       height: 110,
@@ -694,8 +760,21 @@ class _GastoscopioHomeScreenState extends State<GastoscopioHomeScreen>
             child: Column(
               mainAxisAlignment: MainAxisAlignment.spaceAround,
               children: [
-                Container(padding: const EdgeInsets.all(8), decoration: BoxDecoration(color: color.withAlpha(15), borderRadius: BorderRadius.circular(16)), child: Icon(icon, color: color, size: 40)),
-                Text(title, maxLines: 2, overflow: TextOverflow.ellipsis, style: const TextStyle(fontSize: 12), textAlign: TextAlign.center),
+                Container(
+                  padding: const EdgeInsets.all(8),
+                  decoration: BoxDecoration(
+                    color: color.withAlpha(15),
+                    borderRadius: BorderRadius.circular(16),
+                  ),
+                  child: Icon(icon, color: color, size: 40),
+                ),
+                Text(
+                  title,
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
+                  style: const TextStyle(fontSize: 12),
+                  textAlign: TextAlign.center,
+                ),
               ],
             ),
           ),
@@ -705,20 +784,28 @@ class _GastoscopioHomeScreenState extends State<GastoscopioHomeScreen>
   }
 
   Widget _buildLastInteractionsSliver() {
-    final service = FinanceService.getInstance(SqliteService().db.monthDao, SqliteService().db.movementValueDao, SqliteService().db.fixedMovementDao);
+    final service = FinanceService.getInstance(
+      SqliteService().db.monthDao,
+      SqliteService().db.movementValueDao,
+      SqliteService().db.fixedMovementDao,
+    );
     return AnimatedBuilder(
       animation: service,
       builder: (context, child) {
         final movements = service.todayMovements;
-        if (movements.isEmpty) return const SliverToBoxAdapter(child: SizedBox.shrink());
+        if (movements.isEmpty)
+          return const SliverToBoxAdapter(child: SizedBox.shrink());
         return SliverList(
-          delegate: SliverChildBuilderDelegate(
-            (context, index) {
-              final movement = movements[index];
-              return MovementCard(description: movement.description, amount: movement.amount, isExpense: movement.isExpense, category: movement.category, moneda: _moneda);
-            },
-            childCount: movements.length,
-          ),
+          delegate: SliverChildBuilderDelegate((context, index) {
+            final movement = movements[index];
+            return MovementCard(
+              description: movement.description,
+              amount: movement.amount,
+              isExpense: movement.isExpense,
+              category: movement.category,
+              moneda: _moneda,
+            );
+          }, childCount: movements.length),
         );
       },
     );
@@ -731,26 +818,48 @@ class _ChartPart extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final service = FinanceService.getInstance(SqliteService().db.monthDao, SqliteService().db.movementValueDao, SqliteService().db.fixedMovementDao);
+    final service = FinanceService.getInstance(
+      SqliteService().db.monthDao,
+      SqliteService().db.movementValueDao,
+      SqliteService().db.fixedMovementDao,
+    );
     return AnimatedBuilder(
       animation: service,
       builder: (context, _) {
         if (service.currentMonth == null) return const SizedBox.shrink();
         return FutureBuilder<List<MovementValue>>(
-          future: service.getMovementsForMonth(service.currentMonth!.month, service.currentMonth!.year),
+          future: service.getMovementsForMonth(
+            service.currentMonth!.month,
+            service.currentMonth!.year,
+          ),
           builder: (context, snapshot) {
-            if (!snapshot.hasData || snapshot.data!.isEmpty) return const SizedBox.shrink();
+            if (!snapshot.hasData || snapshot.data!.isEmpty)
+              return const SizedBox.shrink();
             final expenses = snapshot.data!.where((m) => m.isExpense).toList();
             if (expenses.isEmpty) return const SizedBox.shrink();
             return Container(
               padding: const EdgeInsets.all(20),
-              decoration: BoxDecoration(color: Theme.of(context).colorScheme.surface, borderRadius: BorderRadius.circular(24), border: Border.all(color: Theme.of(context).dividerColor.withOpacity(0.1))),
+              decoration: BoxDecoration(
+                color: Theme.of(context).colorScheme.surface,
+                borderRadius: BorderRadius.circular(24),
+                border: Border.all(
+                  color: Theme.of(context).dividerColor.withOpacity(0.1),
+                ),
+              ),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(AppLocalizations.of(context).expensesByCategory, style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold)),
+                  Text(
+                    AppLocalizations.of(context).expensesByCategory,
+                    style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
                   const SizedBox(height: 20),
-                  HomeCategoryChart(categoryData: _calculate(expenses, context), moneda: moneda),
+                  HomeCategoryChart(
+                    categoryData: _calculate(expenses, context),
+                    moneda: moneda,
+                  ),
                 ],
               ),
             );
@@ -760,19 +869,32 @@ class _ChartPart extends StatelessWidget {
     );
   }
 
-  Map<String, double> _calculate(List<MovementValue> expenses, BuildContext context) {
+  Map<String, double> _calculate(
+    List<MovementValue> expenses,
+    BuildContext context,
+  ) {
     final locale = AppLocalizations.of(context).localeName;
     final localizedTags = getTagList(locale);
     final totals = {for (var tag in localizedTags) tag: 0.0};
-    for (var m in expenses) { if (m.category != null) totals[m.category!] = (totals[m.category!] ?? 0) + m.amount; }
-    return Map.fromEntries(totals.entries.where((e) => e.value > 0).toList()..sort((a, b) => b.value.compareTo(a.value)));
+    for (var m in expenses) {
+      if (m.category != null)
+        totals[m.category!] = (totals[m.category!] ?? 0) + m.amount;
+    }
+    return Map.fromEntries(
+      totals.entries.where((e) => e.value > 0).toList()
+        ..sort((a, b) => b.value.compareTo(a.value)),
+    );
   }
 }
 
 class HomeCategoryChart extends StatelessWidget {
   final Map<String, double> categoryData;
   final String moneda;
-  const HomeCategoryChart({super.key, required this.categoryData, required this.moneda});
+  const HomeCategoryChart({
+    super.key,
+    required this.categoryData,
+    required this.moneda,
+  });
   @override
   Widget build(BuildContext context) {
     final total = categoryData.values.fold<double>(0, (sum, v) => sum + v);
@@ -784,9 +906,25 @@ class HomeCategoryChart extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [Text(e.key), Text('${(p * 100).toStringAsFixed(1)}%', style: TextStyle(color: Theme.of(context).colorScheme.primary, fontWeight: FontWeight.bold))]),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text(e.key),
+                  Text(
+                    '${(p * 100).toStringAsFixed(1)}%',
+                    style: TextStyle(
+                      color: Theme.of(context).colorScheme.primary,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ],
+              ),
               const SizedBox(height: 4),
-              LinearProgressIndicator(value: p, minHeight: 8, borderRadius: BorderRadius.circular(4)),
+              LinearProgressIndicator(
+                value: p,
+                minHeight: 8,
+                borderRadius: BorderRadius.circular(4),
+              ),
             ],
           ),
         );

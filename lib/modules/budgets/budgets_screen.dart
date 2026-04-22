@@ -67,9 +67,7 @@ class _BudgetsScreenState extends State<BudgetsScreen> {
                   Navigator.pop(context, _BudgetDialogResult.remove()),
               child: Text(
                 localizations.remove,
-                style: TextStyle(
-                  color: Theme.of(context).colorScheme.error,
-                ),
+                style: TextStyle(color: Theme.of(context).colorScheme.error),
               ),
             ),
           TextButton(
@@ -110,69 +108,101 @@ class _BudgetsScreenState extends State<BudgetsScreen> {
     final categories = getTagList(locale);
 
     return Scaffold(
-      appBar: AppBar(
-        title: Text(localizations.budgetsTitle),
-      ),
-      body: _isLoading
-          ? const Center(child: CircularProgressIndicator())
-          : Column(
-              children: [
-                Container(
-                  width: double.infinity,
-                  padding: const EdgeInsets.fromLTRB(20, 12, 20, 16),
-                  color: theme.colorScheme.primaryContainer.withAlpha(80),
-                  child: Text(
-                    localizations.budgetsDescription,
-                    style: theme.textTheme.bodySmall?.copyWith(
-                      color: theme.colorScheme.onPrimaryContainer,
+      body: CustomScrollView(
+        slivers: [
+          SliverAppBar(
+            automaticallyImplyLeading: false,
+            expandedHeight: 120,
+            floating: true,
+            pinned: true,
+            centerTitle: true,
+            backgroundColor: theme.colorScheme.surface,
+            flexibleSpace: FlexibleSpaceBar(
+              title: Row(
+                children: [
+                  IconButton(
+                    onPressed: () => Navigator.pop(context),
+                    icon: const Icon(Icons.arrow_back_ios, size: 20),
+                  ),
+                  const SizedBox(width: 8),
+                  Text(
+                    localizations.budgetsTitle,
+                    style: TextStyle(
+                      fontFamily: 'Pacifico',
+                      fontSize: 20,
+                      fontWeight: FontWeight.bold,
+                      color: theme.colorScheme.onSurface,
                     ),
                   ),
-                ),
-                Expanded(
-                  child: ListView.builder(
-                    itemCount: categories.length,
-                    itemBuilder: (context, index) {
-                      final cat = categories[index];
-                      final limit = _budgets[cat];
-                      final hasBudget = limit != null;
-                      return ListTile(
-                        leading: SizedBox(
-                          width: 32,
-                          height: 32,
-                          child: SvgPicture.asset(
-                            getIconPath(cat),
-                            colorFilter: ColorFilter.mode(
-                              hasBudget
-                                  ? theme.colorScheme.primary
-                                  : theme.colorScheme.onSurfaceVariant,
-                              BlendMode.srcIn,
-                            ),
-                          ),
-                        ),
-                        title: Text(cat),
-                        subtitle: Text(
-                          hasBudget
-                              ? localizations
-                                  .budgetMonthlyAmount(limit.toStringAsFixed(2))
-                              : localizations.budgetNotSet,
-                          style: theme.textTheme.bodySmall?.copyWith(
-                            color: hasBudget
-                                ? theme.colorScheme.primary
-                                : theme.colorScheme.onSurfaceVariant,
-                            fontWeight:
-                                hasBudget ? FontWeight.w600 : FontWeight.normal,
-                          ),
-                        ),
-                        trailing: Icon(
-                          hasBudget ? Icons.edit : Icons.add_circle_outline,
-                        ),
-                        onTap: () => _editCategory(cat),
-                      );
-                    },
+                ],
+              ),
+              centerTitle: true,
+              titlePadding: const EdgeInsets.only(bottom: 16),
+            ),
+          ),
+          if (_isLoading)
+            const SliverFillRemaining(
+              child: Center(child: CircularProgressIndicator()),
+            )
+          else ...[
+            SliverToBoxAdapter(
+              child: Container(
+                width: double.infinity,
+                padding: const EdgeInsets.fromLTRB(20, 12, 20, 16),
+                color: theme.colorScheme.primaryContainer.withAlpha(80),
+                child: Text(
+                  localizations.budgetsDescription,
+                  style: theme.textTheme.bodySmall?.copyWith(
+                    color: theme.colorScheme.onPrimaryContainer,
                   ),
                 ),
-              ],
+              ),
             ),
+            SliverList(
+              delegate: SliverChildBuilderDelegate((context, index) {
+                final cat = categories[index];
+                final limit = _budgets[cat];
+                final hasBudget = limit != null;
+                return ListTile(
+                  leading: SizedBox(
+                    width: 32,
+                    height: 32,
+                    child: SvgPicture.asset(
+                      getIconPath(cat),
+                      colorFilter: ColorFilter.mode(
+                        hasBudget
+                            ? theme.colorScheme.primary
+                            : theme.colorScheme.onSurfaceVariant,
+                        BlendMode.srcIn,
+                      ),
+                    ),
+                  ),
+                  title: Text(cat),
+                  subtitle: Text(
+                    hasBudget
+                        ? localizations.budgetMonthlyAmount(
+                            limit.toStringAsFixed(2),
+                          )
+                        : localizations.budgetNotSet,
+                    style: theme.textTheme.bodySmall?.copyWith(
+                      color: hasBudget
+                          ? theme.colorScheme.primary
+                          : theme.colorScheme.onSurfaceVariant,
+                      fontWeight: hasBudget
+                          ? FontWeight.w600
+                          : FontWeight.normal,
+                    ),
+                  ),
+                  trailing: Icon(
+                    hasBudget ? Icons.edit : Icons.add_circle_outline,
+                  ),
+                  onTap: () => _editCategory(cat),
+                );
+              }, childCount: categories.length),
+            ),
+          ],
+        ],
+      ),
     );
   }
 }
@@ -181,7 +211,6 @@ class _BudgetDialogResult {
   final double? value;
   final bool removed;
   _BudgetDialogResult._(this.value, this.removed);
-  factory _BudgetDialogResult.save(double v) =>
-      _BudgetDialogResult._(v, false);
+  factory _BudgetDialogResult.save(double v) => _BudgetDialogResult._(v, false);
   factory _BudgetDialogResult.remove() => _BudgetDialogResult._(null, true);
 }

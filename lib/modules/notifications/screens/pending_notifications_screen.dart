@@ -267,16 +267,16 @@ class _PendingNotificationsScreenState
       }
 
       // Check for smart alerts triggered by the new movements
-      final alerts =
-          await SmartAlertsService().getAlerts(now.month, now.year);
+      final alerts = await SmartAlertsService().getAlerts(now.month, now.year);
       final shouldAlert = alerts.any(
         (a) =>
             a.severity == AlertSeverity.critical ||
             a.severity == AlertSeverity.warning,
       );
       if (mounted && shouldAlert) {
-        final currency = await SharedPreferencesService()
-            .getStringValue(SharedPreferencesKeys.currency);
+        final currency = await SharedPreferencesService().getStringValue(
+          SharedPreferencesKeys.currency,
+        );
         if (!mounted) return;
         await showModalBottomSheet(
           context: context,
@@ -284,10 +284,8 @@ class _PendingNotificationsScreenState
           shape: const RoundedRectangleBorder(
             borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
           ),
-          builder: (ctx) => SmartAlertsSheet(
-            alerts: alerts,
-            currency: currency ?? '€',
-          ),
+          builder: (ctx) =>
+              SmartAlertsSheet(alerts: alerts, currency: currency ?? '€'),
         );
       }
 
@@ -330,8 +328,49 @@ class _PendingNotificationsScreenState
 
     if (_isLoading) {
       return Scaffold(
-        appBar: AppBar(),
-        body: Center(child: Loading(context)),
+        body: CustomScrollView(
+          slivers: [
+            SliverAppBar(
+              automaticallyImplyLeading: false,
+              expandedHeight: 120,
+              floating: true,
+              pinned: true,
+              centerTitle: true,
+              backgroundColor: theme.colorScheme.surface,
+              flexibleSpace: FlexibleSpaceBar(
+                title: Row(
+                  children: [
+                    IconButton(
+                      onPressed: () {
+                        if (Navigator.of(context).canPop()) {
+                          Navigator.of(context).pop();
+                        }
+                      },
+                      icon: const Icon(Icons.arrow_back_ios, size: 20),
+                    ),
+                    const SizedBox(width: 8),
+                    Expanded(
+                      child: Text(
+                        localizations.pendingNotifications,
+                        style: TextStyle(
+                          fontFamily: 'Pacifico',
+                          fontSize: 20,
+                          fontWeight: FontWeight.bold,
+                          color: theme.colorScheme.onSurface,
+                        ),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ),
+                  ],
+                ),
+                centerTitle: true,
+                titlePadding: const EdgeInsets.only(bottom: 16),
+              ),
+            ),
+            SliverFillRemaining(child: Center(child: Loading(context))),
+          ],
+        ),
       );
     }
 
@@ -340,7 +379,44 @@ class _PendingNotificationsScreenState
         key: _formKey,
         child: CustomScrollView(
           slivers: [
-            SliverAppBar(automaticallyImplyLeading: false),
+            SliverAppBar(
+              automaticallyImplyLeading: false,
+              expandedHeight: 120,
+              floating: true,
+              pinned: true,
+              centerTitle: true,
+              backgroundColor: theme.colorScheme.surface,
+              flexibleSpace: FlexibleSpaceBar(
+                title: Row(
+                  children: [
+                    IconButton(
+                      onPressed: () {
+                        if (Navigator.of(context).canPop()) {
+                          Navigator.of(context).pop();
+                        }
+                      },
+                      icon: const Icon(Icons.arrow_back_ios, size: 20),
+                    ),
+                    const SizedBox(width: 8),
+                    Expanded(
+                      child: Text(
+                        localizations.pendingNotifications,
+                        style: TextStyle(
+                          fontFamily: 'Pacifico',
+                          fontSize: 20,
+                          fontWeight: FontWeight.bold,
+                          color: theme.colorScheme.onSurface,
+                        ),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ),
+                  ],
+                ),
+                centerTitle: true,
+                titlePadding: const EdgeInsets.only(bottom: 16),
+              ),
+            ),
             SliverToBoxAdapter(
               child: Container(
                 width: double.infinity,
