@@ -510,5 +510,9 @@
       "delta": { "type": "String" },
       "avg": { "type": "String" }
     }
-  }
+  },
+
+  "monthlySummaryPromptTitle": "Generate monthly summary?",
+  "monthlySummaryPromptBody": "The month is almost over. Would you like to see an AI summary of this month's activity?",
+  "notNow": "Not now"
 }

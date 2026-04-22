@@ -58,8 +58,10 @@ class _GastoscopioHomeScreenState extends State<GastoscopioHomeScreen>
     super.initState();
     WidgetsBinding.instance.addObserver(this);
     _loadInitialData();
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      _checkPendingNotifications();
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      await _checkPendingNotifications();
+      if (!mounted) return;
+      _checkMonthlySummaryPrompt();
     });
     SharedPreferencesService()
         .getStringValue(SharedPreferencesKeys.currency)
@@ -161,6 +163,76 @@ class _GastoscopioHomeScreenState extends State<GastoscopioHomeScreen>
       );
     } finally {
       _isCheckingPending = false;
+    }
+  }
+
+  Future<void> _checkMonthlySummaryPrompt() async {
+    try {
+      final now = DateTime.now();
+      final daysInMonth = DateTime(now.year, now.month + 1, 0).day;
+      // Show only in the last 3 days of the month
+      if (now.day < daysInMonth - 2) return;
+
+      final currentKey =
+          '${now.year}-${now.month.toString().padLeft(2, '0')}';
+      final lastShown = await SharedPreferencesService().getStringValue(
+        SharedPreferencesKeys.lastMonthlySummaryPromptShown,
+      );
+      if (lastShown == currentKey) return;
+
+      // Only meaningful if there's enough data
+      final count = await SqliteService()
+              .db
+              .movementValueDao
+              .countMovementValuesByMonth(now.month, now.year) ??
+          0;
+      if (count < 5) return;
+
+      if (!mounted) return;
+      final accepted = await showDialog<bool>(
+        context: context,
+        builder: (ctx) => AlertDialog(
+          icon: const Icon(Icons.auto_awesome),
+          title: Text(
+            AppLocalizations.of(context)!.monthlySummaryPromptTitle,
+          ),
+          content: Text(
+            AppLocalizations.of(context)!.monthlySummaryPromptBody,
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(ctx, false),
+              child: Text(AppLocalizations.of(context)!.notNow),
+            ),
+            FilledButton.icon(
+              onPressed: () => Navigator.pop(ctx, true),
+              icon: const Icon(Icons.auto_awesome, size: 18),
+              label: Text(
+                AppLocalizations.of(context)!.generate,
+              ),
+            ),
+          ],
+        ),
+      );
+
+      // Record shown regardless of answer to avoid nagging
+      await SharedPreferencesService().setStringValue(
+        SharedPreferencesKeys.lastMonthlySummaryPromptShown,
+        currentKey,
+      );
+
+      if (accepted == true && mounted) {
+        Navigator.of(context).push(
+          MaterialPageRoute(
+            builder: (_) => const SummaryScreen(
+              initialTabIndex: 2,
+              autoGenerateAnalysis: true,
+            ),
+          ),
+        );
+      }
+    } catch (e) {
+      LogFileService().appendLog('Error in monthly summary prompt: $e');
     }
   }
 

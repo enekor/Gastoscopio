@@ -2616,6 +2616,24 @@ abstract class AppLocalizations {
   /// In es, this message translates to:
   /// **'{delta} respecto a tu media reciente de {avg}.'**
   String alertSpendingSpikeBody(String delta, String avg);
+
+  /// No description provided for @monthlySummaryPromptTitle.
+  ///
+  /// In es, this message translates to:
+  /// **'¿Generar resumen del mes?'**
+  String get monthlySummaryPromptTitle;
+
+  /// No description provided for @monthlySummaryPromptBody.
+  ///
+  /// In es, this message translates to:
+  /// **'El mes está a punto de terminar. ¿Quieres ver un resumen con IA de lo que ha pasado este mes?'**
+  String get monthlySummaryPromptBody;
+
+  /// No description provided for @notNow.
+  ///
+  /// In es, this message translates to:
+  /// **'Ahora no'**
+  String get notNow;
 }
 
 class _AppLocalizationsDelegate

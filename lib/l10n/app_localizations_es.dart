@@ -1421,4 +1421,14 @@ class AppLocalizationsEs extends AppLocalizations {
   String alertSpendingSpikeBody(String delta, String avg) {
     return '$delta respecto a tu media reciente de $avg.';
   }
+
+  @override
+  String get monthlySummaryPromptTitle => '¿Generar resumen del mes?';
+
+  @override
+  String get monthlySummaryPromptBody =>
+      'El mes está a punto de terminar. ¿Quieres ver un resumen con IA de lo que ha pasado este mes?';
+
+  @override
+  String get notNow => 'Ahora no';
 }

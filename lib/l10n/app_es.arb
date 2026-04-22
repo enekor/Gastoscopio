@@ -1444,5 +1444,9 @@
       "delta": { "type": "String" },
       "avg": { "type": "String" }
     }
-  }
+  },
+
+  "monthlySummaryPromptTitle": "¿Generar resumen del mes?",
+  "monthlySummaryPromptBody": "El mes está a punto de terminar. ¿Quieres ver un resumen con IA de lo que ha pasado este mes?",
+  "notNow": "Ahora no"
 }

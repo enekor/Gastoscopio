@@ -15,7 +15,14 @@ import 'package:cashly/data/services/sqlite_service.dart';
 import 'package:cashly/l10n/app_localizations.dart';
 
 class SummaryScreen extends StatefulWidget {
-  const SummaryScreen({super.key});
+  final int initialTabIndex;
+  final bool autoGenerateAnalysis;
+
+  const SummaryScreen({
+    super.key,
+    this.initialTabIndex = 0,
+    this.autoGenerateAnalysis = false,
+  });
 
   @override
   State<SummaryScreen> createState() => _SummaryScreenState();
@@ -36,13 +43,22 @@ class _SummaryScreenState extends State<SummaryScreen>
   @override
   void initState() {
     super.initState();
-    _tabController = TabController(length: 3, vsync: this);
+    _tabController = TabController(
+      length: 3,
+      vsync: this,
+      initialIndex: widget.initialTabIndex.clamp(0, 2),
+    );
     _financeService = FinanceService.getInstance(
       SqliteService().db.monthDao,
       SqliteService().db.movementValueDao,
       SqliteService().db.fixedMovementDao,
     );
-    _loadInitialData();
+    _loadInitialData().then((_) {
+      if (!mounted) return;
+      if (widget.autoGenerateAnalysis && _hasData) {
+        _loadAiAnalysis();
+      }
+    });
   }
 
   @override

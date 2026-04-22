@@ -1404,4 +1404,14 @@ class AppLocalizationsEn extends AppLocalizations {
   String alertSpendingSpikeBody(String delta, String avg) {
     return '$delta vs your recent average of $avg.';
   }
+
+  @override
+  String get monthlySummaryPromptTitle => 'Generate monthly summary?';
+
+  @override
+  String get monthlySummaryPromptBody =>
+      'The month is almost over. Would you like to see an AI summary of this month\'s activity?';
+
+  @override
+  String get notNow => 'Not now';
 }
