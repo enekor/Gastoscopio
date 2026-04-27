@@ -9,6 +9,7 @@ class EditablePendingMovement {
   final TextEditingController descriptionController;
   final TextEditingController amountController;
   bool isExpense;
+  String? category;
 
   EditablePendingMovement({
     this.id,
@@ -18,6 +19,7 @@ class EditablePendingMovement {
     required this.descriptionController,
     required this.amountController,
     this.isExpense = true,
+    this.category,
   });
 
   void dispose() {

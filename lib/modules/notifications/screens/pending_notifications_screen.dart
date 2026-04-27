@@ -148,34 +148,34 @@ class _PendingNotificationsScreenState
       _aiProcessingCurrent = 0;
     });
 
-    for (int i = 0; i < _movements.length; i++) {
-      if (!mounted) return;
-      final m = _movements[i];
-      setState(() => _aiProcessingCurrent = i + 1);
+    try {
+      final notifications = _movements.asMap().entries.map((e) {
+        return {
+          'app': e.value.appName,
+          'text': e.value.originalText,
+          'amount': fallbackAmounts[e.key].toStringAsFixed(2),
+        };
+      }).toList();
 
-      try {
-        final result = await GroqService().parseNotificationTransaction(
-          m.originalText,
-          m.appName,
-          fallbackAmounts[i],
-          context,
-        );
-        if (!mounted) return;
-        if (result != null) {
-          setState(() {
-            final title = result['title'] as String;
-            final amount = result['amount'] as double;
-            final isExpense = result['isExpense'] as bool;
-            m.descriptionController.text = title;
-            m.amountController.text = amount.toStringAsFixed(2);
-            m.isExpense = isExpense;
-          });
-        }
-      } catch (e) {
-        LogFileService().appendLog(
-          'AI parsing failed for notification ${m.id}: $e',
-        );
+      final results = await GroqService().parseNotificationsBatch(notifications, context);
+
+      if (!mounted) return;
+      if (results != null) {
+        setState(() {
+          for (final result in results) {
+            final idx = result['index'] as int;
+            if (idx >= 0 && idx < _movements.length) {
+              final m = _movements[idx];
+              m.descriptionController.text = result['title'] as String;
+              m.amountController.text = (result['amount'] as double).toStringAsFixed(2);
+              m.isExpense = result['isExpense'] as bool;
+              m.category = result['category'] as String;
+            }
+          }
+        });
       }
+    } catch (e) {
+      LogFileService().appendLog('AI batch parsing failed: $e');
     }
 
     if (mounted) {
@@ -216,23 +216,7 @@ class _PendingNotificationsScreenState
           date.year,
         );
 
-        // AI category generation
-        String? category;
-        try {
-          category = await GroqService()
-              .generateCategory(
-                m.descriptionController.text,
-                m.isExpense,
-                context,
-              )
-              .timeout(const Duration(seconds: 10), onTimeout: () => '');
-          if (category.isEmpty) category = '';
-        } catch (e) {
-          category = '';
-          LogFileService().appendLog(
-            'Error generating category for notification movement: $e',
-          );
-        }
+        final category = m.category ?? '';
 
         // Create and insert movement
         final movement = MovementValue(
@@ -242,7 +226,7 @@ class _PendingNotificationsScreenState
           amount,
           m.isExpense,
           date.day,
-          category?.trim(),
+          category.trim(),
         );
         await db.movementValueDao.insertMovementValue(movement);
         await SharedPreferencesService().haveToUpload();
