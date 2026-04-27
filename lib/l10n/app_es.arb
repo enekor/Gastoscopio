@@ -1448,5 +1448,17 @@
 
   "monthlySummaryPromptTitle": "¿Generar resumen del mes?",
   "monthlySummaryPromptBody": "El mes está a punto de terminar. ¿Quieres ver un resumen con IA de lo que ha pasado este mes?",
-  "notNow": "Ahora no"
+  "notNow": "Ahora no",
+
+  "scanFromImage": "Escanear imagen",
+  "analyzingImage": "Analizando imagen...",
+  "noMovementsFoundInImage": "No se encontraron movimientos en la imagen.",
+  "movementsExtracted": "{count} movimiento(s) guardado(s).",
+  "@movementsExtracted": {
+    "placeholders": {
+      "count": { "type": "int" }
+    }
+  },
+  "scanError": "Error al escanear la imagen. Inténtalo de nuevo.",
+  "imageTooLarge": "La imagen es demasiado grande. Máximo 20 MB."
 }

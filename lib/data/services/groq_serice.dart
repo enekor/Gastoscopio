@@ -23,6 +23,8 @@ class GroqService {
   Future<String> _generateContent(
       String prompt, {
         BuildContext? context,
+        double temperature = 0.7,
+        int? maxTokens,
       }) async {
     
     if(_apiKey.isEmpty) {
@@ -67,7 +69,8 @@ class GroqService {
               'messages': [
                 {'role': 'user', 'content': prompt}
               ],
-              'temperature': 0.7,
+              'temperature': temperature,
+              if (maxTokens != null) 'max_tokens': maxTokens,
             }),
           ).timeout(const Duration(seconds: 30));
 
@@ -145,21 +148,45 @@ class GroqService {
   }
 
 
+  String _buildCompactTags(String locale) {
+    final isEs = locale == 'es';
+    return tagDataList.asMap().entries.map((e) {
+      final name = isEs ? e.value.tagEs : e.value.tagEn;
+      final short = name.split('(')[0].trim();
+      return '${e.key}:$short';
+    }).join(',');
+  }
+
+  String _resolveTag(String value, String locale) {
+    final index = int.tryParse(value.trim());
+    if (index != null && index >= 0 && index < tagDataList.length) {
+      return locale == 'es' ? tagDataList[index].tagEs : tagDataList[index].tagEn;
+    }
+    final tags = getTagList(locale);
+    if (tags.contains(value.trim())) return value.trim();
+    final lower = value.trim().toLowerCase();
+    for (final tag in tags) {
+      if (tag.toLowerCase().startsWith(lower) || tag.toLowerCase().contains(lower)) {
+        return tag;
+      }
+    }
+    return tags.last;
+  }
+
   Future<String> generateCategory(
       String name,
       bool isExpense,
       BuildContext context,
       ) async {
     final locale = AppLocalizations.of(context).localeName;
-    final categoryList = getTagList(locale);
+    final compactTags = _buildCompactTags(locale);
 
     String prompt =
-        'dime la mejor categoria para el siguiente movimiento (solo dime la categoria, nada mas): "$name". Ten en cuenta que es un ${isExpense ? 'gasto' : 'ingreso'}'
-        'Elige una de las siguientes categorías: ${categoryList.join(', ')}. '
-        'Si no encuentras una categoría adecuada, responde con la ultima categoria.';
+        'Categorize: "$name" (${isExpense ? 'expense' : 'income'}). '
+        'Tags: $compactTags. Reply with the tag number ONLY.';
 
-    String response = await _generateContent(prompt, context: context);
-    return response;
+    String response = await _generateContent(prompt, context: context, temperature: 0.2, maxTokens: 10);
+    return _resolveTag(response, locale);
   }
 
   /// Parses a notification text and extracts a transaction.
@@ -228,19 +255,247 @@ class GroqService {
     }
   }
 
+  Future<List<Map<String, dynamic>>?> parseNotificationsBatch(
+    List<Map<String, String>> notifications,
+    BuildContext context,
+  ) async {
+    if (notifications.isEmpty) return [];
+
+    final locale = AppLocalizations.of(context).localeName;
+    final language = locale == 'es' ? 'español' : 'english';
+    final compactTags = _buildCompactTags(locale);
+
+    final notifLines = notifications.asMap().entries.map((e) {
+      return '${e.key}|${e.value['app']}|${e.value['text']}|${e.value['amount']}';
+    }).join('\n');
+
+    final prompt =
+        'Parse these notifications into financial transactions.\n'
+        'Input: index|app|text|fallbackAmount\n'
+        '$notifLines\n\n'
+        'Categories: $compactTags\n\n'
+        'Return ONLY a JSON array. Each element: '
+        '{"i":index,"t":"title in $language max 40 chars","a":amount,"e":true/false,"c":categoryNumber}\n'
+        'e=true if expense. Use fallbackAmount if amount unclear. No markdown.';
+
+    final response = await _generateContent(
+      prompt,
+      context: context,
+      temperature: 0.3,
+      maxTokens: notifications.length * 80,
+    );
+
+    try {
+      String cleaned = response.trim().replaceAll('```json', '').replaceAll('```', '').trim();
+      final start = cleaned.indexOf('[');
+      final end = cleaned.lastIndexOf(']');
+      if (start == -1 || end == -1 || end <= start) return null;
+
+      final parsed = jsonDecode(cleaned.substring(start, end + 1)) as List<dynamic>;
+
+      return parsed.map((item) {
+        final map = item as Map<String, dynamic>;
+        final title = (map['t'] ?? '').toString().trim();
+        final amountRaw = map['a'];
+        final isExpense = map['e'] == true;
+        final categoryRaw = (map['c'] ?? '').toString();
+
+        double amount = 0;
+        if (amountRaw is num) {
+          amount = amountRaw.toDouble();
+        } else if (amountRaw is String) {
+          amount = double.tryParse(amountRaw.replaceAll(',', '.')) ?? 0;
+        }
+
+        return {
+          'index': (map['i'] is int) ? map['i'] : int.tryParse(map['i'].toString()) ?? 0,
+          'title': title,
+          'amount': amount.abs(),
+          'isExpense': isExpense,
+          'category': _resolveTag(categoryRaw, locale),
+        };
+      }).toList();
+    } catch (e) {
+      await LogFileService().appendLog('parseNotificationsBatch: parse error $e — response: $response');
+      return null;
+    }
+  }
+
+  Future<String> _generateVisionContent(
+    String prompt,
+    String base64Image,
+    String mimeType, {
+    BuildContext? context,
+    double temperature = 0.3,
+    int? maxTokens,
+  }) async {
+    if (_apiKey.isEmpty) {
+      try {
+        final propertiesContent = await rootBundle.loadString('config.properties');
+        Properties p = Properties.fromString(propertiesContent);
+        _apiKey = p.get('GROQ_API_KEY') ?? 'error';
+        if (_apiKey.isEmpty || _apiKey == 'tu_api_key_aqui') {
+          _apiKey = 'error';
+        }
+      } catch (e) {
+        debugPrint('Error cargando config.properties: $e');
+      }
+    }
+
+    if (_apiKey == 'error') {
+      return 'Error: No se pudo cargar la clave de API de Groq.';
+    }
+
+    final logService = LogFileService();
+    const int maxAttempts = 3;
+    List<String> attemptErrors = [];
+
+    try {
+      final url = Uri.parse('https://api.groq.com/openai/v1/chat/completions');
+
+      for (int attempt = 0; attempt < maxAttempts; attempt++) {
+        try {
+          await logService.appendLog('INFO GroqService Vision: Intento ${attempt + 1}...');
+
+          final response = await http.post(
+            url,
+            headers: {
+              'Authorization': 'Bearer $_apiKey',
+              'Content-Type': 'application/json',
+            },
+            body: jsonEncode({
+              'model': 'meta-llama/llama-4-scout-17b-16e-instruct',
+              'messages': [
+                {
+                  'role': 'user',
+                  'content': [
+                    {'type': 'text', 'text': prompt},
+                    {
+                      'type': 'image_url',
+                      'image_url': {
+                        'url': 'data:$mimeType;base64,$base64Image',
+                      },
+                    },
+                  ],
+                }
+              ],
+              'temperature': temperature,
+              if (maxTokens != null) 'max_tokens': maxTokens,
+            }),
+          ).timeout(const Duration(seconds: 60));
+
+          if (response.statusCode == 200) {
+            final decodedBody = utf8.decode(response.bodyBytes, allowMalformed: true);
+            final data = jsonDecode(decodedBody);
+            final content = data['choices'][0]['message']['content'] as String;
+            if (content.isNotEmpty) return content;
+
+            attemptErrors.add('Respuesta vacía (Intento ${attempt + 1})');
+            await logService.appendLog('ERROR GroqService Vision: Respuesta vacía');
+          } else {
+            final errorData = jsonDecode(response.body);
+            final errorMessage = errorData['error']?['message'] ?? 'Error desconocido';
+            attemptErrors.add('Status ${response.statusCode}: $errorMessage');
+            await logService.appendLog('ERROR GroqService Vision: ${response.statusCode} $errorMessage');
+
+            if (response.statusCode == 401) return 'Error: API Key inválida.';
+            if (response.statusCode == 429) {
+              final waitMs = pow(2, attempt) * 1000 + 500;
+              await Future.delayed(Duration(milliseconds: waitMs.toInt()));
+              continue;
+            }
+            await Future.delayed(const Duration(seconds: 1));
+          }
+        } catch (e) {
+          attemptErrors.add('Error intento ${attempt + 1}: $e');
+          await logService.appendLog('ERROR GroqService Vision: $e');
+          await Future.delayed(const Duration(seconds: 1));
+        }
+      }
+
+      final details = attemptErrors.join(' | ');
+      await logService.appendLog('FATAL GroqService Vision: $details');
+      return '';
+    } catch (e) {
+      await logService.appendLog('ERROR GroqService Vision (Outer): $e');
+      return '';
+    }
+  }
+
+  Future<List<Map<String, dynamic>>?> parseImageMovements(
+    String base64Image,
+    String mimeType,
+    BuildContext context,
+  ) async {
+    final locale = AppLocalizations.of(context).localeName;
+    final language = locale == 'es' ? 'español' : 'english';
+    final compactTags = _buildCompactTags(locale);
+
+    final prompt =
+        'Extract ALL financial transactions from this image (receipt/statement/screenshot). '
+        'Return ONLY a JSON array. Each element: '
+        '{"t":"title in $language max 40 chars","a":amount,"e":true/false,"c":categoryNumber}\n'
+        'Categories: $compactTags\n'
+        'e=true if expense. If no transactions, return []. No markdown.';
+
+    final response = await _generateVisionContent(prompt, base64Image, mimeType, context: context, maxTokens: 1000);
+
+    if (response.isEmpty) return null;
+
+    try {
+      String cleaned = response.trim();
+      cleaned = cleaned.replaceAll('```json', '').replaceAll('```', '').trim();
+
+      final start = cleaned.indexOf('[');
+      final end = cleaned.lastIndexOf(']');
+      if (start == -1 || end == -1 || end <= start) {
+        await LogFileService().appendLog('parseImageMovements: no JSON array in response: $response');
+        return null;
+      }
+
+      final jsonStr = cleaned.substring(start, end + 1);
+      final parsed = jsonDecode(jsonStr) as List<dynamic>;
+
+      return parsed.map((item) {
+        final map = item as Map<String, dynamic>;
+        final title = (map['t'] ?? map['title'] ?? '').toString().trim();
+        final amountRaw = map['a'] ?? map['amount'];
+        final isExpense = (map['e'] ?? map['isExpense']) == true;
+        final categoryRaw = (map['c'] ?? map['category'] ?? '').toString();
+
+        double amount = 0;
+        if (amountRaw is num) {
+          amount = amountRaw.toDouble();
+        } else if (amountRaw is String) {
+          amount = double.tryParse(amountRaw.replaceAll(',', '.')) ?? 0;
+        }
+
+        return {
+          'title': title,
+          'amount': amount.abs(),
+          'isExpense': isExpense,
+          'category': _resolveTag(categoryRaw, locale),
+        };
+      }).where((m) => (m['amount'] as double) > 0).toList();
+    } catch (e) {
+      await LogFileService().appendLog('parseImageMovements: parse error $e — response: $response');
+      return null;
+    }
+  }
+
   Future<List<String>> generateTags(String names, BuildContext context) async {
     final locale = AppLocalizations.of(context).localeName;
-    final tagList = getTagList(locale);
+    final compactTags = _buildCompactTags(locale);
+    final count = names.split(',').length;
 
     String prompt =
-        'Dime las mejores etiquetas para los siguientes movimientos (solo dime las etiquetas separadas por comas en el orden de los nombres que te mando, nada mas): "$names". '
-        'Elige entre las siguientes etiquetas: ${tagList.join(', ')}. '
-        'Si no encuentras una etiqueta adecuada, responde con la ultima etiqueta.'
-        'Ten en cuenta que cada uno de los movimientos tiene entre paréntesis su tipo (gasto o ingreso), para que te sea mas sencillo elegir una etiqueta.'
-        'Como separador de los tags usa un pipeline (|) en lugar de una coma';
+        'Assign tags to these movements (type in parentheses). '
+        'Tags: $compactTags. '
+        'Reply with tag numbers separated by |, in order. Nothing else.\n'
+        'Movements: "$names"';
 
-    String response = await _generateContent(prompt,context: context);
-    return response.split('|').map((e) => e.trim()).toList();
+    String response = await _generateContent(prompt, context: context, temperature: 0.2, maxTokens: count * 5);
+    return response.split('|').map((e) => _resolveTag(e.trim(), locale)).toList();
   }
 
   Future<String> generateSummary(
@@ -251,31 +506,21 @@ class GroqService {
     final locale = AppLocalizations.of(context).localeName;
     final language = locale == 'es' ? 'español' : 'english';
 
+    final dataLines = movements.map((m) =>
+      '${m.day}|${m.description}|${m.amount}|${m.isExpense ? 'G' : 'I'}|${m.category ?? ''}'
+    ).join('\n');
+
     String prompt =
-        'Genera un análisis financiero usando SOLO los siguientes elementos de markdown:\n'
-        '- Encabezados con ## (no uses #)\n'
-        '- Listas con guiones (-)\n'
-        '- Texto en negrita con **texto**\n'
-        '- Párrafos simples\n\n'
-        'Estructura requerida:\n'
-        '## Resumen General\n'
-        '(análisis general)\n\n'
-        '## Análisis de Gastos\n'
-        '(detalles de gastos)\n\n'
-        '## Recomendaciones\n'
-        '(recomendaciones)\n\n'
-        'La respuesta debe estar en $language y analizar:\n'
-        '- Balance general y tendencias\n'
-        '- Principales categorías de gasto\n'
-        '- Patrones de gasto destacables\n'
-        '- Gastos potencialmente innecesarios\n'
-        '- Sugerencias de mejora\n\n'
-        'Datos (mes ${month.month}/${month.year}):\n'
-        '${movements.map((m) => m.toJson()).toList()}';
+        'Financial analysis in $language using markdown (## headers, - lists, **bold**).\n'
+        'Sections: ## Resumen General, ## Análisis de Gastos, ## Recomendaciones\n'
+        'Analyze: balance, top expense categories, patterns, unnecessary expenses, suggestions.\n\n'
+        'Month ${month.month}/${month.year}, format: day|desc|amount|G(expense)/I(income)|category\n'
+        '$dataLines';
 
     String response = await _generateContent(
       prompt,
       context: context,
+      maxTokens: 1500,
     );
 
     if (response.isEmpty) {

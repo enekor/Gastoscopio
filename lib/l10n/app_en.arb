@@ -514,5 +514,17 @@
 
   "monthlySummaryPromptTitle": "Generate monthly summary?",
   "monthlySummaryPromptBody": "The month is almost over. Would you like to see an AI summary of this month's activity?",
-  "notNow": "Not now"
+  "notNow": "Not now",
+
+  "scanFromImage": "Scan image",
+  "analyzingImage": "Analyzing image...",
+  "noMovementsFoundInImage": "No transactions found in the image.",
+  "movementsExtracted": "{count} movement(s) saved.",
+  "@movementsExtracted": {
+    "placeholders": {
+      "count": { "type": "int" }
+    }
+  },
+  "scanError": "Error scanning image. Please try again.",
+  "imageTooLarge": "Image is too large. Maximum 20 MB."
 }

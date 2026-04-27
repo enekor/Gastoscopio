@@ -554,6 +554,14 @@ class _MovementFormScreenState extends State<MovementFormScreen> {
                           )
                         : Text(localizations.save),
                   ),
+                  if (widget.movement == null) ...[
+                    const SizedBox(height: 8),
+                    OutlinedButton.icon(
+                      onPressed: () => Navigator.pop(context, 'scan'),
+                      icon: const Icon(Icons.document_scanner_outlined),
+                      label: Text(localizations.scanFromImage),
+                    ),
+                  ],
                   const SizedBox(height: 8),
                 ],
               ),
