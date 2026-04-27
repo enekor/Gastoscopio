@@ -59,10 +59,18 @@ class _ImageScanScreenState extends State<ImageScanScreen> {
 
       final base64 = base64Encode(bytes);
       final ext = widget.imagePath.split('.').last.toLowerCase();
-      final mimeType = ext == 'png' ? 'image/png' : ext == 'webp' ? 'image/webp' : 'image/jpeg';
+      final mimeType = ext == 'png'
+          ? 'image/png'
+          : ext == 'webp'
+          ? 'image/webp'
+          : 'image/jpeg';
 
       if (!mounted) return;
-      final results = await GroqService().parseImageMovements(base64, mimeType, context);
+      final results = await GroqService().parseImageMovements(
+        base64,
+        mimeType,
+        context,
+      );
 
       if (!mounted) return;
 
@@ -75,12 +83,16 @@ class _ImageScanScreenState extends State<ImageScanScreen> {
       }
 
       setState(() {
-        _movements = results.map((r) => ScannedMovement(
-          title: r['title'] as String,
-          amount: r['amount'] as double,
-          isExpense: r['isExpense'] as bool,
-          category: r['category'] as String?,
-        )).toList();
+        _movements = results
+            .map(
+              (r) => ScannedMovement(
+                title: r['title'] as String,
+                amount: r['amount'] as double,
+                isExpense: r['isExpense'] as bool,
+                category: r['category'] as String?,
+              ),
+            )
+            .toList();
         _isAnalyzing = false;
       });
     } catch (e) {
@@ -111,12 +123,17 @@ class _ImageScanScreenState extends State<ImageScanScreen> {
     final now = DateTime.now();
 
     try {
-      final monthId = await financeService.findMonthByMonthAndYear(now.month, now.year);
+      final monthId = await financeService.findMonthByMonthAndYear(
+        now.month,
+        now.year,
+      );
 
       for (int i = 0; i < _movements.length; i++) {
         setState(() => _savingCurrent = i + 1);
         final m = _movements[i];
-        final amount = double.parse(m.amountController.text.replaceAll(',', '.'));
+        final amount = double.parse(
+          m.amountController.text.replaceAll(',', '.'),
+        );
 
         final movement = MovementValue(
           DateTime.now().millisecondsSinceEpoch,
@@ -170,40 +187,61 @@ class _ImageScanScreenState extends State<ImageScanScreen> {
     final theme = Theme.of(context);
 
     return Scaffold(
-      appBar: AppBar(
-        title: Text(localizations.scanFromImage),
-      ),
-      body: _isAnalyzing
-          ? Center(
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Loading(context),
-                  const SizedBox(height: 16),
-                  Text(localizations.analyzingImage),
-                ],
+      appBar: AppBar(title: Text(''), automaticallyImplyLeading: false),
+      body: SafeArea(
+        bottom: false,
+        child: Form(
+          key: _formKey,
+          child: CustomScrollView(
+            slivers: [
+              SliverAppBar(
+                title: Text(
+                  localizations.scanFromImage,
+                  style: Theme.of(context).textTheme.titleLarge,
+                ),
+                centerTitle: true,
+                floating: true,
+                pinned: true,
+                primary: false,
               ),
-            )
-          : _errorMessage != null
-              ? Center(
-                  child: Padding(
-                    padding: const EdgeInsets.all(32),
+              if (_isAnalyzing)
+                SliverFillRemaining(
+                  child: Center(
                     child: Column(
                       mainAxisSize: MainAxisSize.min,
                       children: [
-                        Icon(Icons.info_outline, size: 48, color: theme.colorScheme.onSurfaceVariant),
+                        Loading(context),
                         const SizedBox(height: 16),
-                        Text(_errorMessage!, textAlign: TextAlign.center),
+                        Text(localizations.analyzingImage),
                       ],
                     ),
                   ),
                 )
-              : Form(
-                  key: _formKey,
-                  child: ListView.builder(
-                    padding: const EdgeInsets.all(16),
-                    itemCount: _movements.length,
-                    itemBuilder: (context, index) {
+              else if (_errorMessage != null)
+                SliverFillRemaining(
+                  child: Center(
+                    child: Padding(
+                      padding: const EdgeInsets.all(32),
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Icon(
+                            Icons.info_outline,
+                            size: 48,
+                            color: theme.colorScheme.onSurfaceVariant,
+                          ),
+                          const SizedBox(height: 16),
+                          Text(_errorMessage!, textAlign: TextAlign.center),
+                        ],
+                      ),
+                    ),
+                  ),
+                )
+              else
+                SliverPadding(
+                  padding: const EdgeInsets.all(16),
+                  sliver: SliverList(
+                    delegate: SliverChildBuilderDelegate((context, index) {
                       return Padding(
                         padding: const EdgeInsets.only(bottom: 12),
                         child: ScannedMovementCard(
@@ -216,10 +254,15 @@ class _ImageScanScreenState extends State<ImageScanScreen> {
                           },
                         ),
                       );
-                    },
+                    }, childCount: _movements.length),
                   ),
                 ),
-      bottomNavigationBar: (!_isAnalyzing && _errorMessage == null && _movements.isNotEmpty)
+            ],
+          ),
+        ),
+      ),
+      bottomNavigationBar:
+          (!_isAnalyzing && _errorMessage == null && _movements.isNotEmpty)
           ? SafeArea(
               child: Padding(
                 padding: const EdgeInsets.all(16),
@@ -229,12 +272,18 @@ class _ImageScanScreenState extends State<ImageScanScreen> {
                       ? const SizedBox(
                           width: 16,
                           height: 16,
-                          child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white),
+                          child: CircularProgressIndicator(
+                            strokeWidth: 2,
+                            color: Colors.white,
+                          ),
                         )
                       : const Icon(Icons.check),
                   label: Text(
                     _isSaving
-                        ? localizations.savingProgress(_savingCurrent, _movements.length)
+                        ? localizations.savingProgress(
+                            _savingCurrent,
+                            _movements.length,
+                          )
                         : localizations.saveAll,
                   ),
                 ),

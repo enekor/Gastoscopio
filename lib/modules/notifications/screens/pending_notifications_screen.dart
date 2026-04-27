@@ -312,9 +312,11 @@ class _PendingNotificationsScreenState
 
     if (_isLoading) {
       return Scaffold(
-        body: CustomScrollView(
-          slivers: [
-            SliverAppBar(
+        body: SafeArea(
+          bottom: false,
+          child: CustomScrollView(
+            slivers: [
+              SliverAppBar(
               automaticallyImplyLeading: false,
               expandedHeight: 120,
               floating: true,
@@ -355,15 +357,18 @@ class _PendingNotificationsScreenState
             SliverFillRemaining(child: Center(child: Loading(context))),
           ],
         ),
+      ),
       );
     }
 
     return Scaffold(
-      body: Form(
-        key: _formKey,
-        child: CustomScrollView(
-          slivers: [
-            SliverAppBar(
+      body: SafeArea(
+        bottom: false,
+        child: Form(
+          key: _formKey,
+          child: CustomScrollView(
+            slivers: [
+              SliverAppBar(
               automaticallyImplyLeading: false,
               expandedHeight: 120,
               floating: true,
@@ -468,6 +473,7 @@ class _PendingNotificationsScreenState
             ),
           ],
         ),
+      ),
       ),
       bottomNavigationBar: SafeArea(
         child: Padding(

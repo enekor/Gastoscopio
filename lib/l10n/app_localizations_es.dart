@@ -1431,4 +1431,25 @@ class AppLocalizationsEs extends AppLocalizations {
 
   @override
   String get notNow => 'Ahora no';
+
+  @override
+  String get scanFromImage => 'Escanear imagen';
+
+  @override
+  String get analyzingImage => 'Analizando imagen...';
+
+  @override
+  String get noMovementsFoundInImage =>
+      'No se encontraron movimientos en la imagen.';
+
+  @override
+  String movementsExtracted(int count) {
+    return '$count movimiento(s) guardado(s).';
+  }
+
+  @override
+  String get scanError => 'Error al escanear la imagen. Inténtalo de nuevo.';
+
+  @override
+  String get imageTooLarge => 'La imagen es demasiado grande. Máximo 20 MB.';
 }

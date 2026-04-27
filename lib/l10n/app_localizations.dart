@@ -2634,6 +2634,42 @@ abstract class AppLocalizations {
   /// In es, this message translates to:
   /// **'Ahora no'**
   String get notNow;
+
+  /// No description provided for @scanFromImage.
+  ///
+  /// In es, this message translates to:
+  /// **'Escanear imagen'**
+  String get scanFromImage;
+
+  /// No description provided for @analyzingImage.
+  ///
+  /// In es, this message translates to:
+  /// **'Analizando imagen...'**
+  String get analyzingImage;
+
+  /// No description provided for @noMovementsFoundInImage.
+  ///
+  /// In es, this message translates to:
+  /// **'No se encontraron movimientos en la imagen.'**
+  String get noMovementsFoundInImage;
+
+  /// No description provided for @movementsExtracted.
+  ///
+  /// In es, this message translates to:
+  /// **'{count} movimiento(s) guardado(s).'**
+  String movementsExtracted(int count);
+
+  /// No description provided for @scanError.
+  ///
+  /// In es, this message translates to:
+  /// **'Error al escanear la imagen. Inténtalo de nuevo.'**
+  String get scanError;
+
+  /// No description provided for @imageTooLarge.
+  ///
+  /// In es, this message translates to:
+  /// **'La imagen es demasiado grande. Máximo 20 MB.'**
+  String get imageTooLarge;
 }
 
 class _AppLocalizationsDelegate
