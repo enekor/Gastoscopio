@@ -452,6 +452,13 @@ class _MovementFormScreenState extends State<MovementFormScreen> {
                       ),
                     ],
                   ),
+                  const SizedBox(height: 8),
+                  if (widget.movement == null)
+                    OutlinedButton.icon(
+                      onPressed: () => Navigator.pop(context, 'scan'),
+                      icon: const Icon(Icons.document_scanner_outlined),
+                      label: Text(localizations.scanFromImage),
+                    ),
                   const SizedBox(height: 16),
                   // Selector de tipo de movimiento
                   SegmentedButton<bool>(

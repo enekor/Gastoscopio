@@ -228,6 +228,169 @@ class GroqService {
     }
   }
 
+  Future<String> _generateVisionContent(
+    String prompt,
+    String base64Image,
+    String mimeType, {
+    BuildContext? context,
+  }) async {
+    if (_apiKey.isEmpty) {
+      try {
+        final propertiesContent = await rootBundle.loadString('config.properties');
+        Properties p = Properties.fromString(propertiesContent);
+        _apiKey = p.get('GROQ_API_KEY') ?? 'error';
+        if (_apiKey.isEmpty || _apiKey == 'tu_api_key_aqui') {
+          _apiKey = 'error';
+        }
+      } catch (e) {
+        debugPrint('Error cargando config.properties: $e');
+      }
+    }
+
+    if (_apiKey == 'error') {
+      return 'Error: No se pudo cargar la clave de API de Groq.';
+    }
+
+    final logService = LogFileService();
+    const int maxAttempts = 3;
+    List<String> attemptErrors = [];
+
+    try {
+      final url = Uri.parse('https://api.groq.com/openai/v1/chat/completions');
+
+      for (int attempt = 0; attempt < maxAttempts; attempt++) {
+        try {
+          await logService.appendLog('INFO GroqService Vision: Intento ${attempt + 1}...');
+
+          final response = await http.post(
+            url,
+            headers: {
+              'Authorization': 'Bearer $_apiKey',
+              'Content-Type': 'application/json',
+            },
+            body: jsonEncode({
+              'model': 'meta-llama/llama-4-scout-17b-16e-instruct',
+              'messages': [
+                {
+                  'role': 'user',
+                  'content': [
+                    {'type': 'text', 'text': prompt},
+                    {
+                      'type': 'image_url',
+                      'image_url': {
+                        'url': 'data:$mimeType;base64,$base64Image',
+                      },
+                    },
+                  ],
+                }
+              ],
+              'temperature': 0.3,
+            }),
+          ).timeout(const Duration(seconds: 60));
+
+          if (response.statusCode == 200) {
+            final decodedBody = utf8.decode(response.bodyBytes, allowMalformed: true);
+            final data = jsonDecode(decodedBody);
+            final content = data['choices'][0]['message']['content'] as String;
+            if (content.isNotEmpty) return content;
+
+            attemptErrors.add('Respuesta vacía (Intento ${attempt + 1})');
+            await logService.appendLog('ERROR GroqService Vision: Respuesta vacía');
+          } else {
+            final errorData = jsonDecode(response.body);
+            final errorMessage = errorData['error']?['message'] ?? 'Error desconocido';
+            attemptErrors.add('Status ${response.statusCode}: $errorMessage');
+            await logService.appendLog('ERROR GroqService Vision: ${response.statusCode} $errorMessage');
+
+            if (response.statusCode == 401) return 'Error: API Key inválida.';
+            if (response.statusCode == 429) {
+              final waitMs = pow(2, attempt) * 1000 + 500;
+              await Future.delayed(Duration(milliseconds: waitMs.toInt()));
+              continue;
+            }
+            await Future.delayed(const Duration(seconds: 1));
+          }
+        } catch (e) {
+          attemptErrors.add('Error intento ${attempt + 1}: $e');
+          await logService.appendLog('ERROR GroqService Vision: $e');
+          await Future.delayed(const Duration(seconds: 1));
+        }
+      }
+
+      final details = attemptErrors.join(' | ');
+      await logService.appendLog('FATAL GroqService Vision: $details');
+      return '';
+    } catch (e) {
+      await logService.appendLog('ERROR GroqService Vision (Outer): $e');
+      return '';
+    }
+  }
+
+  Future<List<Map<String, dynamic>>?> parseImageMovements(
+    String base64Image,
+    String mimeType,
+    BuildContext context,
+  ) async {
+    final locale = AppLocalizations.of(context).localeName;
+    final language = locale == 'es' ? 'español' : 'english';
+    final tagList = getTagList(locale);
+
+    final prompt =
+        'Analyze this image (receipt, bank statement, or expense screenshot) and extract ALL financial transactions visible in it. '
+        'Return ONLY a valid JSON array, no markdown, no code fences, no explanation. '
+        'Each element must have exactly these keys:\n'
+        '- "title": string, short description in $language (max 40 chars)\n'
+        '- "amount": number, positive value (e.g. 15.50)\n'
+        '- "isExpense": boolean (true if expense/purchase, false if income)\n'
+        '- "category": string, choose the best match from this list: ${tagList.join(', ')}\n\n'
+        'If you cannot find any transactions, return an empty array: []\n'
+        'Remember: ONLY return the JSON array, nothing else.';
+
+    final response = await _generateVisionContent(prompt, base64Image, mimeType, context: context);
+
+    if (response.isEmpty) return null;
+
+    try {
+      String cleaned = response.trim();
+      cleaned = cleaned.replaceAll('```json', '').replaceAll('```', '').trim();
+
+      final start = cleaned.indexOf('[');
+      final end = cleaned.lastIndexOf(']');
+      if (start == -1 || end == -1 || end <= start) {
+        await LogFileService().appendLog('parseImageMovements: no JSON array in response: $response');
+        return null;
+      }
+
+      final jsonStr = cleaned.substring(start, end + 1);
+      final parsed = jsonDecode(jsonStr) as List<dynamic>;
+
+      return parsed.map((item) {
+        final map = item as Map<String, dynamic>;
+        final title = (map['title'] ?? '').toString().trim();
+        final amountRaw = map['amount'];
+        final isExpense = map['isExpense'] == true;
+        final category = (map['category'] ?? '').toString().trim();
+
+        double amount = 0;
+        if (amountRaw is num) {
+          amount = amountRaw.toDouble();
+        } else if (amountRaw is String) {
+          amount = double.tryParse(amountRaw.replaceAll(',', '.')) ?? 0;
+        }
+
+        return {
+          'title': title,
+          'amount': amount.abs(),
+          'isExpense': isExpense,
+          'category': category,
+        };
+      }).where((m) => (m['amount'] as double) > 0).toList();
+    } catch (e) {
+      await LogFileService().appendLog('parseImageMovements: parse error $e — response: $response');
+      return null;
+    }
+  }
+
   Future<List<String>> generateTags(String names, BuildContext context) async {
     final locale = AppLocalizations.of(context).localeName;
     final tagList = getTagList(locale);

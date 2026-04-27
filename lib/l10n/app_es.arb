@@ -1329,5 +1329,11 @@
     "placeholders": {
       "appName": { "type": "String" }
     }
-  }
+  },
+  "scanFromImage": "Escanear imagen",
+  "analyzingImage": "Analizando imagen...",
+  "noMovementsFoundInImage": "No se encontraron movimientos en la imagen.",
+  "movementsExtracted": "Movimientos extraídos de la imagen. Revísalos y guarda los que quieras.",
+  "scanError": "Error al analizar la imagen. Inténtalo de nuevo.",
+  "imageTooLarge": "La imagen es demasiado grande. Intenta con una imagen más pequeña (máx. 4MB)."
 }

@@ -395,6 +395,12 @@
     "placeholders": {
       "appName": { "type": "String" }
     }
-  }
+  },
+  "scanFromImage": "Scan image",
+  "analyzingImage": "Analyzing image...",
+  "noMovementsFoundInImage": "No transactions found in the image.",
+  "movementsExtracted": "Transactions extracted from the image. Review and save the ones you want.",
+  "scanError": "Error analyzing the image. Please try again.",
+  "imageTooLarge": "The image is too large. Try a smaller image (max 4MB)."
 
 }
