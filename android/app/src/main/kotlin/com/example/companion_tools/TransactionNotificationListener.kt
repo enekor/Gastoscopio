@@ -20,9 +20,21 @@ class TransactionNotificationListener : NotificationListenerService() {
         private const val PREFS_NAME = "FlutterSharedPreferences"
         private const val PREF_ALLOWED_APPS = "flutter.notification_allowed_apps"
 
-        // Matches: €12.50, 12,50€, $100, 100$, € 12.50, 12.50 €, etc.
+        // Currency markers: symbols and ISO codes. Codes match case-insensitively with word boundaries.
+        private val CURRENCY_MARKERS = listOf(
+            "€", "$", "£", "¥",
+            "EUR", "USD", "GBP", "JPY", "CHF", "CAD", "AUD",
+            "MXN", "BRL", "COP", "ARS", "CLP", "PEN", "UYU", "BOB",
+            "VES", "PYG", "DOP", "CRC", "GTQ", "HNL", "NIO"
+        )
+
+        private const val CURRENCY_CODES =
+            "EUR|USD|GBP|JPY|CHF|CAD|AUD|MXN|BRL|COP|ARS|CLP|PEN|UYU|BOB|VES|PYG|DOP|CRC|GTQ|HNL|NIO"
+
+        // Matches: €12.50, 12,50€, EUR 12.50, 100 USD, $100, 100$, COP 50000, etc.
         private val CURRENCY_REGEX = Pattern.compile(
-            """(?:[$€]\s?)(\d+(?:[.,]\d{1,2})?)|(\d+(?:[.,]\d{1,2})?)\s?(?:[$€])"""
+            """(?:[$€£¥]|\b(?:$CURRENCY_CODES)\b)\s?(\d+(?:[.,]\d{1,2})?)|(\d+(?:[.,]\d{1,2})?)\s?(?:[$€£¥]|\b(?:$CURRENCY_CODES)\b)""",
+            Pattern.CASE_INSENSITIVE
         )
     }
 
@@ -65,8 +77,8 @@ class TransactionNotificationListener : NotificationListenerService() {
 
             Log.d(TAG, "Notification from $packageName: $fullText")
 
-            // Check for currency symbols
-            if (!fullText.contains("€") && !fullText.contains("$")) return
+            // Check for currency symbols or ISO codes (case-insensitive for codes)
+            if (CURRENCY_MARKERS.none { fullText.contains(it, ignoreCase = true) }) return
 
             val amount = extractAmount(fullText) ?: return
             if (amount <= 0) return
