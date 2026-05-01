@@ -20,11 +20,29 @@ class GroqService {
 
   GroqService._internal();
 
+  Future<void> _logAiError(String method, String message, [String? response]) async {
+    final buffer = StringBuffer('[AI ERROR] $method: $message');
+    if (response != null && response.isNotEmpty) {
+      buffer.write('\n--- AI Response ---\n$response\n--- End Response ---');
+    }
+    await LogFileService().appendLog(buffer.toString());
+  }
+
+  bool _isErrorResponse(String response) {
+    if (response.isEmpty) return true;
+    final lower = response.toLowerCase();
+    return lower.startsWith('error:') ||
+        lower.startsWith('error crítico:') ||
+        lower.contains('no se pudo generar respuesta con groq') ||
+        lower.contains('no se pudo cargar la clave');
+  }
+
   Future<String> _generateContent(
       String prompt, {
         BuildContext? context,
         double temperature = 0.7,
         int? maxTokens,
+        String caller = '_generateContent',
       }) async {
     
     if(_apiKey.isEmpty) {
@@ -44,10 +62,10 @@ class GroqService {
     }
     
     if(_apiKey == 'error') {
+      await _logAiError(caller, 'No se pudo cargar la clave de API de Groq');
       return 'Error: No se pudo cargar la clave de API de Groq.';
     }
 
-    final logService = LogFileService();
     const int maxAttempts = 3;
     List<String> attemptErrors = [];
 
@@ -56,8 +74,6 @@ class GroqService {
 
       for (int attempt = 0; attempt < maxAttempts; attempt++) {
         try {
-          await logService.appendLog('INFO GroqService: Intento ${attempt + 1} enviando petición...');
-
           final response = await http.post(
             url,
             headers: {
@@ -84,17 +100,21 @@ class GroqService {
             if (content.isNotEmpty) {
               return content;
             } else {
-              final errorMsg = 'Respuesta vacía de Groq (Intento ${attempt + 1})';
+              final errorMsg = 'Respuesta vacía de Groq (intento ${attempt + 1})';
               attemptErrors.add(errorMsg);
-              await logService.appendLog('ERROR GroqService: $errorMsg');
+              await _logAiError(caller, errorMsg);
             }
           } else {
-            final errorData = jsonDecode(response.body);
-            final errorMessage = errorData['error']?['message'] ?? 'Error desconocido';
-            final errorMsg = 'Status ${response.statusCode} (Intento ${attempt + 1}): $errorMessage';
+            String errorMessage = 'Error desconocido';
+            try {
+              final errorData = jsonDecode(response.body);
+              errorMessage = errorData['error']?['message'] ?? 'Error desconocido';
+            } catch (_) {
+              errorMessage = response.body;
+            }
+            final errorMsg = 'HTTP ${response.statusCode} (intento ${attempt + 1}): $errorMessage';
             attemptErrors.add(errorMsg);
-
-            await logService.appendLog('ERROR GroqService: $errorMsg');
+            await _logAiError(caller, errorMsg);
 
             if (response.statusCode == 401) {
               return 'Error: API Key de Groq inválida. Por favor, revísala en Ajustes.';
@@ -118,9 +138,9 @@ class GroqService {
             continue;
           }
         } catch (e) {
-          final errorMsg = 'Error en intento ${attempt + 1}: $e';
+          final errorMsg = 'Excepción en intento ${attempt + 1}: $e';
           attemptErrors.add(errorMsg);
-          await logService.appendLog('ERROR GroqService (Catch Intento): $errorMsg');
+          await _logAiError(caller, errorMsg);
           await Future.delayed(const Duration(seconds: 1));
         }
       }
@@ -132,7 +152,7 @@ class GroqService {
         userMessage = 'Error: Has excedido el límite de velocidad de Groq. Por favor, espera un poco o cambia la clave.';
       }
 
-      await logService.appendLog('FATAL GroqService: $userMessage. Detalles: $details');
+      await _logAiError(caller, 'FATAL tras $maxAttempts intentos: $userMessage. Detalles: $details');
 
       if (context != null) {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -142,7 +162,7 @@ class GroqService {
       return userMessage;
 
     } catch (e) {
-      await logService.appendLog('ERROR GroqService (Outer catch): $e');
+      await _logAiError(caller, 'Excepción no controlada: $e');
       return 'Error crítico: $e';
     }
   }
@@ -185,7 +205,19 @@ class GroqService {
         'Categorize: "$name" (${isExpense ? 'expense' : 'income'}). '
         'Tags: $compactTags. Reply with the tag number ONLY.';
 
-    String response = await _generateContent(prompt, context: context, temperature: 0.2, maxTokens: 10);
+    String response = await _generateContent(
+      prompt,
+      context: context,
+      temperature: 0.2,
+      maxTokens: 10,
+      caller: 'generateCategory',
+    );
+
+    if (_isErrorResponse(response)) {
+      await _logAiError('generateCategory', 'Respuesta inválida o de error', response);
+      return getTagList(locale).last;
+    }
+
     return _resolveTag(response, locale);
   }
 
@@ -212,7 +244,16 @@ class GroqService {
         'Si no puedes extraer el importe claramente, usa $fallbackAmount.\n\n'
         'Texto de la notificación: "$notificationText"';
 
-    String response = await _generateContent(prompt, context: context);
+    String response = await _generateContent(
+      prompt,
+      context: context,
+      caller: 'parseNotificationTransaction',
+    );
+
+    if (_isErrorResponse(response)) {
+      await _logAiError('parseNotificationTransaction', 'Respuesta de error de la IA', response);
+      return null;
+    }
 
     try {
       // Clean possible markdown code fences
@@ -223,8 +264,10 @@ class GroqService {
       final start = response.indexOf('{');
       final end = response.lastIndexOf('}');
       if (start == -1 || end == -1 || end <= start) {
-        await LogFileService().appendLog(
-          'parseNotificationTransaction: no JSON in response: $response',
+        await _logAiError(
+          'parseNotificationTransaction',
+          'No se encontró JSON en la respuesta',
+          response,
         );
         return null;
       }
@@ -248,8 +291,10 @@ class GroqService {
         'isExpense': isExpense,
       };
     } catch (e) {
-      await LogFileService().appendLog(
-        'parseNotificationTransaction: parse error $e — response: $response',
+      await _logAiError(
+        'parseNotificationTransaction',
+        'Error de parseo: $e',
+        response,
       );
       return null;
     }
@@ -283,13 +328,26 @@ class GroqService {
       context: context,
       temperature: 0.3,
       maxTokens: notifications.length * 80,
+      caller: 'parseNotificationsBatch',
     );
+
+    if (_isErrorResponse(response)) {
+      await _logAiError('parseNotificationsBatch', 'Respuesta de error de la IA', response);
+      return null;
+    }
 
     try {
       String cleaned = response.trim().replaceAll('```json', '').replaceAll('```', '').trim();
       final start = cleaned.indexOf('[');
       final end = cleaned.lastIndexOf(']');
-      if (start == -1 || end == -1 || end <= start) return null;
+      if (start == -1 || end == -1 || end <= start) {
+        await _logAiError(
+          'parseNotificationsBatch',
+          'No se encontró array JSON en la respuesta',
+          response,
+        );
+        return null;
+      }
 
       final parsed = jsonDecode(cleaned.substring(start, end + 1)) as List<dynamic>;
 
@@ -316,7 +374,11 @@ class GroqService {
         };
       }).toList();
     } catch (e) {
-      await LogFileService().appendLog('parseNotificationsBatch: parse error $e — response: $response');
+      await _logAiError(
+        'parseNotificationsBatch',
+        'Error de parseo: $e',
+        response,
+      );
       return null;
     }
   }
@@ -328,6 +390,7 @@ class GroqService {
     BuildContext? context,
     double temperature = 0.3,
     int? maxTokens,
+    String caller = '_generateVisionContent',
   }) async {
     if (_apiKey.isEmpty) {
       try {
@@ -343,10 +406,10 @@ class GroqService {
     }
 
     if (_apiKey == 'error') {
+      await _logAiError(caller, 'No se pudo cargar la clave de API de Groq');
       return 'Error: No se pudo cargar la clave de API de Groq.';
     }
 
-    final logService = LogFileService();
     const int maxAttempts = 3;
     List<String> attemptErrors = [];
 
@@ -355,8 +418,6 @@ class GroqService {
 
       for (int attempt = 0; attempt < maxAttempts; attempt++) {
         try {
-          await logService.appendLog('INFO GroqService Vision: Intento ${attempt + 1}...');
-
           final response = await http.post(
             url,
             headers: {
@@ -390,13 +451,20 @@ class GroqService {
             final content = data['choices'][0]['message']['content'] as String;
             if (content.isNotEmpty) return content;
 
-            attemptErrors.add('Respuesta vacía (Intento ${attempt + 1})');
-            await logService.appendLog('ERROR GroqService Vision: Respuesta vacía');
+            final errorMsg = 'Respuesta vacía (intento ${attempt + 1})';
+            attemptErrors.add(errorMsg);
+            await _logAiError(caller, errorMsg);
           } else {
-            final errorData = jsonDecode(response.body);
-            final errorMessage = errorData['error']?['message'] ?? 'Error desconocido';
-            attemptErrors.add('Status ${response.statusCode}: $errorMessage');
-            await logService.appendLog('ERROR GroqService Vision: ${response.statusCode} $errorMessage');
+            String errorMessage = 'Error desconocido';
+            try {
+              final errorData = jsonDecode(response.body);
+              errorMessage = errorData['error']?['message'] ?? 'Error desconocido';
+            } catch (_) {
+              errorMessage = response.body;
+            }
+            final errorMsg = 'HTTP ${response.statusCode} (intento ${attempt + 1}): $errorMessage';
+            attemptErrors.add(errorMsg);
+            await _logAiError(caller, errorMsg);
 
             if (response.statusCode == 401) return 'Error: API Key inválida.';
             if (response.statusCode == 429) {
@@ -407,17 +475,18 @@ class GroqService {
             await Future.delayed(const Duration(seconds: 1));
           }
         } catch (e) {
-          attemptErrors.add('Error intento ${attempt + 1}: $e');
-          await logService.appendLog('ERROR GroqService Vision: $e');
+          final errorMsg = 'Excepción en intento ${attempt + 1}: $e';
+          attemptErrors.add(errorMsg);
+          await _logAiError(caller, errorMsg);
           await Future.delayed(const Duration(seconds: 1));
         }
       }
 
       final details = attemptErrors.join(' | ');
-      await logService.appendLog('FATAL GroqService Vision: $details');
+      await _logAiError(caller, 'FATAL tras $maxAttempts intentos. Detalles: $details');
       return '';
     } catch (e) {
-      await logService.appendLog('ERROR GroqService Vision (Outer): $e');
+      await _logAiError(caller, 'Excepción no controlada: $e');
       return '';
     }
   }
@@ -438,9 +507,24 @@ class GroqService {
         'Categories: $compactTags\n'
         'e=true if expense. If no transactions, return []. No markdown.';
 
-    final response = await _generateVisionContent(prompt, base64Image, mimeType, context: context, maxTokens: 1000);
+    final response = await _generateVisionContent(
+      prompt,
+      base64Image,
+      mimeType,
+      context: context,
+      maxTokens: 1000,
+      caller: 'parseImageMovements',
+    );
 
-    if (response.isEmpty) return null;
+    if (response.isEmpty) {
+      await _logAiError('parseImageMovements', 'Respuesta vacía de la IA Vision');
+      return null;
+    }
+
+    if (_isErrorResponse(response)) {
+      await _logAiError('parseImageMovements', 'Respuesta de error de la IA', response);
+      return null;
+    }
 
     try {
       String cleaned = response.trim();
@@ -449,7 +533,11 @@ class GroqService {
       final start = cleaned.indexOf('[');
       final end = cleaned.lastIndexOf(']');
       if (start == -1 || end == -1 || end <= start) {
-        await LogFileService().appendLog('parseImageMovements: no JSON array in response: $response');
+        await _logAiError(
+          'parseImageMovements',
+          'No se encontró array JSON en la respuesta',
+          response,
+        );
         return null;
       }
 
@@ -478,7 +566,11 @@ class GroqService {
         };
       }).where((m) => (m['amount'] as double) > 0).toList();
     } catch (e) {
-      await LogFileService().appendLog('parseImageMovements: parse error $e — response: $response');
+      await _logAiError(
+        'parseImageMovements',
+        'Error de parseo: $e',
+        response,
+      );
       return null;
     }
   }
@@ -494,8 +586,27 @@ class GroqService {
         'Reply with tag numbers separated by |, in order. Nothing else.\n'
         'Movements: "$names"';
 
-    String response = await _generateContent(prompt, context: context, temperature: 0.2, maxTokens: count * 5);
-    return response.split('|').map((e) => _resolveTag(e.trim(), locale)).toList();
+    String response = await _generateContent(
+      prompt,
+      context: context,
+      temperature: 0.2,
+      maxTokens: count * 5,
+      caller: 'generateTags',
+    );
+
+    if (_isErrorResponse(response)) {
+      await _logAiError('generateTags', 'Respuesta de error de la IA', response);
+      final fallback = getTagList(locale).last;
+      return List.filled(count, fallback);
+    }
+
+    try {
+      return response.split('|').map((e) => _resolveTag(e.trim(), locale)).toList();
+    } catch (e) {
+      await _logAiError('generateTags', 'Error de parseo: $e', response);
+      final fallback = getTagList(locale).last;
+      return List.filled(count, fallback);
+    }
   }
 
   Future<String> generateSummary(
@@ -521,12 +632,16 @@ class GroqService {
       prompt,
       context: context,
       maxTokens: 1500,
+      caller: 'generateSummary',
     );
 
     if (response.isEmpty) {
-      LogFileService().appendLog(
-        'groqService generateSummary: Empty response from AI',
-      );
+      await _logAiError('generateSummary', 'Respuesta vacía de la IA');
+      return '## Error\n\nNo se pudo generar el análisis. Por favor, intenta de nuevo.';
+    }
+
+    if (_isErrorResponse(response)) {
+      await _logAiError('generateSummary', 'Respuesta de error de la IA', response);
       return '## Error\n\nNo se pudo generar el análisis. Por favor, intenta de nuevo.';
     }
 
@@ -540,9 +655,7 @@ class GroqService {
     response = response.replaceAll('```', '');
 
     if (response.isEmpty) {
-      LogFileService().appendLog(
-        'groqService generateSummary: No response generated after cleanup',
-      );
+      await _logAiError('generateSummary', 'Respuesta vacía tras limpieza de markdown');
       return '## ${AppLocalizations.of(context).error}\n\n${AppLocalizations.of(context).noResponseGenerated}';
     }
 
