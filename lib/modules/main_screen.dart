@@ -9,11 +9,9 @@ import 'package:cashly/modules/gastoscopio/screens/summary_screen.dart';
 import 'package:cashly/modules/gastoscopio/screens/movement_form_screen.dart';
 import 'package:cashly/modules/gastoscopio/widgets/loading.dart';
 import 'package:cashly/modules/gastoscopio/widgets/month_grid_selector.dart';
-import 'package:cashly/modules/image_scan/screens/image_scan_screen.dart';
 import 'package:cashly/modules/settings.dart/settings.dart';
 import 'package:cashly/modules/settings.dart/widgets/custom_navbar.dart';
 import 'package:cashly/onboarding/onboarding.dart';
-import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:cashly/l10n/app_localizations.dart';
 
@@ -185,19 +183,6 @@ class _MainScreenState extends State<MainScreen>
             ),
           ),
         ),
-      ),
-    );
-  }
-
-  Future<void> _pickAndScanImage() async {
-    final result = await FilePicker.platform.pickFiles(type: FileType.image);
-    if (result == null || result.files.single.path == null) return;
-    if (!mounted) return;
-    Navigator.push(
-      context,
-      MaterialPageRoute(
-        builder: (context) =>
-            ImageScanScreen(imagePath: result.files.single.path!),
       ),
     );
   }
@@ -377,17 +362,14 @@ class _MainScreenState extends State<MainScreen>
           ),
           floatingActionButton: FloatingActionButton(
             child: const Icon(Icons.add_card, size: 28),
-            onPressed: () async {
-              final result = await showModalBottomSheet<String>(
+            onPressed: () {
+              showModalBottomSheet<bool>(
                 context: context,
                 isScrollControlled: true,
                 showDragHandle: true,
                 useSafeArea: true,
                 builder: (BuildContext context) => MovementFormScreen(),
               );
-              if (result == 'scan') {
-                _pickAndScanImage();
-              }
             },
             elevation: 6,
             shape: RoundedRectangleBorder(

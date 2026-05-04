@@ -7,6 +7,8 @@ import 'package:cashly/data/models/movement_value.dart';
 import 'package:cashly/modules/gastoscopio/logic/finance_service.dart';
 import 'package:cashly/data/services/log_file_service.dart';
 import 'package:cashly/modules/gastoscopio/widgets/loading.dart';
+import 'package:cashly/modules/image_scan/screens/image_scan_screen.dart';
+import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:cashly/l10n/app_localizations.dart';
 import 'package:fluttertoast/fluttertoast.dart';
@@ -126,6 +128,18 @@ class _MovementFormScreenState extends State<MovementFormScreen> {
     setState(() {
       Navigator.pop(context);
     });
+  }
+
+  Future<void> _pickImageAndScan() async {
+    final navigator = Navigator.of(context);
+    final result = await FilePicker.platform.pickFiles(type: FileType.image);
+    if (result == null || result.files.single.path == null) return;
+    navigator.pop();
+    navigator.push(
+      MaterialPageRoute(
+        builder: (context) => ImageScanScreen(imagePath: result.files.single.path!),
+      ),
+    );
   }
 
   Future<void> _saveMovement(BuildContext context) async {
@@ -557,7 +571,7 @@ class _MovementFormScreenState extends State<MovementFormScreen> {
                   if (widget.movement == null) ...[
                     const SizedBox(height: 8),
                     OutlinedButton.icon(
-                      onPressed: () => Navigator.pop(context, 'scan'),
+                      onPressed: _pickImageAndScan,
                       icon: const Icon(Icons.document_scanner_outlined),
                       label: Text(localizations.scanFromImage),
                     ),

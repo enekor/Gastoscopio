@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import 'package:cashly/data/services/log_file_service.dart';
 import 'package:cashly/data/services/login_service.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -13,6 +14,25 @@ class SharedPreferencesService {
 
   SharedPreferencesService._internal();
 
+  /// If a key was stored with a different type in a previous version, reading
+  /// with the wrong typed getter throws a TypeError. We log it, remove the
+  /// corrupted entry so subsequent reads work, and return the default.
+  Future<T?> _safeGet<T>(
+    SharedPreferences prefs,
+    String key,
+    T? Function() reader,
+  ) async {
+    try {
+      return reader();
+    } catch (e) {
+      await LogFileService().appendLog(
+        '[SharedPreferences] Type mismatch reading "$key": $e — removing corrupted key',
+      );
+      await prefs.remove(key);
+      return null;
+    }
+  }
+
   Future<void> setStringValue(SharedPreferencesKeys key, String value) async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.setString(key.toString(), value);
@@ -20,14 +40,12 @@ class SharedPreferencesService {
 
   Future<String?> getStringValue(SharedPreferencesKeys key) async {
     final prefs = await SharedPreferences.getInstance();
-    var ret = prefs.getString(key.toString());
-    return ret;
+    return _safeGet<String>(prefs, key.toString(), () => prefs.getString(key.toString()));
   }
 
   Future<double?> getDoubleValue(SharedPreferencesKeys key) async {
     final prefs = await SharedPreferences.getInstance();
-    var ret = prefs.getDouble(key.toString());
-    return ret;
+    return _safeGet<double>(prefs, key.toString(), () => prefs.getDouble(key.toString()));
   }
 
   Future<void> setDoubleValue(SharedPreferencesKeys key, double value) async {
@@ -37,8 +55,20 @@ class SharedPreferencesService {
 
   Future<List<String>> getStringListValue(SharedPreferencesKeys key) async {
     final prefs = await SharedPreferences.getInstance();
-    var ret = prefs.getString(key.toString());
-    return List<String>.from(jsonDecode(ret ?? '[]'));
+    final ret = await _safeGet<String>(
+      prefs,
+      key.toString(),
+      () => prefs.getString(key.toString()),
+    );
+    try {
+      return List<String>.from(jsonDecode(ret ?? '[]'));
+    } catch (e) {
+      await LogFileService().appendLog(
+        '[SharedPreferences] Invalid JSON in "$key": $e — resetting',
+      );
+      await prefs.remove(key.toString());
+      return [];
+    }
   }
 
   Future<void> setStringListValue(
@@ -56,28 +86,25 @@ class SharedPreferencesService {
 
   Future<bool?> getBoolValue(SharedPreferencesKeys key) async {
     final prefs = await SharedPreferences.getInstance();
-    var ret = prefs.getBool(key.toString());
-    return ret;
+    return _safeGet<bool>(prefs, key.toString(), () => prefs.getBool(key.toString()));
   }
 
   Future<void> haveToUpload() async {
     final prefs = await SharedPreferences.getInstance();
-    var ret = prefs.getInt(SharedPreferencesKeys.numberOfMovements.toString());
+    final keyStr = SharedPreferencesKeys.numberOfMovements.toString();
+    var ret = await _safeGet<int>(prefs, keyStr, () => prefs.getInt(keyStr));
     if (ret == null || ret <= 4) {
       ret ??= 0;
       ret++;
 
-      await prefs.setInt(
-        SharedPreferencesKeys.numberOfMovements.toString(),
-        ret,
-      );
+      await prefs.setInt(keyStr, ret);
 
       return;
     }
 
     await LoginService().uploadDatabase();
 
-    await prefs.setInt(SharedPreferencesKeys.numberOfMovements.toString(), 1);
+    await prefs.setInt(keyStr, 1);
   }
 }
 
