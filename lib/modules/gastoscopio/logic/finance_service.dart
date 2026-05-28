@@ -4,6 +4,8 @@ import 'package:cashly/data/dao/fixed_movement_dao.dart';
 import 'package:cashly/data/models/month.dart';
 import 'package:cashly/data/models/movement_value.dart';
 import 'package:cashly/data/models/fixed_movement.dart';
+import 'package:cashly/data/models/debt_definition.dart';
+import 'package:cashly/data/models/debt_occurrence.dart';
 import 'package:cashly/data/models/saves.dart';
 import 'package:cashly/data/services/shared_preferences_service.dart';
 import 'package:cashly/data/services/sqlite_service.dart';
@@ -12,6 +14,7 @@ import 'package:cashly/data/services/log_file_service.dart';
 import 'package:cashly/modules/gastoscopio/widgets/loading.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:sqflite/sqflite.dart';
 
 class FinanceService extends ChangeNotifier {
   static FinanceService? _instance;
@@ -53,31 +56,409 @@ class FinanceService extends ChangeNotifier {
   double get monthIncomes => _monthIncomes;
   double get monthExpenses => _monthExpenses;
 
-  Future<void> setCurrentMonth(int month, int year) async {
-    final monthData = await _monthDao.findMonthByMonthAndYear(month, year);
-    if (monthData == null) {
-      // Create new month if it doesn't exist
-      final newMonth = Month(month, year);
-      await _monthDao.insertMonth(newMonth);
-      _currentMonth = await _monthDao.findMonthByMonthAndYear(
+  Database get _rawDb => SqliteService().db.database;
+
+  DebtDefinition _debtDefinitionFromMap(Map<String, Object?> row) {
+    return DebtDefinition(
+      row['id'] as int?,
+      row['description'] as String,
+      (row['amount'] as num).toDouble(),
+      (row['isExpense'] as int) == 1,
+      row['category'] as String?,
+      row['recurrenceType'] as String,
+      row['startDay'] as int,
+      row['startMonth'] as int,
+      row['startYear'] as int,
+      (row['isActive'] as int) == 1,
+    );
+  }
+
+  DebtOccurrence _debtOccurrenceFromMap(Map<String, Object?> row) {
+    return DebtOccurrence(
+      row['id'] as int?,
+      row['debtDefinitionId'] as int,
+      row['monthId'] as int,
+      row['dueDay'] as int,
+      row['originMonth'] as int,
+      row['originYear'] as int,
+      row['status'] as String,
+      row['completedAt'] as String?,
+    );
+  }
+
+  Future<List<DebtDefinition>> _findActiveDebtDefinitionsRaw() async {
+    final rows = await _rawDb.rawQuery(
+      'SELECT * FROM DebtDefinition WHERE isActive = 1 ORDER BY id DESC',
+    );
+    return rows.map(_debtDefinitionFromMap).toList();
+  }
+
+  Future<DebtDefinition?> _findDebtDefinitionByIdRaw(int id) async {
+    final rows = await _rawDb.rawQuery(
+      'SELECT * FROM DebtDefinition WHERE id = ? LIMIT 1',
+      [id],
+    );
+    if (rows.isEmpty) return null;
+    return _debtDefinitionFromMap(rows.first);
+  }
+
+  Future<int> _insertDebtDefinitionRaw(DebtDefinition definition) {
+    return _rawDb.rawInsert(
+      'INSERT INTO DebtDefinition (description, amount, isExpense, category, recurrenceType, startDay, startMonth, startYear, isActive) '
+      'VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)',
+      [
+        definition.description,
+        definition.amount,
+        definition.isExpense ? 1 : 0,
+        definition.category,
+        definition.recurrenceType,
+        definition.startDay,
+        definition.startMonth,
+        definition.startYear,
+        definition.isActive ? 1 : 0,
+      ],
+    );
+  }
+
+  Future<void> _updateDebtDefinitionRaw(DebtDefinition definition) async {
+    await _rawDb.rawUpdate(
+      'UPDATE DebtDefinition SET description = ?, amount = ?, isExpense = ?, category = ?, recurrenceType = ?, '
+      'startDay = ?, startMonth = ?, startYear = ?, isActive = ? WHERE id = ?',
+      [
+        definition.description,
+        definition.amount,
+        definition.isExpense ? 1 : 0,
+        definition.category,
+        definition.recurrenceType,
+        definition.startDay,
+        definition.startMonth,
+        definition.startYear,
+        definition.isActive ? 1 : 0,
+        definition.id,
+      ],
+    );
+  }
+
+  Future<void> _deleteDebtDefinitionRaw(DebtDefinition definition) async {
+    await _rawDb.rawDelete('DELETE FROM DebtDefinition WHERE id = ?', [definition.id]);
+  }
+
+  Future<int?> _countDebtOccurrenceByDefinitionAndMonthRaw(
+    int debtDefinitionId,
+    int monthId,
+  ) async {
+    final rows = await _rawDb.rawQuery(
+      'SELECT COUNT(*) AS count FROM DebtOccurrence WHERE debtDefinitionId = ? AND monthId = ?',
+      [debtDefinitionId, monthId],
+    );
+    if (rows.isEmpty) return 0;
+    return (rows.first['count'] as num?)?.toInt() ?? 0;
+  }
+
+  Future<int> _insertDebtOccurrenceRaw(DebtOccurrence occurrence) {
+    return _rawDb.rawInsert(
+      'INSERT INTO DebtOccurrence (debtDefinitionId, monthId, dueDay, originMonth, originYear, status, completedAt) '
+      'VALUES (?, ?, ?, ?, ?, ?, ?)',
+      [
+        occurrence.debtDefinitionId,
+        occurrence.monthId,
+        occurrence.dueDay,
+        occurrence.originMonth,
+        occurrence.originYear,
+        occurrence.status,
+        occurrence.completedAt,
+      ],
+    );
+  }
+
+  Future<void> _updateDebtOccurrenceRaw(DebtOccurrence occurrence) async {
+    await _rawDb.rawUpdate(
+      'UPDATE DebtOccurrence SET debtDefinitionId = ?, monthId = ?, dueDay = ?, originMonth = ?, originYear = ?, status = ?, completedAt = ? '
+      'WHERE id = ?',
+      [
+        occurrence.debtDefinitionId,
+        occurrence.monthId,
+        occurrence.dueDay,
+        occurrence.originMonth,
+        occurrence.originYear,
+        occurrence.status,
+        occurrence.completedAt,
+        occurrence.id,
+      ],
+    );
+  }
+
+  Future<List<DebtOccurrence>> _findPendingOccurrencesUpToMonthRaw(
+    int month,
+    int year,
+  ) async {
+    final rows = await _rawDb.rawQuery(
+      'SELECT DebtOccurrence.* '
+      'FROM DebtOccurrence '
+      'INNER JOIN Month ON DebtOccurrence.monthId = Month.id '
+      'WHERE DebtOccurrence.status = ? '
+      'AND (Month.year < ? OR (Month.year = ? AND Month.month <= ?)) '
+      'ORDER BY Month.year DESC, Month.month DESC, DebtOccurrence.dueDay ASC',
+      [debtStatusPending, year, year, month],
+    );
+    return rows.map(_debtOccurrenceFromMap).toList();
+  }
+
+  bool _isMonthOnOrAfter(int month, int year, int referenceMonth, int referenceYear) {
+    return year > referenceYear || (year == referenceYear && month >= referenceMonth);
+  }
+
+  int _adjustDayForMonth(int year, int month, int day) {
+    final lastDay = DateTime(year, month + 1, 0).day;
+    return day > lastDay ? lastDay : day;
+  }
+
+  Future<Month> _ensureMonthInitialized(int month, int year) async {
+    final existing = await _monthDao.findMonthByMonthAndYear(month, year);
+    if (existing != null) {
+      await ensureDebtOccurrencesForMonth(existing.id!, month, year);
+      return existing;
+    }
+
+    final newMonth = Month(month, year);
+    await _monthDao.insertMonth(newMonth);
+    final created = await _monthDao.findMonthByMonthAndYear(month, year);
+    if (created == null) {
+      throw Exception('Unable to create month $month/$year');
+    }
+
+    final fixedMovements = await _fixedMovementDao.findAllFixedMovements();
+    for (final movement in fixedMovements) {
+      final adjustedDay = _adjustDayForMonth(year, month, movement.day);
+      final movementValue = movement.toMovementValue(created.id!).copyWith(
+        day: adjustedDay,
+        category: movement.category?.trim(),
+      );
+      await _movementValueDao.insertMovementValue(movementValue);
+    }
+
+    await ensureDebtOccurrencesForMonth(created.id!, month, year);
+
+    if (fixedMovements.isNotEmpty) {
+      await SharedPreferencesService().haveToUpload();
+    }
+
+    return created;
+  }
+
+  Future<void> ensureDebtOccurrencesForMonth(int monthId, int month, int year) async {
+    final activeDebts = await _findActiveDebtDefinitionsRaw();
+    for (final debt in activeDebts) {
+      final startsBeforeOrAtCurrent = _isMonthOnOrAfter(
         month,
         year,
-      ); // Copy fixed movements to new month
-      if (_currentMonth != null) {
-        final fixedMovements = await _fixedMovementDao.findAllFixedMovements();
-        for (final movement in fixedMovements) {
-          final movementValue = movement.toMovementValue(_currentMonth!.id!);
-          movementValue.category = movementValue.category?.trim();
-          await _movementValueDao.insertMovementValue(movementValue);
-        }
-        // Call haveToUpload() after copying fixed movements to new month
-        if (fixedMovements.isNotEmpty) {
-          await SharedPreferencesService().haveToUpload();
-        }
+        debt.startMonth,
+        debt.startYear,
+      );
+      if (!startsBeforeOrAtCurrent) continue;
+
+      final isMonthly = debt.recurrenceType == debtRecurrenceMonthly;
+      final isOneTime = debt.recurrenceType == debtRecurrenceOneTime;
+
+      if (isOneTime && (debt.startMonth != month || debt.startYear != year)) {
+        continue;
       }
-    } else {
-      _currentMonth = monthData;
+      if (!isMonthly && !isOneTime) continue;
+
+      final existingCount =
+          await _countDebtOccurrenceByDefinitionAndMonthRaw(debt.id!, monthId) ?? 0;
+      if (existingCount > 0) continue;
+
+      final adjustedDay = _adjustDayForMonth(year, month, debt.startDay);
+      await _insertDebtOccurrenceRaw(
+        DebtOccurrence(
+          null,
+          debt.id!,
+          monthId,
+          adjustedDay,
+          month,
+          year,
+          debtStatusPending,
+          null,
+        ),
+      );
     }
+  }
+
+  Future<void> createMonthlyDebtDefinition({
+    required String description,
+    required double amount,
+    required bool isExpense,
+    required int day,
+    String? category,
+  }) async {
+    if (_currentMonth == null) {
+      throw Exception('No current month selected');
+    }
+
+    final createdId = await _insertDebtDefinitionRaw(
+      DebtDefinition(
+        null,
+        description.trim(),
+        amount,
+        isExpense,
+        category?.trim(),
+        debtRecurrenceMonthly,
+        day,
+        _currentMonth!.month,
+        _currentMonth!.year,
+        true,
+      ),
+    );
+    await _insertDebtOccurrenceRaw(
+      DebtOccurrence(
+        null,
+        createdId,
+        _currentMonth!.id!,
+        _adjustDayForMonth(_currentMonth!.year, _currentMonth!.month, day),
+        _currentMonth!.month,
+        _currentMonth!.year,
+        debtStatusPending,
+        null,
+      ),
+    );
+
+    await SharedPreferencesService().haveToUpload();
+    notifyListeners();
+  }
+
+  Future<void> createOneTimeDebt({
+    required String description,
+    required double amount,
+    required bool isExpense,
+    required DateTime date,
+    String? category,
+  }) async {
+    final monthId = await findMonthByMonthAndYear(date.month, date.year);
+    final day = _adjustDayForMonth(date.year, date.month, date.day);
+
+    final createdId = await _insertDebtDefinitionRaw(
+      DebtDefinition(
+        null,
+        description.trim(),
+        amount,
+        isExpense,
+        category?.trim(),
+        debtRecurrenceOneTime,
+        day,
+        date.month,
+        date.year,
+        true,
+      ),
+    );
+
+    await _insertDebtOccurrenceRaw(
+      DebtOccurrence(
+        null,
+        createdId,
+        monthId,
+        day,
+        date.month,
+        date.year,
+        debtStatusPending,
+        null,
+      ),
+    );
+
+    await SharedPreferencesService().haveToUpload();
+    if (_currentMonth != null &&
+        _currentMonth!.month == date.month &&
+        _currentMonth!.year == date.year) {
+      notifyListeners();
+    }
+  }
+
+  Future<void> completeDebtOccurrence(DebtOccurrence occurrence) async {
+    if (occurrence.status == debtStatusCompleted) {
+      return;
+    }
+    final definition = await _findDebtDefinitionByIdRaw(
+      occurrence.debtDefinitionId,
+    );
+    if (definition == null) {
+      throw Exception('Debt definition not found');
+    }
+
+    final now = DateTime.now();
+    final movementMonthId = await findMonthByMonthAndYear(now.month, now.year);
+    final movement = MovementValue(
+      null,
+      movementMonthId,
+      definition.description,
+      definition.amount,
+      definition.isExpense,
+      now.day,
+      definition.category?.trim(),
+    );
+    await _movementValueDao.insertMovementValue(movement);
+    await _updateDebtOccurrenceRaw(
+      occurrence.copyWith(
+        status: debtStatusCompleted,
+        completedAt: now.toIso8601String(),
+      ),
+    );
+
+    await SharedPreferencesService().haveToUpload();
+    if (_currentMonth != null) {
+      await _updateMonthData();
+    } else {
+      notifyListeners();
+    }
+  }
+
+  Future<List<DebtDefinition>> getMonthlyDebtDefinitions() {
+    return _findActiveDebtDefinitionsRaw().then(
+      (items) =>
+          items.where((item) => item.recurrenceType == debtRecurrenceMonthly).toList(),
+    );
+  }
+
+  Future<void> updateDebtDefinition(DebtDefinition debtDefinition) async {
+    await _updateDebtDefinitionRaw(debtDefinition);
+    await SharedPreferencesService().haveToUpload();
+    notifyListeners();
+  }
+
+  Future<void> deleteDebtDefinition(DebtDefinition debtDefinition) async {
+    await _deleteDebtDefinitionRaw(debtDefinition);
+    await SharedPreferencesService().haveToUpload();
+    notifyListeners();
+  }
+
+  Future<List<DebtViewItem>> getVisiblePendingDebtsForCurrentMonth() async {
+    if (_currentMonth == null) return [];
+    final pending =
+        await _findPendingOccurrencesUpToMonthRaw(_currentMonth!.month, _currentMonth!.year);
+
+    final Map<int, DebtDefinition> definitionCache = {};
+    final Map<int, Month> monthCache = {};
+    final List<DebtViewItem> result = [];
+
+    for (final occurrence in pending) {
+      final definition = definitionCache[occurrence.debtDefinitionId] ??
+          await _findDebtDefinitionByIdRaw(occurrence.debtDefinitionId);
+      if (definition == null) {
+        continue;
+      }
+      definitionCache[occurrence.debtDefinitionId] = definition;
+      final occurrenceMonth = monthCache[occurrence.monthId] ??
+          await _monthDao.findMonthById(occurrence.monthId);
+      if (occurrenceMonth == null) {
+        continue;
+      }
+      monthCache[occurrence.monthId] = occurrenceMonth;
+      result.add(DebtViewItem(definition: definition, occurrence: occurrence, month: occurrenceMonth));
+    }
+    return result;
+  }
+
+  Future<void> setCurrentMonth(int month, int year) async {
+    _currentMonth = await _ensureMonthInitialized(month, year);
     await _updateMonthData();
     notifyListeners();
   }
@@ -218,8 +599,7 @@ class FinanceService extends ChangeNotifier {
         false;
 
     if (shouldCreate) {
-      final newMonth = Month(month, year);
-      await _monthDao.insertMonth(newMonth);
+      await setCurrentMonth(month, year);
       return month;
     } // Si el usuario no quiere crear el mes, seleccionar el último mes existente
     final existingMonths = await _monthDao.findAllMonths();
@@ -555,25 +935,17 @@ class FinanceService extends ChangeNotifier {
   }
 
   Future<int> _createMonth(DateTime date) async {
-    final db = SqliteService().db;
-    final newMonth = Month(date.month, date.year);
-    await db.monthDao.insertMonth(newMonth);
-    final month = await db.monthDao.findMonthByMonthAndYear(
-      date.month,
-      date.year,
-    );
-    return month!.id!;
+    final month = await _ensureMonthInitialized(date.month, date.year);
+    return month.id!;
   }
 
   Future<int> findMonthByMonthAndYear(int month, int year) async {
-    final db = SqliteService().db;
-    Month? _month = await db.monthDao.findMonthByMonthAndYear(month, year);
-
-    if (_month == null) {
+    Month? targetMonth = await _monthDao.findMonthByMonthAndYear(month, year);
+    if (targetMonth == null) {
       return _createMonth(DateTime(year, month, 1));
     }
-
-    return _month.id!;
+    await ensureDebtOccurrencesForMonth(targetMonth.id!, month, year);
+    return targetMonth.id!;
   }
 
   Future<void> migrateMonth(
@@ -623,4 +995,16 @@ class FinanceService extends ChangeNotifier {
 
     await handleMonthSelection(nextMonth, nextYear, context);
   }
+}
+
+class DebtViewItem {
+  final DebtDefinition definition;
+  final DebtOccurrence occurrence;
+  final Month month;
+
+  DebtViewItem({
+    required this.definition,
+    required this.occurrence,
+    required this.month,
+  });
 }

@@ -1335,5 +1335,41 @@
   "noMovementsFoundInImage": "No se encontraron movimientos en la imagen.",
   "movementsExtracted": "Movimientos extraídos de la imagen. Revísalos y guarda los que quieras.",
   "scanError": "Error al analizar la imagen. Inténtalo de nuevo.",
-  "imageTooLarge": "La imagen es demasiado grande. Intenta con una imagen más pequeña (máx. 4MB)."
+  "imageTooLarge": "La imagen es demasiado grande. Intenta con una imagen más pequeña (máx. 4MB).",
+  "monthlyDebt": "Deuda mensual",
+  "@monthlyDebt": {
+    "description": "Etiqueta para deudas mensuales"
+  },
+  "monthlyDebtDescription": "Se repetirá cada mes hasta eliminarla",
+  "@monthlyDebtDescription": {
+    "description": "Descripción breve de deuda mensual"
+  },
+  "noMonthlyDebtsYet": "Aún no tienes deudas mensuales.",
+  "@noMonthlyDebtsYet": {
+    "description": "Estado vacío para deudas mensuales"
+  },
+  "pendingDebtItems": "Pendientes (incluye propagadas)",
+  "@pendingDebtItems": {
+    "description": "Título de listado de deudas pendientes"
+  },
+  "debtCompletedMovementCreated": "Deuda completada: se creó el movimiento real.",
+  "@debtCompletedMovementCreated": {
+    "description": "Mensaje al completar deuda"
+  },
+  "createAsOneTimeDebt": "Crear como deuda puntual",
+  "@createAsOneTimeDebt": {
+    "description": "Switch para crear deuda puntual desde nuevo movimiento"
+  },
+  "oneTimeDebtNoTotalsUntilComplete": "No afecta totales hasta pulsar Completado",
+  "@oneTimeDebtNoTotalsUntilComplete": {
+    "description": "Descripción de deuda puntual pendiente"
+  },
+  "oneTimeDebtCreated": "Deuda puntual creada",
+  "@oneTimeDebtCreated": {
+    "description": "Toast de deuda puntual creada"
+  },
+  "oneTimeDebtCreatedMessage": "Deuda puntual guardada (se contabilizará al completar)",
+  "@oneTimeDebtCreatedMessage": {
+    "description": "Mensaje largo de deuda puntual"
+  }
 }

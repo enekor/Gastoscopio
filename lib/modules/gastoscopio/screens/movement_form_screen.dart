@@ -33,6 +33,7 @@ class _MovementFormScreenState extends State<MovementFormScreen> {
   final _amountFocus = FocusNode();
   bool _isKeyboardVisible = false;
   bool _showDatePicker = true;
+  bool _createAsOneTimeDebt = false;
 
   void _onFocusChange() {
     setState(() {
@@ -249,10 +250,9 @@ class _MovementFormScreenState extends State<MovementFormScreen> {
         }
       }
 
-      final MovementValue movement;
       if (widget.movement != null) {
         // Update existing movement
-        movement = MovementValue(
+        final movement = MovementValue(
           widget.movement!.id,
           monthId,
           _descriptionController.text,
@@ -262,9 +262,17 @@ class _MovementFormScreenState extends State<MovementFormScreen> {
           _category,
         );
         await db.movementValueDao.updateMovementValue(movement);
+      } else if (_createAsOneTimeDebt) {
+        await financeService.createOneTimeDebt(
+          description: _descriptionController.text,
+          amount: amount,
+          isExpense: widget.isExpense,
+          date: _selectedDate,
+          category: _category?.trim(),
+        );
       } else {
         // Create new movement
-        movement = MovementValue(
+        final movement = MovementValue(
           DateTime.now().millisecondsSinceEpoch, // Unique ID based on timestamp
           monthId,
           _descriptionController.text,
@@ -289,6 +297,8 @@ class _MovementFormScreenState extends State<MovementFormScreen> {
         Fluttertoast.showToast(
           msg: widget.movement != null
               ? AppLocalizations.of(context)!.movementUpdated
+              : _createAsOneTimeDebt
+              ? '✅ Deuda puntual creada'
               : AppLocalizations.of(context)!.movementSaved,
           toastLength: Toast.LENGTH_SHORT,
           gravity: ToastGravity.TOP,
@@ -309,6 +319,8 @@ class _MovementFormScreenState extends State<MovementFormScreen> {
                       ? AppLocalizations.of(
                           context,
                         )!.movementUpdatedSuccessfully
+                      : _createAsOneTimeDebt
+                      ? 'Deuda puntual guardada (se contabilizará al completar)'
                       : AppLocalizations.of(context)!.movementSavedSuccessfully,
                 ),
               ],
@@ -523,6 +535,23 @@ class _MovementFormScreenState extends State<MovementFormScreen> {
                     },
                   ),
                   const SizedBox(height: 16),
+
+                  if (widget.movement == null) ...[
+                    SwitchListTile.adaptive(
+                      value: _createAsOneTimeDebt,
+                      contentPadding: EdgeInsets.zero,
+                      title: const Text('Crear como deuda puntual'),
+                      subtitle: const Text(
+                        'No afecta totales hasta pulsar "Completado"',
+                      ),
+                      onChanged: (value) {
+                        setState(() {
+                          _createAsOneTimeDebt = value;
+                        });
+                      },
+                    ),
+                    const SizedBox(height: 8),
+                  ],
 
                   if (_showDatePicker) ...[
                     // Selector de fecha

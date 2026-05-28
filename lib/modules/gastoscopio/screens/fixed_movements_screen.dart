@@ -1,4 +1,5 @@
 import 'package:cashly/data/models/fixed_movement.dart';
+import 'package:cashly/data/models/debt_definition.dart';
 import 'package:cashly/data/models/movement_value.dart';
 import 'package:cashly/data/services/shared_preferences_service.dart';
 import 'package:cashly/data/services/sqlite_service.dart';
@@ -17,6 +18,8 @@ class FixedMovementsScreen extends StatefulWidget {
 class _FixedMovementsScreenState extends State<FixedMovementsScreen> {
   late String _moneda = '';
   List<FixedMovement> _fixedMovements = [];
+  List<DebtDefinition> _monthlyDebtDefinitions = [];
+  List<DebtViewItem> _visiblePendingDebts = [];
   bool _isOpaqueBottomNav = false;
 
   @override
@@ -38,16 +41,26 @@ class _FixedMovementsScreenState extends State<FixedMovementsScreen> {
           }),
         );
 
-    _loadFixedMovements();
+    _loadData();
   }
 
-  Future<void> _loadFixedMovements() async {
+  Future<void> _loadData() async {
+    final financeService = FinanceService.getInstance(
+      SqliteService().database.monthDao,
+      SqliteService().database.movementValueDao,
+      SqliteService().database.fixedMovementDao,
+    );
     try {
       final movements = await SqliteService().database.fixedMovementDao
           .findAllFixedMovements();
+      final debtDefinitions = await financeService.getMonthlyDebtDefinitions();
+      final pendingDebts =
+          await financeService.getVisiblePendingDebtsForCurrentMonth();
       if (mounted) {
         setState(() {
           _fixedMovements = movements;
+          _monthlyDebtDefinitions = debtDefinitions;
+          _visiblePendingDebts = pendingDebts;
         });
       }
     } catch (e) {
@@ -76,7 +89,7 @@ class _FixedMovementsScreenState extends State<FixedMovementsScreen> {
           result[0],
         );
         await SharedPreferencesService().haveToUpload();
-        await _loadFixedMovements();
+        await _loadData();
 
         if (result[1] == true) {
           await SqliteService().database.movementValueDao.insertMovementValue(
@@ -127,6 +140,159 @@ class _FixedMovementsScreenState extends State<FixedMovementsScreen> {
         );
       }
       LogFileService().appendLog('Error creating fixed movement: $e');
+    }
+  }
+
+  Future<void> _addMonthlyDebt() async {
+    final financeService = FinanceService.getInstance(
+      SqliteService().database.monthDao,
+      SqliteService().database.movementValueDao,
+      SqliteService().database.fixedMovementDao,
+    );
+    try {
+      final result = await showDialog<DebtDefinition>(
+        context: context,
+        builder: (context) => const _MonthlyDebtDialog(),
+      );
+      if (result != null) {
+        await financeService.createMonthlyDebtDefinition(
+          description: result.description,
+          amount: result.amount,
+          isExpense: result.isExpense,
+          day: result.startDay,
+          category: result.category,
+        );
+        await _loadData();
+      }
+    } catch (e) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            AppLocalizations.of(context)!.errorCreatingMovement(e.toString()),
+          ),
+          behavior: SnackBarBehavior.floating,
+        ),
+      );
+      LogFileService().appendLog('Error creating monthly debt: $e');
+    }
+  }
+
+  Future<void> _showAddOptions() async {
+    final localizations = AppLocalizations.of(context)!;
+    await showModalBottomSheet(
+      context: context,
+      showDragHandle: true,
+      builder: (context) => SafeArea(
+        child: Padding(
+          padding: const EdgeInsets.all(16),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              ListTile(
+                leading: const Icon(Icons.repeat),
+                title: Text(localizations.newFixedMovement),
+                subtitle: Text(localizations.createRecurringMovements),
+                onTap: () {
+                  Navigator.pop(context);
+                  _addFixedMovement();
+                },
+              ),
+              ListTile(
+                leading: const Icon(Icons.request_page_outlined),
+                title: const Text('Deuda mensual'),
+                subtitle: const Text('Se repetirá cada mes hasta eliminarla'),
+                onTap: () {
+                  Navigator.pop(context);
+                  _addMonthlyDebt();
+                },
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Future<void> _completeDebt(DebtViewItem debt) async {
+    final financeService = FinanceService.getInstance(
+      SqliteService().database.monthDao,
+      SqliteService().database.movementValueDao,
+      SqliteService().database.fixedMovementDao,
+    );
+    try {
+      await financeService.completeDebtOccurrence(debt.occurrence);
+      await _loadData();
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: const Text('Deuda completada: se creó el movimiento real.'),
+          behavior: SnackBarBehavior.floating,
+        ),
+      );
+    } catch (e) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            AppLocalizations.of(context)!.errorUpdatingMovement(e.toString()),
+          ),
+          behavior: SnackBarBehavior.floating,
+        ),
+      );
+      LogFileService().appendLog('Error completing debt: $e');
+    }
+  }
+
+  Future<void> _editMonthlyDebt(DebtDefinition debtDefinition) async {
+    final financeService = FinanceService.getInstance(
+      SqliteService().database.monthDao,
+      SqliteService().database.movementValueDao,
+      SqliteService().database.fixedMovementDao,
+    );
+    try {
+      final result = await showDialog<DebtDefinition>(
+        context: context,
+        builder: (context) => _MonthlyDebtDialog(definition: debtDefinition),
+      );
+      if (result != null) {
+        await financeService.updateDebtDefinition(result);
+        await _loadData();
+      }
+    } catch (e) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            AppLocalizations.of(context)!.errorUpdatingMovement(e.toString()),
+          ),
+          behavior: SnackBarBehavior.floating,
+        ),
+      );
+      LogFileService().appendLog('Error updating debt definition: $e');
+    }
+  }
+
+  Future<void> _deleteMonthlyDebt(DebtDefinition debtDefinition) async {
+    final financeService = FinanceService.getInstance(
+      SqliteService().database.monthDao,
+      SqliteService().database.movementValueDao,
+      SqliteService().database.fixedMovementDao,
+    );
+    try {
+      await financeService.deleteDebtDefinition(debtDefinition);
+      await _loadData();
+    } catch (e) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            AppLocalizations.of(context)!.errorDeletingMovement(e.toString()),
+          ),
+          behavior: SnackBarBehavior.floating,
+        ),
+      );
+      LogFileService().appendLog('Error deleting debt definition: $e');
     }
   }
 
@@ -218,31 +384,65 @@ class _FixedMovementsScreenState extends State<FixedMovementsScreen> {
             ),
           ),
 
-          // Content
+          SliverToBoxAdapter(
+            child: _buildSectionTitle(AppLocalizations.of(context)!.fixedMovements),
+          ),
           if (_fixedMovements.isEmpty)
-            SliverFillRemaining(
-              hasScrollBody: false,
-              child: _buildEmptyState(),
-            )
+            SliverToBoxAdapter(child: _buildInlineEmpty(AppLocalizations.of(context)!.noFixedMovements))
           else
             SliverPadding(
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
               sliver: SliverList(
-                delegate: SliverChildBuilderDelegate(
-                  (context, index) {
-                    final movement = _fixedMovements[index];
-                    return _buildMovementCard(movement, index);
-                  },
-                  childCount: _fixedMovements.length,
+                delegate: SliverChildBuilderDelegate((context, index) {
+                  final movement = _fixedMovements[index];
+                  return _buildMovementCard(movement, index);
+                }, childCount: _fixedMovements.length),
+              ),
+            ),
+          SliverToBoxAdapter(
+            child: _buildSectionTitle('Deudas mensuales'),
+          ),
+          if (_monthlyDebtDefinitions.isEmpty && _visiblePendingDebts.isEmpty)
+            SliverToBoxAdapter(
+              child: _buildInlineEmpty('Aún no tienes deudas mensuales.'),
+            )
+          else ...[
+            SliverPadding(
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+              sliver: SliverList(
+                delegate: SliverChildBuilderDelegate((context, index) {
+                  final debtDefinition = _monthlyDebtDefinitions[index];
+                  return _buildMonthlyDebtDefinitionCard(debtDefinition, index);
+                }, childCount: _monthlyDebtDefinitions.length),
+              ),
+            ),
+            SliverToBoxAdapter(
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                child: Text(
+                  'Pendientes (incluye propagadas)',
+                  style: Theme.of(context).textTheme.titleSmall?.copyWith(
+                    fontWeight: FontWeight.w600,
+                  ),
                 ),
               ),
             ),
+            SliverPadding(
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+              sliver: SliverList(
+                delegate: SliverChildBuilderDelegate((context, index) {
+                  final debt = _visiblePendingDebts[index];
+                  return _buildPendingDebtCard(debt);
+                }, childCount: _visiblePendingDebts.length),
+              ),
+            ),
+          ],
 
           const SliverToBoxAdapter(child: SizedBox(height: 80)),
         ],
       ),
       floatingActionButton: FloatingActionButton.extended(
-        onPressed: _addFixedMovement,
+        onPressed: _showAddOptions,
         icon: Icon(
           Icons.add,
           color: _isOpaqueBottomNav
@@ -308,11 +508,35 @@ class _FixedMovementsScreenState extends State<FixedMovementsScreen> {
             ),
             const SizedBox(height: 32),
             FilledButton.icon(
-              onPressed: _addFixedMovement,
+              onPressed: _showAddOptions,
               icon: const Icon(Icons.add),
               label: Text(AppLocalizations.of(context)!.createFirstMovement),
             ),
           ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildSectionTitle(String title) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+      child: Text(
+        title,
+        style: Theme.of(
+          context,
+        ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
+      ),
+    );
+  }
+
+  Widget _buildInlineEmpty(String message) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+      child: Card(
+        child: Padding(
+          padding: const EdgeInsets.all(16),
+          child: Text(message),
         ),
       ),
     );
@@ -369,7 +593,7 @@ class _FixedMovementsScreenState extends State<FixedMovementsScreen> {
               );
             }
           } catch (e) {
-            await _loadFixedMovements();
+            await _loadData();
             if (mounted) {
               ScaffoldMessenger.of(context).showSnackBar(
                 SnackBar(
@@ -404,7 +628,7 @@ class _FixedMovementsScreenState extends State<FixedMovementsScreen> {
                   await SqliteService().database.fixedMovementDao
                       .updateFixedMovement(result[0] as FixedMovement);
                   await SharedPreferencesService().haveToUpload();
-                  await _loadFixedMovements();
+            await _loadData();
                 }
               } catch (e) {
                 if (mounted) {
@@ -522,6 +746,147 @@ class _FixedMovementsScreenState extends State<FixedMovementsScreen> {
       ),
     );
   }
+
+  Widget _buildMonthlyDebtDefinitionCard(DebtDefinition debtDefinition, int index) {
+    return Container(
+      margin: const EdgeInsets.only(bottom: 12),
+      child: Dismissible(
+        key: Key('monthly_debt_${debtDefinition.id ?? index}'),
+        direction: DismissDirection.endToStart,
+        background: Container(
+          decoration: BoxDecoration(
+            color: Theme.of(context).colorScheme.error,
+            borderRadius: BorderRadius.circular(12),
+          ),
+          alignment: Alignment.centerRight,
+          padding: const EdgeInsets.only(right: 20),
+          child: const Icon(Icons.delete, color: Colors.white, size: 28),
+        ),
+        onDismissed: (_) => _deleteMonthlyDebt(debtDefinition),
+        child: Card(
+          child: InkWell(
+            borderRadius: BorderRadius.circular(12),
+            onTap: () => _editMonthlyDebt(debtDefinition),
+            child: Padding(
+              padding: const EdgeInsets.all(16),
+              child: Row(
+                children: [
+                  Icon(
+                    debtDefinition.isExpense
+                        ? Icons.arrow_downward
+                        : Icons.arrow_upward,
+                    color: debtDefinition.isExpense ? Colors.red : Colors.green,
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          debtDefinition.description,
+                          style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                        const SizedBox(height: 4),
+                        Text(
+                          AppLocalizations.of(context)!.dayOfEachMonth(debtDefinition.startDay),
+                          style: Theme.of(context).textTheme.bodySmall,
+                        ),
+                      ],
+                    ),
+                  ),
+                  Text(
+                    '${debtDefinition.isExpense ? '-' : '+'}${debtDefinition.amount.toStringAsFixed(2)}$_moneda',
+                    style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                      color: debtDefinition.isExpense ? Colors.red : Colors.green,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildPendingDebtCard(DebtViewItem debt) {
+    final current = FinanceService.getInstance(
+      SqliteService().database.monthDao,
+      SqliteService().database.movementValueDao,
+      SqliteService().database.fixedMovementDao,
+    ).currentMonth;
+    final isOlderThanCurrent =
+        current != null &&
+        (debt.occurrence.originYear < current.year ||
+            (debt.occurrence.originYear == current.year &&
+                debt.occurrence.originMonth < current.month));
+
+    return Card(
+      margin: const EdgeInsets.only(bottom: 12),
+      child: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Row(
+          children: [
+            Icon(
+              debt.definition.isExpense ? Icons.money_off : Icons.payments_outlined,
+              color: debt.definition.isExpense ? Colors.red : Colors.green,
+            ),
+            const SizedBox(width: 12),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    debt.definition.description,
+                    style: Theme.of(context).textTheme.titleSmall?.copyWith(
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                  const SizedBox(height: 6),
+                  Wrap(
+                    spacing: 6,
+                    runSpacing: 6,
+                    children: [
+                      Chip(
+                        label: Text(
+                          'Creada en ${debt.occurrence.originMonth.toString().padLeft(2, '0')}/${debt.occurrence.originYear}',
+                        ),
+                      ),
+                      if (isOlderThanCurrent)
+                        Chip(
+                          label: const Text('Propagada'),
+                        ),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(width: 8),
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.end,
+              children: [
+                Text(
+                  '${debt.definition.isExpense ? '-' : '+'}${debt.definition.amount.toStringAsFixed(2)}$_moneda',
+                  style: Theme.of(context).textTheme.titleSmall?.copyWith(
+                    color: debt.definition.isExpense ? Colors.red : Colors.green,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                const SizedBox(height: 8),
+                FilledButton.tonal(
+                  onPressed: () => _completeDebt(debt),
+                  child: const Text('Completado'),
+                ),
+              ],
+            ),
+          ],
+        ),
+      ),
+    );
+  }
 }
 
 class _FixedMovementDialog extends StatefulWidget {
@@ -531,6 +896,173 @@ class _FixedMovementDialog extends StatefulWidget {
 
   @override
   State<_FixedMovementDialog> createState() => _FixedMovementDialogState();
+}
+
+class _MonthlyDebtDialog extends StatefulWidget {
+  final DebtDefinition? definition;
+
+  const _MonthlyDebtDialog({this.definition});
+
+  @override
+  State<_MonthlyDebtDialog> createState() => _MonthlyDebtDialogState();
+}
+
+class _MonthlyDebtDialogState extends State<_MonthlyDebtDialog> {
+  final _formKey = GlobalKey<FormState>();
+  late TextEditingController _descriptionController;
+  late TextEditingController _amountController;
+  late TextEditingController _dayController;
+  late bool _isExpense;
+  String? _category;
+  String _moneda = '€';
+
+  @override
+  void initState() {
+    super.initState();
+    _descriptionController = TextEditingController(
+      text: widget.definition?.description ?? '',
+    );
+    _amountController = TextEditingController(
+      text: widget.definition?.amount.toStringAsFixed(2) ?? '',
+    );
+    _dayController = TextEditingController(
+      text: widget.definition?.startDay.toString() ?? '',
+    );
+    _isExpense = widget.definition?.isExpense ?? true;
+    _category = widget.definition?.category;
+
+    SharedPreferencesService()
+        .getStringValue(SharedPreferencesKeys.currency)
+        .then((currency) {
+          if (!mounted) return;
+          setState(() {
+            _moneda = currency ?? '€';
+          });
+        });
+  }
+
+  @override
+  void dispose() {
+    _descriptionController.dispose();
+    _amountController.dispose();
+    _dayController.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final localizations = AppLocalizations.of(context)!;
+    return AlertDialog(
+      title: Text(
+        widget.definition == null
+            ? 'Crear deuda mensual'
+            : 'Editar deuda mensual',
+      ),
+      content: Form(
+        key: _formKey,
+        child: SingleChildScrollView(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              TextFormField(
+                controller: _descriptionController,
+                decoration: InputDecoration(
+                  labelText: localizations.description,
+                  border: const OutlineInputBorder(),
+                ),
+                validator: (value) => value?.trim().isEmpty == true
+                    ? localizations.descriptionRequired
+                    : null,
+              ),
+              const SizedBox(height: 12),
+              TextFormField(
+                controller: _amountController,
+                decoration: InputDecoration(
+                  labelText: localizations.amount,
+                  suffixText: _moneda,
+                  border: const OutlineInputBorder(),
+                ),
+                keyboardType: const TextInputType.numberWithOptions(decimal: true),
+                validator: (value) {
+                  if (value?.isEmpty == true) return localizations.amountRequired;
+                  final amount = double.tryParse(value!.replaceAll(',', '.'));
+                  if (amount == null) return localizations.enterValidNumber;
+                  if (amount <= 0) return localizations.amountMustBeGreaterThanZero;
+                  return null;
+                },
+              ),
+              const SizedBox(height: 12),
+              TextFormField(
+                controller: _dayController,
+                decoration: InputDecoration(
+                  labelText: localizations.dayOfMonth,
+                  border: const OutlineInputBorder(),
+                ),
+                keyboardType: TextInputType.number,
+                validator: (value) {
+                  if (value?.isEmpty == true) return localizations.dayRequired;
+                  final day = int.tryParse(value!);
+                  if (day == null || day < 1 || day > 31) {
+                    return localizations.dayMustBeBetween1And31;
+                  }
+                  return null;
+                },
+              ),
+              const SizedBox(height: 12),
+              SegmentedButton<bool>(
+                segments: [
+                  ButtonSegment<bool>(
+                    value: true,
+                    label: const Text('Debo'),
+                    icon: const Icon(Icons.arrow_downward),
+                  ),
+                  ButtonSegment<bool>(
+                    value: false,
+                    label: const Text('Me deben'),
+                    icon: const Icon(Icons.arrow_upward),
+                  ),
+                ],
+                selected: {_isExpense},
+                onSelectionChanged: (selection) {
+                  setState(() {
+                    _isExpense = selection.first;
+                  });
+                },
+              ),
+            ],
+          ),
+        ),
+      ),
+      actions: [
+        TextButton(
+          onPressed: () => Navigator.of(context).pop(),
+          child: Text(localizations.cancel),
+        ),
+        FilledButton(
+          onPressed: () {
+            if (_formKey.currentState?.validate() != true) return;
+            final amount = double.parse(_amountController.text.replaceAll(',', '.'));
+            final day = int.parse(_dayController.text);
+            Navigator.of(context).pop(
+              DebtDefinition(
+                widget.definition?.id,
+                _descriptionController.text.trim(),
+                amount,
+                _isExpense,
+                _category,
+                debtRecurrenceMonthly,
+                day,
+                widget.definition?.startMonth ?? DateTime.now().month,
+                widget.definition?.startYear ?? DateTime.now().year,
+                true,
+              ),
+            );
+          },
+          child: Text(widget.definition == null ? localizations.create : localizations.save),
+        ),
+      ],
+    );
+  }
 }
 
 class _FixedMovementDialogState extends State<_FixedMovementDialog> {

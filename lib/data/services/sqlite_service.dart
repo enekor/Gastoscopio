@@ -50,6 +50,7 @@ abstract class AppDatabase extends FloorDatabase {
       ')',
     );
   });
+
 }
 
 class SqliteService {
@@ -127,6 +128,7 @@ class SqliteService {
               category TEXT NOT NULL
             )
           ''');
+
         },
       );
 
@@ -135,6 +137,39 @@ class SqliteService {
           .addCallback(callback)
           .addMigrations([AppDatabase.migration3to4, AppDatabase.migration4to5])
           .build();
+
+      await database.database.execute(
+        'CREATE TABLE IF NOT EXISTS DebtDefinition ('
+        'id INTEGER PRIMARY KEY AUTOINCREMENT, '
+        'description TEXT NOT NULL, '
+        'amount REAL NOT NULL, '
+        'isExpense INTEGER NOT NULL, '
+        'category TEXT, '
+        'recurrenceType TEXT NOT NULL, '
+        'startDay INTEGER NOT NULL, '
+        'startMonth INTEGER NOT NULL, '
+        'startYear INTEGER NOT NULL, '
+        'isActive INTEGER NOT NULL'
+        ')',
+      );
+      await database.database.execute(
+        'CREATE TABLE IF NOT EXISTS DebtOccurrence ('
+        'id INTEGER PRIMARY KEY AUTOINCREMENT, '
+        'debtDefinitionId INTEGER NOT NULL, '
+        'monthId INTEGER NOT NULL, '
+        'dueDay INTEGER NOT NULL, '
+        'originMonth INTEGER NOT NULL, '
+        'originYear INTEGER NOT NULL, '
+        'status TEXT NOT NULL, '
+        'completedAt TEXT, '
+        'FOREIGN KEY (debtDefinitionId) REFERENCES DebtDefinition (id) ON DELETE CASCADE, '
+        'FOREIGN KEY (monthId) REFERENCES Month (id) ON DELETE CASCADE'
+        ')',
+      );
+      await database.database.execute(
+        'CREATE UNIQUE INDEX IF NOT EXISTS index_DebtOccurrence_debtDefinitionId_monthId '
+        'ON DebtOccurrence (debtDefinitionId, monthId)',
+      );
 
       isInitialized = true;
     } catch (e) {
