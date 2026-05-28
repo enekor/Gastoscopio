@@ -59,17 +59,13 @@ class _FirstStartupScreenState extends State<FirstStartupScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        toolbarHeight: kToolbarHeight + 32,
-        title: Padding(
-          padding: const EdgeInsets.only(top: 35.0),
-          child: Text(
-            AppLocalizations.of(context).termsAndConditions,
-            style: TextStyle(
-              fontFamily: 'Pacifico',
-              fontSize: 20,
-              fontWeight: FontWeight.bold,
-              color: Theme.of(context).colorScheme.onSurface,
-            ),
+        title: Text(
+          AppLocalizations.of(context).termsAndConditions,
+          style: TextStyle(
+            fontFamily: 'Pacifico',
+            fontSize: 20,
+            fontWeight: FontWeight.bold,
+            color: Theme.of(context).colorScheme.onSurface,
           ),
         ),
         centerTitle: true,

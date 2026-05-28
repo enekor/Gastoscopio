@@ -251,36 +251,29 @@ class _MainScreenState extends State<MainScreen>
                     elevation: 0,
                     pinned: true,
                     stretch: true,
-                    centerTitle: true,
-                    title: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Text(
-                          AppLocalizations.of(context)!.appTitle,
-                          style: TextStyle(
-                            fontFamily: 'Pacifico',
-                            color: hasBackground && _selectedIndex == 0 ? Colors.white : null,
-                            shadows: hasBackground && _selectedIndex == 0 ? [const Shadow(blurRadius: 10.0, color: Colors.black54, offset: Offset(2.0, 2.0))] : null,
-                          ),
-                        ),
-                        Row(
-                          children: [
-                            IconButton(
-                              icon: Icon(Icons.settings, color: hasBackground && _selectedIndex == 0 ? Colors.white : null),
-                              onPressed: () async {
-                                await Navigator.push(context, MaterialPageRoute(builder: (context) => const SettingsScreen()));
-                                await _reloadConfigs();
-                              },
-                            ),
-                            if (_selectedIndex != 2)
-                              IconButton(
-                                onPressed: _showMonthSelector,
-                                icon: Icon(Icons.calendar_today, color: hasBackground && _selectedIndex == 0 ? Colors.white : null),
-                              ),
-                          ],
-                        )
-                      ],
+                    automaticallyImplyLeading: false,
+                    title: Text(
+                      AppLocalizations.of(context)!.appTitle,
+                      style: TextStyle(
+                        fontFamily: 'Pacifico',
+                        color: hasBackground && _selectedIndex == 0 ? Colors.white : null,
+                        shadows: hasBackground && _selectedIndex == 0 ? [const Shadow(blurRadius: 10.0, color: Colors.black54, offset: Offset(2.0, 2.0))] : null,
+                      ),
                     ),
+                    actions: [
+                      IconButton(
+                        icon: Icon(Icons.settings, color: hasBackground && _selectedIndex == 0 ? Colors.white : null),
+                        onPressed: () async {
+                          await Navigator.push(context, MaterialPageRoute(builder: (context) => const SettingsScreen()));
+                          await _reloadConfigs();
+                        },
+                      ),
+                      if (_selectedIndex != 2)
+                        IconButton(
+                          onPressed: _showMonthSelector,
+                          icon: Icon(Icons.calendar_today, color: hasBackground && _selectedIndex == 0 ? Colors.white : null),
+                        ),
+                    ],
                   ),
                 ],
                 body: TabBarView(

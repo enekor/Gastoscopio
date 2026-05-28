@@ -8,9 +8,7 @@ import android.graphics.Canvas
 import android.graphics.drawable.BitmapDrawable
 import android.os.Bundle
 import android.provider.Settings
-import androidx.core.view.ViewCompat
 import androidx.core.view.WindowCompat
-import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.WindowInsetsControllerCompat
 import io.flutter.embedding.android.FlutterFragmentActivity
 import io.flutter.embedding.engine.FlutterEngine
@@ -31,14 +29,6 @@ class MainActivity : FlutterFragmentActivity() {
         val windowInsetsController = WindowInsetsControllerCompat(window, window.decorView)
         windowInsetsController.isAppearanceLightNavigationBars = true
         windowInsetsController.isAppearanceLightStatusBars = true
-
-        // Set up edge-to-edge behavior
-        ViewCompat.setOnApplyWindowInsetsListener(window.decorView) { view, windowInsets ->
-            val insets = windowInsets.getInsets(WindowInsetsCompat.Type.systemBars())
-            view.setPadding(insets.left, 0, insets.right, 0)
-            WindowInsetsCompat.CONSUMED
-        }
-
     }
 
     override fun configureFlutterEngine(flutterEngine: FlutterEngine) {
