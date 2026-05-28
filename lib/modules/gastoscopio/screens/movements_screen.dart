@@ -1138,12 +1138,10 @@ class _MovementsScreenState extends State<MovementsScreen>
                 child: FilledButton.tonalIcon(
                   onPressed: () async {
                     Navigator.pop(context);
-                    await _convertMovementToMonthlyDebtFromSwipe(movement);
+                    await _showEditDialog(movement);
                   },
-                  icon: const Icon(Icons.request_page_outlined),
-                  label: Text(
-                    AppLocalizations.of(context)!.convertToMonthlyDebt,
-                  ),
+                  icon: const Icon(Icons.edit),
+                  label: Text(AppLocalizations.of(context)!.edit),
                 ),
               ),
               const SizedBox(height: 8),

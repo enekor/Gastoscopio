@@ -290,6 +290,114 @@ class _FixedMovementsScreenState extends State<FixedMovementsScreen> {
     return result ?? false;
   }
 
+  Future<void> _deleteFixedMovement(FixedMovement movement) async {
+    try {
+      await SqliteService().database.fixedMovementDao.deleteFixedMovement(movement);
+      await SharedPreferencesService().haveToUpload();
+      await _loadData();
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            AppLocalizations.of(context)!.movementDeleted(movement.description),
+          ),
+          behavior: SnackBarBehavior.floating,
+        ),
+      );
+    } catch (e) {
+      await _loadData();
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            AppLocalizations.of(context)!.errorDeletingMovement(e.toString()),
+          ),
+          behavior: SnackBarBehavior.floating,
+        ),
+      );
+      LogFileService().appendLog('Error deleting fixed movement: $e');
+    }
+  }
+
+  Future<void> _showFixedMovementSwipeActions(FixedMovement movement) async {
+    final financeService = FinanceService.getInstance(
+      SqliteService().database.monthDao,
+      SqliteService().database.movementValueDao,
+      SqliteService().database.fixedMovementDao,
+    );
+    await showModalBottomSheet<void>(
+      context: context,
+      showDragHandle: true,
+      builder: (context) => SafeArea(
+        child: Padding(
+          padding: const EdgeInsets.fromLTRB(16, 8, 16, 16),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              SizedBox(
+                width: double.infinity,
+                child: FilledButton.tonalIcon(
+                  onPressed: () async {
+                    Navigator.pop(context);
+                    try {
+                      await financeService.convertFixedMovementToMonthlyDebt(
+                        movement,
+                      );
+                      await _loadData();
+                      if (!mounted) return;
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(
+                          content: Text(
+                            AppLocalizations.of(
+                              context,
+                            )!.movementConvertedToMonthlyDebt,
+                          ),
+                          behavior: SnackBarBehavior.floating,
+                        ),
+                      );
+                    } catch (e) {
+                      if (!mounted) return;
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(
+                          content: Text(
+                            AppLocalizations.of(
+                              context,
+                            )!.convertToDebtError(e.toString()),
+                          ),
+                          behavior: SnackBarBehavior.floating,
+                        ),
+                      );
+                    }
+                  },
+                  icon: const Icon(Icons.request_page_outlined),
+                  label: Text(AppLocalizations.of(context)!.convertToMonthlyDebt),
+                ),
+              ),
+              const SizedBox(height: 8),
+              SizedBox(
+                width: double.infinity,
+                child: FilledButton.icon(
+                  style: FilledButton.styleFrom(
+                    backgroundColor: Theme.of(context).colorScheme.error,
+                    foregroundColor: Theme.of(context).colorScheme.onError,
+                  ),
+                  onPressed: () async {
+                    Navigator.pop(context);
+                    final confirmed = await _confirmDeleteFixedMovement(movement);
+                    if (!confirmed) return;
+                    await _deleteFixedMovement(movement);
+                  },
+                  icon: const Icon(Icons.delete),
+                  label: Text(AppLocalizations.of(context)!.delete),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
   Future<bool> _confirmDeleteMonthlyDebt(DebtDefinition debtDefinition) async {
     final result = await showDialog<bool>(
       context: context,
@@ -696,46 +804,11 @@ class _FixedMovementsScreenState extends State<FixedMovementsScreen> {
           ),
         ),
         direction: DismissDirection.endToStart,
-        confirmDismiss: (_) => _confirmDeleteFixedMovement(movement),
-        onDismissed: (_) async {
-          try {
-            await SqliteService().database.fixedMovementDao.deleteFixedMovement(
-              movement,
-            );
-            await SharedPreferencesService().haveToUpload();
-            setState(() {
-              _fixedMovements.removeAt(index);
-            });
-
-            if (mounted) {
-              ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(
-                  content: Text(
-                    AppLocalizations.of(
-                      context,
-                    )!.movementDeleted(movement.description),
-                  ),
-                  behavior: SnackBarBehavior.floating,
-                ),
-              );
-            }
-          } catch (e) {
-            await _loadData();
-            if (mounted) {
-              ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(
-                  content: Text(
-                    AppLocalizations.of(
-                      context,
-                    )!.errorDeletingMovement(e.toString()),
-                  ),
-                  behavior: SnackBarBehavior.floating,
-                ),
-              );
-            }
-            LogFileService().appendLog('Error deleting movement: $e');
-          }
+        confirmDismiss: (_) async {
+          await _showFixedMovementSwipeActions(movement);
+          return false;
         },
+        onDismissed: (_) {},
         child: Card(
           elevation: 0,
           shape: RoundedRectangleBorder(

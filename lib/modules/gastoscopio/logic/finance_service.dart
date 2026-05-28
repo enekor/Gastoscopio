@@ -499,6 +499,50 @@ class FinanceService extends ChangeNotifier {
     notifyListeners();
   }
 
+  Future<void> convertFixedMovementToMonthlyDebt(FixedMovement fixedMovement) async {
+    final baseMonth = _currentMonth ?? Month(DateTime.now().month, DateTime.now().year);
+    final monthId = _currentMonth?.id ??
+        await findMonthByMonthAndYear(baseMonth.month, baseMonth.year);
+
+    final definitionId = await _insertDebtDefinitionRaw(
+      DebtDefinition(
+        null,
+        fixedMovement.description.trim(),
+        fixedMovement.amount,
+        fixedMovement.isExpense,
+        fixedMovement.category?.trim(),
+        debtRecurrenceMonthly,
+        fixedMovement.day,
+        baseMonth.month,
+        baseMonth.year,
+        true,
+      ),
+    );
+
+    final existingCount = await _countDebtOccurrenceByDefinitionAndMonthRaw(
+      definitionId,
+      monthId,
+    );
+    if ((existingCount ?? 0) == 0) {
+      await _insertDebtOccurrenceRaw(
+        DebtOccurrence(
+          null,
+          definitionId,
+          monthId,
+          fixedMovement.day,
+          baseMonth.month,
+          baseMonth.year,
+          debtStatusPending,
+          null,
+        ),
+      );
+    }
+
+    await _fixedMovementDao.deleteFixedMovement(fixedMovement);
+    await SharedPreferencesService().haveToUpload();
+    notifyListeners();
+  }
+
   Future<List<DebtViewItem>> getVisiblePendingDebtsForCurrentMonth() async {
     if (_currentMonth == null) return [];
     final pending =
