@@ -342,16 +342,9 @@ class _MovementsScreenState extends State<MovementsScreen>
 
                         return Padding(
                           padding: const EdgeInsets.only(bottom: 12),
-                          child: MovementTile(
+                          child: _buildSwipeableMovementTile(
                             movement: movement,
                             isExpanded: isExpanded,
-                            currency: _moneda,
-                            onTap: () => _toggleMovementExpansion(movement.id!),
-                            onLongPress: () => _showMovementLongPressActions(movement),
-                            expandedContent: _buildExpandedContent(
-                              context,
-                              movement,
-                            ),
                           ),
                         );
                       },
@@ -998,7 +991,7 @@ class _MovementsScreenState extends State<MovementsScreen>
     }
   }
 
-  Future<void> _showDeleteDialog(MovementValue movement) async {
+  Future<bool> _showDeleteDialog(MovementValue movement) async {
     final shouldDelete = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
@@ -1025,7 +1018,9 @@ class _MovementsScreenState extends State<MovementsScreen>
           _expandedItems.remove(movement.id.toString());
         });
       }
+      return true;
     }
+    return false;
   }
 
   Future<void> _showMovementLongPressActions(MovementValue movement) async {
@@ -1097,6 +1092,130 @@ class _MovementsScreenState extends State<MovementsScreen>
     }
   }
 
+  Widget _buildSwipeableMovementTile({
+    required MovementValue movement,
+    required bool isExpanded,
+  }) {
+    return Dismissible(
+      key: Key('movement_swipe_${movement.id}'),
+      direction: DismissDirection.horizontal,
+      background: _buildSwipeBackground(
+        color: Colors.indigo,
+        icon: Icons.request_page_outlined,
+        label: AppLocalizations.of(context)!.convertToMonthlyDebt,
+        alignLeft: true,
+      ),
+      secondaryBackground: _buildSwipeBackground(
+        color: Theme.of(context).colorScheme.error,
+        icon: Icons.delete,
+        label: AppLocalizations.of(context)!.delete,
+        alignLeft: false,
+      ),
+      confirmDismiss: (direction) async {
+        if (direction == DismissDirection.startToEnd) {
+          return _convertMovementToMonthlyDebtFromSwipe(movement);
+        }
+        if (direction == DismissDirection.endToStart) {
+          return _showDeleteDialog(movement);
+        }
+        return false;
+      },
+      child: MovementTile(
+        movement: movement,
+        isExpanded: isExpanded,
+        currency: _moneda,
+        onTap: () => _toggleMovementExpansion(movement.id!),
+        onLongPress: () => _showMovementLongPressActions(movement),
+        expandedContent: _buildExpandedContent(context, movement),
+      ),
+    );
+  }
+
+  Widget _buildSwipeBackground({
+    required Color color,
+    required IconData icon,
+    required String label,
+    required bool alignLeft,
+  }) {
+    return Container(
+      decoration: BoxDecoration(
+        color: color,
+        borderRadius: BorderRadius.circular(12),
+      ),
+      alignment: alignLeft ? Alignment.centerLeft : Alignment.centerRight,
+      padding: EdgeInsets.only(
+        left: alignLeft ? 20 : 0,
+        right: alignLeft ? 0 : 20,
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: alignLeft
+            ? [
+                Icon(icon, color: Colors.white),
+                const SizedBox(width: 8),
+                Text(label, style: const TextStyle(color: Colors.white)),
+              ]
+            : [
+                Text(label, style: const TextStyle(color: Colors.white)),
+                const SizedBox(width: 8),
+                Icon(icon, color: Colors.white),
+              ],
+      ),
+    );
+  }
+
+  Future<bool> _convertMovementToMonthlyDebtFromSwipe(
+    MovementValue movement,
+  ) async {
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text(AppLocalizations.of(context)!.convertToMonthlyDebt),
+        content: Text(
+          AppLocalizations.of(
+            context,
+          )!.convertToMonthlyDebtConfirm(movement.description),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context, false),
+            child: Text(AppLocalizations.of(context)!.cancel),
+          ),
+          FilledButton(
+            onPressed: () => Navigator.pop(context, true),
+            child: Text(AppLocalizations.of(context)!.create),
+          ),
+        ],
+      ),
+    );
+    if (confirmed != true) return false;
+
+    try {
+      await _financeService.convertMovementToMonthlyDebt(movement);
+      if (!mounted) return true;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            AppLocalizations.of(context)!.movementConvertedToMonthlyDebt,
+          ),
+          behavior: SnackBarBehavior.floating,
+        ),
+      );
+      await _loadMovements();
+      return true;
+    } catch (e) {
+      if (!mounted) return false;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(AppLocalizations.of(context)!.convertToDebtError('$e')),
+          behavior: SnackBarBehavior.floating,
+        ),
+      );
+      LogFileService().appendLog('Error converting movement by swipe: $e');
+      return false;
+    }
+  }
+
   Widget _buildFutureMovementsCard(List<MovementValue> values) {
     if (values.isEmpty) return const SizedBox.shrink();
     final bool isExpanded = _expandedItems['future_movements'] ?? false;
@@ -1145,13 +1264,9 @@ class _MovementsScreenState extends State<MovementsScreen>
                 itemCount: values.length,
                 itemBuilder: (context, index) {
                   final movement = values[index];
-                  return MovementTile(
+                  return _buildSwipeableMovementTile(
                     movement: movement,
                     isExpanded: _expandedItems[movement.id.toString()] ?? false,
-                    currency: _moneda,
-                    onTap: () => _toggleMovementExpansion(movement.id!),
-                    onLongPress: () => _showMovementLongPressActions(movement),
-                    expandedContent: _buildExpandedContent(context, movement),
                   );
                 },
               ),

@@ -264,6 +264,60 @@ class _FixedMovementsScreenState extends State<FixedMovementsScreen> {
     }
   }
 
+  Future<bool> _confirmDeleteFixedMovement(FixedMovement movement) async {
+    final result = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text(AppLocalizations.of(context)!.deleteMovement),
+        content: Text(
+          AppLocalizations.of(context)!.confirmDeleteMovement(movement.description),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context, false),
+            child: Text(AppLocalizations.of(context)!.cancel),
+          ),
+          FilledButton(
+            onPressed: () => Navigator.pop(context, true),
+            style: FilledButton.styleFrom(
+              backgroundColor: Theme.of(context).colorScheme.error,
+            ),
+            child: Text(AppLocalizations.of(context)!.delete),
+          ),
+        ],
+      ),
+    );
+    return result ?? false;
+  }
+
+  Future<bool> _confirmDeleteMonthlyDebt(DebtDefinition debtDefinition) async {
+    final result = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text(AppLocalizations.of(context)!.deleteMovement),
+        content: Text(
+          AppLocalizations.of(context)!.confirmDeleteMovement(
+            debtDefinition.description,
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context, false),
+            child: Text(AppLocalizations.of(context)!.cancel),
+          ),
+          FilledButton(
+            onPressed: () => Navigator.pop(context, true),
+            style: FilledButton.styleFrom(
+              backgroundColor: Theme.of(context).colorScheme.error,
+            ),
+            child: Text(AppLocalizations.of(context)!.delete),
+          ),
+        ],
+      ),
+    );
+    return result ?? false;
+  }
+
   Future<int?> _askTargetDayForFixedMovement(int initialDay) async {
     final controller = TextEditingController(text: initialDay.toString());
     final formKey = GlobalKey<FormState>();
@@ -642,6 +696,7 @@ class _FixedMovementsScreenState extends State<FixedMovementsScreen> {
           ),
         ),
         direction: DismissDirection.endToStart,
+        confirmDismiss: (_) => _confirmDeleteFixedMovement(movement),
         onDismissed: (_) async {
           try {
             await SqliteService().database.fixedMovementDao.deleteFixedMovement(
@@ -825,6 +880,7 @@ class _FixedMovementsScreenState extends State<FixedMovementsScreen> {
       child: Dismissible(
         key: Key('monthly_debt_${debtDefinition.id ?? index}'),
         direction: DismissDirection.endToStart,
+        confirmDismiss: (_) => _confirmDeleteMonthlyDebt(debtDefinition),
         background: Container(
           decoration: BoxDecoration(
             color: Theme.of(context).colorScheme.error,
