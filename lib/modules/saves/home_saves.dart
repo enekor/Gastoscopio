@@ -196,23 +196,13 @@ class _HomeSavesState extends State<HomeSaves> {
         physics: const BouncingScrollPhysics(),
         slivers: [
           SliverAppBar.large(
-            automaticallyImplyLeading: false,
             backgroundColor: Theme.of(context).colorScheme.surface,
             surfaceTintColor: Theme.of(context).colorScheme.surface,
-            title: Row(
-              children: [
-                IconButton(
-                  onPressed: () => Navigator.pop(context),
-                  icon: const Icon(Icons.arrow_back_ios_new),
-                ) ,
-                const SizedBox(width: 8),
-                Text(
-                  AppLocalizations.of(context).savingsManagement,
-                  style: const TextStyle(
-                    fontFamily: 'Pacifico',
-                  ),
-                ),
-              ],
+            title: Text(
+              AppLocalizations.of(context).savingsManagement,
+              style: const TextStyle(
+                fontFamily: 'Pacifico',
+              ),
             ),
           ),
           FutureBuilder(

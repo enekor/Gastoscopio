@@ -557,30 +557,22 @@ class _FixedMovementsScreenState extends State<FixedMovementsScreen> {
         physics: const BouncingScrollPhysics(),
         slivers: [
           SliverAppBar(
-            automaticallyImplyLeading: false,
             expandedHeight: 120,
             floating: true,
             pinned: true,
             centerTitle: true,
             backgroundColor: Theme.of(context).colorScheme.surface,
             flexibleSpace: FlexibleSpaceBar(
-              title: Row(
-                children: [
-                  IconButton(onPressed: ()=> Navigator.pop(context), icon: Icon(Icons.arrow_back_ios)),
-                  SizedBox(width:8),
-                  Text(
-                    AppLocalizations.of(context)!.fixedMovements,
-                    style: TextStyle(
-                      fontFamily: 'Pacifico',
-                      fontSize: 20,
-                      fontWeight: FontWeight.bold,
-                      color: Theme.of(context).colorScheme.onSurface,
-                    ),
-                  ),
-                ],
+              title: Text(
+                AppLocalizations.of(context)!.fixedMovements,
+                style: TextStyle(
+                  fontFamily: 'Pacifico',
+                  fontSize: 20,
+                  fontWeight: FontWeight.bold,
+                  color: Theme.of(context).colorScheme.onSurface,
+                ),
               ),
               centerTitle: true,
-              titlePadding: const EdgeInsets.only(bottom: 16),
             ),
           ),
 

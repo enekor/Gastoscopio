@@ -98,27 +98,16 @@ class _ViewMovementsFilteredScreenState
             expandedHeight: 120,
             floating: true,
             pinned: true,
-            automaticallyImplyLeading: false,
             backgroundColor: Theme.of(context).colorScheme.surface,
             flexibleSpace: FlexibleSpaceBar(
-              title: Row(
-                children: [
-                  IconButton(
-                    icon: const Icon(Icons.arrow_back_ios_new_rounded),
-                    onPressed: () => Navigator.of(context).pop(),
-                  ),
-                  const SizedBox(width: 8),
-                  Text(
-                    localizations.filteredMovements,
-                    style: TextStyle(
-                      color: Theme.of(context).colorScheme.onSurface,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                ],
+              title: Text(
+                localizations.filteredMovements,
+                style: TextStyle(
+                  color: Theme.of(context).colorScheme.onSurface,
+                  fontWeight: FontWeight.bold,
+                ),
               ),
               centerTitle: true,
-              titlePadding: const EdgeInsets.only(bottom: 16),
             ),
           ),
 

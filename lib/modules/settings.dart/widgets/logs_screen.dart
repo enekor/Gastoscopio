@@ -31,37 +31,16 @@ class _LogsScreenState extends State<LogsScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Padding(
-          padding: const EdgeInsets.only(top: 30.0),
-          child: Text(AppLocalizations.of(context).logs),
-        ),
+        title: Text(AppLocalizations.of(context).logs),
         actions: [
-          Padding(
-            padding: const EdgeInsets.only(top: 25.0),
-            child: IconButton(
-              icon: const Icon(Icons.refresh),
-              onPressed: _loadLogs,
-            ),
-          ),
-          Padding(
-            padding: const EdgeInsets.only(top: 25.0),
-            child: IconButton(
-              icon: const Icon(Icons.delete),
-              onPressed: () {
-                LogFileService().clearLogs().then((_) => _loadLogs());
-              },
-            ),
-          ),
-        ],
-        leading: Padding(
-          padding: const EdgeInsets.only(top: 25.0),
-          child: IconButton(
-            icon: const Icon(Icons.arrow_back_ios_new_rounded),
+          IconButton(icon: const Icon(Icons.refresh), onPressed: _loadLogs),
+          IconButton(
+            icon: const Icon(Icons.delete),
             onPressed: () {
-              Navigator.of(context).pop();
+              LogFileService().clearLogs().then((_) => _loadLogs());
             },
           ),
-        ),
+        ],
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),

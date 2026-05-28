@@ -325,19 +325,9 @@ class _SettingsScreenState extends State<SettingsScreen> with WidgetsBindingObse
             pinned: true,
             backgroundColor: Theme.of(context).colorScheme.surface,
             surfaceTintColor: Theme.of(context).colorScheme.surface,
-            automaticallyImplyLeading: false,
-            title: Row(
-              children: [
-                IconButton(
-                  icon: const Icon(Icons.arrow_back_ios_new_rounded),
-                  onPressed: () => Navigator.of(context).pop(),
-                ),
-                const SizedBox(width: 8),
-                Text(
-                  AppLocalizations.of(context)!.settings,
-                  style: const TextStyle(fontFamily: 'Pacifico'),
-                ),
-              ],
+            title: Text(
+              AppLocalizations.of(context)!.settings,
+              style: const TextStyle(fontFamily: 'Pacifico'),
             ),
           ),
           SliverPadding(
