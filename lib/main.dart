@@ -7,7 +7,6 @@ import 'package:cashly/modules/auth/screens/auth_screen.dart';
 import 'package:cashly/data/services/log_file_service.dart';
 import 'package:cashly/modules/gastoscopio/widgets/loading.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:cashly/l10n/app_localizations.dart';
 import 'package:dynamic_color/dynamic_color.dart';
@@ -15,12 +14,6 @@ import 'package:cashly/theme/custom_theme.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-
-  // Mantener la UI del sistema completa (status + navigation bars visibles).
-  SystemChrome.setEnabledSystemUIMode(
-    SystemUiMode.manual,
-    overlays: [SystemUiOverlay.top, SystemUiOverlay.bottom],
-  );
 
   // Inicializar servicio de Gemini para cargar API Key existente
   await GeminiService().initializeGemini();

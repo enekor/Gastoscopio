@@ -8,8 +8,6 @@ import android.graphics.Canvas
 import android.graphics.drawable.BitmapDrawable
 import android.os.Bundle
 import android.provider.Settings
-import android.view.View
-import android.view.WindowManager
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowCompat
 import androidx.core.view.WindowInsetsCompat
@@ -41,15 +39,6 @@ class MainActivity : FlutterFragmentActivity() {
             WindowInsetsCompat.CONSUMED
         }
 
-        // Configurar solo para ocultar la barra de navegación
-        window.decorView.post {
-            window.decorView.systemUiVisibility = (
-                View.SYSTEM_UI_FLAG_LAYOUT_STABLE
-                or View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
-                or View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
-                or View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY
-            )
-        }
     }
 
     override fun configureFlutterEngine(flutterEngine: FlutterEngine) {
