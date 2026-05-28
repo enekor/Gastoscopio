@@ -246,11 +246,10 @@ class _MainScreenState extends State<MainScreen>
                 ),
               NestedScrollView(
                 headerSliverBuilder: (context, innerBoxIsScrolled) => [
-                  SliverAppBar.large(
+                  SliverAppBar(
                     backgroundColor: Colors.transparent,
                     elevation: 0,
                     pinned: true,
-                    stretch: true,
                     automaticallyImplyLeading: false,
                     title: Text(
                       AppLocalizations.of(context)!.appTitle,

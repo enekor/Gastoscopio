@@ -195,7 +195,8 @@ class _HomeSavesState extends State<HomeSaves> {
       body: CustomScrollView(
         physics: const BouncingScrollPhysics(),
         slivers: [
-          SliverAppBar.large(
+          SliverAppBar(
+            pinned: true,
             backgroundColor: Theme.of(context).colorScheme.surface,
             surfaceTintColor: Theme.of(context).colorScheme.surface,
             title: Text(
