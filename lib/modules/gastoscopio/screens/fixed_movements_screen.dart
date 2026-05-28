@@ -352,7 +352,7 @@ class _FixedMovementsScreenState extends State<FixedMovementsScreen> {
           ),
           FilledButton(
             onPressed: () => Navigator.pop(context, true),
-            child: Text(AppLocalizations.of(context)!.convert),
+            child: Text(AppLocalizations.of(context)!.create),
           ),
         ],
       ),

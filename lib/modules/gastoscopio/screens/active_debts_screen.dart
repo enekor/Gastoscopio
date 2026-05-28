@@ -144,9 +144,9 @@ class _ActiveDebtsScreenState extends State<ActiveDebtsScreen> {
             child: _isLoading
                 ? Center(child: Loading(context))
                 : _pendingDebts.isEmpty
-                ? const Center(
+                ? Center(
                     child: Padding(
-                      padding: EdgeInsets.all(24),
+                      padding: const EdgeInsets.all(24),
                       child: Text(
                         AppLocalizations.of(context)!.noPendingDebtsThisMonth,
                         textAlign: TextAlign.center,
