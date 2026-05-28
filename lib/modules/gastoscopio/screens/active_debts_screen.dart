@@ -95,169 +95,176 @@ class _ActiveDebtsScreenState extends State<ActiveDebtsScreen> {
   Widget build(BuildContext context) {
     final currentMonth = _financeService.currentMonth;
     return Scaffold(
-      appBar: AppBar(title: Text(AppLocalizations.of(context)!.activeDebts)),
-      body: Column(
-        children: [
-          Padding(
-            padding: const EdgeInsets.fromLTRB(16, 12, 16, 8),
-            child: Row(
-              children: [
-                Expanded(
-                  child: FilledButton.tonalIcon(
-                    onPressed: () async {
-                      await Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => const FixedMovementsScreen(),
-                        ),
-                      );
-                      await _loadPendingDebts();
-                    },
-                    icon: const Icon(Icons.repeat),
-                    label: Text(AppLocalizations.of(context)!.createMonthlyDebt),
-                  ),
-                ),
-                const SizedBox(width: 10),
-                Expanded(
-                  child: FilledButton.icon(
-                    onPressed: () async {
-                      await showModalBottomSheet<bool>(
-                        context: context,
-                        isScrollControlled: true,
-                        showDragHandle: true,
-                        useSafeArea: true,
-                        builder: (context) => MovementFormScreen(
-                          forceDebtMode: true,
-                          isExpense: true,
-                        ),
-                      );
-                      await _loadPendingDebts();
-                    },
-                    icon: const Icon(Icons.request_page_outlined),
-                    label: Text(AppLocalizations.of(context)!.createDebt),
-                  ),
-                ),
-              ],
-            ),
+      body: RefreshIndicator(
+        onRefresh: _loadPendingDebts,
+        child: CustomScrollView(
+          physics: const BouncingScrollPhysics(
+            parent: AlwaysScrollableScrollPhysics(),
           ),
-          Expanded(
-            child: _isLoading
-                ? Center(child: Loading(context))
-                : _pendingDebts.isEmpty
-                ? Center(
-                    child: Padding(
-                      padding: const EdgeInsets.all(24),
-                      child: Text(
-                        AppLocalizations.of(context)!.noPendingDebtsThisMonth,
-                        textAlign: TextAlign.center,
+          slivers: [
+            SliverAppBar(
+              floating: true,
+              pinned: true,
+              title: Text(AppLocalizations.of(context)!.activeDebts),
+            ),
+            SliverToBoxAdapter(
+              child: Padding(
+                padding: const EdgeInsets.fromLTRB(16, 12, 16, 8),
+                child: Row(
+                  children: [
+                    Expanded(
+                      child: FilledButton.tonalIcon(
+                        onPressed: () async {
+                          await Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => const FixedMovementsScreen(),
+                            ),
+                          );
+                          await _loadPendingDebts();
+                        },
+                        icon: const Icon(Icons.repeat),
+                        label: Text(AppLocalizations.of(context)!.createMonthlyDebt),
                       ),
                     ),
-                  )
-                : RefreshIndicator(
-                    onRefresh: _loadPendingDebts,
-                    child: ListView.builder(
-                      padding: const EdgeInsets.all(16),
-                      itemCount: _pendingDebts.length,
-                      itemBuilder: (context, index) {
-                        final debt = _pendingDebts[index];
-                        final isPropagated =
-                            currentMonth != null &&
-                            (debt.occurrence.originYear < currentMonth.year ||
-                                (debt.occurrence.originYear == currentMonth.year &&
-                                    debt.occurrence.originMonth <
-                                        currentMonth.month));
-                        return Card(
-                          margin: const EdgeInsets.only(bottom: 12),
-                          child: Padding(
-                            padding: const EdgeInsets.all(16),
-                            child: Row(
-                              children: [
-                                Icon(
-                                  debt.definition.isExpense
-                                      ? Icons.money_off
-                                      : Icons.payments_outlined,
-                                  color: debt.definition.isExpense
-                                      ? Colors.red
-                                      : Colors.green,
-                                ),
-                                const SizedBox(width: 12),
-                                Expanded(
-                                  child: Column(
-                                    crossAxisAlignment: CrossAxisAlignment.start,
+                    const SizedBox(width: 10),
+                    Expanded(
+                      child: FilledButton.icon(
+                        onPressed: () async {
+                          await showModalBottomSheet<bool>(
+                            context: context,
+                            isScrollControlled: true,
+                            showDragHandle: true,
+                            useSafeArea: true,
+                            builder: (context) => MovementFormScreen(
+                              forceDebtMode: true,
+                              isExpense: true,
+                            ),
+                          );
+                          await _loadPendingDebts();
+                        },
+                        icon: const Icon(Icons.request_page_outlined),
+                        label: Text(AppLocalizations.of(context)!.createDebt),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+            if (_isLoading)
+              SliverFillRemaining(
+                hasScrollBody: false,
+                child: Center(child: Loading(context)),
+              )
+            else if (_pendingDebts.isEmpty)
+              SliverFillRemaining(
+                hasScrollBody: false,
+                child: Center(
+                  child: Padding(
+                    padding: const EdgeInsets.all(24),
+                    child: Text(
+                      AppLocalizations.of(context)!.noPendingDebtsThisMonth,
+                      textAlign: TextAlign.center,
+                    ),
+                  ),
+                ),
+              )
+            else
+              SliverPadding(
+                padding: const EdgeInsets.all(16),
+                sliver: SliverList(
+                  delegate: SliverChildBuilderDelegate((context, index) {
+                    final debt = _pendingDebts[index];
+                    final isPropagated =
+                        currentMonth != null &&
+                        (debt.occurrence.originYear < currentMonth.year ||
+                            (debt.occurrence.originYear == currentMonth.year &&
+                                debt.occurrence.originMonth < currentMonth.month));
+                    return Card(
+                      margin: const EdgeInsets.only(bottom: 12),
+                      child: Padding(
+                        padding: const EdgeInsets.all(16),
+                        child: Row(
+                          children: [
+                            Icon(
+                              debt.definition.isExpense
+                                  ? Icons.money_off
+                                  : Icons.payments_outlined,
+                              color: debt.definition.isExpense
+                                  ? Colors.red
+                                  : Colors.green,
+                            ),
+                            const SizedBox(width: 12),
+                            Expanded(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    debt.definition.description,
+                                    style: Theme.of(context).textTheme.titleSmall
+                                        ?.copyWith(fontWeight: FontWeight.w600),
+                                  ),
+                                  const SizedBox(height: 6),
+                                  Wrap(
+                                    spacing: 6,
+                                    runSpacing: 6,
                                     children: [
-                                      Text(
-                                        debt.definition.description,
-                                        style: Theme.of(context)
-                                            .textTheme
-                                            .titleSmall
-                                            ?.copyWith(
-                                              fontWeight: FontWeight.w600,
-                                            ),
-                                      ),
-                                      const SizedBox(height: 6),
-                                      Wrap(
-                                        spacing: 6,
-                                        runSpacing: 6,
-                                        children: [
-                                          Chip(
-                                            label: Text(
-                                              AppLocalizations.of(context)!
-                                                  .createdInMonth(
-                                                    debt.occurrence.originMonth
-                                                        .toString()
-                                                        .padLeft(2, '0'),
-                                                    debt.occurrence.originYear
-                                                        .toString(),
-                                                  ),
-                                            ),
-                                          ),
-                                          if (isPropagated)
-                                            Chip(
-                                              label: Text(
-                                                AppLocalizations.of(
-                                                  context,
-                                                )!.propagatedDebt,
+                                      Chip(
+                                        label: Text(
+                                          AppLocalizations.of(context)!
+                                              .createdInMonth(
+                                                debt.occurrence.originMonth
+                                                    .toString()
+                                                    .padLeft(2, '0'),
+                                                debt.occurrence.originYear
+                                                    .toString(),
                                               ),
-                                            ),
-                                        ],
+                                        ),
                                       ),
+                                      if (isPropagated)
+                                        Chip(
+                                          label: Text(
+                                            AppLocalizations.of(context)!
+                                                .propagatedDebt,
+                                          ),
+                                        ),
                                     ],
                                   ),
-                                ),
-                                const SizedBox(width: 8),
-                                Column(
-                                  crossAxisAlignment: CrossAxisAlignment.end,
-                                  children: [
-                                    Text(
-                                      '${debt.definition.isExpense ? '-' : '+'}${debt.definition.amount.toStringAsFixed(2)}$_currency',
-                                      style: Theme.of(context)
-                                          .textTheme
-                                          .titleSmall
-                                          ?.copyWith(
-                                            color: debt.definition.isExpense
-                                                ? Colors.red
-                                                : Colors.green,
-                                            fontWeight: FontWeight.bold,
-                                          ),
-                                    ),
-                                    const SizedBox(height: 8),
-                                    FilledButton.tonal(
-                                      onPressed: () => _completeDebt(debt),
-                                      child: Text(
-                                        AppLocalizations.of(context)!.completed,
+                                ],
+                              ),
+                            ),
+                            const SizedBox(width: 8),
+                            Column(
+                              crossAxisAlignment: CrossAxisAlignment.end,
+                              children: [
+                                Text(
+                                  '${debt.definition.isExpense ? '-' : '+'}${debt.definition.amount.toStringAsFixed(2)}$_currency',
+                                  style: Theme.of(context).textTheme.titleSmall
+                                      ?.copyWith(
+                                        color: debt.definition.isExpense
+                                            ? Colors.red
+                                            : Colors.green,
+                                        fontWeight: FontWeight.bold,
                                       ),
-                                    ),
-                                  ],
+                                ),
+                                const SizedBox(height: 8),
+                                FilledButton.tonal(
+                                  onPressed: () => _completeDebt(debt),
+                                  child: Text(
+                                    AppLocalizations.of(context)!.completed,
+                                  ),
                                 ),
                               ],
                             ),
-                          ),
-                        );
-                      },
-                    ),
-                  ),
-          ),
-        ],
+                          ],
+                        ),
+                      ),
+                    );
+                  }, childCount: _pendingDebts.length),
+                ),
+              ),
+          ],
+        ),
       ),
     );
   }

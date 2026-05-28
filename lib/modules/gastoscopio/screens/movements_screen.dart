@@ -1098,25 +1098,16 @@ class _MovementsScreenState extends State<MovementsScreen>
   }) {
     return Dismissible(
       key: Key('movement_swipe_${movement.id}'),
-      direction: DismissDirection.horizontal,
-      background: _buildSwipeBackground(
-        color: Colors.indigo,
-        icon: Icons.request_page_outlined,
-        label: AppLocalizations.of(context)!.convertToMonthlyDebt,
-        alignLeft: true,
-      ),
+      direction: DismissDirection.endToStart,
       secondaryBackground: _buildSwipeBackground(
-        color: Theme.of(context).colorScheme.error,
-        icon: Icons.delete,
-        label: AppLocalizations.of(context)!.delete,
+        color: Theme.of(context).colorScheme.primary,
+        icon: Icons.more_horiz,
+        label: AppLocalizations.of(context)!.edit,
         alignLeft: false,
       ),
       confirmDismiss: (direction) async {
-        if (direction == DismissDirection.startToEnd) {
-          return _convertMovementToMonthlyDebtFromSwipe(movement);
-        }
         if (direction == DismissDirection.endToStart) {
-          return _showDeleteDialog(movement);
+          await _showSwipeActionsMenu(movement);
         }
         return false;
       },
@@ -1127,6 +1118,53 @@ class _MovementsScreenState extends State<MovementsScreen>
         onTap: () => _toggleMovementExpansion(movement.id!),
         onLongPress: () => _showMovementLongPressActions(movement),
         expandedContent: _buildExpandedContent(context, movement),
+      ),
+    );
+  }
+
+  Future<void> _showSwipeActionsMenu(MovementValue movement) async {
+    if (!mounted) return;
+    await showModalBottomSheet<void>(
+      context: context,
+      showDragHandle: true,
+      builder: (context) => SafeArea(
+        child: Padding(
+          padding: const EdgeInsets.fromLTRB(16, 8, 16, 16),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              SizedBox(
+                width: double.infinity,
+                child: FilledButton.tonalIcon(
+                  onPressed: () async {
+                    Navigator.pop(context);
+                    await _convertMovementToMonthlyDebtFromSwipe(movement);
+                  },
+                  icon: const Icon(Icons.request_page_outlined),
+                  label: Text(
+                    AppLocalizations.of(context)!.convertToMonthlyDebt,
+                  ),
+                ),
+              ),
+              const SizedBox(height: 8),
+              SizedBox(
+                width: double.infinity,
+                child: FilledButton.icon(
+                  style: FilledButton.styleFrom(
+                    backgroundColor: Theme.of(context).colorScheme.error,
+                    foregroundColor: Theme.of(context).colorScheme.onError,
+                  ),
+                  onPressed: () async {
+                    Navigator.pop(context);
+                    await _showDeleteDialog(movement);
+                  },
+                  icon: const Icon(Icons.delete),
+                  label: Text(AppLocalizations.of(context)!.delete),
+                ),
+              ),
+            ],
+          ),
+        ),
       ),
     );
   }
