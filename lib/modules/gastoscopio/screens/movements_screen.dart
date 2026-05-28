@@ -1023,75 +1023,6 @@ class _MovementsScreenState extends State<MovementsScreen>
     return false;
   }
 
-  Future<void> _showMovementLongPressActions(MovementValue movement) async {
-    final action = await showModalBottomSheet<String>(
-      context: context,
-      showDragHandle: true,
-      builder: (context) => SafeArea(
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            ListTile(
-              leading: const Icon(Icons.request_page_outlined),
-              title: Text(AppLocalizations.of(context)!.convertToMonthlyDebt),
-              subtitle: Text(
-                AppLocalizations.of(context)!.convertToMonthlyDebtSubtitle,
-              ),
-              onTap: () => Navigator.pop(context, 'convert_to_debt'),
-            ),
-          ],
-        ),
-      ),
-    );
-    if (action != 'convert_to_debt') return;
-
-    final confirmed = await showDialog<bool>(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: Text(AppLocalizations.of(context)!.convertToMonthlyDebt),
-        content: Text(
-          AppLocalizations.of(
-            context,
-          )!.convertToMonthlyDebtConfirm(movement.description),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context, false),
-            child: Text(AppLocalizations.of(context)!.cancel),
-          ),
-          FilledButton(
-            onPressed: () => Navigator.pop(context, true),
-            child: Text(AppLocalizations.of(context)!.create),
-          ),
-        ],
-      ),
-    );
-    if (confirmed != true) return;
-
-    try {
-      await _financeService.convertMovementToMonthlyDebt(movement);
-      if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(
-            AppLocalizations.of(context)!.movementConvertedToMonthlyDebt,
-          ),
-          behavior: SnackBarBehavior.floating,
-        ),
-      );
-      await _loadMovements();
-    } catch (e) {
-      if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(AppLocalizations.of(context)!.convertToDebtError('$e')),
-          behavior: SnackBarBehavior.floating,
-        ),
-      );
-      LogFileService().appendLog('Error converting movement to debt: $e');
-    }
-  }
-
   Widget _buildSwipeableMovementTile({
     required MovementValue movement,
     required bool isExpanded,
@@ -1116,7 +1047,6 @@ class _MovementsScreenState extends State<MovementsScreen>
         isExpanded: isExpanded,
         currency: _moneda,
         onTap: () => _toggleMovementExpansion(movement.id!),
-        onLongPress: () => _showMovementLongPressActions(movement),
         expandedContent: _buildExpandedContent(context, movement),
       ),
     );

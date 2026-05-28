@@ -95,16 +95,13 @@ class _ActiveDebtsScreenState extends State<ActiveDebtsScreen> {
   Widget build(BuildContext context) {
     final currentMonth = _financeService.currentMonth;
     return Scaffold(
-      body: SafeArea(
-        top: true,
-        bottom: false,
-        child: RefreshIndicator(
-          onRefresh: _loadPendingDebts,
-          child: CustomScrollView(
-            physics: const BouncingScrollPhysics(
-              parent: AlwaysScrollableScrollPhysics(),
-            ),
-            slivers: [
+      body: RefreshIndicator(
+        onRefresh: _loadPendingDebts,
+        child: CustomScrollView(
+          physics: const BouncingScrollPhysics(
+            parent: AlwaysScrollableScrollPhysics(),
+          ),
+          slivers: [
             SliverAppBar(
               floating: true,
               pinned: true,
@@ -266,8 +263,7 @@ class _ActiveDebtsScreenState extends State<ActiveDebtsScreen> {
                   }, childCount: _pendingDebts.length),
                 ),
               ),
-            ],
-          ),
+          ],
         ),
       ),
     );

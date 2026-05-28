@@ -16,10 +16,10 @@ import 'package:cashly/theme/custom_theme.dart';
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
-  // Configurar el modo de UI del sistema para ocultar la barra de navegación
+  // Mantener la UI del sistema completa (status + navigation bars visibles).
   SystemChrome.setEnabledSystemUIMode(
     SystemUiMode.manual,
-    overlays: [SystemUiOverlay.top],
+    overlays: [SystemUiOverlay.top, SystemUiOverlay.bottom],
   );
 
   // Inicializar servicio de Gemini para cargar API Key existente
