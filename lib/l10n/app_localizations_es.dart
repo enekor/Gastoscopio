@@ -1255,4 +1255,141 @@ class AppLocalizationsEs extends AppLocalizations {
   String fromApp(String appName) {
     return 'Desde $appName';
   }
+
+  @override
+  String get scanFromImage => 'Escanear imagen';
+
+  @override
+  String get analyzingImage => 'Analizando imagen...';
+
+  @override
+  String get noMovementsFoundInImage =>
+      'No se encontraron movimientos en la imagen.';
+
+  @override
+  String get movementsExtracted =>
+      'Movimientos extraídos de la imagen. Revísalos y guarda los que quieras.';
+
+  @override
+  String get scanError => 'Error al analizar la imagen. Inténtalo de nuevo.';
+
+  @override
+  String get imageTooLarge =>
+      'La imagen es demasiado grande. Intenta con una imagen más pequeña (máx. 4MB).';
+
+  @override
+  String get monthlyDebt => 'Deuda mensual';
+
+  @override
+  String get monthlyDebtDescription => 'Se repetirá cada mes hasta eliminarla';
+
+  @override
+  String get noMonthlyDebtsYet => 'Aún no tienes deudas mensuales.';
+
+  @override
+  String get pendingDebtItems => 'Pendientes (incluye propagadas)';
+
+  @override
+  String get debtCompletedMovementCreated =>
+      'Deuda completada: se creó el movimiento real.';
+
+  @override
+  String get createAsOneTimeDebt => 'Crear como deuda puntual';
+
+  @override
+  String get oneTimeDebtNoTotalsUntilComplete =>
+      'No afecta totales hasta pulsar Completado';
+
+  @override
+  String get oneTimeDebtCreated => 'Deuda puntual creada';
+
+  @override
+  String get oneTimeDebtCreatedMessage =>
+      'Deuda puntual guardada (se contabilizará al completar)';
+
+  @override
+  String get activeDebts => 'Deudas activas';
+
+  @override
+  String get createDebt => 'Crear deuda';
+
+  @override
+  String get createMonthlyDebt => 'Crear deuda mensual';
+
+  @override
+  String get editMonthlyDebt => 'Editar deuda mensual';
+
+  @override
+  String get noPendingDebtsThisMonth =>
+      'No hay deudas pendientes para este mes.';
+
+  @override
+  String debtLoadError(String error) {
+    return 'No se pudieron cargar las deudas: $error';
+  }
+
+  @override
+  String debtCompleteError(String error) {
+    return 'No se pudo completar la deuda: $error';
+  }
+
+  @override
+  String get propagatedDebt => 'Propagada';
+
+  @override
+  String get completed => 'Completado';
+
+  @override
+  String get convertToMonthlyDebt => 'Pasar a deuda mensual';
+
+  @override
+  String get convertToMonthlyDebtSubtitle =>
+      'Se elimina este movimiento y se crea una deuda equivalente';
+
+  @override
+  String convertToMonthlyDebtConfirm(String description) {
+    return '¿Quieres convertir \"$description\" en deuda mensual?\nSe mantendrán nombre, importe y tipo (gasto/ingreso).';
+  }
+
+  @override
+  String get movementConvertedToMonthlyDebt =>
+      'Movimiento convertido a deuda mensual';
+
+  @override
+  String convertToDebtError(String error) {
+    return 'No se pudo convertir: $error';
+  }
+
+  @override
+  String get convertToMonthlyMovement => 'Pasar a movimiento mensual';
+
+  @override
+  String get convertToMonthlyMovementSubtitle =>
+      'Se elimina la deuda mensual y se crea movimiento fijo';
+
+  @override
+  String get confirmConversion => 'Confirmar conversión';
+
+  @override
+  String convertDebtToMovementConfirm(String description, int day) {
+    return '¿Convertir \"$description\" a movimiento mensual en el día $day?\nSe eliminará la deuda mensual.';
+  }
+
+  @override
+  String get monthlyDebtConvertedToMovement =>
+      'Deuda mensual convertida a movimiento mensual';
+
+  @override
+  String get invalidDayRange => 'Introduce un día válido (1-31)';
+
+  @override
+  String get iOwe => 'Debo';
+
+  @override
+  String get owedToMe => 'Me deben';
+
+  @override
+  String createdInMonth(String month, String year) {
+    return 'Creada en $month/$year';
+  }
 }

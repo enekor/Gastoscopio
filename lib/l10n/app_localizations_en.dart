@@ -1238,4 +1238,141 @@ class AppLocalizationsEn extends AppLocalizations {
   String fromApp(String appName) {
     return 'From $appName';
   }
+
+  @override
+  String get scanFromImage => 'Scan image';
+
+  @override
+  String get analyzingImage => 'Analyzing image...';
+
+  @override
+  String get noMovementsFoundInImage => 'No transactions found in the image.';
+
+  @override
+  String get movementsExtracted =>
+      'Transactions extracted from the image. Review and save the ones you want.';
+
+  @override
+  String get scanError => 'Error analyzing the image. Please try again.';
+
+  @override
+  String get imageTooLarge =>
+      'The image is too large. Try a smaller image (max 4MB).';
+
+  @override
+  String get monthlyDebt => 'Monthly debt';
+
+  @override
+  String get monthlyDebtDescription =>
+      'It will repeat every month until removed';
+
+  @override
+  String get noMonthlyDebtsYet => 'You do not have monthly debts yet.';
+
+  @override
+  String get pendingDebtItems => 'Pending (including propagated)';
+
+  @override
+  String get debtCompletedMovementCreated =>
+      'Debt completed: real movement created.';
+
+  @override
+  String get createAsOneTimeDebt => 'Create as one-time debt';
+
+  @override
+  String get oneTimeDebtNoTotalsUntilComplete =>
+      'Does not affect totals until marked as completed';
+
+  @override
+  String get oneTimeDebtCreated => 'One-time debt created';
+
+  @override
+  String get oneTimeDebtCreatedMessage =>
+      'One-time debt saved (it will be accounted when completed)';
+
+  @override
+  String get activeDebts => 'Active debts';
+
+  @override
+  String get createDebt => 'Create debt';
+
+  @override
+  String get createMonthlyDebt => 'Create monthly debt';
+
+  @override
+  String get editMonthlyDebt => 'Edit monthly debt';
+
+  @override
+  String get noPendingDebtsThisMonth =>
+      'There are no pending debts for this month.';
+
+  @override
+  String debtLoadError(String error) {
+    return 'Could not load debts: $error';
+  }
+
+  @override
+  String debtCompleteError(String error) {
+    return 'Could not complete debt: $error';
+  }
+
+  @override
+  String get propagatedDebt => 'Propagated';
+
+  @override
+  String get completed => 'Completed';
+
+  @override
+  String get convertToMonthlyDebt => 'Convert to monthly debt';
+
+  @override
+  String get convertToMonthlyDebtSubtitle =>
+      'This movement is deleted and an equivalent debt is created';
+
+  @override
+  String convertToMonthlyDebtConfirm(String description) {
+    return 'Convert \"$description\" to a monthly debt?\nName, amount and type (expense/income) will be preserved.';
+  }
+
+  @override
+  String get movementConvertedToMonthlyDebt =>
+      'Movement converted to monthly debt';
+
+  @override
+  String convertToDebtError(String error) {
+    return 'Could not convert: $error';
+  }
+
+  @override
+  String get convertToMonthlyMovement => 'Convert to monthly movement';
+
+  @override
+  String get convertToMonthlyMovementSubtitle =>
+      'Monthly debt is removed and fixed movement is created';
+
+  @override
+  String get confirmConversion => 'Confirm conversion';
+
+  @override
+  String convertDebtToMovementConfirm(String description, int day) {
+    return 'Convert \"$description\" to a monthly movement on day $day?\nThe monthly debt will be removed.';
+  }
+
+  @override
+  String get monthlyDebtConvertedToMovement =>
+      'Monthly debt converted to monthly movement';
+
+  @override
+  String get invalidDayRange => 'Enter a valid day (1-31)';
+
+  @override
+  String get iOwe => 'I owe';
+
+  @override
+  String get owedToMe => 'Owed to me';
+
+  @override
+  String createdInMonth(String month, String year) {
+    return 'Created in $month/$year';
+  }
 }

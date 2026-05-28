@@ -14,8 +14,14 @@ import 'package:fluttertoast/fluttertoast.dart';
 class MovementFormScreen extends StatefulWidget {
   final MovementValue? movement;
   bool isExpense = true;
+  final bool forceDebtMode;
 
-  MovementFormScreen({super.key, this.movement, this.isExpense = true});
+  MovementFormScreen({
+    super.key,
+    this.movement,
+    this.isExpense = true,
+    this.forceDebtMode = false,
+  });
 
   @override
   State<MovementFormScreen> createState() => _MovementFormScreenState();
@@ -63,6 +69,9 @@ class _MovementFormScreenState extends State<MovementFormScreen> {
 
       _category = widget.movement!.category;
       _showDatePicker = false;
+    }
+    if (widget.forceDebtMode && widget.movement == null) {
+      _createAsOneTimeDebt = true;
     }
     SharedPreferencesService()
         .getStringValue(SharedPreferencesKeys.currency)
@@ -536,13 +545,13 @@ class _MovementFormScreenState extends State<MovementFormScreen> {
                   ),
                   const SizedBox(height: 16),
 
-                  if (widget.movement == null) ...[
+                  if (widget.movement == null && !widget.forceDebtMode) ...[
                     SwitchListTile.adaptive(
                       value: _createAsOneTimeDebt,
                       contentPadding: EdgeInsets.zero,
-                      title: const Text('Crear como deuda puntual'),
-                      subtitle: const Text(
-                        'No afecta totales hasta pulsar "Completado"',
+                      title: Text(localizations.createAsOneTimeDebt),
+                      subtitle: Text(
+                        localizations.oneTimeDebtNoTotalsUntilComplete,
                       ),
                       onChanged: (value) {
                         setState(() {

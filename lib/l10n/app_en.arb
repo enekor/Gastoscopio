@@ -401,6 +401,70 @@
   "noMovementsFoundInImage": "No transactions found in the image.",
   "movementsExtracted": "Transactions extracted from the image. Review and save the ones you want.",
   "scanError": "Error analyzing the image. Please try again.",
-  "imageTooLarge": "The image is too large. Try a smaller image (max 4MB)."
+  "imageTooLarge": "The image is too large. Try a smaller image (max 4MB).",
+  "monthlyDebt": "Monthly debt",
+  "monthlyDebtDescription": "It will repeat every month until removed",
+  "noMonthlyDebtsYet": "You do not have monthly debts yet.",
+  "pendingDebtItems": "Pending (including propagated)",
+  "debtCompletedMovementCreated": "Debt completed: real movement created.",
+  "createAsOneTimeDebt": "Create as one-time debt",
+  "oneTimeDebtNoTotalsUntilComplete": "Does not affect totals until marked as completed",
+  "oneTimeDebtCreated": "One-time debt created",
+  "oneTimeDebtCreatedMessage": "One-time debt saved (it will be accounted when completed)",
+  "activeDebts": "Active debts",
+  "createDebt": "Create debt",
+  "createMonthlyDebt": "Create monthly debt",
+  "editMonthlyDebt": "Edit monthly debt",
+  "noPendingDebtsThisMonth": "There are no pending debts for this month.",
+  "debtLoadError": "Could not load debts: {error}",
+  "@debtLoadError": {
+    "placeholders": {
+      "error": { "type": "String" }
+    }
+  },
+  "debtCompleteError": "Could not complete debt: {error}",
+  "@debtCompleteError": {
+    "placeholders": {
+      "error": { "type": "String" }
+    }
+  },
+  "propagatedDebt": "Propagated",
+  "completed": "Completed",
+  "convertToMonthlyDebt": "Convert to monthly debt",
+  "convertToMonthlyDebtSubtitle": "This movement is deleted and an equivalent debt is created",
+  "convertToMonthlyDebtConfirm": "Convert \"{description}\" to a monthly debt?\nName, amount and type (expense/income) will be preserved.",
+  "@convertToMonthlyDebtConfirm": {
+    "placeholders": {
+      "description": { "type": "String" }
+    }
+  },
+  "movementConvertedToMonthlyDebt": "Movement converted to monthly debt",
+  "convertToDebtError": "Could not convert: {error}",
+  "@convertToDebtError": {
+    "placeholders": {
+      "error": { "type": "String" }
+    }
+  },
+  "convertToMonthlyMovement": "Convert to monthly movement",
+  "convertToMonthlyMovementSubtitle": "Monthly debt is removed and fixed movement is created",
+  "confirmConversion": "Confirm conversion",
+  "convertDebtToMovementConfirm": "Convert \"{description}\" to a monthly movement on day {day}?\nThe monthly debt will be removed.",
+  "@convertDebtToMovementConfirm": {
+    "placeholders": {
+      "description": { "type": "String" },
+      "day": { "type": "int" }
+    }
+  },
+  "monthlyDebtConvertedToMovement": "Monthly debt converted to monthly movement",
+  "invalidDayRange": "Enter a valid day (1-31)",
+  "iOwe": "I owe",
+  "owedToMe": "Owed to me",
+  "createdInMonth": "Created in {month}/{year}",
+  "@createdInMonth": {
+    "placeholders": {
+      "month": { "type": "String" },
+      "year": { "type": "String" }
+    }
+  }
 
 }

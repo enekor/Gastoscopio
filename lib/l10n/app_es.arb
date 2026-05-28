@@ -1371,5 +1371,133 @@
   "oneTimeDebtCreatedMessage": "Deuda puntual guardada (se contabilizará al completar)",
   "@oneTimeDebtCreatedMessage": {
     "description": "Mensaje largo de deuda puntual"
+  },
+  "activeDebts": "Deudas activas",
+  "@activeDebts": {
+    "description": "Título para pantalla de deudas activas"
+  },
+  "createDebt": "Crear deuda",
+  "@createDebt": {
+    "description": "Acción para crear deuda puntual"
+  },
+  "createMonthlyDebt": "Crear deuda mensual",
+  "@createMonthlyDebt": {
+    "description": "Acción para crear deuda mensual"
+  },
+  "editMonthlyDebt": "Editar deuda mensual",
+  "@editMonthlyDebt": {
+    "description": "Acción para editar deuda mensual"
+  },
+  "noPendingDebtsThisMonth": "No hay deudas pendientes para este mes.",
+  "@noPendingDebtsThisMonth": {
+    "description": "Estado vacío de deudas activas"
+  },
+  "debtLoadError": "No se pudieron cargar las deudas: {error}",
+  "@debtLoadError": {
+    "description": "Error cargando deudas activas",
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "debtCompleteError": "No se pudo completar la deuda: {error}",
+  "@debtCompleteError": {
+    "description": "Error al completar deuda",
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "propagatedDebt": "Propagada",
+  "@propagatedDebt": {
+    "description": "Etiqueta de deuda propagada"
+  },
+  "completed": "Completado",
+  "@completed": {
+    "description": "Botón de completado"
+  },
+  "convertToMonthlyDebt": "Pasar a deuda mensual",
+  "@convertToMonthlyDebt": {
+    "description": "Acción de convertir movimiento en deuda mensual"
+  },
+  "convertToMonthlyDebtSubtitle": "Se elimina este movimiento y se crea una deuda equivalente",
+  "@convertToMonthlyDebtSubtitle": {
+    "description": "Subtítulo de convertir movimiento a deuda"
+  },
+  "convertToMonthlyDebtConfirm": "¿Quieres convertir \"{description}\" en deuda mensual?\nSe mantendrán nombre, importe y tipo (gasto/ingreso).",
+  "@convertToMonthlyDebtConfirm": {
+    "description": "Confirmación para convertir movimiento en deuda mensual",
+    "placeholders": {
+      "description": {
+        "type": "String"
+      }
+    }
+  },
+  "movementConvertedToMonthlyDebt": "Movimiento convertido a deuda mensual",
+  "@movementConvertedToMonthlyDebt": {
+    "description": "Toast de conversión de movimiento a deuda"
+  },
+  "convertToDebtError": "No se pudo convertir: {error}",
+  "@convertToDebtError": {
+    "description": "Error convirtiendo movimiento/deuda",
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "convertToMonthlyMovement": "Pasar a movimiento mensual",
+  "@convertToMonthlyMovement": {
+    "description": "Acción de convertir deuda mensual a movimiento mensual"
+  },
+  "convertToMonthlyMovementSubtitle": "Se elimina la deuda mensual y se crea movimiento fijo",
+  "@convertToMonthlyMovementSubtitle": {
+    "description": "Subtítulo de convertir deuda mensual"
+  },
+  "confirmConversion": "Confirmar conversión",
+  "@confirmConversion": {
+    "description": "Título del diálogo de confirmación de conversión"
+  },
+  "convertDebtToMovementConfirm": "¿Convertir \"{description}\" a movimiento mensual en el día {day}?\nSe eliminará la deuda mensual.",
+  "@convertDebtToMovementConfirm": {
+    "description": "Confirmación de convertir deuda mensual a movimiento mensual",
+    "placeholders": {
+      "description": {
+        "type": "String"
+      },
+      "day": {
+        "type": "int"
+      }
+    }
+  },
+  "monthlyDebtConvertedToMovement": "Deuda mensual convertida a movimiento mensual",
+  "@monthlyDebtConvertedToMovement": {
+    "description": "Toast conversión deuda a movimiento"
+  },
+  "invalidDayRange": "Introduce un día válido (1-31)",
+  "@invalidDayRange": {
+    "description": "Validación de rango de día mensual"
+  },
+  "iOwe": "Debo",
+  "@iOwe": {
+    "description": "Etiqueta para deuda de gasto"
+  },
+  "owedToMe": "Me deben",
+  "@owedToMe": {
+    "description": "Etiqueta para deuda de ingreso"
+  },
+  "createdInMonth": "Creada en {month}/{year}",
+  "@createdInMonth": {
+    "description": "Etiqueta de origen de deuda",
+    "placeholders": {
+      "month": {
+        "type": "String"
+      },
+      "year": {
+        "type": "String"
+      }
+    }
   }
 }

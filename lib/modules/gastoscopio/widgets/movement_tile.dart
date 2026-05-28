@@ -9,6 +9,7 @@ class MovementTile extends StatelessWidget {
   final VoidCallback onTap;
   final Widget expandedContent;
   final String currency;
+  final VoidCallback? onLongPress;
 
   const MovementTile({
     required this.movement,
@@ -16,6 +17,7 @@ class MovementTile extends StatelessWidget {
     required this.onTap,
     required this.expandedContent,
     required this.currency,
+    this.onLongPress,
     Key? key,
   }) : super(key: key);
 
@@ -34,6 +36,7 @@ class MovementTile extends StatelessWidget {
       children: [
         ListTile(
           onTap: onTap,
+          onLongPress: onLongPress,
           contentPadding: const EdgeInsets.symmetric(
             horizontal: 16,
             vertical: 4,

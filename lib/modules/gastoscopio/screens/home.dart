@@ -8,6 +8,7 @@ import 'package:cashly/modules/gastoscopio/logic/finance_service.dart';
 import 'package:cashly/data/services/log_file_service.dart';
 import 'package:cashly/modules/gastoscopio/screens/movement_form_screen.dart';
 import 'package:cashly/modules/gastoscopio/screens/fixed_movements_screen.dart';
+import 'package:cashly/modules/gastoscopio/screens/active_debts_screen.dart';
 import 'package:cashly/modules/gastoscopio/screens/summary_screen.dart';
 import 'package:cashly/modules/gastoscopio/screens/view_movements_filtered_screen.dart';
 import 'package:cashly/modules/gastoscopio/widgets/finance_widgets.dart';
@@ -594,6 +595,8 @@ class _GastoscopioHomeScreenState extends State<GastoscopioHomeScreen>
             const SizedBox(width: 12),
           ],
           _buildActionCard(icon: Icons.repeat_rounded, title: AppLocalizations.of(context).manageRecurringMovements, color: Colors.blueAccent, onTap: () => Navigator.push(context, MaterialPageRoute(builder: (context) => const FixedMovementsScreen()))),
+          const SizedBox(width: 12),
+          _buildActionCard(icon: Icons.request_page_rounded, title: AppLocalizations.of(context)!.activeDebts, color: Colors.deepPurple, onTap: () => Navigator.push(context, MaterialPageRoute(builder: (context) => const ActiveDebtsScreen()))),
           const SizedBox(width: 12),
           _buildActionCard(icon: Icons.savings_rounded, title: AppLocalizations.of(context).savings, color: Colors.amber, onTap: () => Navigator.push(context, MaterialPageRoute(builder: (context) => HomeSaves()))),
           const SizedBox(width: 12),

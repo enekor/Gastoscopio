@@ -14,7 +14,7 @@ import 'package:cashly/data/services/log_file_service.dart';
 import 'package:cashly/modules/gastoscopio/widgets/loading.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:sqflite/sqflite.dart';
+import 'package:sqflite/sqlite_api.dart';
 
 class FinanceService extends ChangeNotifier {
   static FinanceService? _instance;
@@ -56,7 +56,7 @@ class FinanceService extends ChangeNotifier {
   double get monthIncomes => _monthIncomes;
   double get monthExpenses => _monthExpenses;
 
-  Database get _rawDb => SqliteService().db.database;
+  DatabaseExecutor get _rawDb => SqliteService().db.database;
 
   DebtDefinition _debtDefinitionFromMap(Map<String, Object?> row) {
     return DebtDefinition(
@@ -425,6 +425,75 @@ class FinanceService extends ChangeNotifier {
   }
 
   Future<void> deleteDebtDefinition(DebtDefinition debtDefinition) async {
+    await _deleteDebtDefinitionRaw(debtDefinition);
+    await SharedPreferencesService().haveToUpload();
+    notifyListeners();
+  }
+
+  Future<void> convertMovementToMonthlyDebt(MovementValue movement) async {
+    final monthData = await _monthDao.findMonthById(movement.monthId);
+    if (monthData == null) {
+      throw Exception('Month not found for movement');
+    }
+
+    final definitionId = await _insertDebtDefinitionRaw(
+      DebtDefinition(
+        null,
+        movement.description.trim(),
+        movement.amount,
+        movement.isExpense,
+        movement.category?.trim(),
+        debtRecurrenceMonthly,
+        movement.day,
+        monthData.month,
+        monthData.year,
+        true,
+      ),
+    );
+
+    final existingCount = await _countDebtOccurrenceByDefinitionAndMonthRaw(
+      definitionId,
+      movement.monthId,
+    );
+    if ((existingCount ?? 0) == 0) {
+      await _insertDebtOccurrenceRaw(
+        DebtOccurrence(
+          null,
+          definitionId,
+          movement.monthId,
+          movement.day,
+          monthData.month,
+          monthData.year,
+          debtStatusPending,
+          null,
+        ),
+      );
+    }
+
+    await _movementValueDao.deleteMovementValue(movement);
+    await SharedPreferencesService().haveToUpload();
+    await _updateMonthData();
+    notifyListeners();
+  }
+
+  Future<void> convertMonthlyDebtToFixedMovement(
+    DebtDefinition debtDefinition,
+    int targetDay,
+  ) async {
+    if (debtDefinition.id == null) {
+      throw Exception('Debt definition id is required');
+    }
+    final adjustedDay = targetDay < 1 ? 1 : (targetDay > 31 ? 31 : targetDay);
+
+    final fixedMovement = FixedMovement(
+      null,
+      debtDefinition.description.trim(),
+      debtDefinition.amount,
+      debtDefinition.isExpense,
+      adjustedDay,
+      debtDefinition.category?.trim(),
+    );
+    await _fixedMovementDao.insertFixedMovement(fixedMovement);
     await _deleteDebtDefinitionRaw(debtDefinition);
     await SharedPreferencesService().haveToUpload();
     notifyListeners();

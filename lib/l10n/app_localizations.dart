@@ -2359,6 +2359,234 @@ abstract class AppLocalizations {
   /// In es, this message translates to:
   /// **'Desde {appName}'**
   String fromApp(String appName);
+
+  /// No description provided for @scanFromImage.
+  ///
+  /// In es, this message translates to:
+  /// **'Escanear imagen'**
+  String get scanFromImage;
+
+  /// No description provided for @analyzingImage.
+  ///
+  /// In es, this message translates to:
+  /// **'Analizando imagen...'**
+  String get analyzingImage;
+
+  /// No description provided for @noMovementsFoundInImage.
+  ///
+  /// In es, this message translates to:
+  /// **'No se encontraron movimientos en la imagen.'**
+  String get noMovementsFoundInImage;
+
+  /// No description provided for @movementsExtracted.
+  ///
+  /// In es, this message translates to:
+  /// **'Movimientos extraídos de la imagen. Revísalos y guarda los que quieras.'**
+  String get movementsExtracted;
+
+  /// No description provided for @scanError.
+  ///
+  /// In es, this message translates to:
+  /// **'Error al analizar la imagen. Inténtalo de nuevo.'**
+  String get scanError;
+
+  /// No description provided for @imageTooLarge.
+  ///
+  /// In es, this message translates to:
+  /// **'La imagen es demasiado grande. Intenta con una imagen más pequeña (máx. 4MB).'**
+  String get imageTooLarge;
+
+  /// Etiqueta para deudas mensuales
+  ///
+  /// In es, this message translates to:
+  /// **'Deuda mensual'**
+  String get monthlyDebt;
+
+  /// Descripción breve de deuda mensual
+  ///
+  /// In es, this message translates to:
+  /// **'Se repetirá cada mes hasta eliminarla'**
+  String get monthlyDebtDescription;
+
+  /// Estado vacío para deudas mensuales
+  ///
+  /// In es, this message translates to:
+  /// **'Aún no tienes deudas mensuales.'**
+  String get noMonthlyDebtsYet;
+
+  /// Título de listado de deudas pendientes
+  ///
+  /// In es, this message translates to:
+  /// **'Pendientes (incluye propagadas)'**
+  String get pendingDebtItems;
+
+  /// Mensaje al completar deuda
+  ///
+  /// In es, this message translates to:
+  /// **'Deuda completada: se creó el movimiento real.'**
+  String get debtCompletedMovementCreated;
+
+  /// Switch para crear deuda puntual desde nuevo movimiento
+  ///
+  /// In es, this message translates to:
+  /// **'Crear como deuda puntual'**
+  String get createAsOneTimeDebt;
+
+  /// Descripción de deuda puntual pendiente
+  ///
+  /// In es, this message translates to:
+  /// **'No afecta totales hasta pulsar Completado'**
+  String get oneTimeDebtNoTotalsUntilComplete;
+
+  /// Toast de deuda puntual creada
+  ///
+  /// In es, this message translates to:
+  /// **'Deuda puntual creada'**
+  String get oneTimeDebtCreated;
+
+  /// Mensaje largo de deuda puntual
+  ///
+  /// In es, this message translates to:
+  /// **'Deuda puntual guardada (se contabilizará al completar)'**
+  String get oneTimeDebtCreatedMessage;
+
+  /// Título para pantalla de deudas activas
+  ///
+  /// In es, this message translates to:
+  /// **'Deudas activas'**
+  String get activeDebts;
+
+  /// Acción para crear deuda puntual
+  ///
+  /// In es, this message translates to:
+  /// **'Crear deuda'**
+  String get createDebt;
+
+  /// Acción para crear deuda mensual
+  ///
+  /// In es, this message translates to:
+  /// **'Crear deuda mensual'**
+  String get createMonthlyDebt;
+
+  /// Acción para editar deuda mensual
+  ///
+  /// In es, this message translates to:
+  /// **'Editar deuda mensual'**
+  String get editMonthlyDebt;
+
+  /// Estado vacío de deudas activas
+  ///
+  /// In es, this message translates to:
+  /// **'No hay deudas pendientes para este mes.'**
+  String get noPendingDebtsThisMonth;
+
+  /// Error cargando deudas activas
+  ///
+  /// In es, this message translates to:
+  /// **'No se pudieron cargar las deudas: {error}'**
+  String debtLoadError(String error);
+
+  /// Error al completar deuda
+  ///
+  /// In es, this message translates to:
+  /// **'No se pudo completar la deuda: {error}'**
+  String debtCompleteError(String error);
+
+  /// Etiqueta de deuda propagada
+  ///
+  /// In es, this message translates to:
+  /// **'Propagada'**
+  String get propagatedDebt;
+
+  /// Botón de completado
+  ///
+  /// In es, this message translates to:
+  /// **'Completado'**
+  String get completed;
+
+  /// Acción de convertir movimiento en deuda mensual
+  ///
+  /// In es, this message translates to:
+  /// **'Pasar a deuda mensual'**
+  String get convertToMonthlyDebt;
+
+  /// Subtítulo de convertir movimiento a deuda
+  ///
+  /// In es, this message translates to:
+  /// **'Se elimina este movimiento y se crea una deuda equivalente'**
+  String get convertToMonthlyDebtSubtitle;
+
+  /// Confirmación para convertir movimiento en deuda mensual
+  ///
+  /// In es, this message translates to:
+  /// **'¿Quieres convertir \"{description}\" en deuda mensual?\nSe mantendrán nombre, importe y tipo (gasto/ingreso).'**
+  String convertToMonthlyDebtConfirm(String description);
+
+  /// Toast de conversión de movimiento a deuda
+  ///
+  /// In es, this message translates to:
+  /// **'Movimiento convertido a deuda mensual'**
+  String get movementConvertedToMonthlyDebt;
+
+  /// Error convirtiendo movimiento/deuda
+  ///
+  /// In es, this message translates to:
+  /// **'No se pudo convertir: {error}'**
+  String convertToDebtError(String error);
+
+  /// Acción de convertir deuda mensual a movimiento mensual
+  ///
+  /// In es, this message translates to:
+  /// **'Pasar a movimiento mensual'**
+  String get convertToMonthlyMovement;
+
+  /// Subtítulo de convertir deuda mensual
+  ///
+  /// In es, this message translates to:
+  /// **'Se elimina la deuda mensual y se crea movimiento fijo'**
+  String get convertToMonthlyMovementSubtitle;
+
+  /// Título del diálogo de confirmación de conversión
+  ///
+  /// In es, this message translates to:
+  /// **'Confirmar conversión'**
+  String get confirmConversion;
+
+  /// Confirmación de convertir deuda mensual a movimiento mensual
+  ///
+  /// In es, this message translates to:
+  /// **'¿Convertir \"{description}\" a movimiento mensual en el día {day}?\nSe eliminará la deuda mensual.'**
+  String convertDebtToMovementConfirm(String description, int day);
+
+  /// Toast conversión deuda a movimiento
+  ///
+  /// In es, this message translates to:
+  /// **'Deuda mensual convertida a movimiento mensual'**
+  String get monthlyDebtConvertedToMovement;
+
+  /// Validación de rango de día mensual
+  ///
+  /// In es, this message translates to:
+  /// **'Introduce un día válido (1-31)'**
+  String get invalidDayRange;
+
+  /// Etiqueta para deuda de gasto
+  ///
+  /// In es, this message translates to:
+  /// **'Debo'**
+  String get iOwe;
+
+  /// Etiqueta para deuda de ingreso
+  ///
+  /// In es, this message translates to:
+  /// **'Me deben'**
+  String get owedToMe;
+
+  /// Etiqueta de origen de deuda
+  ///
+  /// In es, this message translates to:
+  /// **'Creada en {month}/{year}'**
+  String createdInMonth(String month, String year);
 }
 
 class _AppLocalizationsDelegate
