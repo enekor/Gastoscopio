@@ -966,7 +966,7 @@ class _MovementsScreenState extends State<MovementsScreen>
   }
 
   Future<void> _createNewMovement() async {
-    final result = await showModalBottomSheet<bool>(
+    final result = await showModalBottomSheet<dynamic>(
       context: context,
       isScrollControlled: true,
       showDragHandle: true,
@@ -979,7 +979,7 @@ class _MovementsScreenState extends State<MovementsScreen>
   }
 
   Future<void> _showEditDialog(MovementValue movement) async {
-    final result = await showModalBottomSheet<bool>(
+    final result = await showModalBottomSheet<dynamic>(
       context: context,
       isScrollControlled: true,
       showDragHandle: true,

@@ -298,7 +298,7 @@ class _MainScreenState extends State<MainScreen>
           floatingActionButton: FloatingActionButton(
             child: const Icon(Icons.add_card, size: 28),
             onPressed: () async {
-              final result = await showModalBottomSheet<String>(
+              final result = await showModalBottomSheet<dynamic>(
                 context: context,
                 isScrollControlled: true,
                 showDragHandle: true,
