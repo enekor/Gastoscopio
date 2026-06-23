@@ -1,6 +1,7 @@
 import 'package:cashly/data/models/credit_card_expense.dart';
 import 'package:cashly/data/models/credit_card_month.dart';
 import 'package:cashly/data/services/sqlite_service.dart';
+import 'package:cashly/data/services/background_task_service.dart';
 import 'package:flutter/foundation.dart';
 
 class CreditCardService extends ChangeNotifier {
@@ -33,6 +34,10 @@ class CreditCardService extends ChangeNotifier {
     notifyListeners();
   }
 
+  Future<void> _updateNotification() async {
+    await BackgroundTaskService().scheduleWeeklyCreditCardCheck();
+  }
+
   Future<void> setMonthLimit(int month, int year, double limit) async {
     final db = SqliteService().db;
     
@@ -57,6 +62,7 @@ class CreditCardService extends ChangeNotifier {
     
     allMonths = await db.creditCardMonthDao.findAllMonths();
     notifyListeners();
+    await _updateNotification();
   }
 
   Future<void> addExpense(String description, double amount, DateTime date) async {
@@ -75,6 +81,7 @@ class CreditCardService extends ChangeNotifier {
     currentExpenses = await db.creditCardExpenseDao.findExpensesByMonthId(currentMonth!.id!);
     
     notifyListeners();
+    await _updateNotification();
   }
 
   Future<void> deleteExpense(CreditCardExpense expense) async {
@@ -84,6 +91,7 @@ class CreditCardService extends ChangeNotifier {
     if (currentMonth != null) {
       currentExpenses = await db.creditCardExpenseDao.findExpensesByMonthId(currentMonth!.id!);
       notifyListeners();
+      await _updateNotification();
     }
   }
 

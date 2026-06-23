@@ -12,6 +12,10 @@ import 'package:cashly/l10n/app_localizations.dart';
 import 'package:dynamic_color/dynamic_color.dart';
 import 'package:cashly/theme/custom_theme.dart';
 
+import 'package:cashly/data/services/notification_service.dart';
+import 'package:cashly/data/services/background_task_service.dart';
+import 'package:cashly/modules/credit_card/screens/credit_card_screen.dart';
+
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
@@ -21,6 +25,12 @@ void main() async {
 
   // Inicializar servicio de localización
   await LocaleService().initialize();
+  
+  // Inicializar notificaciones
+  await NotificationService().initialize();
+  
+  // Inicializar tareas en segundo plano
+  await BackgroundTaskService().initialize();
 
   runApp(const MyApp());
 }
@@ -59,6 +69,10 @@ class _MyAppState extends State<MyApp> {
       builder: (ColorScheme? lightDynamic, ColorScheme? darkDynamic) {
         return MaterialApp(
           title: 'Gastoscopio',
+          navigatorKey: NotificationService.navigatorKey,
+          routes: {
+            '/credit_card': (context) => const CreditCardScreen(),
+          },
 
           // Configuración de localizaciones
           localizationsDelegates: const [

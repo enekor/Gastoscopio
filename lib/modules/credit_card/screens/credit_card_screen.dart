@@ -2,6 +2,7 @@ import 'package:cashly/data/services/shared_preferences_service.dart';
 import 'package:cashly/modules/credit_card/logic/credit_card_service.dart';
 import 'package:cashly/modules/credit_card/screens/credit_card_expense_form.dart';
 import 'package:cashly/modules/credit_card/screens/credit_card_history_screen.dart';
+import 'package:cashly/data/services/notification_service.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
@@ -23,6 +24,7 @@ class _CreditCardScreenState extends State<CreditCardScreen> {
     _selectedDate = DateTime.now();
     _loadData();
     _loadCurrency();
+    NotificationService().requestPermissions();
   }
 
   Future<void> _loadCurrency() async {
