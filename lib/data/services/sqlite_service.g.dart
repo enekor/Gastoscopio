@@ -82,13 +82,17 @@ class _$AppDatabase extends AppDatabase {
 
   PendingNotificationMovementDao? _pendingNotificationMovementDaoInstance;
 
+  CreditCardMonthDao? _creditCardMonthDaoInstance;
+
+  CreditCardExpenseDao? _creditCardExpenseDaoInstance;
+
   Future<sqflite.Database> open(
     String path,
     List<Migration> migrations, [
     Callback? callback,
   ]) async {
     final databaseOptions = sqflite.OpenDatabaseOptions(
-      version: 5,
+      version: 6,
       onConfigure: (database) async {
         await database.execute('PRAGMA foreign_keys = ON');
         await callback?.onConfigure?.call(database);
@@ -113,6 +117,10 @@ class _$AppDatabase extends AppDatabase {
             'CREATE TABLE IF NOT EXISTS `Saves` (`id` INTEGER PRIMARY KEY AUTOINCREMENT, `monthId` INTEGER NOT NULL, `amount` REAL NOT NULL, `date` TEXT NOT NULL, `isInitialValue` INTEGER NOT NULL)');
         await database.execute(
             'CREATE TABLE IF NOT EXISTS `PendingNotificationMovement` (`id` INTEGER PRIMARY KEY AUTOINCREMENT, `notificationText` TEXT NOT NULL, `appName` TEXT NOT NULL, `extractedAmount` REAL NOT NULL, `timestamp` TEXT NOT NULL)');
+        await database.execute(
+            'CREATE TABLE IF NOT EXISTS `CreditCardMonth` (`id` INTEGER PRIMARY KEY AUTOINCREMENT, `month` INTEGER NOT NULL, `year` INTEGER NOT NULL, `limitAmount` REAL NOT NULL)');
+        await database.execute(
+            'CREATE TABLE IF NOT EXISTS `CreditCardExpense` (`id` INTEGER PRIMARY KEY AUTOINCREMENT, `monthId` INTEGER NOT NULL, `description` TEXT NOT NULL, `amount` REAL NOT NULL, `day` INTEGER NOT NULL, `date` TEXT NOT NULL, FOREIGN KEY (`monthId`) REFERENCES `CreditCardMonth` (`id`) ON UPDATE NO ACTION ON DELETE CASCADE)');
 
         await callback?.onCreate?.call(database, version);
       },
@@ -146,6 +154,18 @@ class _$AppDatabase extends AppDatabase {
   PendingNotificationMovementDao get pendingNotificationMovementDao {
     return _pendingNotificationMovementDaoInstance ??=
         _$PendingNotificationMovementDao(database, changeListener);
+  }
+
+  @override
+  CreditCardMonthDao get creditCardMonthDao {
+    return _creditCardMonthDaoInstance ??=
+        _$CreditCardMonthDao(database, changeListener);
+  }
+
+  @override
+  CreditCardExpenseDao get creditCardExpenseDao {
+    return _creditCardExpenseDaoInstance ??=
+        _$CreditCardExpenseDao(database, changeListener);
   }
 }
 
@@ -729,5 +749,137 @@ class _$PendingNotificationMovementDao extends PendingNotificationMovementDao {
   Future<void> deletePendingMovement(
       PendingNotificationMovement movement) async {
     await _pendingNotificationMovementDeletionAdapter.delete(movement);
+  }
+}
+
+class _$CreditCardMonthDao extends CreditCardMonthDao {
+  _$CreditCardMonthDao(
+    this.database,
+    this.changeListener,
+  )   : _queryAdapter = QueryAdapter(database),
+        _creditCardMonthInsertionAdapter = InsertionAdapter(
+            database,
+            'CreditCardMonth',
+            (CreditCardMonth item) => <String, Object?>{
+                  'id': item.id,
+                  'month': item.month,
+                  'year': item.year,
+                  'limitAmount': item.limitAmount
+                }),
+        _creditCardMonthUpdateAdapter = UpdateAdapter(
+            database,
+            'CreditCardMonth',
+            ['id'],
+            (CreditCardMonth item) => <String, Object?>{
+                  'id': item.id,
+                  'month': item.month,
+                  'year': item.year,
+                  'limitAmount': item.limitAmount
+                });
+
+  final sqflite.DatabaseExecutor database;
+
+  final StreamController<String> changeListener;
+
+  final QueryAdapter _queryAdapter;
+
+  final InsertionAdapter<CreditCardMonth> _creditCardMonthInsertionAdapter;
+
+  final UpdateAdapter<CreditCardMonth> _creditCardMonthUpdateAdapter;
+
+  @override
+  Future<CreditCardMonth?> findMonth(
+    int month,
+    int year,
+  ) async {
+    return _queryAdapter.query(
+        'SELECT * FROM CreditCardMonth WHERE month = ?1 AND year = ?2',
+        mapper: (Map<String, Object?> row) => CreditCardMonth(
+            id: row['id'] as int?,
+            month: row['month'] as int,
+            year: row['year'] as int,
+            limitAmount: row['limitAmount'] as double),
+        arguments: [month, year]);
+  }
+
+  @override
+  Future<List<CreditCardMonth>> findAllMonths() async {
+    return _queryAdapter.queryList(
+        'SELECT * FROM CreditCardMonth ORDER BY year DESC, month DESC',
+        mapper: (Map<String, Object?> row) => CreditCardMonth(
+            id: row['id'] as int?,
+            month: row['month'] as int,
+            year: row['year'] as int,
+            limitAmount: row['limitAmount'] as double));
+  }
+
+  @override
+  Future<int> insertMonth(CreditCardMonth month) {
+    return _creditCardMonthInsertionAdapter.insertAndReturnId(
+        month, OnConflictStrategy.abort);
+  }
+
+  @override
+  Future<void> updateMonth(CreditCardMonth month) async {
+    await _creditCardMonthUpdateAdapter.update(month, OnConflictStrategy.abort);
+  }
+}
+
+class _$CreditCardExpenseDao extends CreditCardExpenseDao {
+  _$CreditCardExpenseDao(
+    this.database,
+    this.changeListener,
+  )   : _queryAdapter = QueryAdapter(database),
+        _creditCardExpenseInsertionAdapter = InsertionAdapter(
+            database,
+            'CreditCardExpense',
+            (CreditCardExpense item) => <String, Object?>{
+                  'id': item.id,
+                  'monthId': item.monthId,
+                  'description': item.description,
+                  'amount': item.amount,
+                  'day': item.day,
+                  'date': item.date
+                }),
+        _creditCardExpenseDeletionAdapter = DeletionAdapter(
+            database,
+            'CreditCardExpense',
+            ['id'],
+            (CreditCardExpense item) => <String, Object?>{
+                  'id': item.id,
+                  'monthId': item.monthId,
+                  'description': item.description,
+                  'amount': item.amount,
+                  'day': item.day,
+                  'date': item.date
+                });
+
+  final sqflite.DatabaseExecutor database;
+
+  final StreamController<String> changeListener;
+
+  final QueryAdapter _queryAdapter;
+
+  final InsertionAdapter<CreditCardExpense> _creditCardExpenseInsertionAdapter;
+
+  final DeletionAdapter<CreditCardExpense> _creditCardExpenseDeletionAdapter;
+
+  @override
+  Future<List<CreditCardExpense>> findExpensesByMonthId(int monthId) async {
+    return _queryAdapter.queryList(
+        'SELECT * FROM CreditCardExpense WHERE monthId = ?1 ORDER BY day DESC, id DESC',
+        mapper: (Map<String, Object?> row) => CreditCardExpense(id: row['id'] as int?, monthId: row['monthId'] as int, description: row['description'] as String, amount: row['amount'] as double, day: row['day'] as int, date: row['date'] as String),
+        arguments: [monthId]);
+  }
+
+  @override
+  Future<int> insertExpense(CreditCardExpense expense) {
+    return _creditCardExpenseInsertionAdapter.insertAndReturnId(
+        expense, OnConflictStrategy.abort);
+  }
+
+  @override
+  Future<void> deleteExpense(CreditCardExpense expense) async {
+    await _creditCardExpenseDeletionAdapter.delete(expense);
   }
 }

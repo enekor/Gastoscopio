@@ -6,6 +6,7 @@ import 'package:cashly/data/services/sqlite_service.dart';
 import 'package:cashly/data/services/login_service.dart';
 import 'package:cashly/modules/gastoscopio/logic/finance_service.dart';
 import 'package:cashly/data/services/log_file_service.dart';
+import 'package:cashly/modules/credit_card/screens/credit_card_screen.dart';
 import 'package:cashly/modules/gastoscopio/screens/movement_form_screen.dart';
 import 'package:cashly/modules/gastoscopio/screens/fixed_movements_screen.dart';
 import 'package:cashly/modules/gastoscopio/screens/active_debts_screen.dart';
@@ -599,6 +600,8 @@ class _GastoscopioHomeScreenState extends State<GastoscopioHomeScreen>
           _buildActionCard(icon: Icons.request_page_rounded, title: AppLocalizations.of(context)!.activeDebts, color: Colors.deepPurple, onTap: () => Navigator.push(context, MaterialPageRoute(builder: (context) => const ActiveDebtsScreen()))),
           const SizedBox(width: 12),
           _buildActionCard(icon: Icons.savings_rounded, title: AppLocalizations.of(context).savings, color: Colors.amber, onTap: () => Navigator.push(context, MaterialPageRoute(builder: (context) => HomeSaves()))),
+          const SizedBox(width: 12),
+          _buildActionCard(icon: Icons.credit_card, title: 'Tarjeta', color: Colors.indigo, onTap: () => Navigator.push(context, MaterialPageRoute(builder: (context) => const CreditCardScreen()))),
           const SizedBox(width: 12),
           _buildActionCard(icon: Icons.filter_alt, title: AppLocalizations.of(context).filteredMovements, color: Colors.grey, onTap: () => Navigator.push(context, MaterialPageRoute(builder: (context) => const ViewMovementsFilteredScreen()))),
         ],
