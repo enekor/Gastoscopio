@@ -841,6 +841,18 @@ class _$CreditCardExpenseDao extends CreditCardExpenseDao {
                   'day': item.day,
                   'date': item.date
                 }),
+        _creditCardExpenseUpdateAdapter = UpdateAdapter(
+            database,
+            'CreditCardExpense',
+            ['id'],
+            (CreditCardExpense item) => <String, Object?>{
+                  'id': item.id,
+                  'monthId': item.monthId,
+                  'description': item.description,
+                  'amount': item.amount,
+                  'day': item.day,
+                  'date': item.date
+                }),
         _creditCardExpenseDeletionAdapter = DeletionAdapter(
             database,
             'CreditCardExpense',
@@ -862,6 +874,8 @@ class _$CreditCardExpenseDao extends CreditCardExpenseDao {
 
   final InsertionAdapter<CreditCardExpense> _creditCardExpenseInsertionAdapter;
 
+  final UpdateAdapter<CreditCardExpense> _creditCardExpenseUpdateAdapter;
+
   final DeletionAdapter<CreditCardExpense> _creditCardExpenseDeletionAdapter;
 
   @override
@@ -875,6 +889,12 @@ class _$CreditCardExpenseDao extends CreditCardExpenseDao {
   @override
   Future<int> insertExpense(CreditCardExpense expense) {
     return _creditCardExpenseInsertionAdapter.insertAndReturnId(
+        expense, OnConflictStrategy.abort);
+  }
+
+  @override
+  Future<void> updateExpense(CreditCardExpense expense) async {
+    await _creditCardExpenseUpdateAdapter.update(
         expense, OnConflictStrategy.abort);
   }
 

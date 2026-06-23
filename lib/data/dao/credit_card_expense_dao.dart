@@ -9,6 +9,9 @@ abstract class CreditCardExpenseDao {
   @insert
   Future<int> insertExpense(CreditCardExpense expense);
 
+  @update
+  Future<void> updateExpense(CreditCardExpense expense);
+
   @delete
   Future<void> deleteExpense(CreditCardExpense expense);
 }

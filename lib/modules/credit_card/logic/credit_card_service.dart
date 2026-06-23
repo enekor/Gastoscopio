@@ -84,6 +84,17 @@ class CreditCardService extends ChangeNotifier {
     await _updateNotification();
   }
 
+  Future<void> updateExpense(CreditCardExpense expense) async {
+    final db = SqliteService().db;
+    await db.creditCardExpenseDao.updateExpense(expense);
+    
+    if (currentMonth != null) {
+      currentExpenses = await db.creditCardExpenseDao.findExpensesByMonthId(currentMonth!.id!);
+      notifyListeners();
+      await _updateNotification();
+    }
+  }
+
   Future<void> deleteExpense(CreditCardExpense expense) async {
     final db = SqliteService().db;
     await db.creditCardExpenseDao.deleteExpense(expense);

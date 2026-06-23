@@ -40,13 +40,6 @@ class _CreditCardScreenState extends State<CreditCardScreen> {
     await _service.loadMonthData(_selectedDate.month, _selectedDate.year);
   }
 
-  void _changeMonth(int delta) {
-    setState(() {
-      _selectedDate = DateTime(_selectedDate.year, _selectedDate.month + delta, 1);
-    });
-    _loadData();
-  }
-
   void _showLimitDialog() {
     final TextEditingController controller = TextEditingController(
       text: _service.currentMonth?.limitAmount.toString() ?? '',
@@ -160,23 +153,12 @@ class _CreditCardScreenState extends State<CreditCardScreen> {
 
   Widget _buildMonthSelector() {
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          IconButton(
-            icon: const Icon(Icons.chevron_left),
-            onPressed: () => _changeMonth(-1),
-          ),
-          Text(
-            DateFormat('MMMM yyyy').format(_selectedDate).toUpperCase(),
-            style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-          ),
-          IconButton(
-            icon: const Icon(Icons.chevron_right),
-            onPressed: () => _changeMonth(1),
-          ),
-        ],
+      padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 16.0),
+      child: Center(
+        child: Text(
+          DateFormat('MMMM yyyy').format(_selectedDate).toUpperCase(),
+          style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+        ),
       ),
     );
   }
@@ -265,12 +247,58 @@ class _CreditCardScreenState extends State<CreditCardScreen> {
         return Dismissible(
           key: Key(expense.id.toString()),
           background: Container(
-            color: Colors.red,
+            color: Theme.of(context).colorScheme.primary.withOpacity(0.8),
             alignment: Alignment.centerRight,
             padding: const EdgeInsets.only(right: 20),
-            child: const Icon(Icons.delete, color: Colors.white),
+            child: const Icon(Icons.edit, color: Colors.white),
           ),
           direction: DismissDirection.endToStart,
+          confirmDismiss: (direction) async {
+            return await showModalBottomSheet<bool>(
+              context: context,
+              builder: (BuildContext context) {
+                return SafeArea(
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      const Padding(
+                        padding: EdgeInsets.all(16.0),
+                        child: Text(
+                          'Opciones del gasto',
+                          style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                        ),
+                      ),
+                      ListTile(
+                        leading: const Icon(Icons.edit),
+                        title: const Text('Editar'),
+                        onTap: () {
+                          Navigator.pop(context, false); // No dismiss
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => CreditCardExpenseForm(
+                                month: _selectedDate.month,
+                                year: _selectedDate.year,
+                                expenseToEdit: expense,
+                              ),
+                            ),
+                          );
+                        },
+                      ),
+                      ListTile(
+                        leading: const Icon(Icons.delete, color: Colors.red),
+                        title: const Text('Borrar', style: TextStyle(color: Colors.red)),
+                        onTap: () {
+                          Navigator.pop(context, true); // Dismiss and delete
+                        },
+                      ),
+                      const SizedBox(height: 8),
+                    ],
+                  ),
+                );
+              },
+            );
+          },
           onDismissed: (direction) {
             _service.deleteExpense(expense);
           },

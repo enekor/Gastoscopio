@@ -1,14 +1,17 @@
+import 'package:cashly/data/models/credit_card_expense.dart';
 import 'package:cashly/modules/credit_card/logic/credit_card_service.dart';
 import 'package:flutter/material.dart';
 
 class CreditCardExpenseForm extends StatefulWidget {
   final int month;
   final int year;
+  final CreditCardExpense? expenseToEdit;
 
   const CreditCardExpenseForm({
     super.key,
     required this.month,
     required this.year,
+    this.expenseToEdit,
   });
 
   @override
@@ -24,12 +27,17 @@ class _CreditCardExpenseFormState extends State<CreditCardExpenseForm> {
   @override
   void initState() {
     super.initState();
-    // Default to today if it's the current month/year, otherwise the 1st of the selected month
-    final now = DateTime.now();
-    if (now.month == widget.month && now.year == widget.year) {
-      _selectedDate = now;
+    if (widget.expenseToEdit != null) {
+      _descriptionController.text = widget.expenseToEdit!.description;
+      _amountController.text = widget.expenseToEdit!.amount.toStringAsFixed(2);
+      _selectedDate = DateTime.parse(widget.expenseToEdit!.date);
     } else {
-      _selectedDate = DateTime(widget.year, widget.month, 1);
+      final now = DateTime.now();
+      if (now.month == widget.month && now.year == widget.year) {
+        _selectedDate = now;
+      } else {
+        _selectedDate = DateTime(widget.year, widget.month, 1);
+      }
     }
   }
 
@@ -59,7 +67,20 @@ class _CreditCardExpenseFormState extends State<CreditCardExpenseForm> {
       final description = _descriptionController.text;
       final amount = double.parse(_amountController.text.replaceAll(',', '.'));
 
-      CreditCardService.getInstance().addExpense(description, amount, _selectedDate);
+      if (widget.expenseToEdit != null) {
+        final updatedExpense = CreditCardExpense(
+          id: widget.expenseToEdit!.id,
+          monthId: widget.expenseToEdit!.monthId,
+          description: description,
+          amount: amount,
+          day: _selectedDate.day,
+          date: _selectedDate.toIso8601String(),
+        );
+        CreditCardService.getInstance().updateExpense(updatedExpense);
+      } else {
+        CreditCardService.getInstance().addExpense(description, amount, _selectedDate);
+      }
+      
       Navigator.pop(context);
     }
   }
@@ -68,7 +89,7 @@ class _CreditCardExpenseFormState extends State<CreditCardExpenseForm> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Nuevo Gasto de Tarjeta'),
+        title: Text(widget.expenseToEdit != null ? 'Editar Gasto' : 'Nuevo Gasto de Tarjeta'),
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
