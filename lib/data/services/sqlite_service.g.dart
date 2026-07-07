@@ -92,7 +92,7 @@ class _$AppDatabase extends AppDatabase {
     Callback? callback,
   ]) async {
     final databaseOptions = sqflite.OpenDatabaseOptions(
-      version: 6,
+      version: 7,
       onConfigure: (database) async {
         await database.execute('PRAGMA foreign_keys = ON');
         await callback?.onConfigure?.call(database);
@@ -120,7 +120,7 @@ class _$AppDatabase extends AppDatabase {
         await database.execute(
             'CREATE TABLE IF NOT EXISTS `CreditCardMonth` (`id` INTEGER PRIMARY KEY AUTOINCREMENT, `month` INTEGER NOT NULL, `year` INTEGER NOT NULL, `limitAmount` REAL NOT NULL)');
         await database.execute(
-            'CREATE TABLE IF NOT EXISTS `CreditCardExpense` (`id` INTEGER PRIMARY KEY AUTOINCREMENT, `monthId` INTEGER NOT NULL, `description` TEXT NOT NULL, `amount` REAL NOT NULL, `day` INTEGER NOT NULL, `date` TEXT NOT NULL, FOREIGN KEY (`monthId`) REFERENCES `CreditCardMonth` (`id`) ON UPDATE NO ACTION ON DELETE CASCADE)');
+            'CREATE TABLE IF NOT EXISTS `CreditCardExpense` (`id` INTEGER PRIMARY KEY AUTOINCREMENT, `monthId` INTEGER NOT NULL, `description` TEXT NOT NULL, `amount` REAL NOT NULL, `day` INTEGER NOT NULL, `date` TEXT NOT NULL, `uuid` TEXT NOT NULL, `ts` INTEGER NOT NULL, FOREIGN KEY (`monthId`) REFERENCES `CreditCardMonth` (`id`) ON UPDATE NO ACTION ON DELETE CASCADE)');
 
         await callback?.onCreate?.call(database, version);
       },
@@ -839,7 +839,9 @@ class _$CreditCardExpenseDao extends CreditCardExpenseDao {
                   'description': item.description,
                   'amount': item.amount,
                   'day': item.day,
-                  'date': item.date
+                  'date': item.date,
+                  'uuid': item.uuid,
+                  'ts': item.ts
                 }),
         _creditCardExpenseUpdateAdapter = UpdateAdapter(
             database,
@@ -851,7 +853,9 @@ class _$CreditCardExpenseDao extends CreditCardExpenseDao {
                   'description': item.description,
                   'amount': item.amount,
                   'day': item.day,
-                  'date': item.date
+                  'date': item.date,
+                  'uuid': item.uuid,
+                  'ts': item.ts
                 }),
         _creditCardExpenseDeletionAdapter = DeletionAdapter(
             database,
@@ -863,7 +867,9 @@ class _$CreditCardExpenseDao extends CreditCardExpenseDao {
                   'description': item.description,
                   'amount': item.amount,
                   'day': item.day,
-                  'date': item.date
+                  'date': item.date,
+                  'uuid': item.uuid,
+                  'ts': item.ts
                 });
 
   final sqflite.DatabaseExecutor database;
@@ -882,7 +888,7 @@ class _$CreditCardExpenseDao extends CreditCardExpenseDao {
   Future<List<CreditCardExpense>> findExpensesByMonthId(int monthId) async {
     return _queryAdapter.queryList(
         'SELECT * FROM CreditCardExpense WHERE monthId = ?1 ORDER BY day DESC, id DESC',
-        mapper: (Map<String, Object?> row) => CreditCardExpense(id: row['id'] as int?, monthId: row['monthId'] as int, description: row['description'] as String, amount: row['amount'] as double, day: row['day'] as int, date: row['date'] as String),
+        mapper: (Map<String, Object?> row) => CreditCardExpense(id: row['id'] as int?, monthId: row['monthId'] as int, description: row['description'] as String, amount: row['amount'] as double, day: row['day'] as int, date: row['date'] as String, uuid: row['uuid'] as String, ts: row['ts'] as int),
         arguments: [monthId]);
   }
 

@@ -22,7 +22,7 @@ import 'package:path/path.dart' as p;
 
 part 'sqlite_service.g.dart';
 
-@Database(version: 6, entities: [Month, MovementValue, FixedMovement, Saves, PendingNotificationMovement, CreditCardMonth, CreditCardExpense])
+@Database(version: 7, entities: [Month, MovementValue, FixedMovement, Saves, PendingNotificationMovement, CreditCardMonth, CreditCardExpense])
 abstract class AppDatabase extends FloorDatabase {
   MonthDao get monthDao;
   MovementValueDao get movementValueDao;
@@ -76,6 +76,15 @@ abstract class AppDatabase extends FloorDatabase {
       'date TEXT NOT NULL, '
       'FOREIGN KEY (monthId) REFERENCES CreditCardMonth (id) ON DELETE CASCADE'
       ')',
+    );
+  });
+
+  static Migration migration6to7 = Migration(6, 7, (database) async {
+    await database.execute(
+      'ALTER TABLE CreditCardExpense ADD COLUMN uuid TEXT NOT NULL DEFAULT ""'
+    );
+    await database.execute(
+      'ALTER TABLE CreditCardExpense ADD COLUMN ts INTEGER NOT NULL DEFAULT 0'
     );
   });
 
@@ -163,7 +172,7 @@ class SqliteService {
       database = await $FloorAppDatabase
           .databaseBuilder(path)
           .addCallback(callback)
-          .addMigrations([AppDatabase.migration3to4, AppDatabase.migration4to5, AppDatabase.migration5to6])
+          .addMigrations([AppDatabase.migration3to4, AppDatabase.migration4to5, AppDatabase.migration5to6, AppDatabase.migration6to7])
           .build();
 
       await database.database.execute(

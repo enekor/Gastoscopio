@@ -16,6 +16,7 @@ import 'package:flutter/material.dart';
 import 'package:cashly/l10n/app_localizations.dart';
 import 'package:flutter_colorpicker/flutter_colorpicker.dart';
 import 'package:svg_flutter/svg.dart';
+import 'package:cashly/modules/settings.dart/screens/device_pairing_screen.dart';
 import 'package:cashly/modules/settings.dart/widgets/security_settings_card.dart';
 import 'package:cashly/data/services/notification_capture_service.dart';
 
@@ -366,6 +367,10 @@ class _SettingsScreenState extends State<SettingsScreen> with WidgetsBindingObse
                 const SizedBox(height: 20),
                 const BackupRestoreWidget(),
                 const SizedBox(height: 16),
+                _buildSectionHeader(context, 'Dispositivos Vinculados', 'Empareja dispositivos para sincronizar datos locales', Icons.devices_outlined),
+                const SizedBox(height: 20),
+                _buildPairingCard(context),
+                const SizedBox(height: 16),
                 DeveloperOptionsWidget(onImportSuccess: _handleImportSuccess),
                 const SizedBox(height: 100),
               ]),
@@ -703,6 +708,36 @@ class _SettingsScreenState extends State<SettingsScreen> with WidgetsBindingObse
                 DropdownMenuItem(value: 'en', child: Text(AppLocalizations.of(context)!.english)),
               ],
               onChanged: (v) { if (v != null) { setState(() => _selectedLanguage = v); _saveLanguageSetting(v); } },
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildPairingCard(BuildContext context) {
+    return Card(
+      color: Theme.of(context).colorScheme.secondary.withAlpha(25),
+      elevation: 0,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16), side: BorderSide(color: Theme.of(context).colorScheme.outline.withAlpha(50))),
+      child: Padding(
+        padding: const EdgeInsets.all(20.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(children: [Icon(Icons.link, color: Theme.of(context).colorScheme.primary, size: 20), const SizedBox(width: 8), Text('Vincular dispositivo', style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w600))]),
+            const SizedBox(height: 16),
+            Text('Permite enviar movimientos de tarjeta de crédito a otro dispositivo mediante conexión P2P local.', style: Theme.of(context).textTheme.bodySmall?.copyWith(color: Theme.of(context).colorScheme.onSurfaceVariant)),
+            const SizedBox(height: 16),
+            SizedBox(
+              width: double.infinity,
+              child: ElevatedButton.icon(
+                onPressed: () {
+                  Navigator.push(context, MaterialPageRoute(builder: (context) => const DevicePairingScreen()));
+                },
+                icon: const Icon(Icons.bluetooth_connected),
+                label: const Text('Vincular dispositivo'),
+              ),
             ),
           ],
         ),

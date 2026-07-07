@@ -1,0 +1,814 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gastoscopio - Redesign Preview</title>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        <!-- Material Design Styles -->
+        <style>
+            :root {
+                /* Material 3 Colors */
+                --md-sys-color-primary: #6750A4;
+                --md-sys-color-on-primary: #FFFFFF;
+                --md-sys-color-primary-container: #EADDFF;
+                --md-sys-color-on-primary-container: #21005D;
+                
+                --md-sys-color-secondary: #625B71;
+                --md-sys-color-on-secondary: #FFFFFF;
+                --md-sys-color-secondary-container: #E8DEF8;
+                --md-sys-color-on-secondary-container: #1D192B;
+                
+                --md-sys-color-tertiary: #7D5260;
+                --md-sys-color-on-tertiary: #FFFFFF;
+                --md-sys-color-tertiary-container: #FFD8E4;
+                --md-sys-color-on-tertiary-container: #31111D;
+                
+                --md-sys-color-error: #B3261E;
+                --md-sys-color-on-error: #FFFFFF;
+                --md-sys-color-error-container: #F9DEDC;
+                --md-sys-color-on-error-container: #410E0B;
+                
+                --md-sys-color-background: #FFFBFE;
+                --md-sys-color-on-background: #1C1B1F;
+                
+                --md-sys-color-surface: #FFFBFE;
+                --md-sys-color-on-surface: #1C1B1F;
+                --md-sys-color-surface-variant: #E7E0EC;
+                --md-sys-color-on-surface-variant: #49454F;
+                
+                --md-sys-color-outline: #79747E;
+                --md-sys-color-outline-variant: #CAC4D0;
+            }
+
+            * {
+                margin: 0;
+                padding: 0;
+                box-sizing: border-box;
+                font-family: 'Plus Jakarta Sans', sans-serif;
+                -webkit-tap-highlight-color: transparent;
+            }
+
+            body {
+                background-color: #E2E8F0;
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                min-height: 100vh;
+                padding: 20px;
+            }
+
+            .mobile-container {
+                width: 100%;
+                max-width: 414px;
+                height: 896px;
+                background-color: var(--md-sys-color-background);
+                border-radius: 40px;
+                overflow: hidden;
+                box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+                position: relative;
+                display: flex;
+                flex-direction: column;
+            }
+
+            /* Top Background Image */
+            .top-background {
+                position: absolute;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 400px;
+                background-image: url('https://images.unsplash.com/photo-1579621970563-ebec7560ff3e?auto=format&fit=crop&w=800&q=80'); /* Sample finance image */
+                background-size: cover;
+                background-position: center;
+                z-index: 1;
+            }
+
+            .top-background::after {
+                content: '';
+                position: absolute;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                /* Gradient to blend with background and make text readable */
+                background: linear-gradient(to bottom, rgba(0,0,0,0.6) 0%, rgba(0,0,0,0.2) 60%, var(--md-sys-color-background) 100%);
+            }
+
+        /* Make the scroll content control the background in the mock */
+        .scroll-wrapper {
+            position: absolute;
+            top: 0; left: 0; right: 0; bottom: 0;
+            overflow-y: auto;
+            scrollbar-width: none;
+            z-index: 2;
+        }
+        
+        .scroll-wrapper::-webkit-scrollbar { display: none; }
+
+        .scroll-content {
+            padding: 54px 24px 100px 24px; /* Added top padding to account for status bar being fixed inside the wrapper */
+            position: relative;
+        }
+
+        /* Top Background Image container for scrolling effect */
+        .top-background {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 550px;
+            background-image: url('https://images.unsplash.com/photo-1579621970563-ebec7560ff3e?auto=format&fit=crop&w=800&q=80'); /* Sample finance image */
+            background-size: cover;
+            background-position: center;
+            z-index: 0;
+            
+            /* Difuminación hacia transparente en la parte inferior para integrarse con cualquier fondo */
+            -webkit-mask-image: linear-gradient(to bottom, black 65%, transparent 100%);
+            mask-image: linear-gradient(to bottom, black 65%, transparent 100%);
+        }
+
+        .top-background::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            /* Sombra sutil arriba solo para que el texto blanco sea legible, sin blur */
+            background: linear-gradient(to bottom, rgba(0,0,0,0.4) 0%, transparent 40%);
+        }
+        .scroll-content::-webkit-scrollbar {
+            display: none; /* Chrome */
+        }
+
+        /* Status Bar Mock Material 3 */
+        .status-bar {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 44px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 24px;
+            font-size: 14px;
+            font-weight: 600;
+            color: #FFFFFF; /* White because of background image */
+            background: transparent;
+            z-index: 20; /* Above everything */
+            text-shadow: 0 1px 2px rgba(0,0,0,0.5);
+            pointer-events: none;
+        }
+
+        /* Header overrides that might be stuck */
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 10px;
+            margin-bottom: 24px;
+        }
+
+        .greeting h1 {
+            font-size: 22px;
+            font-weight: 700;
+            color: #FFFFFF; /* Override for background image */
+            text-shadow: 0 2px 4px rgba(0,0,0,0.5);
+        }
+
+        .greeting p {
+            font-size: 14px;
+            color: rgba(255, 255, 255, 0.9); /* Override for background image */
+            margin-top: 4px;
+            text-shadow: 0 1px 2px rgba(0,0,0,0.5);
+        }
+
+        .avatar {
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            background: var(--md-sys-color-primary);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: var(--md-sys-color-on-primary);
+            font-weight: bold;
+            font-size: 18px;
+        }
+
+        /* Balance Card */
+        .balance-card {
+            background: rgba(15, 15, 20, 0.55); /* Dark translucent */
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            border-radius: 28px;
+            padding: 24px;
+            color: white;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 15px 30px -10px rgba(0, 0, 0, 0.4);
+            margin-bottom: 28px;
+        }
+
+        .balance-card::before {
+            content: '';
+            position: absolute;
+            top: -20px;
+            right: -20px;
+            width: 120px;
+            height: 120px;
+            background: rgba(255, 255, 255, 0.08);
+            border-radius: 50%;
+        }
+
+        .balance-card::after {
+            content: '';
+            position: absolute;
+            bottom: -30px;
+            left: -10px;
+            width: 100px;
+            height: 100px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 50%;
+        }
+
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 16px;
+            position: relative;
+            z-index: 2;
+        }
+
+        .month-badge {
+            background: rgba(255, 255, 255, 0.2);
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+        }
+
+        .balance-label {
+            font-size: 14px;
+            color: rgba(255, 255, 255, 0.8);
+            margin-bottom: 4px;
+            position: relative;
+            z-index: 2;
+        }
+
+        .balance-amount {
+            font-size: 36px;
+            font-weight: 800;
+            letter-spacing: -1px;
+            margin-bottom: 24px;
+            position: relative;
+            z-index: 2;
+        }
+
+        .card-stats {
+            display: flex;
+            justify-content: space-between;
+            position: relative;
+            z-index: 2;
+            background: rgba(0, 0, 0, 0.25);
+            padding: 16px;
+            border-radius: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.08);
+        }
+
+        .stat-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .stat-icon {
+            width: 32px;
+            height: 32px;
+            border-radius: 12px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 14px;
+        }
+
+        .stat-icon.income {
+            background: rgba(16, 185, 129, 0.2);
+            color: #34D399;
+        }
+
+        .stat-icon.expense {
+            background: rgba(239, 68, 68, 0.2);
+            color: #F87171;
+        }
+
+        .stat-info p {
+            font-size: 12px;
+            color: rgba(255, 255, 255, 0.7);
+        }
+
+        .stat-info h4 {
+            font-size: 16px;
+            font-weight: 700;
+        }
+
+        /* Quick Actions */
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 16px;
+        }
+
+        .section-title {
+            font-size: 18px;
+            font-weight: 700;
+            color: var(--text-main);
+        }
+
+        .section-action {
+            font-size: 14px;
+            color: var(--primary);
+            font-weight: 600;
+            text-decoration: none;
+        }
+
+        .quick-actions {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 16px;
+            margin-bottom: 24px;
+        }
+
+        .action-btn {
+            background: var(--surface);
+            padding: 16px 8px;
+            border-radius: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 12px;
+            cursor: pointer;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.03);
+            border: 1px solid rgba(0, 0, 0, 0.02);
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+        
+        .action-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.06);
+        }
+
+        .action-icon {
+            width: 48px;
+            height: 48px;
+            border-radius: 16px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 20px;
+        }
+        
+        .action-icon.c1 { background: rgba(0, 150, 136, 0.15); color: #009688; } /* Teal */
+        .action-icon.c2 { background: rgba(68, 138, 255, 0.15); color: #448AFF; } /* BlueAccent */
+        .action-icon.c3 { background: rgba(103, 58, 183, 0.15); color: #673AB7; } /* DeepPurple */
+        .action-icon.c4 { background: rgba(255, 193, 7, 0.15); color: #FFC107; } /* Amber */
+        .action-icon.c5 { background: rgba(63, 81, 181, 0.15); color: #3F51B5; } /* Indigo */
+        .action-icon.c6 { background: rgba(158, 158, 158, 0.15); color: #9E9E9E; } /* Grey */
+
+        .action-label {
+            font-size: 12px;
+            font-weight: 700;
+            color: var(--text-main);
+            text-align: center;
+            line-height: 1.2;
+        }
+
+        /* Recent Movements */
+        .movements-list {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            margin-bottom: 28px;
+        }
+
+        .movement-item {
+            background: var(--surface);
+            padding: 16px;
+            border-radius: 20px;
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            box-shadow: 0 2px 4px -1px rgba(0, 0, 0, 0.03);
+            transition: transform 0.2s;
+        }
+        
+        .movement-item:active {
+            transform: scale(0.98);
+        }
+
+        .mov-icon {
+            width: 48px;
+            height: 48px;
+            border-radius: 16px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 20px;
+        }
+
+        .mov-info {
+            flex: 1;
+        }
+
+        .mov-title {
+            font-size: 15px;
+            font-weight: 700;
+            color: var(--text-main);
+            margin-bottom: 4px;
+        }
+
+        .mov-category {
+            font-size: 13px;
+            color: var(--text-muted);
+        }
+
+        .mov-amount {
+            text-align: right;
+        }
+
+        .amount-val {
+            font-size: 16px;
+            font-weight: 700;
+        }
+
+        .amount-val.expense { color: var(--text-main); }
+        .amount-val.income { color: var(--secondary); }
+
+        .mov-date {
+            font-size: 12px;
+            color: var(--text-muted);
+            margin-top: 4px;
+        }
+
+        /* Expenses Chart */
+        .chart-container {
+            background: var(--surface);
+            border-radius: 24px;
+            padding: 20px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+        }
+
+        .chart-bar {
+            margin-bottom: 16px;
+        }
+        .chart-bar:last-child {
+            margin-bottom: 0;
+        }
+
+        .bar-info {
+            display: flex;
+            justify-content: space-between;
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--text-main);
+            margin-bottom: 8px;
+        }
+
+        .bar-bg {
+            height: 8px;
+            background: var(--bg);
+            border-radius: 4px;
+            overflow: hidden;
+        }
+
+        .bar-fill {
+            height: 100%;
+            border-radius: 4px;
+        }
+
+        /* Bottom Navigation (Nothing OS inspired) */
+        .bottom-nav-container {
+            position: absolute;
+            bottom: 24px;
+            left: 0;
+            width: 100%;
+            height: 64px;
+            z-index: 20;
+            pointer-events: none;
+            display: flex;
+            justify-content: center;
+        }
+
+        .bottom-nav {
+            height: 64px;
+            /* Glassmorphism settings */
+            background: rgba(255, 255, 255, 0.7);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.5);
+            /* Pill shape, not full width */
+            border-radius: 32px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 0 12px;
+            gap: 12px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            pointer-events: auto;
+        }
+
+        /* Adjusting for dark backgrounds if the user switches themes */
+        @media (prefers-color-scheme: dark) {
+            .bottom-nav {
+                background: rgba(30, 30, 30, 0.7);
+                border: 1px solid rgba(255, 255, 255, 0.1);
+                box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+            }
+            .nav-item {
+                color: rgba(255, 255, 255, 0.6);
+            }
+            .nav-item.active {
+                color: #FFFFFF;
+                background: rgba(255, 255, 255, 0.1);
+            }
+        }
+
+        .nav-item {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            width: 48px;
+            height: 48px;
+            color: #6B7280; /* Muted icon color */
+            cursor: pointer;
+            border-radius: 24px;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+
+        .nav-item.active {
+            color: #111827; /* Active icon color */
+            background: rgba(0, 0, 0, 0.05); /* Soft pill behind active item */
+        }
+
+        .nav-icon {
+            font-size: 20px;
+            z-index: 2;
+        }
+
+        /* We integrate the FAB directly into the nav bar as the central standout button */
+        .fab-nav {
+            width: 48px;
+            height: 48px;
+            background: #4F46E5; /* Primary color */
+            border-radius: 24px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: white;
+            font-size: 20px;
+            box-shadow: 0 4px 12px rgba(79, 70, 229, 0.3);
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+            margin: 0 4px; /* A bit more breathing room around the FAB */
+        }
+
+        .fab-nav:hover {
+            transform: scale(1.05);
+            box-shadow: 0 6px 16px rgba(79, 70, 229, 0.4);
+        }
+
+    </style>
+</head>
+<body>
+
+    <div class="mobile-container">
+        <!-- Status Bar Mock -->
+        <div class="status-bar">
+            <span>9:41</span>
+            <div style="display: flex; gap: 6px; align-items: center;">
+                <i class="fas fa-signal" style="font-size: 12px;"></i>
+                <i class="fas fa-wifi" style="font-size: 12px;"></i>
+                <i class="fas fa-battery-full" style="font-size: 14px;"></i>
+            </div>
+        </div>
+
+        <!-- The scrolling area -->
+        <div class="scroll-wrapper">
+            <!-- Background Image that scrolls with content -->
+            <div class="top-background"></div>
+
+            <div class="scroll-content">
+            <!-- Header -->
+            <div class="header">
+                <div class="greeting">
+                    <h1>¡Buenos días, Eneko!</h1>
+                    <p>Comienza el día con energía ⚡</p>
+                </div>
+                <div class="avatar">E</div>
+            </div>
+
+            <!-- Balance Card -->
+            <div class="balance-card">
+                <div class="card-header">
+                    <span class="month-badge">Julio 2026</span>
+                    <i class="fas fa-ellipsis-h" style="opacity: 0.8;"></i>
+                </div>
+                <p class="balance-label">Balance Total</p>
+                <h2 class="balance-amount">2,450.50 €</h2>
+
+                <div class="card-stats">
+                    <div class="stat-item">
+                        <div class="stat-icon income">
+                            <i class="fas fa-arrow-down"></i>
+                        </div>
+                        <div class="stat-info">
+                            <p>Ingresos</p>
+                            <h4>3,200 €</h4>
+                        </div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-icon expense">
+                            <i class="fas fa-arrow-up"></i>
+                        </div>
+                        <div class="stat-info">
+                            <p>Gastos</p>
+                            <h4>749.50 €</h4>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Quick Actions -->
+            <div class="section-header">
+                <h3 class="section-title">Acciones Rápidas</h3>
+            </div>
+            <div class="quick-actions">
+                <div class="action-btn">
+                    <div class="action-icon c1">
+                        <i class="fas fa-calendar-alt"></i>
+                    </div>
+                    <span class="action-label">Próximo<br>Mes</span>
+                </div>
+                <div class="action-btn">
+                    <div class="action-icon c2">
+                        <i class="fas fa-redo-alt"></i>
+                    </div>
+                    <span class="action-label">Recurrentes</span>
+                </div>
+                <div class="action-btn">
+                    <div class="action-icon c3">
+                        <i class="fas fa-file-invoice-dollar"></i>
+                    </div>
+                    <span class="action-label">Deudas</span>
+                </div>
+                <div class="action-btn">
+                    <div class="action-icon c4">
+                        <i class="fas fa-piggy-bank"></i>
+                    </div>
+                    <span class="action-label">Ahorros</span>
+                </div>
+                <div class="action-btn">
+                    <div class="action-icon c5">
+                        <i class="fas fa-credit-card"></i>
+                    </div>
+                    <span class="action-label">Crédito</span>
+                </div>
+                <div class="action-btn">
+                    <div class="action-icon c6">
+                        <i class="fas fa-filter"></i>
+                    </div>
+                    <span class="action-label">Filtrados</span>
+                </div>
+            </div>
+
+            <!-- Recent Movements -->
+            <div class="section-header">
+                <h3 class="section-title">Últimos Movimientos</h3>
+                <a href="#" class="section-action">Ver todos</a>
+            </div>
+            <div class="movements-list">
+                <!-- Item 1 -->
+                <div class="movement-item">
+                    <div class="mov-icon" style="background: rgba(239, 68, 68, 0.1); color: #EF4444;">
+                        <i class="fas fa-shopping-cart"></i>
+                    </div>
+                    <div class="mov-info">
+                        <h4 class="mov-title">Mercadona</h4>
+                        <p class="mov-category">Supermercado</p>
+                    </div>
+                    <div class="mov-amount">
+                        <p class="amount-val expense">- 45.20 €</p>
+                        <p class="mov-date">Hoy</p>
+                    </div>
+                </div>
+                <!-- Item 2 -->
+                <div class="movement-item">
+                    <div class="mov-icon" style="background: rgba(16, 185, 129, 0.1); color: #10B981;">
+                        <i class="fas fa-briefcase"></i>
+                    </div>
+                    <div class="mov-info">
+                        <h4 class="mov-title">Nómina</h4>
+                        <p class="mov-category">Ingresos</p>
+                    </div>
+                    <div class="mov-amount">
+                        <p class="amount-val income">+ 3,200.00 €</p>
+                        <p class="mov-date">Ayer</p>
+                    </div>
+                </div>
+                <!-- Item 3 -->
+                <div class="movement-item">
+                    <div class="mov-icon" style="background: rgba(245, 158, 11, 0.1); color: #F59E0B;">
+                        <i class="fas fa-bolt"></i>
+                    </div>
+                    <div class="mov-info">
+                        <h4 class="mov-title">Factura Luz</h4>
+                        <p class="mov-category">Servicios</p>
+                    </div>
+                    <div class="mov-amount">
+                        <p class="amount-val expense">- 65.00 €</p>
+                        <p class="mov-date">05 Jul</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Category Chart -->
+            <div class="section-header">
+                <h3 class="section-title">Gastos por Categoría</h3>
+            </div>
+            <div class="chart-container">
+                <div class="chart-bar">
+                    <div class="bar-info">
+                        <span>Supermercado</span>
+                        <span>45%</span>
+                    </div>
+                    <div class="bar-bg">
+                        <div class="bar-fill" style="width: 45%; background: #EF4444;"></div>
+                    </div>
+                </div>
+                <div class="chart-bar">
+                    <div class="bar-info">
+                        <span>Ocio</span>
+                        <span>25%</span>
+                    </div>
+                    <div class="bar-bg">
+                        <div class="bar-fill" style="width: 25%; background: #8B5CF6;"></div>
+                    </div>
+                </div>
+                <div class="chart-bar">
+                    <div class="bar-info">
+                        <span>Servicios</span>
+                        <span>20%</span>
+                    </div>
+                    <div class="bar-bg">
+                        <div class="bar-fill" style="width: 20%; background: #F59E0B;"></div>
+                    </div>
+                </div>
+                <div class="chart-bar">
+                    <div class="bar-info">
+                        <span>Transporte</span>
+                        <span>10%</span>
+                    </div>
+                    <div class="bar-bg">
+                        <div class="bar-fill" style="width: 10%; background: #3B82F6;"></div>
+                    </div>
+                </div>
+            </div>
+        </div> <!-- End scroll-wrapper -->
+
+        <!-- Bottom Navigation Mock -->
+        <div class="bottom-nav-container">
+            <div class="bottom-nav">
+                <div class="nav-item active">
+                    <i class="fas fa-home nav-icon"></i>
+                </div>
+                <div class="nav-item">
+                    <i class="fas fa-list nav-icon"></i>
+                </div>
+                
+                <!-- Central FAB embedded in the nav -->
+                <div class="fab-nav">
+                    <i class="fas fa-plus"></i>
+                </div>
+                
+                <div class="nav-item">
+                    <i class="fas fa-chart-pie nav-icon"></i>
+                </div>
+                <div class="nav-item">
+                    <i class="fas fa-user nav-icon"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</body>
+</html>

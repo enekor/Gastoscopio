@@ -3,6 +3,7 @@ import 'package:cashly/data/models/credit_card_month.dart';
 import 'package:cashly/data/services/sqlite_service.dart';
 import 'package:cashly/data/services/background_task_service.dart';
 import 'package:flutter/foundation.dart';
+import 'package:uuid/uuid.dart';
 
 class CreditCardService extends ChangeNotifier {
   static CreditCardService? _instance;
@@ -75,6 +76,8 @@ class CreditCardService extends ChangeNotifier {
       amount: amount,
       day: date.day,
       date: date.toIso8601String(),
+      uuid: const Uuid().v4(),
+      ts: DateTime.now().millisecondsSinceEpoch,
     );
     
     await db.creditCardExpenseDao.insertExpense(expense);

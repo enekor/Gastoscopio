@@ -6,6 +6,10 @@ import 'package:cashly/data/services/notification_service.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
+import 'package:cashly/data/services/device_identity_service.dart';
+import 'package:cashly/data/services/nearby_service.dart';
+import 'package:cashly/modules/settings.dart/screens/device_pairing_screen.dart';
+
 class CreditCardScreen extends StatefulWidget {
   const CreditCardScreen({super.key});
 
@@ -18,6 +22,11 @@ class _CreditCardScreenState extends State<CreditCardScreen> {
   late DateTime _selectedDate;
   String _moneda = '€';
 
+  bool _isSyncing = false;
+  final NearbyService _nearbyService = NearbyService();
+
+  bool _isReceiving = false;
+
   @override
   void initState() {
     super.initState();
@@ -25,6 +34,120 @@ class _CreditCardScreenState extends State<CreditCardScreen> {
     _loadData();
     _loadCurrency();
     NotificationService().requestPermissions();
+    _startReceivingIfPaired();
+  }
+
+  Future<void> _startReceivingIfPaired() async {
+    final trustedPeer = await DeviceIdentityService().getTrustedPeer();
+    if (trustedPeer != null && _service.currentMonth != null) {
+      setState(() {
+        _isReceiving = true;
+      });
+      await _nearbyService.startReceivingMode(_service.currentMonth!.id!, () {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('Movimientos recibidos y actualizados')),
+          );
+          _loadData();
+        }
+      });
+    }
+  }
+
+  @override
+  void dispose() {
+    _nearbyService.stopAll();
+    super.dispose();
+  }
+
+  Future<void> _syncMovements() async {
+    final trustedPeer = await DeviceIdentityService().getTrustedPeer();
+    
+    if (trustedPeer == null) {
+      if (!mounted) return;
+      showDialog(
+        context: context,
+        builder: (context) => AlertDialog(
+          title: const Text('Dispositivo no vinculado'),
+          content: const Text('No hay ningún dispositivo vinculado para sincronizar. Vamos a vincular uno ahora.'),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: const Text('Cancelar'),
+            ),
+            ElevatedButton(
+              onPressed: () {
+                Navigator.pop(context);
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => const DevicePairingScreen()),
+                ).then((_) => _startReceivingIfPaired());
+              },
+              child: const Text('Vincular'),
+            ),
+          ],
+        ),
+      );
+      return;
+    }
+
+    setState(() {
+      _isSyncing = true;
+      _isReceiving = false;
+    });
+
+    await _nearbyService.stopAll();
+
+    try {
+      final result = await _nearbyService.sendMovements(
+        movements: _service.currentExpenses,
+        trustedPeerUuid: trustedPeer['uuid']!,
+      );
+
+      if (!mounted) return;
+
+      if (result == SyncResult.ok) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Movimientos enviados correctamente')),
+        );
+      } else if (result == SyncResult.peerNotFound) {
+        showDialog(
+          context: context,
+          builder: (context) => AlertDialog(
+            title: const Text('Dispositivo no encontrado'),
+            content: Text('No se encontró el dispositivo vinculado (${trustedPeer['name']}). Asegúrate de que esté en la pantalla de la tarjeta de crédito con la pantalla encendida.\n\n¿Quieres vincular otro dispositivo?'),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.pop(context),
+                child: const Text('Cancelar'),
+              ),
+              ElevatedButton(
+                onPressed: () {
+                  Navigator.pop(context);
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => const DevicePairingScreen()),
+                  ).then((_) => _startReceivingIfPaired());
+                },
+                child: const Text('Vincular otro'),
+              ),
+            ],
+          ),
+        );
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Error al sincronizar movimientos'), backgroundColor: Colors.red),
+        );
+      }
+    } finally {
+      if (mounted) {
+        setState(() {
+          _isSyncing = false;
+        });
+        // Restart receiving mode after sending
+        _startReceivingIfPaired();
+      }
+    }
   }
 
   Future<void> _loadCurrency() async {
@@ -83,6 +206,23 @@ class _CreditCardScreenState extends State<CreditCardScreen> {
       appBar: AppBar(
         title: const Text('Tarjeta de Crédito'),
         actions: [
+          if (_isSyncing)
+            const Padding(
+              padding: EdgeInsets.symmetric(horizontal: 16.0),
+              child: Center(
+                child: SizedBox(
+                  width: 20,
+                  height: 20,
+                  child: CircularProgressIndicator(strokeWidth: 2),
+                ),
+              ),
+            )
+          else
+            IconButton(
+              icon: const Icon(Icons.sync),
+              tooltip: 'Sincronizar movimientos',
+              onPressed: _service.currentMonth != null ? _syncMovements : null,
+            ),
           IconButton(
             icon: const Icon(Icons.history),
             onPressed: () {
@@ -154,11 +294,22 @@ class _CreditCardScreenState extends State<CreditCardScreen> {
   Widget _buildMonthSelector() {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 16.0),
-      child: Center(
-        child: Text(
-          DateFormat('MMMM yyyy').format(_selectedDate).toUpperCase(),
-          style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-        ),
+      child: Stack(
+        alignment: Alignment.center,
+        children: [
+          if (_isReceiving)
+            const Align(
+              alignment: Alignment.centerLeft,
+              child: Tooltip(
+                message: 'Listo para recibir movimientos',
+                child: Icon(Icons.sensors, color: Colors.green, size: 20),
+              ),
+            ),
+          Text(
+            DateFormat('MMMM yyyy').format(_selectedDate).toUpperCase(),
+            style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+          ),
+        ],
       ),
     );
   }

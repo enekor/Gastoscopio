@@ -75,6 +75,8 @@ class _CreditCardExpenseFormState extends State<CreditCardExpenseForm> {
           amount: amount,
           day: _selectedDate.day,
           date: _selectedDate.toIso8601String(),
+          uuid: widget.expenseToEdit!.uuid,
+          ts: DateTime.now().millisecondsSinceEpoch,
         );
         CreditCardService.getInstance().updateExpense(updatedExpense);
       } else {

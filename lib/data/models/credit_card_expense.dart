@@ -19,6 +19,8 @@ class CreditCardExpense {
   final double amount;
   final int day;
   final String date;
+  final String uuid;
+  final int ts;
 
   CreditCardExpense({
     this.id,
@@ -27,5 +29,7 @@ class CreditCardExpense {
     required this.amount,
     required this.day,
     required this.date,
+    required this.uuid,
+    required this.ts,
   });
 }
