@@ -2318,6 +2318,18 @@ abstract class AppLocalizations {
   /// **'Selecciona de qué apps quieres leer notificaciones.'**
   String get allowedAppsDescription;
 
+  /// No description provided for @allowedAppsCredit.
+  ///
+  /// In es, this message translates to:
+  /// **'Apps de crédito'**
+  String get allowedAppsCredit;
+
+  /// No description provided for @allowedAppsCreditDescription.
+  ///
+  /// In es, this message translates to:
+  /// **'Selecciona qué apps registrarán gastos de tarjeta de crédito.'**
+  String get allowedAppsCreditDescription;
+
   /// No description provided for @noAllowedApps.
   ///
   /// In es, this message translates to:
@@ -2587,6 +2599,30 @@ abstract class AppLocalizations {
   /// In es, this message translates to:
   /// **'Creada en {month}/{year}'**
   String createdInMonth(String month, String year);
+
+  /// No description provided for @creditCard.
+  ///
+  /// In es, this message translates to:
+  /// **'Tarjeta de crédito'**
+  String get creditCard;
+
+  /// No description provided for @credit.
+  ///
+  /// In es, this message translates to:
+  /// **'Crédito'**
+  String get credit;
+
+  /// No description provided for @selectDateToView.
+  ///
+  /// In es, this message translates to:
+  /// **'Selecciona un día para revisar'**
+  String get selectDateToView;
+
+  /// No description provided for @noPendingForDate.
+  ///
+  /// In es, this message translates to:
+  /// **'No hay transacciones pendientes para este día.'**
+  String get noPendingForDate;
 }
 
 class _AppLocalizationsDelegate

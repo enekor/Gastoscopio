@@ -92,7 +92,7 @@ class _$AppDatabase extends AppDatabase {
     Callback? callback,
   ]) async {
     final databaseOptions = sqflite.OpenDatabaseOptions(
-      version: 7,
+      version: 8,
       onConfigure: (database) async {
         await database.execute('PRAGMA foreign_keys = ON');
         await callback?.onConfigure?.call(database);
@@ -116,7 +116,7 @@ class _$AppDatabase extends AppDatabase {
         await database.execute(
             'CREATE TABLE IF NOT EXISTS `Saves` (`id` INTEGER PRIMARY KEY AUTOINCREMENT, `monthId` INTEGER NOT NULL, `amount` REAL NOT NULL, `date` TEXT NOT NULL, `isInitialValue` INTEGER NOT NULL)');
         await database.execute(
-            'CREATE TABLE IF NOT EXISTS `PendingNotificationMovement` (`id` INTEGER PRIMARY KEY AUTOINCREMENT, `notificationText` TEXT NOT NULL, `appName` TEXT NOT NULL, `extractedAmount` REAL NOT NULL, `timestamp` TEXT NOT NULL)');
+            'CREATE TABLE IF NOT EXISTS `PendingNotificationMovement` (`id` INTEGER PRIMARY KEY AUTOINCREMENT, `notificationText` TEXT NOT NULL, `appName` TEXT NOT NULL, `extractedAmount` REAL NOT NULL, `timestamp` TEXT NOT NULL, `isCreditCard` INTEGER NOT NULL)');
         await database.execute(
             'CREATE TABLE IF NOT EXISTS `CreditCardMonth` (`id` INTEGER PRIMARY KEY AUTOINCREMENT, `month` INTEGER NOT NULL, `year` INTEGER NOT NULL, `limitAmount` REAL NOT NULL)');
         await database.execute(
@@ -687,7 +687,8 @@ class _$PendingNotificationMovementDao extends PendingNotificationMovementDao {
                   'notificationText': item.notificationText,
                   'appName': item.appName,
                   'extractedAmount': item.extractedAmount,
-                  'timestamp': item.timestamp
+                  'timestamp': item.timestamp,
+                  'isCreditCard': item.isCreditCard ? 1 : 0
                 }),
         _pendingNotificationMovementDeletionAdapter = DeletionAdapter(
             database,
@@ -698,7 +699,8 @@ class _$PendingNotificationMovementDao extends PendingNotificationMovementDao {
                   'notificationText': item.notificationText,
                   'appName': item.appName,
                   'extractedAmount': item.extractedAmount,
-                  'timestamp': item.timestamp
+                  'timestamp': item.timestamp,
+                  'isCreditCard': item.isCreditCard ? 1 : 0
                 });
 
   final sqflite.DatabaseExecutor database;
@@ -722,6 +724,7 @@ class _$PendingNotificationMovementDao extends PendingNotificationMovementDao {
             row['appName'] as String,
             row['extractedAmount'] as double,
             row['timestamp'] as String,
+            isCreditCard: (row['isCreditCard'] as int) != 0,
             id: row['id'] as int?));
   }
 

@@ -1,3 +1,5 @@
+import 'dart:typed_data';
+
 import 'package:cashly/data/models/movement_value.dart';
 import 'package:cashly/data/services/groq_serice.dart';
 import 'package:cashly/data/services/log_file_service.dart';
@@ -9,6 +11,8 @@ import 'package:cashly/modules/gastoscopio/widgets/loading.dart';
 import 'package:cashly/modules/notifications/widgets/pending_movement_card.dart';
 import 'package:cashly/l10n/app_localizations.dart';
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
+import 'package:cashly/modules/credit_card/logic/credit_card_service.dart';
 
 class PendingNotificationsScreen extends StatefulWidget {
   final VoidCallback onComplete;
@@ -32,6 +36,9 @@ class _PendingNotificationsScreenState
   int _aiProcessingCurrent = 0;
   int _aiProcessingTotal = 0;
   final Map<String, String> _resolvedAppNames = {};
+  final Map<String, Uint8List?> _resolvedAppIcons = {};
+  DateTime? _selectedDate;
+  List<DateTime> _availableDates = [];
 
   @override
   void initState() {
@@ -55,26 +62,32 @@ class _PendingNotificationsScreenState
       setState(() {
         _movements = pending
             .map(
-              (p) => EditablePendingMovement(
-                id: p.id,
-                originalText: p.notificationText,
-                appName: p.appName,
-                timestamp: p.timestamp,
-                descriptionController: TextEditingController(
-                  text: p.notificationText,
-                ),
-                amountController: TextEditingController(
-                  text: p.extractedAmount.toStringAsFixed(2),
-                ),
-              ),
+              (p) {
+                debugPrint('Loading movement: ${p.notificationText}, isCreditCard: ${p.isCreditCard}');
+                return EditablePendingMovement(
+                  id: p.id,
+                  originalText: p.notificationText,
+                  appName: p.appName,
+                  timestamp: p.timestamp,
+                  descriptionController: TextEditingController(
+                    text: p.notificationText,
+                  ),
+                  amountController: TextEditingController(
+                    text: p.extractedAmount.toStringAsFixed(2),
+                  ),
+                  isCreditCard: p.isCreditCard,
+                );
+              },
             )
             .toList();
+        
+        _updateAvailableDates();
         _isLoading = false;
       });
 
       // Resolve app names and run AI parsing in parallel
       if (_movements.isNotEmpty && mounted) {
-        _resolveAppNames();
+        _resolveAppInfo();
         _runAiParsing(pending.map((p) => p.extractedAmount).toList());
       }
     } catch (e) {
@@ -83,13 +96,48 @@ class _PendingNotificationsScreenState
     }
   }
 
-  Future<void> _resolveAppNames() async {
+  void _updateAvailableDates() {
+    final dates = _movements.map((m) {
+      final dt = DateTime.tryParse(m.timestamp) ?? DateTime.now();
+      return DateTime(dt.year, dt.month, dt.day);
+    }).toSet().toList();
+    
+    dates.sort((a, b) => b.compareTo(a)); // Newest first
+
+    setState(() {
+      _availableDates = dates;
+      if (_availableDates.isNotEmpty) {
+        if (_selectedDate == null || !_availableDates.contains(_selectedDate)) {
+          _selectedDate = _availableDates.first;
+        }
+      } else {
+        _selectedDate = null;
+      }
+    });
+  }
+
+  List<EditablePendingMovement> get _filteredMovements {
+    if (_selectedDate == null) return [];
+    return _movements.where((m) {
+      final dt = DateTime.tryParse(m.timestamp) ?? DateTime.now();
+      return dt.year == _selectedDate!.year &&
+             dt.month == _selectedDate!.month &&
+             dt.day == _selectedDate!.day;
+    }).toList();
+  }
+
+  Future<void> _resolveAppInfo() async {
     final uniquePackages = _movements.map((m) => m.appName).toSet();
+    final service = NotificationCaptureService();
     for (final pkg in uniquePackages) {
       try {
-        final name = await NotificationCaptureService().getAppName(pkg);
+        final name = await service.getAppName(pkg);
+        final icon = await service.getAppIcon(pkg);
         if (mounted) {
-          setState(() => _resolvedAppNames[pkg] = name);
+          setState(() {
+            _resolvedAppNames[pkg] = name;
+            _resolvedAppIcons[pkg] = icon;
+          });
         }
       } catch (_) {}
     }
@@ -99,6 +147,7 @@ class _PendingNotificationsScreenState
     final movement = _movements[index];
     final packageName = movement.appName;
     final appName = _resolvedAppNames[packageName] ?? packageName;
+    final isCredit = movement.isCreditCard;
 
     final confirmed = await showDialog<bool>(
       context: context,
@@ -123,14 +172,19 @@ class _PendingNotificationsScreenState
 
     if (confirmed != true) return;
 
-    await NotificationCaptureService().disallowApp(packageName);
+    if (isCredit) {
+      await NotificationCaptureService().disallowCreditApp(packageName);
+    } else {
+      await NotificationCaptureService().disallowApp(packageName);
+    }
 
-    // Remove all movements from this app
+    // Remove all movements from this app with same credit status
     setState(() {
       _movements
-          .where((m) => m.appName == packageName)
+          .where((m) => m.appName == packageName && m.isCreditCard == isCredit)
           .forEach((m) => m.dispose());
-      _movements.removeWhere((m) => m.appName == packageName);
+      _movements.removeWhere((m) => m.appName == packageName && m.isCreditCard == isCredit);
+      _updateAvailableDates();
     });
 
     if (_movements.isEmpty) {
@@ -185,9 +239,12 @@ class _PendingNotificationsScreenState
     if (!_formKey.currentState!.validate()) return;
     if (_isSaving) return;
 
+    final movementsToSave = _filteredMovements;
+    if (movementsToSave.isEmpty) return;
+
     setState(() {
       _isSaving = true;
-      _savingTotal = _movements.length;
+      _savingTotal = movementsToSave.length;
       _savingCurrent = 0;
     });
 
@@ -197,59 +254,83 @@ class _PendingNotificationsScreenState
       db.movementValueDao,
       db.fixedMovementDao,
     );
+    final creditCardService = CreditCardService.getInstance();
 
     try {
-      for (int i = 0; i < _movements.length; i++) {
+      for (int i = 0; i < movementsToSave.length; i++) {
         setState(() => _savingCurrent = i + 1);
 
-        final m = _movements[i];
+        final m = movementsToSave[i];
         final amount = double.parse(
           m.amountController.text.replaceAll(',', '.'),
         );
         final date = DateTime.tryParse(m.timestamp) ?? DateTime.now();
 
-        // Get or create month
-        final monthId = await financeService.findMonthByMonthAndYear(
-          date.month,
-          date.year,
-        );
-
-        // AI category generation
-        String? category;
-        try {
-          category = await GroqService()
-              .generateCategory(
-                m.descriptionController.text,
-                m.isExpense,
-                context,
-              )
-              .timeout(const Duration(seconds: 10), onTimeout: () => '');
-          if (category.isEmpty) category = '';
-        } catch (e) {
-          category = '';
-          LogFileService().appendLog(
-            'Error generating category for notification movement: $e',
+        if (m.isCreditCard) {
+          // Handle credit card expense
+          await creditCardService.loadMonthData(date.month, date.year);
+          if (creditCardService.currentMonth == null) {
+            // Default limit if month doesn't exist
+            await creditCardService.setMonthLimit(date.month, date.year, 1000.0);
+          }
+          await creditCardService.addExpense(
+            m.descriptionController.text,
+            amount,
+            date,
           );
+        } else {
+          // Handle normal movement
+          final monthId = await financeService.findMonthByMonthAndYear(
+            date.month,
+            date.year,
+          );
+
+          // AI category generation
+          String? category;
+          try {
+            category = await GroqService()
+                .generateCategory(
+                  m.descriptionController.text,
+                  m.isExpense,
+                  context,
+                )
+                .timeout(const Duration(seconds: 10), onTimeout: () => '');
+            if (category.isEmpty) category = '';
+          } catch (e) {
+            category = '';
+            LogFileService().appendLog(
+              'Error generating category for notification movement: $e',
+            );
+          }
+
+          final movement = MovementValue(
+            DateTime.now().millisecondsSinceEpoch,
+            monthId,
+            m.descriptionController.text,
+            amount,
+            m.isExpense,
+            date.day,
+            category?.trim(),
+          );
+          await db.movementValueDao.insertMovementValue(movement);
         }
 
-        // Create and insert movement
-        final movement = MovementValue(
-          DateTime.now().millisecondsSinceEpoch,
-          monthId,
-          m.descriptionController.text,
-          amount,
-          m.isExpense,
-          date.day,
-          category?.trim(),
-        );
-        await db.movementValueDao.insertMovementValue(movement);
-        await SharedPreferencesService().haveToUpload();
+        // Remove from DB and local list
+        if (m.id != null) {
+          final pModel = await db.pendingNotificationMovementDao.findAll();
+          final toDelete = pModel.firstWhere((element) => element.id == m.id);
+          await db.pendingNotificationMovementDao.deletePendingMovement(toDelete);
+        }
+        
+        setState(() {
+          _movements.remove(m);
+          m.dispose();
+        });
       }
 
-      // Clear pending table
-      await db.pendingNotificationMovementDao.deleteAll();
+      await SharedPreferencesService().haveToUpload();
 
-      // Refresh finance data
+      // Refresh finance data if needed
       final now = DateTime.now();
       await financeService.updateSelectedDate(now.month, now.year);
 
@@ -264,7 +345,10 @@ class _PendingNotificationsScreenState
         );
       }
 
-      widget.onComplete();
+      _updateAvailableDates();
+      if (_availableDates.isEmpty) {
+        widget.onComplete();
+      }
     } catch (e) {
       LogFileService().appendLog('Error saving notification movements: $e');
       if (mounted) {
@@ -286,13 +370,24 @@ class _PendingNotificationsScreenState
     widget.onComplete();
   }
 
-  void _removeMovement(int index) {
+  void _removeMovement(int index) async {
+    final m = _filteredMovements[index];
+    final db = SqliteService().db;
+    
+    if (m.id != null) {
+      final pModel = await db.pendingNotificationMovementDao.findAll();
+      final toDelete = pModel.firstWhere((element) => element.id == m.id);
+      await db.pendingNotificationMovementDao.deletePendingMovement(toDelete);
+    }
+
     setState(() {
-      _movements[index].dispose();
-      _movements.removeAt(index);
+      m.dispose();
+      _movements.remove(m);
+      _updateAvailableDates();
     });
-    if (_movements.isEmpty) {
-      _dismissAll();
+    
+    if (_availableDates.isEmpty) {
+      widget.onComplete();
     }
   }
 
@@ -357,27 +452,83 @@ class _PendingNotificationsScreenState
                 ),
               ),
             ),
+            if (_availableDates.isNotEmpty)
+              SliverToBoxAdapter(
+                child: Container(
+                  padding: const EdgeInsets.symmetric(vertical: 16),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 24),
+                        child: Text(
+                          localizations.selectDateToView,
+                          style: theme.textTheme.titleSmall?.copyWith(
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ),
+                      const SizedBox(height: 12),
+                      SingleChildScrollView(
+                        scrollDirection: Axis.horizontal,
+                        padding: const EdgeInsets.symmetric(horizontal: 16),
+                        child: Row(
+                          children: _availableDates.map((date) {
+                            final isSelected = _selectedDate != null &&
+                                date.year == _selectedDate!.year &&
+                                date.month == _selectedDate!.month &&
+                                date.day == _selectedDate!.day;
+                            return Padding(
+                              padding: const EdgeInsets.symmetric(horizontal: 4),
+                              child: ChoiceChip(
+                                label: Text(
+                                  DateFormat('dd/MM/yyyy').format(date),
+                                ),
+                                selected: isSelected,
+                                onSelected: (selected) {
+                                  if (selected) {
+                                    setState(() => _selectedDate = date);
+                                  }
+                                },
+                              ),
+                            );
+                          }).toList(),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
             SliverPadding(
               padding: const EdgeInsets.all(16),
-              sliver: SliverList(
-                delegate: SliverChildBuilderDelegate((context, index) {
-                  return Padding(
-                    padding: const EdgeInsets.only(bottom: 12),
-                    child: PendingMovementCard(
-                      movement: _movements[index],
-                      resolvedAppName:
-                          _resolvedAppNames[_movements[index].appName],
-                      onDelete: () => _removeMovement(index),
-                      onDisallowApp: () => _disallowApp(index),
-                      onExpenseChanged: (isExpense) {
-                        setState(() {
-                          _movements[index].isExpense = isExpense;
-                        });
-                      },
+              sliver: _filteredMovements.isEmpty
+                  ? SliverFillRemaining(
+                      hasScrollBody: false,
+                      child: Center(
+                        child: Text(localizations.noPendingForDate),
+                      ),
+                    )
+                  : SliverList(
+                      delegate: SliverChildBuilderDelegate((context, index) {
+                        final movement = _filteredMovements[index];
+                        return Padding(
+                          padding: const EdgeInsets.only(bottom: 12),
+                          child: PendingMovementCard(
+                            movement: movement,
+                            resolvedAppName:
+                                _resolvedAppNames[movement.appName],
+                            appIcon: _resolvedAppIcons[movement.appName],
+                            onDelete: () => _removeMovement(index),
+                            onDisallowApp: () => _disallowApp(_movements.indexOf(movement)),
+                            onExpenseChanged: (isExpense) {
+                              setState(() {
+                                movement.isExpense = isExpense;
+                              });
+                            },
+                          ),
+                        );
+                      }, childCount: _filteredMovements.length),
                     ),
-                  );
-                }, childCount: _movements.length),
-              ),
             ),
           ],
         ),

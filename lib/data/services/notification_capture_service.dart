@@ -74,6 +74,35 @@ class NotificationCaptureService {
     );
   }
 
+  /// Returns the list of user-allowed app package names for credit card.
+  Future<List<String>> getAllowedCreditApps() async {
+    return await SharedPreferencesService().getStringListValue(
+      SharedPreferencesKeys.notificationAllowedAppsCredit,
+    );
+  }
+
+  /// Adds a package name to the allowed credit list.
+  Future<void> allowCreditApp(String packageName) async {
+    final current = await getAllowedCreditApps();
+    if (!current.contains(packageName)) {
+      current.add(packageName);
+      await SharedPreferencesService().setStringValue(
+        SharedPreferencesKeys.notificationAllowedAppsCredit,
+        jsonEncode(current),
+      );
+    }
+  }
+
+  /// Removes a package name from the allowed credit list.
+  Future<void> disallowCreditApp(String packageName) async {
+    final current = await getAllowedCreditApps();
+    current.remove(packageName);
+    await SharedPreferencesService().setStringValue(
+      SharedPreferencesKeys.notificationAllowedAppsCredit,
+      jsonEncode(current),
+    );
+  }
+
   /// Returns the app icon as PNG bytes for a given package name.
   Future<Uint8List?> getAppIcon(String packageName) async {
     try {

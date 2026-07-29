@@ -1,3 +1,5 @@
+import 'dart:typed_data';
+
 import 'package:flutter/material.dart';
 import 'package:cashly/l10n/app_localizations.dart';
 
@@ -9,6 +11,7 @@ class EditablePendingMovement {
   final TextEditingController descriptionController;
   final TextEditingController amountController;
   bool isExpense;
+  bool isCreditCard;
 
   EditablePendingMovement({
     this.id,
@@ -18,6 +21,7 @@ class EditablePendingMovement {
     required this.descriptionController,
     required this.amountController,
     this.isExpense = true,
+    this.isCreditCard = false,
   });
 
   void dispose() {
@@ -32,6 +36,7 @@ class PendingMovementCard extends StatelessWidget {
   final ValueChanged<bool> onExpenseChanged;
   final VoidCallback? onDisallowApp;
   final String? resolvedAppName;
+  final Uint8List? appIcon;
 
   const PendingMovementCard({
     super.key,
@@ -40,6 +45,7 @@ class PendingMovementCard extends StatelessWidget {
     required this.onExpenseChanged,
     this.onDisallowApp,
     this.resolvedAppName,
+    this.appIcon,
   });
 
   @override
@@ -64,19 +70,40 @@ class PendingMovementCard extends StatelessWidget {
             // Header: app name chip + block button + delete button
             Row(
               children: [
-                Flexible(
-                  child: Chip(
-                    avatar: const Icon(Icons.notifications_outlined, size: 16),
-                    label: Text(
-                      resolvedAppName ?? movement.appName,
-                      style: theme.textTheme.labelSmall,
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                    materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                    visualDensity: VisualDensity.compact,
+                Expanded(
+                  child: Wrap(
+                    spacing: 8,
+                    runSpacing: 4,
+                    crossAxisAlignment: WrapCrossAlignment.center,
+                    children: [
+                      Chip(
+                        avatar: appIcon != null
+                            ? CircleAvatar(
+                                backgroundImage: MemoryImage(appIcon!),
+                                radius: 12,
+                              )
+                            : const Icon(Icons.notifications_outlined, size: 16),
+                        label: Text(
+                          resolvedAppName ?? movement.appName,
+                          style: theme.textTheme.labelSmall,
+                        ),
+                        materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                        visualDensity: VisualDensity.compact,
+                      ),
+                      if (movement.isCreditCard)
+                        Chip(
+                          avatar: const Icon(Icons.credit_card, size: 16),
+                          label: Text(
+                            localizations.credit,
+                            style: theme.textTheme.labelSmall,
+                          ),
+                          materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                          visualDensity: VisualDensity.compact,
+                          backgroundColor: theme.colorScheme.primaryContainer.withAlpha(100),
+                        ),
+                    ],
                   ),
                 ),
-                const Spacer(),
                 if (onDisallowApp != null)
                   IconButton(
                     icon: Icon(

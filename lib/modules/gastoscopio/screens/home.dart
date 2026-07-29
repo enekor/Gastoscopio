@@ -40,6 +40,7 @@ class GastoscopioHomeScreen extends StatefulWidget {
 class _GastoscopioHomeScreenState extends State<GastoscopioHomeScreen>
     with WidgetsBindingObserver {
   bool _isCheckingPending = false;
+  int _pendingNotificationsCount = 0;
   String _greetingTitle = '';
   String _greetingSubtitle = '';
   bool _isSvg = false;
@@ -144,18 +145,10 @@ class _GastoscopioHomeScreenState extends State<GastoscopioHomeScreen>
               .pendingNotificationMovementDao
               .countAll() ??
           0;
-      if (!mounted || pendingCount == 0) return;
-      await Navigator.of(context).push(
-        MaterialPageRoute(
-          builder: (context) => PendingNotificationsScreen(
-            onComplete: () {
-              if (Navigator.of(context).canPop()) {
-                Navigator.of(context).pop();
-              }
-            },
-          ),
-        ),
-      );
+      if (!mounted) return;
+      setState(() {
+        _pendingNotificationsCount = pendingCount;
+      });
     } catch (e) {
       LogFileService().appendLog(
         'Error checking pending notifications in home: $e',
@@ -230,6 +223,10 @@ class _GastoscopioHomeScreenState extends State<GastoscopioHomeScreen>
             delegate: SliverChildListDelegate([
               _buildHeader(hasBackground),
               const SizedBox(height: 20),
+              if (_pendingNotificationsCount > 0) ...[
+                _buildPendingNotificationsBanner(),
+                const SizedBox(height: 16),
+              ],
               _buildModernBalanceCard(primaryColor, secondaryColor),
               if (_showNotificationBanner) ...[
                 const SizedBox(height: 16),
@@ -494,6 +491,95 @@ class _GastoscopioHomeScreenState extends State<GastoscopioHomeScreen>
         const SizedBox(height: 4),
         Text('${amount.abs().toStringAsFixed(0)}$_moneda', style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 18)),
       ],
+    );
+  }
+
+  Widget _buildPendingNotificationsBanner() {
+    final theme = Theme.of(context);
+    final localizations = AppLocalizations.of(context)!;
+
+    return GestureDetector(
+      onTap: () async {
+        await Navigator.of(context).push(
+          MaterialPageRoute(
+            builder: (context) => PendingNotificationsScreen(
+              onComplete: () {
+                if (Navigator.of(context).canPop()) {
+                  Navigator.of(context).pop();
+                }
+              },
+            ),
+          ),
+        );
+        _checkPendingNotifications();
+      },
+      child: Container(
+        padding: const EdgeInsets.all(16),
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            colors: [
+              theme.colorScheme.primaryContainer,
+              theme.colorScheme.secondaryContainer.withAlpha(200),
+            ],
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+          ),
+          borderRadius: BorderRadius.circular(24),
+          boxShadow: [
+            BoxShadow(
+              color: theme.colorScheme.primary.withAlpha(30),
+              blurRadius: 10,
+              offset: const Offset(0, 4),
+            ),
+          ],
+          border: Border.all(
+            color: theme.colorScheme.primary.withAlpha(50),
+          ),
+        ),
+        child: Row(
+          children: [
+            Container(
+              padding: const EdgeInsets.all(10),
+              decoration: BoxDecoration(
+                color: theme.colorScheme.primary,
+                shape: BoxShape.circle,
+              ),
+              child: const Icon(
+                Icons.notifications_active,
+                color: Colors.white,
+                size: 24,
+              ),
+            ),
+            const SizedBox(width: 16),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    localizations.pendingNotifications,
+                    style: theme.textTheme.titleMedium?.copyWith(
+                      fontWeight: FontWeight.bold,
+                      color: theme.colorScheme.onPrimaryContainer,
+                    ),
+                  ),
+                  const SizedBox(height: 2),
+                  Text(
+                    '${_pendingNotificationsCount} transacciones pendientes',
+                    style: theme.textTheme.bodySmall?.copyWith(
+                      color: theme.colorScheme.onPrimaryContainer.withAlpha(180),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            Icon(
+              Icons.arrow_forward_ios,
+              size: 16,
+              color: theme.colorScheme.primary.withAlpha(150),
+            ),
+          ],
+        ),
+      ),
     );
   }
 

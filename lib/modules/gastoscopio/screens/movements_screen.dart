@@ -423,7 +423,7 @@ class _MovementsScreenState extends State<MovementsScreen>
   Widget _buildModernTotalCard(double total, int count, Color color) {
     return Container(
       width: double.infinity,
-      height: 100,
+      constraints: const BoxConstraints(minHeight: 100),
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
         gradient: LinearGradient(
@@ -1030,6 +1030,12 @@ class _MovementsScreenState extends State<MovementsScreen>
     return Dismissible(
       key: Key('movement_swipe_${movement.id}'),
       direction: DismissDirection.endToStart,
+      background: Container(
+        decoration: BoxDecoration(
+          color: Theme.of(context).colorScheme.primary,
+          borderRadius: BorderRadius.circular(12),
+        ),
+      ),
       secondaryBackground: _buildSwipeBackground(
         color: Theme.of(context).colorScheme.primary,
         icon: Icons.more_horiz,

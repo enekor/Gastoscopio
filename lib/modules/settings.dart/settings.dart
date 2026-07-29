@@ -40,6 +40,7 @@ class _SettingsScreenState extends State<SettingsScreen> with WidgetsBindingObse
   bool _notificationListenerEnabled = false;
   bool _notificationPermissionGranted = false;
   List<String> _allowedApps = [];
+  List<String> _allowedAppsCredit = [];
   final Map<String, String> _allowedAppNames = {};
   final Map<String, Uint8List> _allowedAppIcons = {};
 
@@ -204,11 +205,13 @@ class _SettingsScreenState extends State<SettingsScreen> with WidgetsBindingObse
         .getBoolValue(SharedPreferencesKeys.notificationListenerEnabled);
     final permission = await NotificationCaptureService().isPermissionGranted();
     final allowed = await NotificationCaptureService().getAllowedApps();
+    final allowedCredit = await NotificationCaptureService().getAllowedCreditApps();
     if (mounted) {
       setState(() {
         _notificationListenerEnabled = enabled ?? false;
         _notificationPermissionGranted = permission;
         _allowedApps = allowed;
+        _allowedAppsCredit = allowedCredit;
       });
       _resolveAllowedAppInfo();
     }
@@ -216,7 +219,8 @@ class _SettingsScreenState extends State<SettingsScreen> with WidgetsBindingObse
 
   Future<void> _resolveAllowedAppInfo() async {
     final service = NotificationCaptureService();
-    for (final pkg in _allowedApps) {
+    final allApps = {..._allowedApps, ..._allowedAppsCredit};
+    for (final pkg in allApps) {
       if (!_allowedAppNames.containsKey(pkg)) {
         try {
           final name = await service.getAppName(pkg);
@@ -241,7 +245,15 @@ class _SettingsScreenState extends State<SettingsScreen> with WidgetsBindingObse
     });
   }
 
+  Future<void> _removeAllowedAppCredit(String packageName) async {
+    await NotificationCaptureService().disallowCreditApp(packageName);
+    setState(() {
+      _allowedAppsCredit.remove(packageName);
+    });
+  }
+
   Future<void> _showAddAppPicker() async {
+    final alreadyInAnyList = {..._allowedApps, ..._allowedAppsCredit};
     final added = await showModalBottomSheet<String>(
       context: context,
       isScrollControlled: true,
@@ -249,7 +261,7 @@ class _SettingsScreenState extends State<SettingsScreen> with WidgetsBindingObse
         borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
       ),
       builder: (context) => _InstalledAppsPicker(
-        alreadyAllowed: _allowedApps.toSet(),
+        alreadyAllowed: alreadyInAnyList,
       ),
     );
 
@@ -257,6 +269,28 @@ class _SettingsScreenState extends State<SettingsScreen> with WidgetsBindingObse
       await NotificationCaptureService().allowApp(added);
       setState(() {
         _allowedApps.add(added);
+      });
+      _resolveAllowedAppInfo();
+    }
+  }
+
+  Future<void> _showAddAppPickerCredit() async {
+    final alreadyInAnyList = {..._allowedApps, ..._allowedAppsCredit};
+    final added = await showModalBottomSheet<String>(
+      context: context,
+      isScrollControlled: true,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+      ),
+      builder: (context) => _InstalledAppsPicker(
+        alreadyAllowed: alreadyInAnyList,
+      ),
+    );
+
+    if (added != null) {
+      await NotificationCaptureService().allowCreditApp(added);
+      setState(() {
+        _allowedAppsCredit.add(added);
       });
       _resolveAllowedAppInfo();
     }
@@ -482,6 +516,74 @@ class _SettingsScreenState extends State<SettingsScreen> with WidgetsBindingObse
                           : const Icon(Icons.apps, size: 16),
                       label: Text(name),
                       onDeleted: () => _removeAllowedApp(pkg),
+                      deleteIcon: const Icon(Icons.close, size: 16),
+                      deleteButtonTooltipMessage: AppLocalizations.of(context)!.remove,
+                    );
+                  }).toList(),
+                ),
+              const Divider(height: 32),
+              Row(
+                children: [
+                  Icon(
+                    Icons.credit_card,
+                    color: Theme.of(context).colorScheme.primary,
+                    size: 20,
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: Text(
+                      AppLocalizations.of(context)!.allowedAppsCredit,
+                      style: Theme.of(context).textTheme.titleSmall?.copyWith(fontWeight: FontWeight.w600),
+                    ),
+                  ),
+                  TextButton.icon(
+                    onPressed: _showAddAppPickerCredit,
+                    icon: const Icon(Icons.add, size: 18),
+                    label: Text(AppLocalizations.of(context)!.add),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 4),
+              Text(
+                AppLocalizations.of(context)!.allowedAppsCreditDescription,
+                style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                  color: Theme.of(context).colorScheme.onSurfaceVariant,
+                ),
+              ),
+              const SizedBox(height: 12),
+              if (_allowedAppsCredit.isEmpty)
+                Container(
+                  width: double.infinity,
+                  padding: const EdgeInsets.all(16),
+                  decoration: BoxDecoration(
+                    color: Theme.of(context).colorScheme.surfaceContainerHighest.withAlpha(80),
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: Text(
+                    AppLocalizations.of(context)!.noAllowedApps,
+                    style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                      color: Theme.of(context).colorScheme.onSurfaceVariant,
+                      fontStyle: FontStyle.italic,
+                    ),
+                    textAlign: TextAlign.center,
+                  ),
+                )
+              else
+                Wrap(
+                  spacing: 8,
+                  runSpacing: 8,
+                  children: _allowedAppsCredit.map((pkg) {
+                    final name = _allowedAppNames[pkg] ?? pkg;
+                    final icon = _allowedAppIcons[pkg];
+                    return Chip(
+                      avatar: icon != null
+                          ? CircleAvatar(
+                              backgroundImage: MemoryImage(icon),
+                              radius: 12,
+                            )
+                          : const Icon(Icons.apps, size: 16),
+                      label: Text(name),
+                      onDeleted: () => _removeAllowedAppCredit(pkg),
                       deleteIcon: const Icon(Icons.close, size: 16),
                       deleteButtonTooltipMessage: AppLocalizations.of(context)!.remove,
                     );

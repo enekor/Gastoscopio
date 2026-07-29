@@ -19,6 +19,7 @@ class TransactionNotificationListener : NotificationListenerService() {
         private const val DB_NAME = "cashly_database.db"
         private const val PREFS_NAME = "FlutterSharedPreferences"
         private const val PREF_ALLOWED_APPS = "flutter.notification_allowed_apps"
+        private const val PREF_ALLOWED_APPS_CREDIT = "flutter.notification_allowed_apps_credit"
 
         // Matches: €12.50, 12,50€, $100, 100$, € 12.50, 12.50 €, etc.
         private val CURRENCY_REGEX = Pattern.compile(
@@ -26,11 +27,12 @@ class TransactionNotificationListener : NotificationListenerService() {
         )
     }
 
-    private fun getAllowedApps(): Set<String> {
+    private fun getAllowedApps(prefKey: String): Set<String> {
         return try {
             val prefs = applicationContext.getSharedPreferences(PREFS_NAME, MODE_PRIVATE)
             // Flutter shared_preferences stores StringList as a JSON array string, prefixed with a specific phrase
-            var jsonStr = prefs.getString(PREF_ALLOWED_APPS, null) ?: return emptySet()
+            var jsonStr = prefs.getString(prefKey, null) ?: return emptySet()
+            Log.d(TAG, "Reading prefs for $prefKey: $jsonStr")
             val jsonArray = JSONArray(jsonStr)
             val result = mutableSetOf<String>()
             for (i in 0 until jsonArray.length()) {
@@ -38,7 +40,7 @@ class TransactionNotificationListener : NotificationListenerService() {
             }
             result
         } catch (e: Exception) {
-            Log.e(TAG, "Error reading allowed apps", e)
+            Log.e(TAG, "Error reading allowed apps for $prefKey", e)
             emptySet()
         }
     }
@@ -57,9 +59,14 @@ class TransactionNotificationListener : NotificationListenerService() {
             if (packageName == applicationContext.packageName) return
 
             // Only process notifications from user-allowed apps
-            val allowedApps = getAllowedApps()
-            if (allowedApps.isEmpty() || !allowedApps.contains(packageName)) {
-                Log.d(TAG, "App not in allowed list: $packageName, skipping")
+            val allowedApps = getAllowedApps(PREF_ALLOWED_APPS)
+            val allowedCreditApps = getAllowedApps(PREF_ALLOWED_APPS_CREDIT)
+
+            val isInNormal = allowedApps.contains(packageName)
+            val isInCredit = allowedCreditApps.contains(packageName)
+
+            if (!isInNormal && !isInCredit) {
+                Log.d(TAG, "App not in allowed lists: $packageName, skipping")
                 return
             }
 
@@ -73,7 +80,13 @@ class TransactionNotificationListener : NotificationListenerService() {
 
             Log.d(TAG, "Extracted amount: $amount from $packageName")
 
-            insertPendingMovement(fullText, packageName, amount)
+            if (isInNormal) {
+                insertPendingMovement(fullText, packageName, amount, false)
+            }
+            
+            if (isInCredit) {
+                insertPendingMovement(fullText, packageName, amount, true)
+            }
         } catch (e: Exception) {
             Log.e(TAG, "Error processing notification", e)
         }
@@ -94,7 +107,7 @@ class TransactionNotificationListener : NotificationListenerService() {
         return null
     }
 
-    private fun insertPendingMovement(text: String, appName: String, amount: Double) {
+    private fun insertPendingMovement(text: String, appName: String, amount: Double, isCreditCard: Boolean) {
         var db: SQLiteDatabase? = null
         try {
             val dbPath = applicationContext.getDatabasePath(DB_NAME)
@@ -117,10 +130,22 @@ class TransactionNotificationListener : NotificationListenerService() {
             val nowStr = isoFormat.format(now)
             val oneMinuteAgo = isoFormat.format(Date(now.time - 60_000))
 
-            val cursor = db.rawQuery(
-                "SELECT COUNT(*) FROM PendingNotificationMovement WHERE notificationText = ? AND appName = ? AND timestamp > ?",
+            // Check if isCreditCard column exists to avoid crash if migration hasn't run yet
+            val hasCreditColumn = columnExists(db, "PendingNotificationMovement", "isCreditCard")
+
+            val query = if (hasCreditColumn) {
+                "SELECT COUNT(*) FROM PendingNotificationMovement WHERE notificationText = ? AND appName = ? AND isCreditCard = ? AND timestamp > ?"
+            } else {
+                "SELECT COUNT(*) FROM PendingNotificationMovement WHERE notificationText = ? AND appName = ? AND timestamp > ?"
+            }
+
+            val queryArgs = if (hasCreditColumn) {
+                arrayOf(text, appName, if (isCreditCard) "1" else "0", oneMinuteAgo)
+            } else {
                 arrayOf(text, appName, oneMinuteAgo)
-            )
+            }
+
+            val cursor = db.rawQuery(query, queryArgs)
             cursor.moveToFirst()
             val count = cursor.getInt(0)
             cursor.close()
@@ -135,14 +160,37 @@ class TransactionNotificationListener : NotificationListenerService() {
                 put("appName", appName)
                 put("extractedAmount", amount)
                 put("timestamp", nowStr)
+                if (hasCreditColumn) {
+                    put("isCreditCard", if (isCreditCard) 1 else 0)
+                }
             }
 
             db.insert("PendingNotificationMovement", null, values)
-            Log.d(TAG, "Saved pending movement: $amount from $appName")
+            Log.d(TAG, "Saved pending movement: $amount from $appName (credit: $isCreditCard, colExists: $hasCreditColumn)")
         } catch (e: Exception) {
             Log.e(TAG, "Error inserting pending movement", e)
         } finally {
             db?.close()
+        }
+    }
+
+    private fun columnExists(db: SQLiteDatabase, tableName: String, columnName: String): Boolean {
+        var cursor: android.database.Cursor? = null
+        return try {
+            cursor = db.rawQuery("PRAGMA table_info($tableName)", null)
+            val nameIndex = cursor.getColumnIndex("name")
+            var exists = false
+            while (cursor.moveToNext()) {
+                if (columnName == cursor.getString(nameIndex)) {
+                    exists = true
+                    break
+                }
+            }
+            exists
+        } catch (e: Exception) {
+            false
+        } finally {
+            cursor?.close()
         }
     }
 }

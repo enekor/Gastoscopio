@@ -1313,6 +1313,8 @@
   "notificationBannerSubtitle": "Activa la escucha de notificaciones para capturar tus gastos bancarios sin esfuerzo.",
   "allowedApps": "Apps permitidas",
   "allowedAppsDescription": "Selecciona de qué apps quieres leer notificaciones.",
+  "allowedAppsCredit": "Apps de crédito",
+  "allowedAppsCreditDescription": "Selecciona qué apps registrarán gastos de tarjeta de crédito.",
   "noAllowedApps": "No hay apps añadidas. Añade una app para empezar a leer sus notificaciones.",
   "addAllowedApp": "Añadir app",
   "remove": "Quitar",
@@ -1499,5 +1501,9 @@
         "type": "String"
       }
     }
-  }
+  },
+  "creditCard": "Tarjeta de crédito",
+  "credit": "Crédito",
+  "selectDateToView": "Selecciona un día para revisar",
+  "noPendingForDate": "No hay transacciones pendientes para este día."
 }

@@ -8,12 +8,14 @@ class PendingNotificationMovement {
   final String appName;
   final double extractedAmount;
   final String timestamp;
+  final bool isCreditCard;
 
   PendingNotificationMovement(
     this.notificationText,
     this.appName,
     this.extractedAmount,
     this.timestamp, {
+    this.isCreditCard = false,
     this.id,
   });
 }

@@ -1214,6 +1214,13 @@ class AppLocalizationsEn extends AppLocalizations {
       'Select which apps you want to read notifications from.';
 
   @override
+  String get allowedAppsCredit => 'Credit apps';
+
+  @override
+  String get allowedAppsCreditDescription =>
+      'Select which apps will register credit card expenses.';
+
+  @override
   String get noAllowedApps =>
       'No apps added yet. Add an app to start reading its notifications.';
 
@@ -1375,4 +1382,16 @@ class AppLocalizationsEn extends AppLocalizations {
   String createdInMonth(String month, String year) {
     return 'Created in $month/$year';
   }
+
+  @override
+  String get creditCard => 'Credit card';
+
+  @override
+  String get credit => 'Credit';
+
+  @override
+  String get selectDateToView => 'Select a day to review';
+
+  @override
+  String get noPendingForDate => 'No pending transactions for this day.';
 }

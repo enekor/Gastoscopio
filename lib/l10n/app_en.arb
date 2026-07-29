@@ -379,6 +379,8 @@
   "notificationBannerSubtitle": "Enable notification listening to capture your bank transactions effortlessly.",
   "allowedApps": "Allowed apps",
   "allowedAppsDescription": "Select which apps you want to read notifications from.",
+  "allowedAppsCredit": "Credit apps",
+  "allowedAppsCreditDescription": "Select which apps will register credit card expenses.",
   "noAllowedApps": "No apps added yet. Add an app to start reading its notifications.",
   "addAllowedApp": "Add app",
   "remove": "Remove",
@@ -465,6 +467,10 @@
       "month": { "type": "String" },
       "year": { "type": "String" }
     }
-  }
+  },
+  "creditCard": "Credit card",
+  "credit": "Credit",
+  "selectDateToView": "Select a day to review",
+  "noPendingForDate": "No pending transactions for this day."
 
 }
