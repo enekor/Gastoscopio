@@ -23,7 +23,7 @@ class TransactionNotificationListener : NotificationListenerService() {
 
         // Matches: €12.50, 12,50€, $100, 100$, € 12.50, 12.50 €, etc.
         private val CURRENCY_REGEX = Pattern.compile(
-            """(?:[$€]\s?)(\d+(?:[.,]\d{1,2})?)|(\d+(?:[.,]\d{1,2})?)\s?(?:[$€])"""
+            """(?i)(?:(?:[$€]|USD|EUR)\s?)(\d{1,3}(?:[.,]\d{3})*(?:[.,]\d{1,2})?)|(\d{1,3}(?:[.,]\d{3})*(?:[.,]\d{1,2})?)\s?(?:[$€]|USD|EUR)"""
         )
     }
 
@@ -52,7 +52,7 @@ class TransactionNotificationListener : NotificationListenerService() {
             val extras = sbn.notification.extras
             val title = extras?.getCharSequence("android.title")?.toString() ?: ""
             val text = extras?.getCharSequence("android.text")?.toString() ?: ""
-            val fullText = "$title $text".trim()
+            val fullText = "$title $text".trim().lowercase()
             val packageName = sbn.packageName ?: "Unknown"
 
             // Skip own notifications
@@ -73,7 +73,7 @@ class TransactionNotificationListener : NotificationListenerService() {
             Log.d(TAG, "Notification from $packageName: $fullText")
 
             // Check for currency symbols
-            if (!fullText.contains("€") && !fullText.contains("$")) return
+            if (!fullText.contains("€") && !fullText.contains("$") && !fullText.contains("eur") && !fullText.contains("usd")) return
 
             val amount = extractAmount(fullText) ?: return
             if (amount <= 0) return

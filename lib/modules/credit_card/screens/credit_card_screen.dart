@@ -200,6 +200,112 @@ class _CreditCardScreenState extends State<CreditCardScreen> {
     );
   }
 
+  void _showSettingsDialog() async {
+    final prefs = SharedPreferencesService();
+    final currentCycle = await prefs.getStringValue(SharedPreferencesKeys.creditCardBillingCycle) ?? 'monthly';
+    final currentBillingDay = (await prefs.getDoubleValue(SharedPreferencesKeys.creditCardBillingDay))?.toInt() ?? 1;
+    final currentDefaultLimit = await _service.getDefaultLimit();
+
+    if (!mounted) return;
+
+    String selectedCycle = currentCycle;
+    int selectedBillingDay = currentBillingDay;
+    final TextEditingController limitController = TextEditingController(text: currentDefaultLimit.toString());
+
+    showDialog(
+      context: context,
+      builder: (context) => StatefulBuilder(
+        builder: (context, setDialogState) => AlertDialog(
+          title: const Text('Configuración de Tarjeta'),
+          content: SingleChildScrollView(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                TextField(
+                  controller: limitController,
+                  keyboardType: const TextInputType.numberWithOptions(decimal: true),
+                  decoration: InputDecoration(
+                    labelText: 'Límite por defecto ($_moneda)',
+                    border: const OutlineInputBorder(),
+                  ),
+                ),
+                const SizedBox(height: 20),
+                const Text('Ciclo de facturación', style: TextStyle(fontWeight: FontWeight.bold)),
+                RadioListTile<String>(
+                  title: const Text('Mensual'),
+                  value: 'monthly',
+                  groupValue: selectedCycle,
+                  onChanged: (value) {
+                    setDialogState(() {
+                      selectedCycle = value!;
+                      if (selectedBillingDay > 31) selectedBillingDay = 1;
+                    });
+                  },
+                ),
+                RadioListTile<String>(
+                  title: const Text('Semanal'),
+                  value: 'weekly',
+                  groupValue: selectedCycle,
+                  onChanged: (value) {
+                    setDialogState(() {
+                      selectedCycle = value!;
+                      if (selectedBillingDay > 7) selectedBillingDay = 1;
+                    });
+                  },
+                ),
+                const SizedBox(height: 10),
+                if (selectedCycle == 'monthly')
+                  DropdownButtonFormField<int>(
+                    value: selectedBillingDay > 31 ? 1 : selectedBillingDay,
+                    decoration: const InputDecoration(labelText: 'Día de cobro (del mes)'),
+                    items: List.generate(31, (index) => index + 1)
+                        .map((day) => DropdownMenuItem(value: day, child: Text(day.toString())))
+                        .toList(),
+                    onChanged: (value) => selectedBillingDay = value!,
+                  )
+                else
+                  DropdownButtonFormField<int>(
+                    value: selectedBillingDay > 7 ? 1 : selectedBillingDay,
+                    decoration: const InputDecoration(labelText: 'Día de cobro (de la semana)'),
+                    items: const [
+                      DropdownMenuItem(value: 1, child: Text('Lunes')),
+                      DropdownMenuItem(value: 2, child: Text('Martes')),
+                      DropdownMenuItem(value: 3, child: Text('Miércoles')),
+                      DropdownMenuItem(value: 4, child: Text('Jueves')),
+                      DropdownMenuItem(value: 5, child: Text('Viernes')),
+                      DropdownMenuItem(value: 6, child: Text('Sábado')),
+                      DropdownMenuItem(value: 7, child: Text('Domingo')),
+                    ],
+                    onChanged: (value) => selectedBillingDay = value!,
+                  ),
+              ],
+            ),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: const Text('Cancelar'),
+            ),
+            ElevatedButton(
+              onPressed: () async {
+                final limit = double.tryParse(limitController.text.replaceAll(',', '.'));
+                if (limit != null) {
+                  await prefs.setDoubleValue(SharedPreferencesKeys.creditCardDefaultLimit, limit);
+                  await prefs.setStringValue(SharedPreferencesKeys.creditCardBillingCycle, selectedCycle);
+                  await prefs.setDoubleValue(SharedPreferencesKeys.creditCardBillingDay, selectedBillingDay.toDouble());
+                  
+                  if (mounted) Navigator.pop(context);
+                  _loadData();
+                }
+              },
+              child: const Text('Guardar'),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -233,6 +339,10 @@ class _CreditCardScreenState extends State<CreditCardScreen> {
                 ),
               );
             },
+          ),
+          IconButton(
+            icon: const Icon(Icons.settings),
+            onPressed: _showSettingsDialog,
           ),
         ],
       ),

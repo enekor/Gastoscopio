@@ -95,7 +95,10 @@ enum SharedPreferencesKeys {
   notificationListenerEnabled('notification_listener_enabled'),
   googleWalletNotificationsEnabled('google_wallet_notifications_enabled'),
   notificationAllowedApps('notification_allowed_apps'),
-  notificationAllowedAppsCredit('notification_allowed_apps_credit');
+  notificationAllowedAppsCredit('notification_allowed_apps_credit'),
+  creditCardBillingCycle('credit_card_billing_cycle'),
+  creditCardBillingDay('credit_card_billing_day'),
+  creditCardDefaultLimit('credit_card_default_limit');
 
   final String value;
   const SharedPreferencesKeys(this.value);

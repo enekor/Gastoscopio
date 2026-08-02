@@ -62,7 +62,7 @@ class _CreditCardExpenseFormState extends State<CreditCardExpenseForm> {
     }
   }
 
-  void _saveExpense() {
+  void _saveExpense() async {
     if (_formKey.currentState!.validate()) {
       final description = _descriptionController.text;
       final amount = double.parse(_amountController.text.replaceAll(',', '.'));
@@ -78,12 +78,12 @@ class _CreditCardExpenseFormState extends State<CreditCardExpenseForm> {
           uuid: widget.expenseToEdit!.uuid,
           ts: DateTime.now().millisecondsSinceEpoch,
         );
-        CreditCardService.getInstance().updateExpense(updatedExpense);
+        await CreditCardService.getInstance().updateExpense(updatedExpense);
       } else {
-        CreditCardService.getInstance().addExpense(description, amount, _selectedDate);
+        await CreditCardService.getInstance().addExpense(description, amount, _selectedDate);
       }
       
-      Navigator.pop(context);
+      if (mounted) Navigator.pop(context);
     }
   }
 

@@ -268,11 +268,6 @@ class _PendingNotificationsScreenState
 
         if (m.isCreditCard) {
           // Handle credit card expense
-          await creditCardService.loadMonthData(date.month, date.year);
-          if (creditCardService.currentMonth == null) {
-            // Default limit if month doesn't exist
-            await creditCardService.setMonthLimit(date.month, date.year, 1000.0);
-          }
           await creditCardService.addExpense(
             m.descriptionController.text,
             amount,
