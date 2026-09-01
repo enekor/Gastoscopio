@@ -15,16 +15,21 @@ import 'package:cashly/theme/custom_theme.dart';
 import 'package:cashly/data/services/notification_service.dart';
 import 'package:cashly/data/services/background_task_service.dart';
 import 'package:cashly/modules/credit_card/screens/credit_card_screen.dart';
+import 'package:cashly/classification/classification_service.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
   // Inicializar servicio de Gemini para cargar API Key existente
-  await GeminiService().initializeGemini();
+  // Gemini initialization removed
+  //await GeminiService().initializeGemini();
   //await GroqService().initializeGroq();
 
   // Inicializar servicio de localización
   await LocaleService().initialize();
+
+  // Inicializar clasificador local
+  await ClassificationService().initialize();
   
   // Inicializar notificaciones
   await NotificationService().initialize();

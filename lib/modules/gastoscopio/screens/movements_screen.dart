@@ -1,5 +1,5 @@
-import 'package:cashly/data/services/gemini_service.dart';
-import 'package:cashly/data/services/groq_serice.dart';
+import 'package:cashly/classification/classification_service.dart';
+import 'package:cashly/classification/locales/locale_config.dart';
 import 'package:cashly/data/services/shared_preferences_service.dart';
 import 'package:cashly/data/services/sqlite_service.dart';
 import 'package:cashly/data/services/log_file_service.dart';
@@ -187,31 +187,19 @@ class _MovementsScreenState extends State<MovementsScreen>
         .toList();
 
     if (movements.isEmpty) return;
-    List<String> tags = await GroqService().generateTags(
-      movements
-          .map((m) => '${m.description} (${m.isExpense ? "gasto" : "ingreso"})')
-          .join(','),
-      context,
-    );
-    if (tags.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(
-            AppLocalizations.of(context)!.noTagsGenerated,
-            style: TextStyle(color: Theme.of(context).colorScheme.onError),
-          ),
-          backgroundColor: Theme.of(context).colorScheme.error,
-        ),
+
+    final suggester = ClassificationService().suggester;
+    final locale = LocaleRegistry.get(AppLocalizations.of(context).localeName);
+
+    for (final movement in movements) {
+      final result = suggester.suggest(
+        movement.description,
+        locale: locale,
       );
-      return;
-    }
-    for (int i = 0; i < movements.length; i++) {
-      final movement = movements[i];
-      final tag = tags[i % tags.length];
-      final updatedMovement = movement.copyWith(category: tag);
+      final updatedMovement = movement.copyWith(category: result.tag);
       await _financeService.updateMovement(updatedMovement);
-      await SharedPreferencesService().haveToUpload();
     }
+    await SharedPreferencesService().haveToUpload();
   }
 
   @override

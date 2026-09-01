@@ -138,7 +138,6 @@ class _SettingsScreenState extends State<SettingsScreen> with WidgetsBindingObse
     final isOpaque = await prefs.getBoolValue(SharedPreferencesKeys.isOpaqueBottomNav);
     final language = await prefs.getStringValue(SharedPreferencesKeys.selectedLanguage);
     final bg = await prefs.getStringValue(SharedPreferencesKeys.backgroundImage);
-    final aiModel = await prefs.getStringValue(SharedPreferencesKeys.aiModel);
 
     if (mounted) {
       setState(() {
@@ -152,7 +151,6 @@ class _SettingsScreenState extends State<SettingsScreen> with WidgetsBindingObse
         if (isOpaque != null) _isOpaqueBottomNav = isOpaque;
         _selectedLanguage = language ?? 'system';
         _backgroundImagePath = bg;
-        if (aiModel != null) _selectedAIModel = aiModel;
       });
     }
   }
@@ -385,8 +383,6 @@ class _SettingsScreenState extends State<SettingsScreen> with WidgetsBindingObse
                 _buildSectionHeader(context, AppLocalizations.of(context)!.personalization, AppLocalizations.of(context)!.personalizationSubtitle, Icons.palette_outlined),
                 const SizedBox(height: 20),
                 _buildLanguageCard(context),
-                const SizedBox(height: 16),
-                _buildAIModelCard(context),
                 const SizedBox(height: 16),
                 _buildCurrencyCard(context),
                 const SizedBox(height: 16),

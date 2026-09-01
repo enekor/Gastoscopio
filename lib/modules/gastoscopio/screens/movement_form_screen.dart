@@ -1,6 +1,6 @@
 import 'package:cashly/data/models/month.dart';
-import 'package:cashly/data/services/gemini_service.dart';
-import 'package:cashly/data/services/groq_serice.dart';
+import 'package:cashly/classification/classification_service.dart';
+import 'package:cashly/classification/locales/locale_config.dart';
 import 'package:cashly/data/services/shared_preferences_service.dart';
 import 'package:cashly/data/services/sqlite_service.dart';
 import 'package:cashly/data/models/movement_value.dart';
@@ -213,19 +213,12 @@ class _MovementFormScreenState extends State<MovementFormScreen> {
       // Generate category if needed and not already set
       if (_category == null) {
         try {
-          // Agregar timeout para evitar que se quede colgado
-          final generatedCategory = await GroqService()
-              .generateCategory(
+          final locale = LocaleRegistry.get(AppLocalizations.of(context).localeName);
+          final result = ClassificationService().suggester.suggest(
                 _descriptionController.text,
-                widget.isExpense,
-                context,
-              )
-              .timeout(
-                const Duration(seconds: 10),
-                onTimeout: () {
-                  return ''; // Retornar categoría vacía si hay timeout
-                },
+                locale: locale,
               );
+          final generatedCategory = result.tag;
 
           if (generatedCategory.isEmpty) {
             if (mounted) {
