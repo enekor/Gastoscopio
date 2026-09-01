@@ -4,6 +4,7 @@ import 'package:cashly/common/tag_list.dart';
 import 'package:cashly/data/models/month.dart';
 import 'package:cashly/data/models/movement_value.dart';
 import 'package:cashly/l10n/app_localizations.dart';
+import 'package:cashly/data/services/shared_preferences_service.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:http/http.dart' as http;
@@ -51,10 +52,12 @@ class GroqService {
 
     try {
       final url = Uri.parse('https://api.groq.com/openai/v1/chat/completions');
+      final prefs = SharedPreferencesService();
+      final selectedModel = await prefs.getStringValue(SharedPreferencesKeys.aiModel) ?? 'llama-3.3-70b-versatile';
 
       for (int attempt = 0; attempt < maxAttempts; attempt++) {
         try {
-          await logService.appendLog('INFO GroqService: Intento ${attempt + 1} enviando petición...');
+          await logService.appendLog('INFO GroqService: Intento ${attempt + 1} enviando petición con modelo $selectedModel...');
 
           final response = await http.post(
             url,
@@ -63,7 +66,7 @@ class GroqService {
               'Content-Type': 'application/json',
             },
             body: jsonEncode({
-              'model': 'llama-3.3-70b-versatile',
+              'model': selectedModel,
               'messages': [
                 {'role': 'user', 'content': prompt}
               ],
