@@ -39,6 +39,7 @@ class _SettingsScreenState extends State<SettingsScreen> with WidgetsBindingObse
   String? _backgroundImagePath;
   bool _notificationListenerEnabled = false;
   bool _notificationPermissionGranted = false;
+  String _selectedAIModel = 'openai/gpt-oss-120b';
   List<String> _allowedApps = [];
   List<String> _allowedAppsCredit = [];
   final Map<String, String> _allowedAppNames = {};
@@ -137,6 +138,7 @@ class _SettingsScreenState extends State<SettingsScreen> with WidgetsBindingObse
     final isOpaque = await prefs.getBoolValue(SharedPreferencesKeys.isOpaqueBottomNav);
     final language = await prefs.getStringValue(SharedPreferencesKeys.selectedLanguage);
     final bg = await prefs.getStringValue(SharedPreferencesKeys.backgroundImage);
+    final aiModel = await prefs.getStringValue(SharedPreferencesKeys.aiModel);
 
     if (mounted) {
       setState(() {
@@ -150,8 +152,14 @@ class _SettingsScreenState extends State<SettingsScreen> with WidgetsBindingObse
         if (isOpaque != null) _isOpaqueBottomNav = isOpaque;
         _selectedLanguage = language ?? 'system';
         _backgroundImagePath = bg;
+        if (aiModel != null) _selectedAIModel = aiModel;
       });
     }
+  }
+
+  Future<void> _saveAIModel(String model) async {
+    await SharedPreferencesService().setStringValue(SharedPreferencesKeys.aiModel, model);
+    setState(() => _selectedAIModel = model);
   }
 
   Future<void> _saveCurrency(String currency) async {
@@ -377,6 +385,8 @@ class _SettingsScreenState extends State<SettingsScreen> with WidgetsBindingObse
                 _buildSectionHeader(context, AppLocalizations.of(context)!.personalization, AppLocalizations.of(context)!.personalizationSubtitle, Icons.palette_outlined),
                 const SizedBox(height: 20),
                 _buildLanguageCard(context),
+                const SizedBox(height: 16),
+                _buildAIModelCard(context),
                 const SizedBox(height: 16),
                 _buildCurrencyCard(context),
                 const SizedBox(height: 16),
@@ -810,6 +820,47 @@ class _SettingsScreenState extends State<SettingsScreen> with WidgetsBindingObse
                 DropdownMenuItem(value: 'en', child: Text(AppLocalizations.of(context)!.english)),
               ],
               onChanged: (v) { if (v != null) { setState(() => _selectedLanguage = v); _saveLanguageSetting(v); } },
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildAIModelCard(BuildContext context) {
+    return Card(
+      color: Theme.of(context).colorScheme.secondary.withAlpha(25),
+      elevation: 0,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16), side: BorderSide(color: Theme.of(context).colorScheme.outline.withAlpha(50))),
+      child: Padding(
+        padding: const EdgeInsets.all(20.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                Icon(Icons.psychology_outlined, color: Theme.of(context).colorScheme.primary, size: 20),
+                const SizedBox(width: 8),
+                Text('Modelo de Inteligencia Artificial', style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w600)),
+              ],
+            ),
+            const SizedBox(height: 16),
+            DropdownButtonFormField<String>(
+              value: _selectedAIModel,
+              isExpanded: true,
+              decoration: InputDecoration(
+                border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+                prefixIcon: const Icon(Icons.smart_toy_outlined),
+              ),
+              items: const [
+                DropdownMenuItem(value: 'openai/gpt-oss-120b', child: Text('GPT-OSS 120B (Potente)')),
+                DropdownMenuItem(value: 'openai/gpt-oss-20b', child: Text('GPT-OSS 20B (Rápido)')),
+                DropdownMenuItem(value: 'qwen/qwen3.6-27b', child: Text('Qwen 3.6 27B')),
+
+              ],
+              onChanged: (v) {
+                if (v != null) _saveAIModel(v);
+              },
             ),
           ],
         ),

@@ -98,7 +98,8 @@ enum SharedPreferencesKeys {
   notificationAllowedAppsCredit('notification_allowed_apps_credit'),
   creditCardBillingCycle('credit_card_billing_cycle'),
   creditCardBillingDay('credit_card_billing_day'),
-  creditCardDefaultLimit('credit_card_default_limit');
+  creditCardDefaultLimit('credit_card_default_limit'),
+  aiModel('ai_model');
 
   final String value;
   const SharedPreferencesKeys(this.value);
