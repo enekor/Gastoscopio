@@ -1,5 +1,10 @@
 import 'package:cashly/data/models/credit_card_expense.dart';
+import 'package:cashly/data/services/shared_preferences_service.dart';
 import 'package:cashly/modules/credit_card/logic/credit_card_service.dart';
+import 'package:cashly/theme/app_glass.dart';
+import 'package:cashly/theme/widgets/app_background.dart';
+import 'package:cashly/theme/widgets/glass_card.dart';
+import 'package:cashly/theme/widgets/primary_pill_button.dart';
 import 'package:flutter/material.dart';
 
 class CreditCardExpenseForm extends StatefulWidget {
@@ -23,10 +28,12 @@ class _CreditCardExpenseFormState extends State<CreditCardExpenseForm> {
   final _descriptionController = TextEditingController();
   final _amountController = TextEditingController();
   late DateTime _selectedDate;
+  String _moneda = '€';
 
   @override
   void initState() {
     super.initState();
+    _loadCurrency();
     if (widget.expenseToEdit != null) {
       _descriptionController.text = widget.expenseToEdit!.description;
       _amountController.text = widget.expenseToEdit!.amount.toStringAsFixed(2);
@@ -38,6 +45,15 @@ class _CreditCardExpenseFormState extends State<CreditCardExpenseForm> {
       } else {
         _selectedDate = DateTime(widget.year, widget.month, 1);
       }
+    }
+  }
+
+  Future<void> _loadCurrency() async {
+    final currency = await SharedPreferencesService().getStringValue(SharedPreferencesKeys.currency);
+    if (mounted) {
+      setState(() {
+        _moneda = currency ?? '€';
+      });
     }
   }
 
@@ -82,77 +98,175 @@ class _CreditCardExpenseFormState extends State<CreditCardExpenseForm> {
       } else {
         await CreditCardService.getInstance().addExpense(description, amount, _selectedDate);
       }
-      
+
       if (mounted) Navigator.pop(context);
     }
   }
 
   @override
   Widget build(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
+    final glass = Theme.of(context).extension<AppGlass>()!;
     return Scaffold(
+      backgroundColor: Colors.transparent,
       appBar: AppBar(
+        backgroundColor: Colors.transparent,
+        elevation: 0,
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back),
+          onPressed: () => Navigator.pop(context),
+        ),
         title: Text(widget.expenseToEdit != null ? 'Editar Gasto' : 'Nuevo Gasto de Tarjeta'),
       ),
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Form(
-          key: _formKey,
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              TextFormField(
-                controller: _descriptionController,
-                decoration: const InputDecoration(
-                  labelText: 'Descripción',
-                  border: OutlineInputBorder(),
-                  prefixIcon: Icon(Icons.description),
-                ),
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return 'Por favor ingresa una descripción';
-                  }
-                  return null;
-                },
+      body: AppBackground(
+        child: SafeArea(
+          top: false,
+          child: Padding(
+            padding: const EdgeInsets.all(20.0),
+            child: Form(
+              key: _formKey,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  // Description
+                  GlassCard(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          'Descripción',
+                          style: TextStyle(color: glass.mutedText, fontSize: 13),
+                        ),
+                        TextFormField(
+                          controller: _descriptionController,
+                          style: TextStyle(
+                            fontSize: 20,
+                            fontWeight: FontWeight.w600,
+                            color: scheme.onSurface,
+                          ),
+                          decoration: const InputDecoration(
+                            filled: false,
+                            border: InputBorder.none,
+                            enabledBorder: InputBorder.none,
+                            focusedBorder: InputBorder.none,
+                            contentPadding: EdgeInsets.symmetric(vertical: 8),
+                            hintText: 'Ej: Compra online...',
+                          ),
+                          validator: (value) {
+                            if (value == null || value.isEmpty) {
+                              return 'Por favor ingresa una descripción';
+                            }
+                            return null;
+                          },
+                        ),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+                  // Amount
+                  GlassCard(
+                    child: Column(
+                      children: [
+                        Text(
+                          'Cantidad',
+                          style: TextStyle(color: glass.mutedText, fontSize: 13),
+                        ),
+                        const SizedBox(height: 4),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          crossAxisAlignment: CrossAxisAlignment.center,
+                          children: [
+                            Text(
+                              _moneda,
+                              style: TextStyle(
+                                fontSize: 28,
+                                fontWeight: FontWeight.w700,
+                                color: scheme.primary,
+                              ),
+                            ),
+                            const SizedBox(width: 8),
+                            IntrinsicWidth(
+                              child: TextFormField(
+                                controller: _amountController,
+                                textAlign: TextAlign.center,
+                                keyboardType: const TextInputType
+                                    .numberWithOptions(decimal: true),
+                                style: TextStyle(
+                                  fontSize: 40,
+                                  fontWeight: FontWeight.w700,
+                                  color: scheme.onSurface,
+                                ),
+                                decoration: const InputDecoration(
+                                  filled: false,
+                                  border: InputBorder.none,
+                                  enabledBorder: InputBorder.none,
+                                  focusedBorder: InputBorder.none,
+                                  hintText: '0.00',
+                                  contentPadding: EdgeInsets.zero,
+                                ),
+                                validator: (value) {
+                                  if (value == null || value.isEmpty) {
+                                    return 'Por favor ingresa una cantidad';
+                                  }
+                                  if (double.tryParse(value.replaceAll(',', '.')) == null) {
+                                    return 'Por favor ingresa un número válido';
+                                  }
+                                  return null;
+                                },
+                              ),
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+                  // Date
+                  GlassCard(
+                    onTap: () => _selectDate(context),
+                    padding: const EdgeInsets.all(16),
+                    child: Row(
+                      children: [
+                        Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              'Fecha',
+                              style: TextStyle(color: glass.mutedText, fontSize: 13),
+                            ),
+                            const SizedBox(height: 4),
+                            Text(
+                              '${_selectedDate.day.toString().padLeft(2, '0')}/${_selectedDate.month.toString().padLeft(2, '0')}/${_selectedDate.year}',
+                              style: TextStyle(
+                                color: scheme.onSurface,
+                                fontSize: 16,
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ),
+                          ],
+                        ),
+                        const Spacer(),
+                        Container(
+                          padding: const EdgeInsets.all(10),
+                          decoration: BoxDecoration(
+                            color: scheme.surfaceContainerHigh,
+                            shape: BoxShape.circle,
+                          ),
+                          child: Icon(Icons.calendar_month, color: scheme.onSurfaceVariant),
+                        ),
+                      ],
+                    ),
+                  ),
+                  const Spacer(),
+                  PrimaryPillButton(
+                    label: 'Guardar Gasto',
+                    icon: Icons.check_circle_outline,
+                    onPressed: _saveExpense,
+                  ),
+                  const SizedBox(height: 8),
+                ],
               ),
-              const SizedBox(height: 16),
-              TextFormField(
-                controller: _amountController,
-                keyboardType: const TextInputType.numberWithOptions(decimal: true),
-                decoration: const InputDecoration(
-                  labelText: 'Cantidad',
-                  border: OutlineInputBorder(),
-                  prefixIcon: Icon(Icons.attach_money),
-                ),
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return 'Por favor ingresa una cantidad';
-                  }
-                  if (double.tryParse(value.replaceAll(',', '.')) == null) {
-                    return 'Por favor ingresa un número válido';
-                  }
-                  return null;
-                },
-              ),
-              const SizedBox(height: 16),
-              ListTile(
-                title: const Text('Fecha'),
-                subtitle: Text('${_selectedDate.day}/${_selectedDate.month}/${_selectedDate.year}'),
-                trailing: const Icon(Icons.calendar_today),
-                shape: RoundedRectangleBorder(
-                  side: BorderSide(color: Colors.grey.shade400),
-                  borderRadius: BorderRadius.circular(4),
-                ),
-                onTap: () => _selectDate(context),
-              ),
-              const Spacer(),
-              ElevatedButton(
-                onPressed: _saveExpense,
-                style: ElevatedButton.styleFrom(
-                  padding: const EdgeInsets.symmetric(vertical: 16),
-                ),
-                child: const Text('Guardar Gasto', style: TextStyle(fontSize: 16)),
-              ),
-            ],
+            ),
           ),
         ),
       ),

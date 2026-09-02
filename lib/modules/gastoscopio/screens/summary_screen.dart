@@ -1,3 +1,4 @@
+import 'package:cashly/common/month_names.dart';
 import 'package:cashly/common/tag_list.dart';
 import 'package:cashly/data/models/movement_value.dart';
 import 'package:cashly/data/models/month.dart';
@@ -6,6 +7,12 @@ import 'package:cashly/modules/gastoscopio/logic/finance_service.dart';
 import 'package:cashly/modules/gastoscopio/widgets/category_progress_chart.dart';
 import 'package:cashly/modules/gastoscopio/widgets/loading.dart';
 import 'package:cashly/modules/gastoscopio/widgets/month_grid_selector.dart';
+import 'package:cashly/theme/app_glass.dart';
+import 'package:cashly/theme/widgets/amount_text.dart';
+import 'package:cashly/theme/widgets/glass_card.dart';
+import 'package:cashly/theme/widgets/primary_pill_button.dart';
+import 'package:cashly/theme/widgets/section_header.dart';
+import 'package:cashly/theme/widgets/stat_tile.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_markdown/flutter_markdown.dart';
@@ -30,6 +37,8 @@ class _SummaryScreenState extends State<SummaryScreen>
   String _aiAnalysis = '';
   bool _isLoadingAnalysis = false;
   bool _hasData = false;
+
+  static const String _currency = '€';
 
   @override
   void initState() {
@@ -140,31 +149,35 @@ class _SummaryScreenState extends State<SummaryScreen>
   }
 
   Widget _buildSubHeader() {
-    return Container(
-      color: Theme.of(context).colorScheme.surface,
-      child: Column(
-        children: [
-          ListTile(
-            title: Text(
-              "${_getMonthName(_month)} $_year",
-              style: const TextStyle(fontFamily: 'Pacifico', fontSize: 18),
-            ),
-            trailing: IconButton(
-              icon: const Icon(Icons.calendar_month),
-              onPressed: _showMonthSelector,
+    final scheme = Theme.of(context).colorScheme;
+    final glass = Theme.of(context).extension<AppGlass>()!;
+    return Column(
+      children: [
+        ListTile(
+          title: Text(
+            "${_getMonthName(_month)} $_year",
+            style: TextStyle(
+              fontSize: 18,
+              fontWeight: FontWeight.w700,
+              color: scheme.onSurface,
             ),
           ),
-          TabBar(
-            controller: _tabController,
-            labelColor: Theme.of(context).colorScheme.primary,
-            unselectedLabelColor: Theme.of(context).colorScheme.onSurfaceVariant,
-            tabs: [
-              Tab(text: AppLocalizations.of(context)!.summary),
-              Tab(text: AppLocalizations.of(context)!.aiAnalysis),
-            ],
+          trailing: IconButton(
+            icon: Icon(Icons.calendar_month, color: glass.mutedText),
+            onPressed: _showMonthSelector,
           ),
-        ],
-      ),
+        ),
+        TabBar(
+          controller: _tabController,
+          labelColor: scheme.primary,
+          indicatorColor: scheme.primary,
+          unselectedLabelColor: glass.mutedText,
+          tabs: [
+            Tab(text: AppLocalizations.of(context)!.summary),
+            Tab(text: AppLocalizations.of(context)!.aiAnalysis),
+          ],
+        ),
+      ],
     );
   }
 
@@ -184,22 +197,17 @@ class _SummaryScreenState extends State<SummaryScreen>
                 padding: const EdgeInsets.all(16),
                 sliver: SliverList(
                   delegate: SliverChildListDelegate([
+                    SectionHeader(title: AppLocalizations.of(context)!.financialSummary),
+                    const SizedBox(height: 8),
                     _buildMonthlyOverview(snapshot.data!),
                     const SizedBox(height: 24),
-                    Text(
-                      AppLocalizations.of(context)!.categoryDistribution,
-                      style: Theme.of(context).textTheme.titleLarge,
-                    ),
-                    const SizedBox(height: 16),
-                    CategoryProgressChart(
-                      categoryData: _calculateCategoryPercentages(
-                        snapshot.data!.where((m) => m.isExpense).toList(),
-                      ),
-                    ),
+                    SectionHeader(title: AppLocalizations.of(context)!.evolution),
+                    const SizedBox(height: 8),
+                    _buildEvolutionChart(),
                     const SizedBox(height: 24),
-                    _buildDailySpendingChart(
-                      snapshot.data!.where((m) => m.isExpense).toList(),
-                    ),
+                    SectionHeader(title: AppLocalizations.of(context)!.distribution),
+                    const SizedBox(height: 8),
+                    _buildDistribution(snapshot.data!),
                     const SizedBox(height: 100),
                   ]),
                 ),
@@ -211,24 +219,25 @@ class _SummaryScreenState extends State<SummaryScreen>
   }
 
   Widget _buildAiAnalysisTab() {
+    final glass = Theme.of(context).extension<AppGlass>()!;
     return CustomScrollView(
       physics: const BouncingScrollPhysics(),
       slivers: [
         SliverPadding(
           padding: const EdgeInsets.all(16),
           sliver: SliverToBoxAdapter(
-            child: Row(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Expanded(
-                  child: Text(
-                    AppLocalizations.of(context)!.aiAnalysisTitle,
-                    style: Theme.of(context).textTheme.titleLarge,
-                  ),
+                SectionHeader(
+                  title: AppLocalizations.of(context)!.aiAnalysisTitle,
                 ),
-                ElevatedButton.icon(
+                const SizedBox(height: 8),
+                PrimaryPillButton(
+                  label: AppLocalizations.of(context)!.generate,
+                  icon: Icons.auto_awesome,
+                  loading: _isLoadingAnalysis,
                   onPressed: _loadAiAnalysis,
-                  icon: const Icon(Icons.auto_awesome),
-                  label: Text(AppLocalizations.of(context)!.generate),
                 ),
               ],
             ),
@@ -240,16 +249,16 @@ class _SummaryScreenState extends State<SummaryScreen>
           SliverFillRemaining(child: Center(child: Loading(context)))
         else
           SliverPadding(
-            padding: const EdgeInsets.all(16),
+            padding: const EdgeInsets.symmetric(horizontal: 16),
             sliver: SliverToBoxAdapter(
-              child: Card(
-                color: Theme.of(context).colorScheme.secondary.withAlpha(25),
-                child: Padding(
-                  padding: const EdgeInsets.all(16),
-                  child: MarkdownBody(
-                    data: _aiAnalysis.isEmpty
-                        ? AppLocalizations.of(context)!.generateAnalysisHint
-                        : _aiAnalysis,
+              child: GlassCard(
+                child: MarkdownBody(
+                  data: _aiAnalysis.isEmpty
+                      ? AppLocalizations.of(context)!.generateAnalysisHint
+                      : _aiAnalysis,
+                  styleSheet: MarkdownStyleSheet.fromTheme(Theme.of(context))
+                      .copyWith(
+                    p: TextStyle(color: glass.mutedText),
                   ),
                 ),
               ),
@@ -261,11 +270,12 @@ class _SummaryScreenState extends State<SummaryScreen>
   }
 
   Widget _buildEmptyState() {
+    final glass = Theme.of(context).extension<AppGlass>()!;
     return Center(
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Icon(Icons.folder_open, size: 64, color: Theme.of(context).colorScheme.secondary),
+          Icon(Icons.folder_open, size: 64, color: glass.mutedText),
           const SizedBox(height: 16),
           Text(
             AppLocalizations.of(context)!.noDataForMonth(_month.toString(), _year),
@@ -277,59 +287,217 @@ class _SummaryScreenState extends State<SummaryScreen>
   }
 
   Widget _buildMonthlyOverview(List<MovementValue> movements) {
+    final glass = Theme.of(context).extension<AppGlass>()!;
     final expenses = movements.where((m) => m.isExpense).fold<double>(0, (sum, mov) => sum + mov.amount);
     final incomes = movements.where((m) => !m.isExpense).fold<double>(0, (sum, mov) => sum + mov.amount);
     final balance = incomes - expenses;
+    final ratio = incomes > 0 ? (balance / incomes) * 100 : 0.0;
 
-    return Card(
-      color: Theme.of(context).colorScheme.secondary.withAlpha(25),
-      child: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
+    return Column(
+      children: [
+        GlassCard(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                children: [
+                  Icon(Icons.account_balance, size: 18, color: glass.incomeColor),
+                  const SizedBox(width: 8),
+                  Text(
+                    AppLocalizations.of(context)!.netSavings.toUpperCase(),
+                    style: TextStyle(
+                      color: glass.mutedText,
+                      fontSize: 12,
+                      fontWeight: FontWeight.w600,
+                      letterSpacing: 0.5,
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 8),
+              Row(
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  Flexible(
+                    child: FittedBox(
+                      fit: BoxFit.scaleDown,
+                      alignment: Alignment.centerLeft,
+                      child: AmountText(
+                        amount: balance.abs(),
+                        currency: _currency,
+                        isExpense: balance < 0,
+                        signed: true,
+                        fontSize: 40,
+                      ),
+                    ),
+                  ),
+                  const SizedBox(width: 12),
+                  _buildRatioBadge(ratio, glass),
+                ],
+              ),
+            ],
+          ),
+        ),
+        const SizedBox(height: 12),
+        Row(
           children: [
-            Text(AppLocalizations.of(context)!.monthlySummary, style: Theme.of(context).textTheme.titleLarge),
-            const SizedBox(height: 16),
-            _buildOverviewRow(AppLocalizations.of(context)!.income, incomes, Colors.green),
-            const SizedBox(height: 8),
-            _buildOverviewRow(AppLocalizations.of(context)!.expenses, expenses, Colors.red),
-            const Divider(),
-            _buildOverviewRow(AppLocalizations.of(context)!.balance, balance, balance >= 0 ? Colors.green : Colors.red),
+            Expanded(
+              child: StatTile(
+                label: AppLocalizations.of(context)!.incomes,
+                amount: incomes,
+                currency: _currency,
+                icon: Icons.arrow_downward,
+                isIncome: true,
+              ),
+            ),
+            const SizedBox(width: 12),
+            Expanded(
+              child: StatTile(
+                label: AppLocalizations.of(context)!.expenses,
+                amount: expenses,
+                currency: _currency,
+                icon: Icons.arrow_upward,
+                isIncome: false,
+              ),
+            ),
           ],
+        ),
+      ],
+    );
+  }
+
+  Widget _buildRatioBadge(double ratio, AppGlass glass) {
+    final positive = ratio >= 0;
+    final color = positive ? glass.incomeColor : glass.expenseColor;
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+      decoration: BoxDecoration(
+        color: color.withValues(alpha: 0.15),
+        borderRadius: BorderRadius.circular(glass.pillRadius),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(
+            positive ? Icons.trending_up : Icons.trending_down,
+            size: 14,
+            color: color,
+          ),
+          const SizedBox(width: 4),
+          Text(
+            '${positive ? '+' : ''}${ratio.toStringAsFixed(0)}%',
+            style: TextStyle(
+              color: color,
+              fontSize: 13,
+              fontWeight: FontWeight.w700,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildDistribution(List<MovementValue> movements) {
+    return GlassCard(
+      child: CategoryProgressChart(
+        categoryData: _calculateCategoryPercentages(
+          movements.where((m) => m.isExpense).toList(),
         ),
       ),
     );
   }
 
-  Widget _buildOverviewRow(String label, double amount, Color color) {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      children: [
-        Text(label),
-        Text('${amount.toStringAsFixed(2)}€', style: TextStyle(color: color, fontWeight: FontWeight.bold)),
-      ],
-    );
-  }
+  Widget _buildEvolutionChart() {
+    final scheme = Theme.of(context).colorScheme;
+    final glass = Theme.of(context).extension<AppGlass>()!;
 
-  Widget _buildDailySpendingChart(List<MovementValue> expenses) {
-    if (expenses.isEmpty) return const SizedBox.shrink();
-    final dailyTotals = <int, double>{};
-    for (var m in expenses) dailyTotals[m.day] = (dailyTotals[m.day] ?? 0) + m.amount;
-    final spots = dailyTotals.entries.map((e) => FlSpot(e.key.toDouble(), e.value)).toList()..sort((a, b) => a.x.compareTo(b.x));
+    return GlassCard(
+      child: FutureBuilder<List<Map<String, double>>>(
+        future: _financeService.getYearlyData(_year),
+        builder: (context, snapshot) {
+          if (!snapshot.hasData) {
+            return const SizedBox(
+              height: 180,
+              child: Center(child: CircularProgressIndicator()),
+            );
+          }
 
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(AppLocalizations.of(context)!.dailyExpenses, style: Theme.of(context).textTheme.titleLarge),
-        const SizedBox(height: 16),
-        SizedBox(
-          height: 200,
-          child: LineChart(LineChartData(
-            lineBarsData: [LineChartBarData(spots: spots, isCurved: true, color: Theme.of(context).colorScheme.error, belowBarData: BarAreaData(show: true, color: Theme.of(context).colorScheme.error.withOpacity(0.1)))],
-            titlesData: FlTitlesData(topTitles: const AxisTitles(), rightTitles: const AxisTitles()),
-          )),
-        ),
-      ],
+          final data = snapshot.data!;
+          final spots = <FlSpot>[
+            for (var i = 0; i < data.length; i++)
+              FlSpot(
+                i.toDouble(),
+                (data[i]['incomes'] ?? 0) - (data[i]['expenses'] ?? 0),
+              ),
+          ];
+
+          final monthLabels = monthShortNames(AppLocalizations.of(context)!);
+
+          return SizedBox(
+            height: 200,
+            child: LineChart(
+              LineChartData(
+                gridData: const FlGridData(show: false),
+                borderData: FlBorderData(show: false),
+                titlesData: FlTitlesData(
+                  topTitles: const AxisTitles(
+                    sideTitles: SideTitles(showTitles: false),
+                  ),
+                  rightTitles: const AxisTitles(
+                    sideTitles: SideTitles(showTitles: false),
+                  ),
+                  leftTitles: const AxisTitles(
+                    sideTitles: SideTitles(showTitles: false),
+                  ),
+                  bottomTitles: AxisTitles(
+                    sideTitles: SideTitles(
+                      showTitles: true,
+                      reservedSize: 28,
+                      interval: 2,
+                      getTitlesWidget: (value, meta) {
+                        final idx = value.toInt();
+                        if (idx.isOdd || idx < 0 || idx > 11) {
+                          return const SizedBox.shrink();
+                        }
+                        return Padding(
+                          padding: const EdgeInsets.only(top: 8),
+                          child: Text(
+                            monthLabels[idx],
+                            style: TextStyle(
+                              color: glass.mutedText,
+                              fontSize: 11,
+                            ),
+                          ),
+                        );
+                      },
+                    ),
+                  ),
+                ),
+                lineBarsData: [
+                  LineChartBarData(
+                    spots: spots,
+                    isCurved: true,
+                    barWidth: 2,
+                    color: scheme.primary,
+                    dotData: const FlDotData(show: false),
+                    belowBarData: BarAreaData(
+                      show: true,
+                      gradient: LinearGradient(
+                        begin: Alignment.topCenter,
+                        end: Alignment.bottomCenter,
+                        colors: [
+                          scheme.primary.withValues(alpha: 0.35),
+                          scheme.primary.withValues(alpha: 0.0),
+                        ],
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          );
+        },
+      ),
     );
   }
 
@@ -338,12 +506,12 @@ class _SummaryScreenState extends State<SummaryScreen>
     final total = expenses.fold<double>(0, (sum, m) => sum + m.amount);
     for (var tag in getTagList(AppLocalizations.of(context)!.localeName)) totals[tag] = 0;
     for (var m in expenses) if (m.category != null) totals[m.category!] = (totals[m.category!] ?? 0) + m.amount;
-    
+
     final List<MapEntry<String, double>> entries = totals.entries
         .where((e) => e.value > 0)
         .map((e) => MapEntry(e.key, total > 0 ? (e.value / total) * 100 : 0.0))
         .toList();
-    
+
     entries.sort((a, b) => b.value.compareTo(a.value));
     return Map.fromEntries(entries);
   }

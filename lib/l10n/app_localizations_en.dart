@@ -521,7 +521,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get dayMustBeBetween1And31 => 'Day must be between 1 and 31.';
 
   @override
-  String get movementType => 'Movement type';
+  String get movementType => 'Movement Type';
 
   @override
   String get saveInCurrentMonth => 'Save expense in current month: ';
@@ -1394,4 +1394,183 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get noPendingForDate => 'No pending transactions for this day.';
+
+  @override
+  String get navDebts => 'Debts';
+
+  @override
+  String get navHistory => 'History';
+
+  @override
+  String get navStatistics => 'Statistics';
+
+  @override
+  String get totalBalance => 'Total balance';
+
+  @override
+  String get quickAccess => 'Quick access';
+
+  @override
+  String get recentExpenses => 'Recent Expenses';
+
+  @override
+  String get seeAll => 'See all';
+
+  @override
+  String get cardLabel => 'Card';
+
+  @override
+  String pendingTransactions(int count) {
+    return '$count pending transactions';
+  }
+
+  @override
+  String get totalPending => 'Total pending';
+
+  @override
+  String get previousMonth => 'Previous Month';
+
+  @override
+  String get recurrents => 'Recurring';
+
+  @override
+  String get oneTimeDebts => 'One-time';
+
+  @override
+  String get urgent => 'URGENT';
+
+  @override
+  String get resolve => 'Resolve';
+
+  @override
+  String get pay => 'Pay';
+
+  @override
+  String get newMovementTitle => 'New';
+
+  @override
+  String get expenseNameHint => 'e.g. Dinner with friends...';
+
+  @override
+  String get categoryAiTag => 'Category (AI Tag)';
+
+  @override
+  String get valueLabel => 'Value';
+
+  @override
+  String get directExpense => 'Direct Expense';
+
+  @override
+  String get oneTimeDebtLabel => 'One-time Debt';
+
+  @override
+  String get saveExpense => 'Save Expense';
+
+  @override
+  String get saveIncome => 'Save Income';
+
+  @override
+  String get searchByName => 'Search by name...';
+
+  @override
+  String get searchByNameCategory => 'Search by name, category...';
+
+  @override
+  String get dateRange => 'Date range';
+
+  @override
+  String get matches => 'Matches';
+
+  @override
+  String get customRange => 'Custom range';
+
+  @override
+  String get financialSummary => 'Financial Summary';
+
+  @override
+  String get netSavings => 'Net Savings';
+
+  @override
+  String get evolution => 'Evolution';
+
+  @override
+  String get distribution => 'Distribution';
+
+  @override
+  String get noData => 'No data';
+
+  @override
+  String get usedBalance => 'Used Balance';
+
+  @override
+  String get creditLimit => 'Credit Limit';
+
+  @override
+  String get nextPayment => 'Next Payment';
+
+  @override
+  String get billingClose => 'Billing Close';
+
+  @override
+  String get premiumCard => 'PREMIUM CARD';
+
+  @override
+  String get minimumLabel => 'Minimum';
+
+  @override
+  String get estimatedMonthlyTotal => 'Estimated monthly total';
+
+  @override
+  String get upcomingCharges => 'Upcoming Charges';
+
+  @override
+  String get recurringExpense => 'Recurring Expense';
+
+  @override
+  String get recurringDebt => 'Recurring Debt';
+
+  @override
+  String get scheduleLabel => 'Schedule';
+
+  @override
+  String get frequency => 'Frequency';
+
+  @override
+  String get monthly => 'Monthly';
+
+  @override
+  String get chargeDay => 'Charge Day';
+
+  @override
+  String get saveRecurring => 'Save Recurring';
+
+  @override
+  String get detailsLabel => 'Details';
+
+  @override
+  String get activeStatus => 'ACTIVE';
+
+  @override
+  String get pendingStatus => 'PENDING';
+
+  @override
+  String get processSelected => 'Process Selected';
+
+  @override
+  String get cardChip => 'CARD';
+
+  @override
+  String get categoryLabel => 'Category';
+
+  @override
+  String get yearLabel => 'YEAR';
+
+  @override
+  String get themeLabel => 'Theme';
+
+  @override
+  String get visualAspect => 'Visual Appearance';
+
+  @override
+  String get linkedDevices => 'Linked Devices';
 }

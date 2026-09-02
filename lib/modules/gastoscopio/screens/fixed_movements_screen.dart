@@ -4,7 +4,14 @@ import 'package:cashly/data/models/movement_value.dart';
 import 'package:cashly/data/services/shared_preferences_service.dart';
 import 'package:cashly/data/services/sqlite_service.dart';
 import 'package:cashly/modules/gastoscopio/logic/finance_service.dart';
+import 'package:cashly/modules/gastoscopio/screens/recurring_form_screen.dart';
 import 'package:cashly/data/services/log_file_service.dart';
+import 'package:cashly/theme/app_glass.dart';
+import 'package:cashly/theme/widgets/app_background.dart';
+import 'package:cashly/theme/widgets/amount_text.dart';
+import 'package:cashly/theme/widgets/glass_button.dart';
+import 'package:cashly/theme/widgets/glass_card.dart';
+import 'package:cashly/theme/widgets/section_header.dart';
 import 'package:flutter/material.dart';
 import 'package:cashly/l10n/app_localizations.dart';
 
@@ -19,7 +26,6 @@ class _FixedMovementsScreenState extends State<FixedMovementsScreen> {
   late String _moneda = '';
   List<FixedMovement> _fixedMovements = [];
   List<DebtDefinition> _monthlyDebtDefinitions = [];
-  bool _isOpaqueBottomNav = false;
 
   @override
   void initState() {
@@ -29,14 +35,6 @@ class _FixedMovementsScreenState extends State<FixedMovementsScreen> {
         .then(
           (currency) => setState(() {
             _moneda = currency ?? '€';
-          }),
-        );
-
-    SharedPreferencesService()
-        .getBoolValue(SharedPreferencesKeys.isOpaqueBottomNav)
-        .then(
-          (isOpaque) => setState(() {
-            _isOpaqueBottomNav = isOpaque ?? false;
           }),
         );
 
@@ -550,153 +548,113 @@ class _FixedMovementsScreenState extends State<FixedMovementsScreen> {
     }
   }
 
+  /// Sum of the estimated monthly recurring expense amounts (fixed movements +
+  /// monthly debt definitions). Incomes are subtracted so the figure reflects
+  /// the net estimated monthly outflow.
+  double get _estimatedMonthlyTotal {
+    double total = 0;
+    for (final m in _fixedMovements) {
+      total += m.isExpense ? m.amount : -m.amount;
+    }
+    for (final d in _monthlyDebtDefinitions) {
+      total += d.isExpense ? d.amount : -d.amount;
+    }
+    return total;
+  }
+
+  Future<void> _openRecurringForm() async {
+    final created = await Navigator.push<bool>(
+      context,
+      MaterialPageRoute(builder: (_) => const RecurringFormScreen()),
+    );
+    if (created == true) {
+      await _loadData();
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
+    final hasItems =
+        _fixedMovements.isNotEmpty || _monthlyDebtDefinitions.isNotEmpty;
     return Scaffold(
-      body: CustomScrollView(
-        physics: const BouncingScrollPhysics(),
-        slivers: [
-          SliverAppBar(
-            expandedHeight: 120,
-            floating: true,
-            pinned: true,
-            centerTitle: true,
-            backgroundColor: Theme.of(context).colorScheme.surface,
-            flexibleSpace: FlexibleSpaceBar(
-              title: Text(
-                AppLocalizations.of(context)!.fixedMovements,
-                style: TextStyle(
-                  fontFamily: 'Pacifico',
-                  fontSize: 20,
-                  fontWeight: FontWeight.bold,
-                  color: Theme.of(context).colorScheme.onSurface,
-                ),
-              ),
-              centerTitle: true,
-            ),
-          ),
-
-          // Info Card
-          SliverToBoxAdapter(
-            child: Container(
-              width: double.infinity,
-              margin: const EdgeInsets.all(16),
-              padding: const EdgeInsets.all(16),
-              decoration: BoxDecoration(
-                color: Colors.blue.withOpacity(0.1),
-                borderRadius: BorderRadius.circular(12),
-                border: Border.all(color: Colors.blue.withOpacity(0.2)),
-              ),
-              child: Row(
-                children: [
-                  Container(
-                    padding: const EdgeInsets.all(8),
-                    decoration: BoxDecoration(
-                      color: Colors.blue,
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                    child: const Icon(
-                      Icons.info_outline,
-                      color: Colors.white,
-                      size: 20,
-                    ),
-                  ),
-                  const SizedBox(width: 12),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          AppLocalizations.of(context)!.automaticMovements,
-                          style: Theme.of(context).textTheme.titleSmall?.copyWith(
-                            fontWeight: FontWeight.bold,
-                            color: Colors.blue[800],
-                          ),
-                        ),
-                        const SizedBox(height: 4),
-                        Text(
-                          AppLocalizations.of(
-                            context,
-                          )!.addedAutomaticallyEachMonth,
-                          style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                            color: Colors.blue[700],
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ),
-
-          SliverToBoxAdapter(
-            child: _buildSectionTitle(AppLocalizations.of(context)!.fixedMovements),
-          ),
-          if (_fixedMovements.isEmpty)
-            SliverToBoxAdapter(child: _buildInlineEmpty(AppLocalizations.of(context)!.noFixedMovements))
-          else
-            SliverPadding(
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-              sliver: SliverList(
-                delegate: SliverChildBuilderDelegate((context, index) {
-                  final movement = _fixedMovements[index];
-                  return _buildMovementCard(movement, index);
-                }, childCount: _fixedMovements.length),
-              ),
-            ),
-          SliverToBoxAdapter(
-            child: _buildSectionTitle('Deudas mensuales'),
-          ),
-          if (_monthlyDebtDefinitions.isEmpty)
-            SliverToBoxAdapter(
-              child: _buildInlineEmpty('Aún no tienes deudas mensuales.'),
-            )
-          else
-            SliverPadding(
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-              sliver: SliverList(
-                delegate: SliverChildBuilderDelegate((context, index) {
-                  final debtDefinition = _monthlyDebtDefinitions[index];
-                  return _buildMonthlyDebtDefinitionCard(debtDefinition, index);
-                }, childCount: _monthlyDebtDefinitions.length),
-              ),
-            ),
-          
-
-          const SliverToBoxAdapter(child: SizedBox(height: 80)),
-        ],
-      ),
-      floatingActionButton: FloatingActionButton.extended(
-        onPressed: _showAddOptions,
-        icon: Icon(
-          Icons.add,
-          color: _isOpaqueBottomNav
-              ? Theme.of(context).colorScheme.onPrimary
-              : Theme.of(context).colorScheme.primary,
+      backgroundColor: Colors.transparent,
+      appBar: AppBar(
+        backgroundColor: Colors.transparent,
+        elevation: 0,
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back),
+          onPressed: () => Navigator.maybePop(context),
         ),
-        label: Text(
-          AppLocalizations.of(context)!.add,
+        title: Text(
+          AppLocalizations.of(context)!.fixedMovements,
           style: TextStyle(
-            color: _isOpaqueBottomNav
-                ? Theme.of(context).colorScheme.onPrimary
-                : Theme.of(context).colorScheme.primary,
-            fontWeight: FontWeight.w600,
+            fontSize: 20,
+            fontWeight: FontWeight.w700,
+            color: scheme.onSurface,
           ),
         ),
-        backgroundColor: _isOpaqueBottomNav
-            ? Theme.of(context).colorScheme.primary.withAlpha(200)
-            : Theme.of(context).colorScheme.primary.withOpacity(0.1),
-        elevation: 4,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(16),
-          side: _isOpaqueBottomNav
-              ? BorderSide.none
-              : BorderSide(
-                  color: Theme.of(context).colorScheme.primary.withOpacity(0.3),
-                  width: 1.5,
-                ),
+        centerTitle: true,
+      ),
+      body: AppBackground(
+        child: SafeArea(
+          top: false,
+          child: ListView(
+            physics: const BouncingScrollPhysics(),
+            padding: const EdgeInsets.fromLTRB(16, 8, 16, 96),
+            children: [
+              _buildTotalCard(context),
+              const SizedBox(height: 24),
+              SectionHeader(title: AppLocalizations.of(context)!.upcomingCharges),
+              const SizedBox(height: 8),
+              if (!hasItems)
+                _buildInlineEmpty(
+                  AppLocalizations.of(context)!.noFixedMovements,
+                )
+              else ...[
+                for (int i = 0; i < _fixedMovements.length; i++) ...[
+                  _buildMovementCard(_fixedMovements[i], i),
+                  const SizedBox(height: 12),
+                ],
+                for (int i = 0; i < _monthlyDebtDefinitions.length; i++) ...[
+                  _buildMonthlyDebtDefinitionCard(_monthlyDebtDefinitions[i], i),
+                  const SizedBox(height: 12),
+                ],
+              ],
+            ],
+          ),
         ),
+      ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: _openRecurringForm,
+        backgroundColor: scheme.primary,
+        foregroundColor: scheme.onPrimary,
+        child: const Icon(Icons.add),
+      ),
+    );
+  }
+
+  Widget _buildTotalCard(BuildContext context) {
+    final glass = Theme.of(context).extension<AppGlass>()!;
+    return GlassCard(
+      child: Column(
+        children: [
+          Text(
+            AppLocalizations.of(context)!.estimatedMonthlyTotal.toUpperCase(),
+            style: TextStyle(
+              color: glass.mutedText,
+              fontSize: 12,
+              fontWeight: FontWeight.w700,
+              letterSpacing: 0.8,
+            ),
+          ),
+          const SizedBox(height: 8),
+          AmountText(
+            amount: _estimatedMonthlyTotal,
+            currency: _moneda.isEmpty ? '€' : _moneda,
+            fontSize: 44,
+          ),
+        ],
       ),
     );
   }
@@ -757,255 +715,338 @@ class _FixedMovementsScreenState extends State<FixedMovementsScreen> {
   }
 
   Widget _buildInlineEmpty(String message) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-      child: Card(
+    final glass = Theme.of(context).extension<AppGlass>()!;
+    return GlassCard(
+      child: Text(
+        message,
+        style: TextStyle(color: glass.mutedText),
+      ),
+    );
+  }
+
+  /// Opens the edit dialog for a fixed movement (preserves the previous
+  /// on-tap/edit behaviour of the card).
+  Future<void> _editFixedMovement(FixedMovement movement) async {
+    try {
+      final result = await showDialog<List<dynamic>>(
+        context: context,
+        builder: (context) => _FixedMovementDialog(movement: movement),
+      );
+      if (result != null) {
+        await SqliteService().database.fixedMovementDao.updateFixedMovement(
+          result[0] as FixedMovement,
+        );
+        await SharedPreferencesService().haveToUpload();
+        await _loadData();
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+              AppLocalizations.of(context)!.errorUpdatingMovement(e.toString()),
+            ),
+            behavior: SnackBarBehavior.floating,
+          ),
+        );
+      }
+      LogFileService().appendLog('Error updating movement: $e');
+    }
+  }
+
+  /// Shows a read-only "Detalles" sheet for a recurring item.
+  Future<void> _showDetails({
+    required String title,
+    required String? category,
+    required int day,
+    required double amount,
+    required bool isExpense,
+  }) async {
+    final scheme = Theme.of(context).colorScheme;
+    final glass = Theme.of(context).extension<AppGlass>()!;
+    await showModalBottomSheet<void>(
+      context: context,
+      showDragHandle: true,
+      backgroundColor: scheme.surfaceContainerHigh,
+      builder: (context) => SafeArea(
         child: Padding(
-          padding: const EdgeInsets.all(16),
-          child: Text(message),
+          padding: const EdgeInsets.fromLTRB(20, 4, 20, 24),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                title,
+                style: TextStyle(
+                  color: scheme.onSurface,
+                  fontSize: 20,
+                  fontWeight: FontWeight.w700,
+                ),
+              ),
+              const SizedBox(height: 16),
+              AmountText(
+                amount: amount,
+                currency: _moneda.isEmpty ? '€' : _moneda,
+                isExpense: isExpense,
+                signed: true,
+                fontSize: 32,
+              ),
+              const SizedBox(height: 16),
+              _detailRow(
+                Icons.calendar_today,
+                AppLocalizations.of(context)!.dayOfEachMonth(day),
+              ),
+              if (category != null && category.isNotEmpty) ...[
+                const SizedBox(height: 8),
+                _detailRow(Icons.tag, category),
+              ],
+              const SizedBox(height: 8),
+              _detailRow(
+                isExpense ? Icons.arrow_downward : Icons.arrow_upward,
+                isExpense
+                    ? AppLocalizations.of(context)!.expense
+                    : AppLocalizations.of(context)!.income,
+              ),
+              const SizedBox(height: 4),
+              Text(
+                AppLocalizations.of(context)!.monthly,
+                style: TextStyle(color: glass.mutedText, fontSize: 12),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _detailRow(IconData icon, String label) {
+    final glass = Theme.of(context).extension<AppGlass>()!;
+    return Row(
+      children: [
+        Icon(icon, size: 16, color: glass.mutedText),
+        const SizedBox(width: 8),
+        Expanded(
+          child: Text(
+            label,
+            style: TextStyle(color: glass.mutedText, fontSize: 14),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _statusChip(String label, {required bool positive}) {
+    final glass = Theme.of(context).extension<AppGlass>()!;
+    final color = positive ? glass.incomeColor : glass.mutedText;
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+      decoration: BoxDecoration(
+        color: color.withValues(alpha: 0.15),
+        borderRadius: BorderRadius.circular(999),
+      ),
+      child: Text(
+        label,
+        style: TextStyle(
+          color: color,
+          fontSize: 11,
+          fontWeight: FontWeight.w700,
+          letterSpacing: 0.5,
         ),
       ),
     );
   }
 
   Widget _buildMovementCard(FixedMovement movement, int index) {
-    return Container(
-      margin: const EdgeInsets.only(bottom: 12),
-      child: Dismissible(
-        key: Key('fixed_movement_${movement.id ?? index}'),
-        background: Container(
-          decoration: BoxDecoration(
-            color: Theme.of(context).colorScheme.error,
-            borderRadius: BorderRadius.circular(12),
-          ),
-          alignment: Alignment.centerRight,
-          padding: const EdgeInsets.only(right: 20),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              const Icon(Icons.delete, color: Colors.white, size: 28),
-              const SizedBox(height: 4),
-              Text(
-                AppLocalizations.of(context)!.delete,
-                style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                  color: Colors.white,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-            ],
+    return Dismissible(
+      key: Key('fixed_movement_${movement.id ?? index}'),
+      direction: DismissDirection.endToStart,
+      background: Container(
+        decoration: BoxDecoration(
+          color: Theme.of(context).colorScheme.error,
+          borderRadius: BorderRadius.circular(
+            Theme.of(context).extension<AppGlass>()!.cardRadius,
           ),
         ),
-        direction: DismissDirection.endToStart,
-        confirmDismiss: (_) async {
-          await _showFixedMovementSwipeActions(movement);
-          return false;
-        },
-        onDismissed: (_) {},
-        child: Card(
-          elevation: 0,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(12),
-            side: BorderSide(color: Colors.grey.withOpacity(0.2), width: 1),
-          ),
-          child: InkWell(
-            borderRadius: BorderRadius.circular(12),
-            onTap: () async {
-              try {
-                final result = await showDialog<List<dynamic>>(
-                  context: context,
-                  builder: (context) =>
-                      _FixedMovementDialog(movement: movement),
-                );
-                if (result != null) {
-                  await SqliteService().database.fixedMovementDao
-                      .updateFixedMovement(result[0] as FixedMovement);
-                  await SharedPreferencesService().haveToUpload();
-            await _loadData();
-                }
-              } catch (e) {
-                if (mounted) {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(
-                      content: Text(
-                        AppLocalizations.of(
-                          context,
-                        )!.errorUpdatingMovement(e.toString()),
-                      ),
-                      behavior: SnackBarBehavior.floating,
-                    ),
-                  );
-                }
-                LogFileService().appendLog('Error updating movement: $e');
-              }
-            },
-            child: _buildMovementContent(movement),
-          ),
+        alignment: Alignment.centerRight,
+        padding: const EdgeInsets.only(right: 20),
+        child: const Icon(Icons.delete, color: Colors.white, size: 28),
+      ),
+      confirmDismiss: (_) async {
+        await _showFixedMovementSwipeActions(movement);
+        return false;
+      },
+      onDismissed: (_) {},
+      child: _buildRecurringCard(
+        title: movement.description,
+        category: movement.category,
+        day: movement.day,
+        amount: movement.amount,
+        isExpense: movement.isExpense,
+        statusLabel: AppLocalizations.of(context)!.activeStatus,
+        statusPositive: true,
+        onTap: () => _editFixedMovement(movement),
+        onDetails: () => _showDetails(
+          title: movement.description,
+          category: movement.category,
+          day: movement.day,
+          amount: movement.amount,
+          isExpense: movement.isExpense,
         ),
+        onEdit: () => _editFixedMovement(movement),
       ),
     );
   }
 
-  Widget _buildMovementContent(FixedMovement movement) {
-    return Padding(
-      padding: const EdgeInsets.all(16),
-      child: Row(
-        children: [
-          Container(
-            padding: const EdgeInsets.all(8),
-            decoration: BoxDecoration(
-              color: movement.isExpense
-                  ? Colors.red.withOpacity(0.1)
-                  : Colors.green.withOpacity(0.1),
-              borderRadius: BorderRadius.circular(8),
-            ),
-            child: Icon(
-              movement.isExpense ? Icons.arrow_downward : Icons.arrow_upward,
-              color: movement.isExpense ? Colors.red : Colors.green,
-              size: 20,
-            ),
+  Widget _buildMonthlyDebtDefinitionCard(
+    DebtDefinition debtDefinition,
+    int index,
+  ) {
+    return Dismissible(
+      key: Key('monthly_debt_${debtDefinition.id ?? index}'),
+      direction: DismissDirection.endToStart,
+      confirmDismiss: (_) => _confirmDeleteMonthlyDebt(debtDefinition),
+      background: Container(
+        decoration: BoxDecoration(
+          color: Theme.of(context).colorScheme.error,
+          borderRadius: BorderRadius.circular(
+            Theme.of(context).extension<AppGlass>()!.cardRadius,
           ),
-          const SizedBox(width: 12),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
+        ),
+        alignment: Alignment.centerRight,
+        padding: const EdgeInsets.only(right: 20),
+        child: const Icon(Icons.delete, color: Colors.white, size: 28),
+      ),
+      onDismissed: (_) => _deleteMonthlyDebt(debtDefinition),
+      child: _buildRecurringCard(
+        title: debtDefinition.description,
+        category: debtDefinition.category,
+        day: debtDefinition.startDay,
+        amount: debtDefinition.amount,
+        isExpense: debtDefinition.isExpense,
+        subtitleOverride: AppLocalizations.of(context)!.recurringDebt,
+        statusLabel: AppLocalizations.of(context)!.pendingStatus,
+        statusPositive: false,
+        onTap: () => _editMonthlyDebt(debtDefinition),
+        onLongPress: () => _showMonthlyDebtLongPressActions(debtDefinition),
+        onDetails: () => _showDetails(
+          title: debtDefinition.description,
+          category: debtDefinition.category,
+          day: debtDefinition.startDay,
+          amount: debtDefinition.amount,
+          isExpense: debtDefinition.isExpense,
+        ),
+        onEdit: () => _editMonthlyDebt(debtDefinition),
+      ),
+    );
+  }
+
+  Widget _buildRecurringCard({
+    required String title,
+    required String? category,
+    required int day,
+    required double amount,
+    required bool isExpense,
+    required String statusLabel,
+    required bool statusPositive,
+    required VoidCallback onTap,
+    required VoidCallback onDetails,
+    required VoidCallback onEdit,
+    String? subtitleOverride,
+    VoidCallback? onLongPress,
+  }) {
+    final scheme = Theme.of(context).colorScheme;
+    final glass = Theme.of(context).extension<AppGlass>()!;
+    final subtitle =
+        subtitleOverride ??
+        AppLocalizations.of(context)!.dayOfEachMonth(day);
+    return GlassCard(
+      onTap: onTap,
+      child: GestureDetector(
+        onLongPress: onLongPress,
+        behavior: HitTestBehavior.opaque,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
               children: [
-                Text(
-                  movement.description,
-                  style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                    fontWeight: FontWeight.w600,
+                Container(
+                  width: 44,
+                  height: 44,
+                  decoration: BoxDecoration(
+                    color: scheme.surfaceContainerHigh,
+                    shape: BoxShape.circle,
+                  ),
+                  child: Icon(
+                    isExpense ? Icons.arrow_downward : Icons.arrow_upward,
+                    size: 20,
+                    color: isExpense ? glass.expenseColor : glass.incomeColor,
                   ),
                 ),
-                const SizedBox(height: 4),
-                if (movement.category != null &&
-                    movement.category!.isNotEmpty) ...[
-                  Row(
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Icon(Icons.tag, size: 14, color: Colors.grey[600]),
-                      const SizedBox(width: 4),
                       Text(
-                        movement.category!,
-                        style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                          color: Colors.grey[600],
+                        title,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: TextStyle(
+                          color: scheme.onSurface,
+                          fontSize: 15,
+                          fontWeight: FontWeight.w600,
                         ),
+                      ),
+                      const SizedBox(height: 4),
+                      Text(
+                        subtitle,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: TextStyle(color: glass.mutedText, fontSize: 12),
                       ),
                     ],
                   ),
-                  const SizedBox(height: 4),
-                ],
-                Row(
+                ),
+                const SizedBox(width: 8),
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.end,
                   children: [
-                    Icon(
-                      Icons.calendar_today,
-                      size: 14,
-                      color: Colors.grey[600],
+                    AmountText(
+                      amount: amount,
+                      currency: _moneda.isEmpty ? '€' : _moneda,
+                      isExpense: isExpense,
+                      signed: true,
+                      fontSize: 16,
                     ),
-                    const SizedBox(width: 4),
-                    Text(
-                      AppLocalizations.of(
-                        context,
-                      )!.dayOfEachMonth(movement.day),
-                      style: Theme.of(
-                        context,
-                      ).textTheme.bodySmall?.copyWith(color: Colors.grey[600]),
-                    ),
+                    const SizedBox(height: 4),
+                    _statusChip(statusLabel, positive: statusPositive),
                   ],
                 ),
               ],
             ),
-          ),
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.end,
-            children: [
-              Text(
-                '${movement.isExpense ? '-' : '+'}${movement.amount.toStringAsFixed(2)}$_moneda',
-                style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                  fontWeight: FontWeight.bold,
-                  color: movement.isExpense ? Colors.red : Colors.green,
+            const SizedBox(height: 12),
+            Row(
+              children: [
+                Expanded(
+                  child: GlassButton(
+                    label: AppLocalizations.of(context)!.detailsLabel,
+                    onPressed: onDetails,
+                  ),
                 ),
-              ),
-              Text(
-                movement.isExpense
-                    ? AppLocalizations.of(context)!.expense
-                    : AppLocalizations.of(context)!.income,
-                style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                  color: movement.isExpense ? Colors.red : Colors.green,
-                  fontWeight: FontWeight.w500,
+                const SizedBox(width: 12),
+                Expanded(
+                  child: GlassButton(
+                    label: AppLocalizations.of(context)!.edit,
+                    onPressed: onEdit,
+                  ),
                 ),
-              ),
-            ],
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildMonthlyDebtDefinitionCard(DebtDefinition debtDefinition, int index) {
-    return Container(
-      margin: const EdgeInsets.only(bottom: 12),
-      child: Dismissible(
-        key: Key('monthly_debt_${debtDefinition.id ?? index}'),
-        direction: DismissDirection.endToStart,
-        confirmDismiss: (_) => _confirmDeleteMonthlyDebt(debtDefinition),
-        background: Container(
-          decoration: BoxDecoration(
-            color: Theme.of(context).colorScheme.error,
-            borderRadius: BorderRadius.circular(12),
-          ),
-          alignment: Alignment.centerRight,
-          padding: const EdgeInsets.only(right: 20),
-          child: const Icon(Icons.delete, color: Colors.white, size: 28),
-        ),
-        onDismissed: (_) => _deleteMonthlyDebt(debtDefinition),
-        child: Card(
-          child: InkWell(
-            borderRadius: BorderRadius.circular(12),
-            onTap: () => _editMonthlyDebt(debtDefinition),
-            onLongPress: () => _showMonthlyDebtLongPressActions(debtDefinition),
-            child: Padding(
-              padding: const EdgeInsets.all(16),
-              child: Row(
-                children: [
-                  Icon(
-                    debtDefinition.isExpense
-                        ? Icons.arrow_downward
-                        : Icons.arrow_upward,
-                    color: debtDefinition.isExpense ? Colors.red : Colors.green,
-                  ),
-                  const SizedBox(width: 12),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          debtDefinition.description,
-                          style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                            fontWeight: FontWeight.w600,
-                          ),
-                        ),
-                        const SizedBox(height: 4),
-                        Text(
-                          AppLocalizations.of(context)!.dayOfEachMonth(debtDefinition.startDay),
-                          style: Theme.of(context).textTheme.bodySmall,
-                        ),
-                      ],
-                    ),
-                  ),
-                  Text(
-                    '${debtDefinition.isExpense ? '-' : '+'}${debtDefinition.amount.toStringAsFixed(2)}$_moneda',
-                    style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                      color: debtDefinition.isExpense ? Colors.red : Colors.green,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                ],
-              ),
+              ],
             ),
-          ),
+          ],
         ),
       ),
     );
   }
-
 }
 
 class _FixedMovementDialog extends StatefulWidget {

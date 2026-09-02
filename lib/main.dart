@@ -9,8 +9,8 @@ import 'package:cashly/modules/gastoscopio/widgets/loading.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:cashly/l10n/app_localizations.dart';
-import 'package:dynamic_color/dynamic_color.dart';
 import 'package:cashly/theme/custom_theme.dart';
+import 'package:cashly/theme/theme_controller.dart';
 
 import 'package:cashly/data/services/notification_service.dart';
 import 'package:cashly/data/services/background_task_service.dart';
@@ -25,6 +25,9 @@ void main() async {
 
   // Inicializar servicio de localización
   await LocaleService().initialize();
+
+  // Inicializar controlador de tema (variante seleccionable)
+  await ThemeController().initialize();
   
   // Inicializar notificaciones
   await NotificationService().initialize();
@@ -44,18 +47,21 @@ class MyApp extends StatefulWidget {
 
 class _MyAppState extends State<MyApp> {
   final LocaleService _localeService = LocaleService();
+  final ThemeController _themeController = ThemeController();
   final AuthService _authService = AuthService();
 
   @override
   void initState() {
     super.initState();
     _localeService.addListener(_onLocaleChanged);
+    _themeController.addListener(_onLocaleChanged);
     LogFileService().initialize();
   }
 
   @override
   void dispose() {
     _localeService.removeListener(_onLocaleChanged);
+    _themeController.removeListener(_onLocaleChanged);
     super.dispose();
   }
 
@@ -65,45 +71,41 @@ class _MyAppState extends State<MyApp> {
 
   @override
   Widget build(BuildContext context) {
-    return DynamicColorBuilder(
-      builder: (ColorScheme? lightDynamic, ColorScheme? darkDynamic) {
-        return MaterialApp(
-          title: 'Gastoscopio',
-          navigatorKey: NotificationService.navigatorKey,
-          routes: {
-            '/credit_card': (context) => const CreditCardScreen(),
-          },
-
-          // Configuración de localizaciones
-          localizationsDelegates: const [
-            AppLocalizations.delegate,
-            GlobalMaterialLocalizations.delegate,
-            GlobalWidgetsLocalizations.delegate,
-            GlobalCupertinoLocalizations.delegate,
-          ],
-          supportedLocales: LocaleService.supportedLocales,
-          locale: _localeService.currentLocale,
-
-          theme: CustomTheme.createTheme(lightDynamic),
-          darkTheme: CustomTheme.createDarkTheme(darkDynamic),
-          themeMode: ThemeMode.system,
-          home: FutureBuilder<bool>(
-            future: _authService.getUseAuth(),
-            builder: (context, snapshot) {
-              if (snapshot.connectionState == ConnectionState.waiting) {
-                return Center(child: Loading(context));
-              }
-
-              final useAuth = snapshot.data ?? false;
-              if (!useAuth) {
-                return const App();
-              }
-
-              return const AuthScreen();
-            },
-          ),
-        );
+    return MaterialApp(
+      title: 'Gastoscopio',
+      navigatorKey: NotificationService.navigatorKey,
+      routes: {
+        '/credit_card': (context) => const CreditCardScreen(),
       },
+
+      // Configuración de localizaciones
+      localizationsDelegates: const [
+        AppLocalizations.delegate,
+        GlobalMaterialLocalizations.delegate,
+        GlobalWidgetsLocalizations.delegate,
+        GlobalCupertinoLocalizations.delegate,
+      ],
+      supportedLocales: LocaleService.supportedLocales,
+      locale: _localeService.currentLocale,
+
+      theme: CustomTheme.build(_themeController.variant),
+      darkTheme: CustomTheme.build(_themeController.variant),
+      themeMode: ThemeMode.dark,
+      home: FutureBuilder<bool>(
+        future: _authService.getUseAuth(),
+        builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return Center(child: Loading(context));
+          }
+
+          final useAuth = snapshot.data ?? false;
+          if (!useAuth) {
+            return const App();
+          }
+
+          return const AuthScreen();
+        },
+      ),
     );
   }
 }

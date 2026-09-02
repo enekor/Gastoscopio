@@ -524,7 +524,7 @@ class AppLocalizationsEs extends AppLocalizations {
   String get dayMustBeBetween1And31 => 'El día debe estar entre 1 y 31.';
 
   @override
-  String get movementType => 'Tipo de movimiento';
+  String get movementType => 'Tipo de Movimiento';
 
   @override
   String get saveInCurrentMonth => 'Guardar gasto en mes actual: ';
@@ -593,7 +593,7 @@ class AppLocalizationsEs extends AppLocalizations {
   String get changeCategory => 'Cambiar categoría';
 
   @override
-  String get selectCategory => 'Selecciona una categoría';
+  String get selectCategory => 'Seleccionar Categoría';
 
   @override
   String categoryUpdated(String category) {
@@ -1412,4 +1412,183 @@ class AppLocalizationsEs extends AppLocalizations {
   @override
   String get noPendingForDate =>
       'No hay transacciones pendientes para este día.';
+
+  @override
+  String get navDebts => 'Deudas';
+
+  @override
+  String get navHistory => 'Historial';
+
+  @override
+  String get navStatistics => 'Estadísticas';
+
+  @override
+  String get totalBalance => 'Balance total';
+
+  @override
+  String get quickAccess => 'Accesos rápidos';
+
+  @override
+  String get recentExpenses => 'Gastos Recientes';
+
+  @override
+  String get seeAll => 'Ver todos';
+
+  @override
+  String get cardLabel => 'Tarjeta';
+
+  @override
+  String pendingTransactions(int count) {
+    return '$count transacciones pendientes';
+  }
+
+  @override
+  String get totalPending => 'Total pendiente';
+
+  @override
+  String get previousMonth => 'Mes Anterior';
+
+  @override
+  String get recurrents => 'Recurrentes';
+
+  @override
+  String get oneTimeDebts => 'Puntuales';
+
+  @override
+  String get urgent => 'URGENTE';
+
+  @override
+  String get resolve => 'Resolver';
+
+  @override
+  String get pay => 'Pagar';
+
+  @override
+  String get newMovementTitle => 'Nuevo';
+
+  @override
+  String get expenseNameHint => 'Ej: Cena con amigos...';
+
+  @override
+  String get categoryAiTag => 'Categoría (IA Tag)';
+
+  @override
+  String get valueLabel => 'Valor';
+
+  @override
+  String get directExpense => 'Gasto Directo';
+
+  @override
+  String get oneTimeDebtLabel => 'Deuda Puntual';
+
+  @override
+  String get saveExpense => 'Guardar Gasto';
+
+  @override
+  String get saveIncome => 'Guardar Ingreso';
+
+  @override
+  String get searchByName => 'Buscar por nombre...';
+
+  @override
+  String get searchByNameCategory => 'Buscar por nombre, categoría...';
+
+  @override
+  String get dateRange => 'Rango de fechas';
+
+  @override
+  String get matches => 'Coincidencias';
+
+  @override
+  String get customRange => 'Rango personalizado';
+
+  @override
+  String get financialSummary => 'Resumen Financiero';
+
+  @override
+  String get netSavings => 'Ahorro Neto';
+
+  @override
+  String get evolution => 'Evolución';
+
+  @override
+  String get distribution => 'Distribución';
+
+  @override
+  String get noData => 'Sin datos';
+
+  @override
+  String get usedBalance => 'Saldo Utilizado';
+
+  @override
+  String get creditLimit => 'Límite de Crédito';
+
+  @override
+  String get nextPayment => 'Próximo Pago';
+
+  @override
+  String get billingClose => 'Cierre Facturación';
+
+  @override
+  String get premiumCard => 'PREMIUM CARD';
+
+  @override
+  String get minimumLabel => 'Mínimo';
+
+  @override
+  String get estimatedMonthlyTotal => 'Total mensual estimado';
+
+  @override
+  String get upcomingCharges => 'Próximos Cobros';
+
+  @override
+  String get recurringExpense => 'Gasto Recurrente';
+
+  @override
+  String get recurringDebt => 'Deuda Recurrente';
+
+  @override
+  String get scheduleLabel => 'Programación';
+
+  @override
+  String get frequency => 'Frecuencia';
+
+  @override
+  String get monthly => 'Mensual';
+
+  @override
+  String get chargeDay => 'Día de Cobro';
+
+  @override
+  String get saveRecurring => 'Guardar Recurrente';
+
+  @override
+  String get detailsLabel => 'Detalles';
+
+  @override
+  String get activeStatus => 'ACTIVO';
+
+  @override
+  String get pendingStatus => 'PENDIENTE';
+
+  @override
+  String get processSelected => 'Procesar Seleccionados';
+
+  @override
+  String get cardChip => 'TARJETA';
+
+  @override
+  String get categoryLabel => 'Categoría';
+
+  @override
+  String get yearLabel => 'AÑO';
+
+  @override
+  String get themeLabel => 'Tema';
+
+  @override
+  String get visualAspect => 'Aspecto Visual';
+
+  @override
+  String get linkedDevices => 'Dispositivos Vinculados';
 }

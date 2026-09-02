@@ -19,6 +19,12 @@ import 'package:svg_flutter/svg.dart';
 import 'package:cashly/modules/settings.dart/screens/device_pairing_screen.dart';
 import 'package:cashly/modules/settings.dart/widgets/security_settings_card.dart';
 import 'package:cashly/data/services/notification_capture_service.dart';
+import 'package:cashly/theme/app_theme_variant.dart';
+import 'package:cashly/theme/theme_controller.dart';
+import 'package:cashly/theme/widgets/app_background.dart';
+import 'package:cashly/theme/widgets/glass_card.dart';
+import 'package:cashly/theme/widgets/section_header.dart';
+import 'package:cashly/theme/widgets/app_segmented_control.dart';
 
 class SettingsScreen extends StatefulWidget {
   const SettingsScreen({super.key});
@@ -361,64 +367,102 @@ class _SettingsScreenState extends State<SettingsScreen> with WidgetsBindingObse
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: CustomScrollView(
-        physics: const BouncingScrollPhysics(),
-        slivers: [
-          SliverAppBar(
-            pinned: true,
-            backgroundColor: Theme.of(context).colorScheme.surface,
-            surfaceTintColor: Theme.of(context).colorScheme.surface,
-            title: Text(
-              AppLocalizations.of(context)!.settings,
-              style: const TextStyle(fontFamily: 'Pacifico'),
-            ),
+      backgroundColor: Colors.transparent,
+      appBar: AppBar(
+        backgroundColor: Colors.transparent,
+        elevation: 0,
+        title: Text(
+          AppLocalizations.of(context)!.settings,
+          style: const TextStyle(fontFamily: 'Pacifico'),
+        ),
+      ),
+      extendBodyBehindAppBar: true,
+      body: AppBackground(
+        imagePath: _backgroundImagePath,
+        child: SafeArea(
+          child: CustomScrollView(
+            physics: const BouncingScrollPhysics(),
+            slivers: [
+              SliverPadding(
+                padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 8.0),
+                sliver: SliverList(
+                  delegate: SliverChildListDelegate([
+                    SectionHeader(title: AppLocalizations.of(context)!.accountSection),
+                    _buildAccountCard(context),
+                    const SizedBox(height: 24),
+
+                    SectionHeader(title: AppLocalizations.of(context)!.personalization),
+                    _buildThemeCard(context),
+                    const SizedBox(height: 12),
+                    _buildLanguageCard(context),
+                    const SizedBox(height: 12),
+                    _buildAIModelCard(context),
+                    const SizedBox(height: 12),
+                    _buildCurrencyCard(context),
+                    const SizedBox(height: 12),
+                    _buildLogoCard(context),
+                    const SizedBox(height: 24),
+
+                    SectionHeader(title: AppLocalizations.of(context)!.visualAspect),
+                    _buildBackgroundImageCard(context),
+                    const SizedBox(height: 12),
+                    _buildBottomNavCard(context),
+                    const SizedBox(height: 24),
+
+                    SectionHeader(title: AppLocalizations.of(context)!.security),
+                    const SecuritySettingsCard(),
+                    const SizedBox(height: 24),
+
+                    SectionHeader(title: AppLocalizations.of(context)!.notificationListenerTitle),
+                    _buildNotificationListenerCard(context),
+                    const SizedBox(height: 24),
+
+                    SectionHeader(title: AppLocalizations.of(context)!.backupManagement),
+                    const BackupRestoreWidget(),
+                    const SizedBox(height: 24),
+
+                    SectionHeader(
+                      title: AppLocalizations.of(context)!.linkedDevices,
+                    ),
+                    _buildPairingCard(context),
+                    const SizedBox(height: 24),
+
+                    SectionHeader(title: AppLocalizations.of(context)!.developerOptions),
+                    DeveloperOptionsWidget(onImportSuccess: _handleImportSuccess),
+                    const SizedBox(height: 100),
+                  ]),
+                ),
+              ),
+            ],
           ),
-          SliverPadding(
-            padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 16.0),
-            sliver: SliverList(
-              delegate: SliverChildListDelegate([
-                _buildSectionHeader(context, AppLocalizations.of(context)!.accountSection, AppLocalizations.of(context)!.accountDescription, Icons.account_circle_outlined),
-                const SizedBox(height: 20),
-                _buildAccountCard(context),
-                const SizedBox(height: 32),
-                
-                _buildSectionHeader(context, AppLocalizations.of(context)!.personalization, AppLocalizations.of(context)!.personalizationSubtitle, Icons.palette_outlined),
-                const SizedBox(height: 20),
-                _buildLanguageCard(context),
-                const SizedBox(height: 16),
-                _buildAIModelCard(context),
-                const SizedBox(height: 16),
-                _buildCurrencyCard(context),
-                const SizedBox(height: 16),
-                _buildLogoCard(context),
-                const SizedBox(height: 16),
-                _buildBackgroundImageCard(context),
-                const SizedBox(height: 16),
-                _buildBottomNavCard(context),
-                const SizedBox(height: 32),
+        ),
+      ),
+    );
+  }
 
-                _buildSectionHeader(context, AppLocalizations.of(context)!.security, AppLocalizations.of(context)!.securityDescription, Icons.security),
-                const SizedBox(height: 20),
-                const SecuritySettingsCard(),
-                const SizedBox(height: 32),
-
-                _buildSectionHeader(context, AppLocalizations.of(context)!.notificationListenerTitle, AppLocalizations.of(context)!.notificationListenerDescription, Icons.notifications_active_outlined),
-                const SizedBox(height: 20),
-                _buildNotificationListenerCard(context),
-                const SizedBox(height: 32),
-
-                _buildSectionHeader(context, AppLocalizations.of(context)!.backupManagement, AppLocalizations.of(context)!.backupDescription, Icons.backup_outlined),
-                const SizedBox(height: 20),
-                const BackupRestoreWidget(),
-                const SizedBox(height: 16),
-                _buildSectionHeader(context, 'Dispositivos Vinculados', 'Empareja dispositivos para sincronizar datos locales', Icons.devices_outlined),
-                const SizedBox(height: 20),
-                _buildPairingCard(context),
-                const SizedBox(height: 16),
-                DeveloperOptionsWidget(onImportSuccess: _handleImportSuccess),
-                const SizedBox(height: 100),
-              ]),
-            ),
+  Widget _buildThemeCard(BuildContext context) {
+    return GlassCard(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Icon(Icons.brush_outlined, color: Theme.of(context).colorScheme.primary, size: 20),
+              const SizedBox(width: 8),
+              Text(AppLocalizations.of(context)!.themeLabel, style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w600)),
+            ],
+          ),
+          const SizedBox(height: 16),
+          AppSegmentedControl<AppThemeVariant>(
+            segments: const [
+              (value: AppThemeVariant.etherealLedger, label: 'Ethereal', icon: Icons.auto_awesome),
+              (value: AppThemeVariant.obsidian, label: 'Obsidian', icon: Icons.dark_mode),
+            ],
+            selected: ThemeController().variant,
+            onChanged: (v) async {
+              await ThemeController().setVariant(v);
+              if (mounted) setState(() {});
+            },
           ),
         ],
       ),
@@ -426,15 +470,10 @@ class _SettingsScreenState extends State<SettingsScreen> with WidgetsBindingObse
   }
 
   Widget _buildNotificationListenerCard(BuildContext context) {
-    return Card(
-      color: Theme.of(context).colorScheme.secondary.withAlpha(25),
-      elevation: 0,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16), side: BorderSide(color: Theme.of(context).colorScheme.outline.withAlpha(50))),
-      child: Padding(
-        padding: const EdgeInsets.all(20.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
+    return GlassCard(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
             SwitchListTile(
               contentPadding: EdgeInsets.zero,
               title: Text(AppLocalizations.of(context)!.notificationListenerPermission, style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w600)),
@@ -602,43 +641,14 @@ class _SettingsScreenState extends State<SettingsScreen> with WidgetsBindingObse
             ],
           ],
         ),
-      ),
-    );
-  }
-
-  Widget _buildSectionHeader(BuildContext context, String title, String subtitle, IconData icon) {
-    return Row(
-      children: [
-        Container(
-          padding: const EdgeInsets.all(12),
-          decoration: BoxDecoration(color: Theme.of(context).colorScheme.primary.withAlpha(25), borderRadius: BorderRadius.circular(12)),
-          child: Icon(icon, color: Theme.of(context).colorScheme.primary, size: 24),
-        ),
-        const SizedBox(width: 16),
-        Expanded(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(title, style: Theme.of(context).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold)),
-              const SizedBox(height: 4),
-              Text(subtitle, style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: Theme.of(context).colorScheme.onSurfaceVariant)),
-            ],
-          ),
-        ),
-      ],
     );
   }
 
   Widget _buildCurrencyCard(BuildContext context) {
-    return Card(
-      color: Theme.of(context).colorScheme.secondary.withAlpha(25),
-      elevation: 0,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16), side: BorderSide(color: Theme.of(context).colorScheme.outline.withAlpha(50))),
-      child: Padding(
-        padding: const EdgeInsets.all(20.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
+    return GlassCard(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
             Row(
               children: [
                 Icon(Icons.currency_exchange, color: Theme.of(context).colorScheme.primary, size: 20),
@@ -655,20 +665,14 @@ class _SettingsScreenState extends State<SettingsScreen> with WidgetsBindingObse
             ),
           ],
         ),
-      ),
     );
   }
 
   Widget _buildLogoCard(BuildContext context) {
-    return Card(
-      color: Theme.of(context).colorScheme.secondary.withAlpha(25),
-      elevation: 0,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16), side: BorderSide(color: Theme.of(context).colorScheme.outline.withAlpha(50))),
-      child: Padding(
-        padding: const EdgeInsets.all(20.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
+    return GlassCard(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
             Row(
               children: [
                 Icon(Icons.image_outlined, color: Theme.of(context).colorScheme.primary, size: 20),
@@ -701,7 +705,6 @@ class _SettingsScreenState extends State<SettingsScreen> with WidgetsBindingObse
             ],
           ],
         ),
-      ),
     );
   }
 
@@ -739,15 +742,10 @@ class _SettingsScreenState extends State<SettingsScreen> with WidgetsBindingObse
   Color _getContrastColor(Color color) => (0.299 * color.red + 0.587 * color.green + 0.114 * color.blue) / 255 > 0.5 ? Colors.black : Colors.white;
 
   Widget _buildBackgroundImageCard(BuildContext context) {
-    return Card(
-      color: Theme.of(context).colorScheme.secondary.withAlpha(25),
-      elevation: 0,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16), side: BorderSide(color: Theme.of(context).colorScheme.outline.withAlpha(50))),
-      child: Padding(
-        padding: const EdgeInsets.all(20.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
+    return GlassCard(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
             Row(children: [Icon(Icons.wallpaper_outlined, color: Theme.of(context).colorScheme.primary, size: 20), const SizedBox(width: 8), Text(AppLocalizations.of(context)!.backgroundImage, style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w600))]),
             const SizedBox(height: 16),
             if (_backgroundImagePath != null && _backgroundImagePath!.isNotEmpty) ...[ClipRRect(borderRadius: BorderRadius.circular(12), child: Image.file(File(_backgroundImagePath!), height: 100, width: double.infinity, fit: BoxFit.cover)), const SizedBox(height: 12)],
@@ -759,20 +757,14 @@ class _SettingsScreenState extends State<SettingsScreen> with WidgetsBindingObse
             ),
           ],
         ),
-      ),
     );
   }
 
   Widget _buildBottomNavCard(BuildContext context) {
-    return Card(
-      color: Theme.of(context).colorScheme.secondary.withAlpha(25),
-      elevation: 0,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16), side: BorderSide(color: Theme.of(context).colorScheme.outline.withAlpha(50))),
-      child: Padding(
-        padding: const EdgeInsets.all(20.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
+    return GlassCard(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
             Row(children: [Icon(Icons.navigation_outlined, color: Theme.of(context).colorScheme.primary, size: 20), const SizedBox(width: 8), Text(AppLocalizations.of(context)!.navigationStyle, style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w600))]),
             const SizedBox(height: 20),
             Row(
@@ -784,7 +776,6 @@ class _SettingsScreenState extends State<SettingsScreen> with WidgetsBindingObse
             ),
           ],
         ),
-      ),
     );
   }
 
@@ -800,15 +791,10 @@ class _SettingsScreenState extends State<SettingsScreen> with WidgetsBindingObse
   }
 
   Widget _buildLanguageCard(BuildContext context) {
-    return Card(
-      color: Theme.of(context).colorScheme.secondary.withAlpha(25),
-      elevation: 0,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16), side: BorderSide(color: Theme.of(context).colorScheme.outline.withAlpha(50))),
-      child: Padding(
-        padding: const EdgeInsets.all(20.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
+    return GlassCard(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
             Row(children: [Icon(Icons.language, color: Theme.of(context).colorScheme.primary, size: 20), const SizedBox(width: 8), Text(AppLocalizations.of(context)!.language, style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w600))]),
             const SizedBox(height: 16),
             DropdownButtonFormField<String>(
@@ -823,20 +809,14 @@ class _SettingsScreenState extends State<SettingsScreen> with WidgetsBindingObse
             ),
           ],
         ),
-      ),
     );
   }
 
   Widget _buildAIModelCard(BuildContext context) {
-    return Card(
-      color: Theme.of(context).colorScheme.secondary.withAlpha(25),
-      elevation: 0,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16), side: BorderSide(color: Theme.of(context).colorScheme.outline.withAlpha(50))),
-      child: Padding(
-        padding: const EdgeInsets.all(20.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
+    return GlassCard(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
             Row(
               children: [
                 Icon(Icons.psychology_outlined, color: Theme.of(context).colorScheme.primary, size: 20),
@@ -864,20 +844,14 @@ class _SettingsScreenState extends State<SettingsScreen> with WidgetsBindingObse
             ),
           ],
         ),
-      ),
     );
   }
 
   Widget _buildPairingCard(BuildContext context) {
-    return Card(
-      color: Theme.of(context).colorScheme.secondary.withAlpha(25),
-      elevation: 0,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16), side: BorderSide(color: Theme.of(context).colorScheme.outline.withAlpha(50))),
-      child: Padding(
-        padding: const EdgeInsets.all(20.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
+    return GlassCard(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
             Row(children: [Icon(Icons.link, color: Theme.of(context).colorScheme.primary, size: 20), const SizedBox(width: 8), Text('Vincular dispositivo', style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w600))]),
             const SizedBox(height: 16),
             Text('Permite enviar movimientos de tarjeta de crédito a otro dispositivo mediante conexión P2P local.', style: Theme.of(context).textTheme.bodySmall?.copyWith(color: Theme.of(context).colorScheme.onSurfaceVariant)),
@@ -894,28 +868,21 @@ class _SettingsScreenState extends State<SettingsScreen> with WidgetsBindingObse
             ),
           ],
         ),
-      ),
     );
   }
 
   Widget _buildAccountCard(BuildContext context) {
     final user = LoginService().currentUser;
-    return Card(
-      color: Theme.of(context).colorScheme.secondary.withAlpha(25),
-      elevation: 0,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16), side: BorderSide(color: Theme.of(context).colorScheme.outline.withAlpha(50))),
-      child: Padding(
-        padding: const EdgeInsets.all(20.0),
-        child: _isLoggedIn && user != null
-            ? Column(
-                children: [
-                  ListTile(contentPadding: EdgeInsets.zero, leading: CircleAvatar(backgroundImage: NetworkImage(user.photoUrl ?? '')), title: Text(user.displayName ?? '', style: const TextStyle(fontWeight: FontWeight.bold)), subtitle: Text(user.email)),
-                  const SizedBox(height: 12),
-                  ElevatedButton.icon(onPressed: _handleLogout, icon: const Icon(Icons.logout), label: Text(AppLocalizations.of(context)!.logout), style: ElevatedButton.styleFrom(backgroundColor: Theme.of(context).colorScheme.errorContainer, foregroundColor: Theme.of(context).colorScheme.onErrorContainer)),
-                ],
-              )
-            : Center(child: ElevatedButton.icon(onPressed: _handleLogin, icon: const Icon(Icons.login), label: Text(AppLocalizations.of(context)!.login))),
-      ),
+    return GlassCard(
+      child: _isLoggedIn && user != null
+          ? Column(
+              children: [
+                ListTile(contentPadding: EdgeInsets.zero, leading: CircleAvatar(backgroundImage: NetworkImage(user.photoUrl ?? '')), title: Text(user.displayName ?? '', style: const TextStyle(fontWeight: FontWeight.bold)), subtitle: Text(user.email)),
+                const SizedBox(height: 12),
+                ElevatedButton.icon(onPressed: _handleLogout, icon: const Icon(Icons.logout), label: Text(AppLocalizations.of(context)!.logout), style: ElevatedButton.styleFrom(backgroundColor: Theme.of(context).colorScheme.errorContainer, foregroundColor: Theme.of(context).colorScheme.onErrorContainer)),
+              ],
+            )
+          : Center(child: ElevatedButton.icon(onPressed: _handleLogin, icon: const Icon(Icons.login), label: Text(AppLocalizations.of(context)!.login))),
     );
   }
 }

@@ -1,21 +1,20 @@
-import 'dart:io';
-
 import 'package:cashly/data/services/shared_preferences_service.dart';
 import 'package:cashly/data/services/sqlite_service.dart';
 import 'package:cashly/modules/gastoscopio/logic/finance_service.dart';
 import 'package:cashly/modules/gastoscopio/screens/home.dart';
+import 'package:cashly/modules/gastoscopio/screens/active_debts_screen.dart';
 import 'package:cashly/modules/gastoscopio/screens/movements_screen.dart';
 import 'package:cashly/modules/gastoscopio/screens/summary_screen.dart';
 import 'package:cashly/modules/gastoscopio/screens/movement_form_screen.dart';
 import 'package:cashly/modules/gastoscopio/widgets/loading.dart';
 import 'package:cashly/modules/gastoscopio/widgets/month_grid_selector.dart';
-import 'package:cashly/modules/image_scan/screens/image_scan_screen.dart';
 import 'package:cashly/modules/settings.dart/settings.dart';
-import 'package:cashly/modules/settings.dart/widgets/custom_navbar.dart';
 import 'package:cashly/onboarding/onboarding.dart';
-import 'package:file_picker/file_picker.dart';
-import 'package:flutter/material.dart';
+import 'package:cashly/theme/widgets/app_background.dart';
+import 'package:cashly/theme/widgets/app_bottom_nav.dart';
+import 'package:cashly/theme/widgets/month_chip.dart';
 import 'package:cashly/l10n/app_localizations.dart';
+import 'package:flutter/material.dart';
 
 class MainScreen extends StatefulWidget {
   const MainScreen({Key? key}) : super(key: key);
@@ -32,26 +31,7 @@ class _MainScreenState extends State<MainScreen>
   int _year = DateTime.now().year;
   int _month = DateTime.now().month;
   late Future<bool> _initializationFuture;
-  bool _isOpaqueBottomNav = false;
   String? _backgroundImagePath;
-
-  final List<CustomNavigationDestination> _destinations = const [
-    CustomNavigationDestination(
-      icon: Icons.home_outlined,
-      selectedIcon: Icons.home,
-      label: 'Home',
-    ),
-    CustomNavigationDestination(
-      icon: Icons.list_outlined,
-      selectedIcon: Icons.list,
-      label: 'List',
-    ),
-    CustomNavigationDestination(
-      icon: Icons.analytics_outlined,
-      selectedIcon: Icons.analytics,
-      label: 'Analytics',
-    ),
-  ];
 
   void _onDestinationSelected(int index) {
     _tabController.animateTo(index);
@@ -68,7 +48,7 @@ class _MainScreenState extends State<MainScreen>
     super.initState();
 
     _tabController = TabController(
-      length: 3,
+      length: 4,
       vsync: this,
       initialIndex: _selectedIndex,
     );
@@ -86,13 +66,13 @@ class _MainScreenState extends State<MainScreen>
 
   Future<bool> _initialize() async {
     final prefs = SharedPreferencesService();
-    final isFirstStartup = await prefs.getBoolValue(SharedPreferencesKeys.isFirstStartup) ?? true;
-    final isOpaqueBottomNav = await prefs.getBoolValue(SharedPreferencesKeys.isOpaqueBottomNav) ?? false;
-    final backgroundImage = await prefs.getStringValue(SharedPreferencesKeys.backgroundImage);
+    final isFirstStartup =
+        await prefs.getBoolValue(SharedPreferencesKeys.isFirstStartup) ?? true;
+    final backgroundImage =
+        await prefs.getStringValue(SharedPreferencesKeys.backgroundImage);
 
     if (mounted) {
       setState(() {
-        _isOpaqueBottomNav = isOpaqueBottomNav;
         _backgroundImagePath = backgroundImage;
       });
     }
@@ -122,7 +102,11 @@ class _MainScreenState extends State<MainScreen>
       SqliteService().db.fixedMovementDao,
     );
     _availableMonths = await financeService.getAvailableMonths(year);
-    final selectedMonth = await financeService.handleMonthSelection(month, year, context);
+    final selectedMonth = await financeService.handleMonthSelection(
+      month,
+      year,
+      context,
+    );
     if (selectedMonth != null) {
       setState(() {
         _month = selectedMonth;
@@ -151,7 +135,11 @@ class _MainScreenState extends State<MainScreen>
                     Navigator.pop(dialogContext);
                   },
                   onYearChanged: (year) async {
-                    final financeService = FinanceService.getInstance(SqliteService().db.monthDao, SqliteService().db.movementValueDao, SqliteService().db.fixedMovementDao);
+                    final financeService = FinanceService.getInstance(
+                      SqliteService().db.monthDao,
+                      SqliteService().db.movementValueDao,
+                      SqliteService().db.fixedMovementDao,
+                    );
                     final months = await financeService.getAvailableMonths(year);
                     Navigator.pop(dialogContext);
                     setState(() {
@@ -174,145 +162,169 @@ class _MainScreenState extends State<MainScreen>
     );
   }
 
-  Future<void> _pickAndScanImage() async {
-    final result = await FilePicker.platform.pickFiles(type: FileType.image);
-    if (result == null || result.files.single.path == null) return;
-    if (!mounted) return;
-    Navigator.push(
-      context,
-      MaterialPageRoute(
-        builder: (context) => ImageScanScreen(imagePath: result.files.single.path!),
-      ),
-    );
-  }
-
   Future<void> _reloadConfigs() async {
     final prefs = SharedPreferencesService();
-    final isOpaque = await prefs.getBoolValue(SharedPreferencesKeys.isOpaqueBottomNav) ?? false;
     final bg = await prefs.getStringValue(SharedPreferencesKeys.backgroundImage);
     if (mounted) {
       setState(() {
-        _isOpaqueBottomNav = isOpaque;
         _backgroundImagePath = bg;
       });
     }
   }
 
+  Future<void> _openNewMovement() async {
+    await Navigator.push(
+      context,
+      MaterialPageRoute(builder: (_) => MovementFormScreen(asScreen: true)),
+    );
+    if (mounted) setState(() {});
+  }
+
   List<Widget> get _screens => [
-    GastoscopioHomeScreen(key: const ValueKey('home'), year: _year, month: _month),
-    MovementsScreen(key: const ValueKey('movements'), year: _year, month: _month),
+    GastoscopioHomeScreen(
+      key: const ValueKey('home'),
+      year: _year,
+      month: _month,
+    ),
+    const ActiveDebtsScreen(key: ValueKey('debts'), embedded: true),
+    MovementsScreen(
+      key: const ValueKey('movements'),
+      year: _year,
+      month: _month,
+    ),
     const SummaryScreen(key: ValueKey('summary')),
   ];
+
+  String _titleForIndex(BuildContext context, int index) {
+    final l = AppLocalizations.of(context)!;
+    return [l.home, l.navDebts, l.navHistory, l.navStatistics][index];
+  }
+
+  Widget _buildTopBar() {
+    final financeService = FinanceService.getInstance(
+      SqliteService().db.monthDao,
+      SqliteService().db.movementValueDao,
+      SqliteService().db.fixedMovementDao,
+    );
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(20, 8, 12, 8),
+      child: Row(
+        children: [
+          SizedBox(
+            width: 120,
+            child: Align(
+              alignment: Alignment.centerLeft,
+              child: _selectedIndex != 3
+                  ? AnimatedBuilder(
+                      animation: financeService,
+                      builder: (context, _) => MonthChip(
+                        label: financeService.currentMonthName(context),
+                        onTap: _showMonthSelector,
+                      ),
+                    )
+                  : const SizedBox.shrink(),
+            ),
+          ),
+          Expanded(
+            child: Text(
+              _titleForIndex(context, _selectedIndex),
+              textAlign: TextAlign.center,
+              style: const TextStyle(fontSize: 20, fontWeight: FontWeight.w700),
+            ),
+          ),
+          SizedBox(
+            width: 120,
+            child: Align(
+              alignment: Alignment.centerRight,
+              child: IconButton(
+                icon: const Icon(Icons.settings_outlined),
+                onPressed: () async {
+                  await Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => const SettingsScreen()),
+                  );
+                  await _reloadConfigs();
+                },
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
     return FutureBuilder(
       future: _initializationFuture,
       builder: (context, snapshot) {
-        if (snapshot.connectionState == ConnectionState.waiting) return Scaffold(body: Center(child: Loading(context)));
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return Scaffold(body: Center(child: Loading(context)));
+        }
         if (snapshot.data == true) {
           WidgetsBinding.instance.addPostFrameCallback((_) {
-            Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => const OnboardingScreen()));
+            Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(builder: (context) => const OnboardingScreen()),
+            );
           });
           return Scaffold(body: Center(child: Loading(context)));
         }
 
-        final hasBackground = _backgroundImagePath != null && _backgroundImagePath!.isNotEmpty;
-
         return Scaffold(
           extendBody: true,
-          body: Stack(
-            children: [
-              if (hasBackground && _selectedIndex == 0)
-                Positioned(
-                  top: 0, left: 0, right: 0,
-                  height: MediaQuery.of(context).size.height / 2,
-                  child: Stack(
-                    fit: StackFit.expand,
-                    children: [
-                      Image.file(File(_backgroundImagePath!), fit: BoxFit.cover),
-                      Container(
-                        decoration: BoxDecoration(
-                          gradient: LinearGradient(
-                            begin: Alignment.topCenter,
-                            end: Alignment.bottomCenter,
-                            colors: [Colors.black.withOpacity(0.7), Colors.black.withOpacity(0.3), Theme.of(context).colorScheme.surface],
-                            stops: const [0.0, 0.7, 1.0],
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              NestedScrollView(
-                headerSliverBuilder: (context, innerBoxIsScrolled) => [
-                  SliverAppBar(
-                    backgroundColor: Colors.transparent,
-                    elevation: 0,
-                    pinned: true,
-                    automaticallyImplyLeading: false,
-                    title: Text(
-                      AppLocalizations.of(context)!.appTitle,
-                      style: TextStyle(
-                        fontFamily: 'Pacifico',
-                        color: hasBackground && _selectedIndex == 0 ? Colors.white : null,
-                        shadows: hasBackground && _selectedIndex == 0 ? [const Shadow(blurRadius: 10.0, color: Colors.black54, offset: Offset(2.0, 2.0))] : null,
-                      ),
+          backgroundColor: Colors.transparent,
+          body: AppBackground(
+            imagePath: _selectedIndex == 0 ? _backgroundImagePath : null,
+            child: SafeArea(
+              bottom: false,
+              child: Column(
+                children: [
+                  _buildTopBar(),
+                  Expanded(
+                    child: TabBarView(
+                      controller: _tabController,
+                      physics: const ClampingScrollPhysics(),
+                      children: _screens,
                     ),
-                    actions: [
-                      IconButton(
-                        icon: Icon(Icons.settings, color: hasBackground && _selectedIndex == 0 ? Colors.white : null),
-                        onPressed: () async {
-                          await Navigator.push(context, MaterialPageRoute(builder: (context) => const SettingsScreen()));
-                          await _reloadConfigs();
-                        },
-                      ),
-                      if (_selectedIndex != 2)
-                        IconButton(
-                          onPressed: _showMonthSelector,
-                          icon: Icon(Icons.calendar_today, color: hasBackground && _selectedIndex == 0 ? Colors.white : null),
-                        ),
-                    ],
                   ),
                 ],
-                body: TabBarView(
-                  controller: _tabController,
-                  physics: const ClampingScrollPhysics(),
-                  children: _screens,
-                ),
+              ),
+            ),
+          ),
+          bottomNavigationBar: AppBottomNav(
+            selectedIndex: _selectedIndex,
+            onSelected: _onDestinationSelected,
+            items: [
+              (
+                icon: Icons.home_outlined,
+                selectedIcon: Icons.home,
+                label: AppLocalizations.of(context)!.home,
+              ),
+              (
+                icon: Icons.credit_score_outlined,
+                selectedIcon: Icons.credit_score,
+                label: AppLocalizations.of(context)!.navDebts,
+              ),
+              (
+                icon: Icons.history,
+                selectedIcon: Icons.history,
+                label: AppLocalizations.of(context)!.navHistory,
+              ),
+              (
+                icon: Icons.bar_chart_outlined,
+                selectedIcon: Icons.bar_chart,
+                label: AppLocalizations.of(context)!.navStatistics,
               ),
             ],
           ),
-          bottomNavigationBar: CustomBottomNavigationBar(
-            height: 45,
-            selectedIndex: _selectedIndex,
-            onDestinationSelected: _onDestinationSelected,
-            destinations: _destinations,
-            backgroundColor: _isOpaqueBottomNav
-                ? Theme.of(context).colorScheme.primary.withAlpha(200)
-                : Theme.of(context).colorScheme.secondary.withAlpha(25),
-            margin: const EdgeInsets.only(left: 24.0, right: 24.0, bottom: 18.0),
-            borderRadius: BorderRadius.circular(24),
-            isOpaque: _isOpaqueBottomNav,
-          ),
+          floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
           floatingActionButton: FloatingActionButton(
-            child: const Icon(Icons.add_card, size: 28),
-            onPressed: () async {
-              final result = await showModalBottomSheet<dynamic>(
-                context: context,
-                isScrollControlled: true,
-                showDragHandle: true,
-                useSafeArea: true,
-                builder: (BuildContext context) => MovementFormScreen(),
-              );
-              if (result == 'scan') {
-                _pickAndScanImage();
-              }
-            },
-            elevation: 6,
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(16),
-            ),
+            backgroundColor: Theme.of(context).colorScheme.primary,
+            foregroundColor: Theme.of(context).colorScheme.onPrimary,
+            shape: const CircleBorder(),
+            onPressed: _openNewMovement,
+            child: const Icon(Icons.add, size: 30),
           ),
         );
       },

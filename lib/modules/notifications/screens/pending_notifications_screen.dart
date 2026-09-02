@@ -10,6 +10,10 @@ import 'package:cashly/modules/gastoscopio/logic/finance_service.dart';
 import 'package:cashly/modules/gastoscopio/widgets/loading.dart';
 import 'package:cashly/modules/notifications/widgets/pending_movement_card.dart';
 import 'package:cashly/l10n/app_localizations.dart';
+import 'package:cashly/theme/app_glass.dart';
+import 'package:cashly/theme/widgets/app_background.dart';
+import 'package:cashly/theme/widgets/glass_card.dart';
+import 'package:cashly/theme/widgets/primary_pill_button.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:cashly/modules/credit_card/logic/credit_card_service.dart';
@@ -390,167 +394,244 @@ class _PendingNotificationsScreenState
   Widget build(BuildContext context) {
     final localizations = AppLocalizations.of(context)!;
     final theme = Theme.of(context);
+    final glass = theme.extension<AppGlass>()!;
 
     if (_isLoading) {
       return Scaffold(
-        appBar: AppBar(),
-        body: Center(child: Loading(context)),
+        backgroundColor: Colors.transparent,
+        appBar: AppBar(
+          backgroundColor: Colors.transparent,
+          elevation: 0,
+        ),
+        body: AppBackground(child: Center(child: Loading(context))),
       );
     }
 
     return Scaffold(
-      body: Form(
-        key: _formKey,
-        child: CustomScrollView(
-          slivers: [
-            SliverAppBar(automaticallyImplyLeading: false),
-            SliverToBoxAdapter(
-              child: Container(
-                width: double.infinity,
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 24,
-                  vertical: 12,
-                ),
-                color: theme.colorScheme.primaryContainer.withAlpha(80),
-                child: Row(
-                  children: [
-                    if (_isAiProcessing)
-                      SizedBox(
-                        width: 20,
-                        height: 20,
-                        child: CircularProgressIndicator(
-                          strokeWidth: 2,
-                          color: theme.colorScheme.primary,
-                        ),
-                      )
-                    else
-                      Icon(
-                        Icons.notifications_active_outlined,
-                        color: theme.colorScheme.primary,
-                        size: 20,
-                      ),
-                    const SizedBox(width: 12),
-                    Expanded(
-                      child: Text(
-                        _isAiProcessing
-                            ? localizations.savingProgress(
-                                _aiProcessingCurrent,
-                                _aiProcessingTotal,
-                              )
-                            : localizations.pendingNotificationsDescription,
-                        style: theme.textTheme.bodySmall?.copyWith(
-                          color: theme.colorScheme.onPrimaryContainer,
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ),
-            if (_availableDates.isNotEmpty)
-              SliverToBoxAdapter(
-                child: Container(
-                  padding: const EdgeInsets.symmetric(vertical: 16),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 24),
-                        child: Text(
-                          localizations.selectDateToView,
-                          style: theme.textTheme.titleSmall?.copyWith(
-                            fontWeight: FontWeight.bold,
+      backgroundColor: Colors.transparent,
+      appBar: AppBar(
+        backgroundColor: Colors.transparent,
+        elevation: 0,
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back),
+          onPressed: () => Navigator.of(context).maybePop(),
+        ),
+        title: Text(localizations.pendingNotifications),
+        centerTitle: true,
+      ),
+      body: AppBackground(
+        child: SafeArea(
+          top: false,
+          child: Form(
+            key: _formKey,
+            child: Column(
+              children: [
+                Expanded(
+                  child: CustomScrollView(
+                    slivers: [
+                      // AI processing progress banner
+                      SliverToBoxAdapter(
+                        child: Padding(
+                          padding: const EdgeInsets.fromLTRB(16, 8, 16, 4),
+                          child: GlassCard(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 16,
+                              vertical: 14,
+                            ),
+                            child: Row(
+                              children: [
+                                if (_isAiProcessing)
+                                  SizedBox(
+                                    width: 20,
+                                    height: 20,
+                                    child: CircularProgressIndicator(
+                                      strokeWidth: 2,
+                                      color: theme.colorScheme.primary,
+                                    ),
+                                  )
+                                else
+                                  Icon(
+                                    Icons.auto_awesome_outlined,
+                                    color: theme.colorScheme.primary,
+                                    size: 20,
+                                  ),
+                                const SizedBox(width: 12),
+                                Expanded(
+                                  child: Text(
+                                    _isAiProcessing
+                                        ? localizations.savingProgress(
+                                            _aiProcessingCurrent,
+                                            _aiProcessingTotal,
+                                          )
+                                        : localizations
+                                            .pendingNotificationsDescription,
+                                    style: theme.textTheme.bodySmall?.copyWith(
+                                      color: glass.mutedText,
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
                           ),
                         ),
                       ),
-                      const SizedBox(height: 12),
-                      SingleChildScrollView(
-                        scrollDirection: Axis.horizontal,
-                        padding: const EdgeInsets.symmetric(horizontal: 16),
-                        child: Row(
-                          children: _availableDates.map((date) {
-                            final isSelected = _selectedDate != null &&
-                                date.year == _selectedDate!.year &&
-                                date.month == _selectedDate!.month &&
-                                date.day == _selectedDate!.day;
-                            return Padding(
-                              padding: const EdgeInsets.symmetric(horizontal: 4),
-                              child: ChoiceChip(
-                                label: Text(
-                                  DateFormat('dd/MM/yyyy').format(date),
+                      // Date filter chips
+                      if (_availableDates.isNotEmpty)
+                        SliverToBoxAdapter(
+                          child: Padding(
+                            padding: const EdgeInsets.only(top: 12, bottom: 4),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Padding(
+                                  padding: const EdgeInsets.symmetric(
+                                    horizontal: 20,
+                                  ),
+                                  child: Text(
+                                    localizations.selectDateToView,
+                                    style: theme.textTheme.titleSmall?.copyWith(
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
                                 ),
-                                selected: isSelected,
-                                onSelected: (selected) {
-                                  if (selected) {
-                                    setState(() => _selectedDate = date);
-                                  }
-                                },
-                              ),
-                            );
-                          }).toList(),
+                                const SizedBox(height: 10),
+                                SingleChildScrollView(
+                                  scrollDirection: Axis.horizontal,
+                                  padding: const EdgeInsets.symmetric(
+                                    horizontal: 16,
+                                  ),
+                                  child: Row(
+                                    children: _availableDates.map((date) {
+                                      final isSelected = _selectedDate != null &&
+                                          date.year == _selectedDate!.year &&
+                                          date.month == _selectedDate!.month &&
+                                          date.day == _selectedDate!.day;
+                                      return Padding(
+                                        padding: const EdgeInsets.symmetric(
+                                          horizontal: 4,
+                                        ),
+                                        child: _DateChip(
+                                          label: DateFormat('dd/MM/yyyy')
+                                              .format(date),
+                                          selected: isSelected,
+                                          glass: glass,
+                                          onTap: () {
+                                            setState(
+                                              () => _selectedDate = date,
+                                            );
+                                          },
+                                        ),
+                                      );
+                                    }).toList(),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
                         ),
+                      SliverPadding(
+                        padding: const EdgeInsets.all(16),
+                        sliver: _filteredMovements.isEmpty
+                            ? SliverFillRemaining(
+                                hasScrollBody: false,
+                                child: Center(
+                                  child: Text(
+                                    localizations.noPendingForDate,
+                                    style: theme.textTheme.bodyMedium
+                                        ?.copyWith(color: glass.mutedText),
+                                  ),
+                                ),
+                              )
+                            : SliverList(
+                                delegate: SliverChildBuilderDelegate(
+                                  (context, index) {
+                                    final movement = _filteredMovements[index];
+                                    return Padding(
+                                      padding:
+                                          const EdgeInsets.only(bottom: 12),
+                                      child: PendingMovementCard(
+                                        movement: movement,
+                                        resolvedAppName:
+                                            _resolvedAppNames[movement.appName],
+                                        appIcon: _resolvedAppIcons[
+                                            movement.appName],
+                                        onDelete: () => _removeMovement(index),
+                                        onDisallowApp: () => _disallowApp(
+                                            _movements.indexOf(movement)),
+                                        onExpenseChanged: (isExpense) {
+                                          setState(() {
+                                            movement.isExpense = isExpense;
+                                          });
+                                        },
+                                      ),
+                                    );
+                                  },
+                                  childCount: _filteredMovements.length,
+                                ),
+                              ),
                       ),
                     ],
                   ),
                 ),
-              ),
-            SliverPadding(
-              padding: const EdgeInsets.all(16),
-              sliver: _filteredMovements.isEmpty
-                  ? SliverFillRemaining(
-                      hasScrollBody: false,
-                      child: Center(
-                        child: Text(localizations.noPendingForDate),
-                      ),
-                    )
-                  : SliverList(
-                      delegate: SliverChildBuilderDelegate((context, index) {
-                        final movement = _filteredMovements[index];
-                        return Padding(
-                          padding: const EdgeInsets.only(bottom: 12),
-                          child: PendingMovementCard(
-                            movement: movement,
-                            resolvedAppName:
-                                _resolvedAppNames[movement.appName],
-                            appIcon: _resolvedAppIcons[movement.appName],
-                            onDelete: () => _removeMovement(index),
-                            onDisallowApp: () => _disallowApp(_movements.indexOf(movement)),
-                            onExpenseChanged: (isExpense) {
-                              setState(() {
-                                movement.isExpense = isExpense;
-                              });
-                            },
-                          ),
-                        );
-                      }, childCount: _filteredMovements.length),
+                // Pinned bottom process button
+                SafeArea(
+                  top: false,
+                  child: Padding(
+                    padding: const EdgeInsets.all(16),
+                    child: PrimaryPillButton(
+                      label: _isSaving
+                          ? localizations.savingProgress(
+                              _savingCurrent, _savingTotal)
+                          : localizations.processSelected,
+                      icon: _isSaving ? null : Icons.check_circle_outline,
+                      loading: _isSaving,
+                      onPressed: _isSaving ? null : _saveAll,
                     ),
+                  ),
+                ),
+              ],
             ),
-          ],
+          ),
         ),
       ),
-      bottomNavigationBar: SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.all(16),
-          child: SizedBox(
-            width: double.infinity,
-            child: FilledButton.icon(
-              onPressed: _isSaving ? null : _saveAll,
-              icon: _isSaving
-                  ? const SizedBox(
-                      width: 16,
-                      height: 16,
-                      child: CircularProgressIndicator(
-                        strokeWidth: 2,
-                        color: Colors.white,
-                      ),
-                    )
-                  : const Icon(Icons.check),
-              label: Text(
-                _isSaving
-                    ? localizations.savingProgress(_savingCurrent, _savingTotal)
-                    : localizations.saveAll,
-              ),
-            ),
+    );
+  }
+}
+
+/// Themed selectable date chip.
+class _DateChip extends StatelessWidget {
+  final String label;
+  final bool selected;
+  final AppGlass glass;
+  final VoidCallback onTap;
+
+  const _DateChip({
+    required this.label,
+    required this.selected,
+    required this.glass,
+    required this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
+    return GestureDetector(
+      onTap: onTap,
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 200),
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+        decoration: BoxDecoration(
+          color: selected ? scheme.primary : glass.glassFill,
+          borderRadius: BorderRadius.circular(glass.pillRadius),
+          border: Border.all(
+            color: selected ? scheme.primary : glass.glassBorder,
+          ),
+        ),
+        child: Text(
+          label,
+          style: TextStyle(
+            color: selected ? scheme.onPrimary : glass.mutedText,
+            fontWeight: FontWeight.w600,
           ),
         ),
       ),

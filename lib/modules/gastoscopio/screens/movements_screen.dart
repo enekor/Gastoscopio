@@ -8,11 +8,16 @@ import 'package:cashly/modules/gastoscopio/widgets/loading.dart';
 import 'package:cashly/modules/gastoscopio/widgets/main_screen_widgets.dart';
 import 'package:cashly/modules/gastoscopio/widgets/movement_tile.dart';
 import 'package:cashly/common/tag_list.dart' show getTagList;
+import 'package:cashly/common/month_names.dart';
 import 'package:cashly/modules/gastoscopio/widgets/tag_list.dart';
 import 'package:flutter/material.dart';
 import 'package:cashly/l10n/app_localizations.dart';
 import 'package:cashly/data/models/movement_value.dart';
 import 'package:cashly/modules/gastoscopio/logic/finance_service.dart';
+import 'package:cashly/theme/app_glass.dart';
+import 'package:cashly/theme/widgets/glass_card.dart';
+import 'package:cashly/theme/widgets/app_segmented_control.dart';
+import 'package:cashly/theme/widgets/amount_text.dart';
 
 class MovementsScreen extends StatefulWidget {
   final int year;
@@ -27,7 +32,8 @@ class MovementsScreen extends StatefulWidget {
 
 class _MovementsScreenState extends State<MovementsScreen>
     with TickerProviderStateMixin {
-  bool _showExpenses = true;
+  // 0 = Todos, 1 = Ingresos, 2 = Gastos
+  int _filterMode = 0;
   DateTime? _selectedDate;
   String? _selectedCategory;
   String _searchQuery = '';
@@ -35,7 +41,6 @@ class _MovementsScreenState extends State<MovementsScreen>
   late String _moneda;
   late FinanceService _financeService;
   final TextEditingController _searchController = TextEditingController();
-  bool _isOpaqueBottomNav = false;
 
   String? _currentSortType;
   bool _isAscending = true;
@@ -88,14 +93,6 @@ class _MovementsScreenState extends State<MovementsScreen>
         .then(
           (currency) => setState(() {
             _moneda = currency ?? '€';
-          }),
-        );
-
-    SharedPreferencesService()
-        .getBoolValue(SharedPreferencesKeys.isOpaqueBottomNav)
-        .then(
-          (isOpaque) => setState(() {
-            _isOpaqueBottomNav = isOpaque ?? false;
           }),
         );
 
@@ -228,13 +225,6 @@ class _MovementsScreenState extends State<MovementsScreen>
     super.didUpdateWidget(oldWidget);
     if (oldWidget.year != widget.year || oldWidget.month != widget.month) {
       _loadMovements();
-      SharedPreferencesService()
-          .getBoolValue(SharedPreferencesKeys.isOpaqueBottomNav)
-          .then(
-            (isOpaque) => setState(() {
-              _isOpaqueBottomNav = isOpaque ?? false;
-            }),
-          );
     }
   }
 
@@ -255,9 +245,12 @@ class _MovementsScreenState extends State<MovementsScreen>
           sum + (movement.isExpense ? -movement.amount : movement.amount),
     );
 
-    final themeColor = _showExpenses
-        ? Theme.of(context).colorScheme.error
-        : Theme.of(context).colorScheme.primary;
+    final glass = Theme.of(context).extension<AppGlass>()!;
+    final themeColor = _filterMode == 2
+        ? glass.expenseColor
+        : _filterMode == 1
+            ? glass.incomeColor
+            : Theme.of(context).colorScheme.primary;
 
     return CustomScrollView(
       physics: const BouncingScrollPhysics(),
@@ -269,6 +262,12 @@ class _MovementsScreenState extends State<MovementsScreen>
           ),
         ),
         SliverPadding(
+          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 4),
+          sliver: SliverToBoxAdapter(
+            child: _buildSearchToolBar(context),
+          ),
+        ),
+        SliverPadding(
           padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
           sliver: SliverToBoxAdapter(
             child: _buildModernTotalCard(
@@ -276,12 +275,6 @@ class _MovementsScreenState extends State<MovementsScreen>
               filteredMovements.length,
               themeColor,
             ),
-          ),
-        ),
-        SliverPadding(
-          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-          sliver: SliverToBoxAdapter(
-            child: _buildModernToolBar(context),
           ),
         ),
         if (_expandedItems['filters'] ?? false)
@@ -304,15 +297,15 @@ class _MovementsScreenState extends State<MovementsScreen>
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   Icon(
-                    _showExpenses ? Icons.money_off : Icons.attach_money,
+                    _filterMode == 1 ? Icons.attach_money : Icons.money_off,
                     size: 64,
                     color: Theme.of(context).disabledColor.withOpacity(0.3),
                   ),
                   const SizedBox(height: 16),
                   Text(
-                    _showExpenses
-                        ? AppLocalizations.of(context).noExpenses
-                        : AppLocalizations.of(context).noIncomes,
+                    _filterMode == 1
+                        ? AppLocalizations.of(context).noIncomes
+                        : AppLocalizations.of(context).noExpenses,
                     style: TextStyle(
                       color: Theme.of(context).disabledColor,
                       fontSize: 16,
@@ -361,215 +354,203 @@ class _MovementsScreenState extends State<MovementsScreen>
   }
 
   Widget _buildTypeSelector() {
-    return SizedBox(
-      width: double.infinity,
-      child: SegmentedButton<bool>(
-        showSelectedIcon: false,
-        style: ButtonStyle(
-          visualDensity: VisualDensity.comfortable,
-          shape: MaterialStateProperty.all(
-            RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-          ),
-          side: MaterialStateProperty.all(
-            BorderSide(color: Theme.of(context).dividerColor.withOpacity(0.2)),
-          ),
-          backgroundColor: MaterialStateProperty.resolveWith((states) {
-            if (states.contains(MaterialState.selected)) {
-              return _showExpenses
-                  ? Theme.of(context).colorScheme.errorContainer
-                  : Theme.of(context).colorScheme.primaryContainer;
-            }
-            return Colors.transparent;
-          }),
+    return AppSegmentedControl<int>(
+      selected: _filterMode,
+      segments: [
+        (value: 0, label: AppLocalizations.of(context)!.all, icon: null),
+        (
+          value: 1,
+          label: AppLocalizations.of(context)!.incomes,
+          icon: Icons.arrow_upward,
         ),
-        segments: [
-          ButtonSegment<bool>(
-            value: false,
-            label: Text(
-              AppLocalizations.of(context).incomes,
-              style: TextStyle(
-                fontWeight: !_showExpenses ? FontWeight.bold : FontWeight.normal,
-                color: !_showExpenses
-                    ? Theme.of(context).colorScheme.onPrimaryContainer
-                    : null,
-              ),
-            ),
-            icon: const Icon(Icons.arrow_upward, size: 16),
-          ),
-          ButtonSegment<bool>(
-            value: true,
-            label: Text(
-              AppLocalizations.of(context).expenses,
-              style: TextStyle(
-                fontWeight: _showExpenses ? FontWeight.bold : FontWeight.normal,
-                color: _showExpenses
-                    ? Theme.of(context).colorScheme.onErrorContainer
-                    : null,
-              ),
-            ),
-            icon: const Icon(Icons.arrow_downward, size: 16),
-          ),
-        ],
-        selected: {_showExpenses},
-        onSelectionChanged: (newSelection) {
-          setState(() {
-            _showExpenses = newSelection.first;
-          });
-        },
-      ),
+        (
+          value: 2,
+          label: AppLocalizations.of(context)!.expenses,
+          icon: Icons.arrow_downward,
+        ),
+      ],
+      onChanged: (value) {
+        setState(() {
+          _filterMode = value;
+        });
+      },
     );
   }
 
   Widget _buildModernTotalCard(double total, int count, Color color) {
-    return Container(
-      width: double.infinity,
-      constraints: const BoxConstraints(minHeight: 100),
-      padding: const EdgeInsets.all(20),
-      decoration: BoxDecoration(
-        gradient: LinearGradient(
-          colors: [color, color.withOpacity(0.7)],
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-        ),
-        borderRadius: BorderRadius.circular(24),
-        boxShadow: [
-          BoxShadow(
-            color: color.withOpacity(0.3),
-            blurRadius: 12,
-            offset: const Offset(0, 6),
-          ),
-        ],
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
+    final scheme = Theme.of(context).colorScheme;
+    final glass = Theme.of(context).extension<AppGlass>()!;
+    final monthName = monthFullNames(
+      AppLocalizations.of(context)!,
+    )[_financeService.currentMonth!.month - 1];
+    final year = _financeService.currentMonth!.year;
+
+    return GlassCard(
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.center,
         children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  '$monthName $year',
+                  style: TextStyle(
+                    color: scheme.onSurface,
+                    fontSize: 18,
+                    fontWeight: FontWeight.w700,
+                  ),
+                ),
+                const SizedBox(height: 4),
+                Text(
+                  '$count ${AppLocalizations.of(context).movements}',
+                  style: TextStyle(color: glass.mutedText, fontSize: 13),
+                ),
+              ],
+            ),
+          ),
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.end,
             children: [
               Text(
-                _showExpenses
-                    ? AppLocalizations.of(context).expenses
-                    : AppLocalizations.of(context).incomes,
-                style: const TextStyle(
-                  color: Colors.white70,
-                  fontSize: 14,
-                  fontWeight: FontWeight.w500,
+                AppLocalizations.of(context)!.balance.toUpperCase(),
+                style: TextStyle(
+                  color: glass.mutedText,
+                  fontSize: 11,
+                  fontWeight: FontWeight.w600,
+                  letterSpacing: 1,
                 ),
               ),
-              Container(
-                padding: const EdgeInsets.symmetric(horizontal: 8),
-                decoration: BoxDecoration(
-                  color: Colors.white.withOpacity(0.2),
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                child: Text(
-                  '$count movs.',
-                  style: const TextStyle(color: Colors.white, fontSize: 12),
-                ),
+              const SizedBox(height: 2),
+              AmountText(
+                amount: total.abs(),
+                currency: _moneda,
+                isExpense: total < 0,
+                signed: true,
+                fontSize: 24,
               ),
             ],
-          ),
-          Center(
-            child: Text(
-              '${total < 0 ? '-' : ''}${total.abs().toStringAsFixed(2)}$_moneda',
-              style: const TextStyle(
-                color: Colors.white,
-                fontSize: 30,
-                fontWeight: FontWeight.bold,
-                letterSpacing: -0.5,
-              ),
-            ),
           ),
         ],
       ),
     );
   }
 
-  Widget _buildModernToolBar(BuildContext context) {
-    final buttonStyle = ButtonStyle(
-      backgroundColor: MaterialStateProperty.all(
-        Theme.of(context).colorScheme.surface,
-      ),
-      elevation: MaterialStateProperty.all(2),
-      shadowColor: MaterialStateProperty.all(Colors.black.withOpacity(0.1)),
-      padding: MaterialStateProperty.all(
-        const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-      ),
-      shape: MaterialStateProperty.all(
-        RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(16),
-          side: BorderSide(
-            color: Theme.of(context).colorScheme.outline.withOpacity(0.1),
-          ),
-        ),
-      ),
-    );
+  Widget _buildSearchToolBar(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
+    final glass = Theme.of(context).extension<AppGlass>()!;
+    final bool filtersOpen = _expandedItems['filters'] ?? false;
 
     return Row(
       children: [
         Expanded(
-          child: ElevatedButton.icon(
-            style: buttonStyle.copyWith(
-              backgroundColor: MaterialStateProperty.resolveWith(
-                (states) => (_expandedItems['filters'] ?? false)
-                    ? Theme.of(context).colorScheme.primaryContainer
-                    : Theme.of(context).colorScheme.surface,
+          child: TextField(
+            controller: _searchController,
+            style: TextStyle(color: scheme.onSurface),
+            decoration: InputDecoration(
+              hintText: AppLocalizations.of(context)!.searchByName,
+              hintStyle: TextStyle(color: glass.mutedText),
+              prefixIcon: Icon(Icons.search, color: glass.mutedText),
+              filled: true,
+              fillColor: scheme.surfaceContainerLow,
+              contentPadding: const EdgeInsets.symmetric(vertical: 4),
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(glass.pillRadius),
+                borderSide: BorderSide(color: glass.glassBorder),
               ),
+              enabledBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(glass.pillRadius),
+                borderSide: BorderSide(color: glass.glassBorder),
+              ),
+              focusedBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(glass.pillRadius),
+                borderSide: BorderSide(color: scheme.primary),
+              ),
+              suffixIcon: _searchQuery.isNotEmpty
+                  ? IconButton(
+                      icon: Icon(Icons.clear, color: glass.mutedText),
+                      onPressed: () {
+                        setState(() {
+                          _searchQuery = '';
+                          _searchController.clear();
+                        });
+                      },
+                    )
+                  : null,
             ),
-            onPressed: () {
+            onChanged: (value) {
               setState(() {
-                _expandedItems['filters'] =
-                    !(_expandedItems['filters'] ?? false);
+                _searchQuery = value;
               });
             },
-            icon: Icon(
-              Icons.filter_list,
-              size: 20,
-              color: Theme.of(context).colorScheme.onSurface,
-            ),
-            label: Text(
-              "Filtrar",
-              style: TextStyle(
-                color: Theme.of(context).colorScheme.onSurface,
-                fontSize: 13,
-              ),
-            ),
           ),
         ),
-        const SizedBox(width: 10),
-        IconButton.filledTonal(
-          style: IconButton.styleFrom(
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(14),
-            ),
-            padding: const EdgeInsets.all(12),
-          ),
+        const SizedBox(width: 8),
+        _buildToolbarIconButton(
+          icon: Icons.sort,
+          tooltip: 'Ordenar',
+          active: _currentSortType != null,
           onPressed: () => _showSortMenu(context),
-          icon: const Icon(Icons.sort),
-          tooltip: "Ordenar",
         ),
-        const SizedBox(width: 10),
-        GestureDetector(
-          onLongPress: () {
-            _deleteAllTags();
+        const SizedBox(width: 8),
+        _buildToolbarIconButton(
+          icon: Icons.filter_list,
+          tooltip: 'Filtrar',
+          active: filtersOpen,
+          onPressed: () {
+            setState(() {
+              _expandedItems['filters'] = !filtersOpen;
+            });
           },
-          child: IconButton.filled(
-            style: IconButton.styleFrom(
-              backgroundColor: Colors.amber.shade100,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(14),
-              ),
-              padding: const EdgeInsets.all(12),
-            ),
+        ),
+        const SizedBox(width: 8),
+        GestureDetector(
+          onLongPress: _deleteAllTags,
+          child: _buildToolbarIconButton(
+            icon: Icons.auto_awesome,
+            tooltip: 'Auto-etiquetar',
+            active: false,
             onPressed: () async {
               await _autoGenerateTags();
               await _loadMovements();
             },
-            icon: Icon(Icons.auto_awesome, color: Colors.amber.shade900),
-            tooltip: "Auto-etiquetar",
           ),
         ),
       ],
+    );
+  }
+
+  Widget _buildToolbarIconButton({
+    required IconData icon,
+    required String tooltip,
+    required bool active,
+    required VoidCallback onPressed,
+  }) {
+    final scheme = Theme.of(context).colorScheme;
+    final glass = Theme.of(context).extension<AppGlass>()!;
+    return Tooltip(
+      message: tooltip,
+      child: Material(
+        color: active ? scheme.primary : scheme.surfaceContainerLow,
+        borderRadius: BorderRadius.circular(glass.pillRadius),
+        child: InkWell(
+          borderRadius: BorderRadius.circular(glass.pillRadius),
+          onTap: onPressed,
+          child: Container(
+            width: 48,
+            height: 48,
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(glass.pillRadius),
+              border: Border.all(color: glass.glassBorder),
+            ),
+            child: Icon(
+              icon,
+              size: 20,
+              color: active ? scheme.onPrimary : scheme.onSurface,
+            ),
+          ),
+        ),
+      ),
     );
   }
 
@@ -672,31 +653,6 @@ class _MovementsScreenState extends State<MovementsScreen>
                     ),
                   ),
                 ],
-              ),
-              const SizedBox(height: 12),
-              TextField(
-                controller: _searchController,
-                decoration: InputDecoration(
-                  labelText: AppLocalizations.of(context).search,
-                  prefixIcon: const Icon(Icons.search),
-                  border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
-                  suffixIcon: _searchQuery.isNotEmpty
-                      ? IconButton(
-                          icon: const Icon(Icons.clear),
-                          onPressed: () {
-                            setState(() {
-                              _searchQuery = '';
-                              _searchController.clear();
-                            });
-                          },
-                        )
-                      : null,
-                ),
-                onChanged: (value) {
-                  setState(() {
-                    _searchQuery = value;
-                  });
-                },
               ),
             ],
           ),
@@ -888,7 +844,9 @@ class _MovementsScreenState extends State<MovementsScreen>
 
   List<MovementValue> _filterMovements(List<MovementValue> movements) {
     return movements.where((movement) {
-      if (movement.isExpense != _showExpenses) return false;
+      // _filterMode: 0 = Todos, 1 = Ingresos, 2 = Gastos
+      if (_filterMode == 1 && movement.isExpense) return false;
+      if (_filterMode == 2 && !movement.isExpense) return false;
       if (_selectedDate != null && movement.day != _selectedDate!.day) return false;
       if (_selectedCategory != null && movement.category != _selectedCategory) return false;
 

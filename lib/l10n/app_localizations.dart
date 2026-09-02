@@ -1037,7 +1037,7 @@ abstract class AppLocalizations {
   /// Etiqueta de tipo de movimiento
   ///
   /// In es, this message translates to:
-  /// **'Tipo de movimiento'**
+  /// **'Tipo de Movimiento'**
   String get movementType;
 
   /// Etiqueta para guardar en mes actual
@@ -1163,7 +1163,7 @@ abstract class AppLocalizations {
   /// Título del selector de categorías
   ///
   /// In es, this message translates to:
-  /// **'Selecciona una categoría'**
+  /// **'Seleccionar Categoría'**
   String get selectCategory;
 
   /// Mensaje de éxito al actualizar categoría
@@ -2623,6 +2623,360 @@ abstract class AppLocalizations {
   /// In es, this message translates to:
   /// **'No hay transacciones pendientes para este día.'**
   String get noPendingForDate;
+
+  /// No description provided for @navDebts.
+  ///
+  /// In es, this message translates to:
+  /// **'Deudas'**
+  String get navDebts;
+
+  /// No description provided for @navHistory.
+  ///
+  /// In es, this message translates to:
+  /// **'Historial'**
+  String get navHistory;
+
+  /// No description provided for @navStatistics.
+  ///
+  /// In es, this message translates to:
+  /// **'Estadísticas'**
+  String get navStatistics;
+
+  /// No description provided for @totalBalance.
+  ///
+  /// In es, this message translates to:
+  /// **'Balance total'**
+  String get totalBalance;
+
+  /// No description provided for @quickAccess.
+  ///
+  /// In es, this message translates to:
+  /// **'Accesos rápidos'**
+  String get quickAccess;
+
+  /// No description provided for @recentExpenses.
+  ///
+  /// In es, this message translates to:
+  /// **'Gastos Recientes'**
+  String get recentExpenses;
+
+  /// No description provided for @seeAll.
+  ///
+  /// In es, this message translates to:
+  /// **'Ver todos'**
+  String get seeAll;
+
+  /// No description provided for @cardLabel.
+  ///
+  /// In es, this message translates to:
+  /// **'Tarjeta'**
+  String get cardLabel;
+
+  /// No description provided for @pendingTransactions.
+  ///
+  /// In es, this message translates to:
+  /// **'{count} transacciones pendientes'**
+  String pendingTransactions(int count);
+
+  /// No description provided for @totalPending.
+  ///
+  /// In es, this message translates to:
+  /// **'Total pendiente'**
+  String get totalPending;
+
+  /// No description provided for @previousMonth.
+  ///
+  /// In es, this message translates to:
+  /// **'Mes Anterior'**
+  String get previousMonth;
+
+  /// No description provided for @recurrents.
+  ///
+  /// In es, this message translates to:
+  /// **'Recurrentes'**
+  String get recurrents;
+
+  /// No description provided for @oneTimeDebts.
+  ///
+  /// In es, this message translates to:
+  /// **'Puntuales'**
+  String get oneTimeDebts;
+
+  /// No description provided for @urgent.
+  ///
+  /// In es, this message translates to:
+  /// **'URGENTE'**
+  String get urgent;
+
+  /// No description provided for @resolve.
+  ///
+  /// In es, this message translates to:
+  /// **'Resolver'**
+  String get resolve;
+
+  /// No description provided for @pay.
+  ///
+  /// In es, this message translates to:
+  /// **'Pagar'**
+  String get pay;
+
+  /// No description provided for @newMovementTitle.
+  ///
+  /// In es, this message translates to:
+  /// **'Nuevo'**
+  String get newMovementTitle;
+
+  /// No description provided for @expenseNameHint.
+  ///
+  /// In es, this message translates to:
+  /// **'Ej: Cena con amigos...'**
+  String get expenseNameHint;
+
+  /// No description provided for @categoryAiTag.
+  ///
+  /// In es, this message translates to:
+  /// **'Categoría (IA Tag)'**
+  String get categoryAiTag;
+
+  /// No description provided for @valueLabel.
+  ///
+  /// In es, this message translates to:
+  /// **'Valor'**
+  String get valueLabel;
+
+  /// No description provided for @directExpense.
+  ///
+  /// In es, this message translates to:
+  /// **'Gasto Directo'**
+  String get directExpense;
+
+  /// No description provided for @oneTimeDebtLabel.
+  ///
+  /// In es, this message translates to:
+  /// **'Deuda Puntual'**
+  String get oneTimeDebtLabel;
+
+  /// No description provided for @saveExpense.
+  ///
+  /// In es, this message translates to:
+  /// **'Guardar Gasto'**
+  String get saveExpense;
+
+  /// No description provided for @saveIncome.
+  ///
+  /// In es, this message translates to:
+  /// **'Guardar Ingreso'**
+  String get saveIncome;
+
+  /// No description provided for @searchByName.
+  ///
+  /// In es, this message translates to:
+  /// **'Buscar por nombre...'**
+  String get searchByName;
+
+  /// No description provided for @searchByNameCategory.
+  ///
+  /// In es, this message translates to:
+  /// **'Buscar por nombre, categoría...'**
+  String get searchByNameCategory;
+
+  /// No description provided for @dateRange.
+  ///
+  /// In es, this message translates to:
+  /// **'Rango de fechas'**
+  String get dateRange;
+
+  /// No description provided for @matches.
+  ///
+  /// In es, this message translates to:
+  /// **'Coincidencias'**
+  String get matches;
+
+  /// No description provided for @customRange.
+  ///
+  /// In es, this message translates to:
+  /// **'Rango personalizado'**
+  String get customRange;
+
+  /// No description provided for @financialSummary.
+  ///
+  /// In es, this message translates to:
+  /// **'Resumen Financiero'**
+  String get financialSummary;
+
+  /// No description provided for @netSavings.
+  ///
+  /// In es, this message translates to:
+  /// **'Ahorro Neto'**
+  String get netSavings;
+
+  /// No description provided for @evolution.
+  ///
+  /// In es, this message translates to:
+  /// **'Evolución'**
+  String get evolution;
+
+  /// No description provided for @distribution.
+  ///
+  /// In es, this message translates to:
+  /// **'Distribución'**
+  String get distribution;
+
+  /// No description provided for @noData.
+  ///
+  /// In es, this message translates to:
+  /// **'Sin datos'**
+  String get noData;
+
+  /// No description provided for @usedBalance.
+  ///
+  /// In es, this message translates to:
+  /// **'Saldo Utilizado'**
+  String get usedBalance;
+
+  /// No description provided for @creditLimit.
+  ///
+  /// In es, this message translates to:
+  /// **'Límite de Crédito'**
+  String get creditLimit;
+
+  /// No description provided for @nextPayment.
+  ///
+  /// In es, this message translates to:
+  /// **'Próximo Pago'**
+  String get nextPayment;
+
+  /// No description provided for @billingClose.
+  ///
+  /// In es, this message translates to:
+  /// **'Cierre Facturación'**
+  String get billingClose;
+
+  /// No description provided for @premiumCard.
+  ///
+  /// In es, this message translates to:
+  /// **'PREMIUM CARD'**
+  String get premiumCard;
+
+  /// No description provided for @minimumLabel.
+  ///
+  /// In es, this message translates to:
+  /// **'Mínimo'**
+  String get minimumLabel;
+
+  /// No description provided for @estimatedMonthlyTotal.
+  ///
+  /// In es, this message translates to:
+  /// **'Total mensual estimado'**
+  String get estimatedMonthlyTotal;
+
+  /// No description provided for @upcomingCharges.
+  ///
+  /// In es, this message translates to:
+  /// **'Próximos Cobros'**
+  String get upcomingCharges;
+
+  /// No description provided for @recurringExpense.
+  ///
+  /// In es, this message translates to:
+  /// **'Gasto Recurrente'**
+  String get recurringExpense;
+
+  /// No description provided for @recurringDebt.
+  ///
+  /// In es, this message translates to:
+  /// **'Deuda Recurrente'**
+  String get recurringDebt;
+
+  /// No description provided for @scheduleLabel.
+  ///
+  /// In es, this message translates to:
+  /// **'Programación'**
+  String get scheduleLabel;
+
+  /// No description provided for @frequency.
+  ///
+  /// In es, this message translates to:
+  /// **'Frecuencia'**
+  String get frequency;
+
+  /// No description provided for @monthly.
+  ///
+  /// In es, this message translates to:
+  /// **'Mensual'**
+  String get monthly;
+
+  /// No description provided for @chargeDay.
+  ///
+  /// In es, this message translates to:
+  /// **'Día de Cobro'**
+  String get chargeDay;
+
+  /// No description provided for @saveRecurring.
+  ///
+  /// In es, this message translates to:
+  /// **'Guardar Recurrente'**
+  String get saveRecurring;
+
+  /// No description provided for @detailsLabel.
+  ///
+  /// In es, this message translates to:
+  /// **'Detalles'**
+  String get detailsLabel;
+
+  /// No description provided for @activeStatus.
+  ///
+  /// In es, this message translates to:
+  /// **'ACTIVO'**
+  String get activeStatus;
+
+  /// No description provided for @pendingStatus.
+  ///
+  /// In es, this message translates to:
+  /// **'PENDIENTE'**
+  String get pendingStatus;
+
+  /// No description provided for @processSelected.
+  ///
+  /// In es, this message translates to:
+  /// **'Procesar Seleccionados'**
+  String get processSelected;
+
+  /// No description provided for @cardChip.
+  ///
+  /// In es, this message translates to:
+  /// **'TARJETA'**
+  String get cardChip;
+
+  /// No description provided for @categoryLabel.
+  ///
+  /// In es, this message translates to:
+  /// **'Categoría'**
+  String get categoryLabel;
+
+  /// No description provided for @yearLabel.
+  ///
+  /// In es, this message translates to:
+  /// **'AÑO'**
+  String get yearLabel;
+
+  /// No description provided for @themeLabel.
+  ///
+  /// In es, this message translates to:
+  /// **'Tema'**
+  String get themeLabel;
+
+  /// No description provided for @visualAspect.
+  ///
+  /// In es, this message translates to:
+  /// **'Aspecto Visual'**
+  String get visualAspect;
+
+  /// No description provided for @linkedDevices.
+  ///
+  /// In es, this message translates to:
+  /// **'Dispositivos Vinculados'**
+  String get linkedDevices;
 }
 
 class _AppLocalizationsDelegate
