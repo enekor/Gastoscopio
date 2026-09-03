@@ -451,6 +451,7 @@ class _SettingsScreenState extends State<SettingsScreen> with WidgetsBindingObse
             segments: const [
               (value: AppThemeVariant.etherealLedger, label: 'Ethereal', icon: Icons.auto_awesome),
               (value: AppThemeVariant.obsidian, label: 'Obsidian', icon: Icons.dark_mode),
+              (value: AppThemeVariant.monochromeGlyph, label: 'Glyph', icon: Icons.contrast),
             ],
             selected: ThemeController().variant,
             onChanged: (v) async {

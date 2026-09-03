@@ -7,7 +7,59 @@ class CustomTheme {
     return switch (variant) {
       AppThemeVariant.etherealLedger => _ethereal(),
       AppThemeVariant.obsidian => _obsidian(),
+      AppThemeVariant.monochromeGlyph => _monochrome(),
     };
+  }
+
+  static ThemeData _monochrome() {
+    const scheme = ColorScheme.dark(
+      primary: Color(0xFFFFFFFF),
+      onPrimary: Color(0xFF000000),
+      primaryContainer: Color(0xFF2A2A2A),
+      onPrimaryContainer: Color(0xFFE2E2E2),
+      secondary: Color(0xFFC6C6C7),
+      onSecondary: Color(0xFF2F3131),
+      tertiary: Color(0xFFC6C6C6),
+      surface: Color(0xFF131313),
+      onSurface: Color(0xFFE2E2E2),
+      surfaceContainerLowest: Color(0xFF0E0E0E),
+      surfaceContainerLow: Color(0xFF1B1B1B),
+      surfaceContainer: Color(0xFF1F1F1F),
+      surfaceContainerHigh: Color(0xFF2A2A2A),
+      surfaceContainerHighest: Color(0xFF353535),
+      onSurfaceVariant: Color(0xFF9E9E9E),
+      outline: Color(0xFF333333),
+      outlineVariant: Color(0xFF262626),
+      error: Color(0xFFFF2A2A),
+      onError: Color(0xFF4A0002),
+    );
+    final base =
+        _baseFrom(scheme, AppGlass.monochromeGlyph, const Color(0xFF000000));
+
+    // Body text uses Space Grotesk; display/headline/title/label use Space Mono
+    // to evoke the dot-matrix / LED aesthetic of the Monochrome Glyph design.
+    const bodyFont = 'Space Grotesk';
+    const monoFont = 'Space Mono';
+    final grotesk = base.textTheme.apply(fontFamily: bodyFont);
+    final textTheme = grotesk.copyWith(
+      displayLarge: grotesk.displayLarge?.copyWith(fontFamily: monoFont),
+      displayMedium: grotesk.displayMedium?.copyWith(fontFamily: monoFont),
+      displaySmall: grotesk.displaySmall?.copyWith(fontFamily: monoFont),
+      headlineLarge: grotesk.headlineLarge?.copyWith(fontFamily: monoFont),
+      headlineMedium: grotesk.headlineMedium?.copyWith(fontFamily: monoFont),
+      headlineSmall: grotesk.headlineSmall?.copyWith(fontFamily: monoFont),
+      titleLarge: grotesk.titleLarge?.copyWith(fontFamily: monoFont),
+      titleMedium: grotesk.titleMedium?.copyWith(fontFamily: monoFont),
+      titleSmall: grotesk.titleSmall?.copyWith(fontFamily: monoFont),
+      labelLarge: grotesk.labelLarge?.copyWith(fontFamily: monoFont),
+      labelMedium: grotesk.labelMedium?.copyWith(fontFamily: monoFont),
+      labelSmall: grotesk.labelSmall?.copyWith(fontFamily: monoFont),
+    );
+
+    return base.copyWith(
+      textTheme: textTheme,
+      primaryTextTheme: textTheme,
+    );
   }
 
   static ThemeData _ethereal() {

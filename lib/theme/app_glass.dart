@@ -41,6 +41,22 @@ class AppGlass extends ThemeExtension<AppGlass> {
     ),
   );
 
+  static const AppGlass monochromeGlyph = AppGlass(
+    glassFill: Color(0xB31A1A1A), // ~70% #1A1A1A translucent
+    blurSigma: 20,
+    glassBorder: Color(0xFF2B2B2B), // crisp 1px border
+    cardRadius: 26,
+    pillRadius: 999,
+    incomeColor: Color(0xFFE2E2E2), // monochrome: positives are stark white
+    expenseColor: Color(0xFFFF2A2A), // signal red
+    mutedText: Color(0xFF8E8E93),
+    backgroundGradient: LinearGradient(
+      begin: Alignment.topCenter,
+      end: Alignment.bottomCenter,
+      colors: [Color(0xFF131313), Color(0xFF000000)],
+    ),
+  );
+
   static const AppGlass obsidian = AppGlass(
     glassFill: Color(0xFF18181B),
     blurSigma: 0,
