@@ -3019,6 +3019,12 @@ abstract class AppLocalizations {
   /// In es, this message translates to:
   /// **'Disponible'**
   String get available;
+
+  /// No description provided for @navManagement.
+  ///
+  /// In es, this message translates to:
+  /// **'Gestión'**
+  String get navManagement;
 }
 
 class _AppLocalizationsDelegate

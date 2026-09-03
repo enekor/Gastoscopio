@@ -2,7 +2,7 @@ import 'package:cashly/data/services/shared_preferences_service.dart';
 import 'package:cashly/data/services/sqlite_service.dart';
 import 'package:cashly/modules/gastoscopio/logic/finance_service.dart';
 import 'package:cashly/modules/gastoscopio/screens/home.dart';
-import 'package:cashly/modules/gastoscopio/screens/active_debts_screen.dart';
+import 'package:cashly/modules/gastoscopio/screens/management_screen.dart';
 import 'package:cashly/modules/gastoscopio/screens/movements_screen.dart';
 import 'package:cashly/modules/gastoscopio/screens/summary_screen.dart';
 import 'package:cashly/modules/gastoscopio/screens/movement_form_screen.dart';
@@ -188,7 +188,7 @@ class _MainScreenState extends State<MainScreen>
       month: _month,
       onNavigateTab: _onDestinationSelected,
     ),
-    const ActiveDebtsScreen(key: ValueKey('debts'), embedded: true),
+    const ManagementScreen(key: ValueKey('management')),
     MovementsScreen(
       key: const ValueKey('movements'),
       year: _year,
@@ -199,7 +199,7 @@ class _MainScreenState extends State<MainScreen>
 
   String _titleForIndex(BuildContext context, int index) {
     final l = AppLocalizations.of(context)!;
-    return [l.home, l.navDebts, l.navHistory, l.navStatistics][index];
+    return [l.home, l.navManagement, l.navHistory, l.navStatistics][index];
   }
 
   Widget _buildTopBar() {
@@ -298,7 +298,7 @@ class _MainScreenState extends State<MainScreen>
               (
                 icon: Icons.credit_score_outlined,
                 selectedIcon: Icons.credit_score,
-                label: AppLocalizations.of(context)!.navDebts,
+                label: AppLocalizations.of(context)!.navManagement,
               ),
               (
                 icon: Icons.history,

@@ -1,4 +1,3 @@
-import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:cashly/theme/app_glass.dart';
 
@@ -53,27 +52,25 @@ class AppBottomNav extends StatelessWidget {
 
     return ClipRRect(
       borderRadius: const BorderRadius.vertical(top: Radius.circular(28)),
-      child: BackdropFilter(
-        filter: ImageFilter.blur(sigmaX: glass.blurSigma, sigmaY: glass.blurSigma),
-        child: Container(
-          height: 72,
-          decoration: BoxDecoration(
-            color: glass.blurSigma > 0
-                ? scheme.surface.withValues(alpha: 0.75)
-                : scheme.surfaceContainer,
-            border: Border(top: BorderSide(color: glass.glassBorder)),
+      child: Container(
+        height: 72,
+        decoration: BoxDecoration(
+          color: Color.alphaBlend(
+            scheme.surfaceContainer.withValues(alpha: 0.98),
+            scheme.surface,
           ),
-          child: SafeArea(
-            top: false,
-            child: Row(
-              children: [
-                tab(left[0], 0),
-                tab(left[1], 1),
-                const SizedBox(width: 72), // gap for the FAB
-                tab(right[0], 2),
-                tab(right[1], 3),
-              ],
-            ),
+          border: Border(top: BorderSide(color: glass.glassBorder)),
+        ),
+        child: SafeArea(
+          top: false,
+          child: Row(
+            children: [
+              tab(left[0], 0),
+              tab(left[1], 1),
+              const SizedBox(width: 72), // gap for the FAB
+              tab(right[0], 2),
+              tab(right[1], 3),
+            ],
           ),
         ),
       ),

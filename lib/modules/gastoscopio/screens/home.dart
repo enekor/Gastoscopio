@@ -195,24 +195,29 @@ class _GastoscopioHomeScreenState extends State<GastoscopioHomeScreen>
     return AnimatedBuilder(
       animation: _service,
       builder: (context, child) {
-        return GlassCard(
+        return Padding(
+          padding: const EdgeInsets.symmetric(vertical: 8),
           child: Column(
             children: [
               Text(
                 AppLocalizations.of(context)!.totalBalance.toUpperCase(),
                 style: TextStyle(
                   color: glass.mutedText,
-                  fontSize: 12,
-                  letterSpacing: 1.5,
+                  fontSize: 13,
+                  letterSpacing: 2,
+                  fontWeight: FontWeight.w600,
                 ),
               ),
               const SizedBox(height: 8),
-              FittedBox(
-                fit: BoxFit.scaleDown,
-                child: AmountText(
-                  amount: _service.monthTotal,
-                  currency: _moneda,
-                  fontSize: 44,
+              SizedBox(
+                width: double.infinity,
+                child: FittedBox(
+                  fit: BoxFit.scaleDown,
+                  child: AmountText(
+                    amount: _service.monthTotal,
+                    currency: _moneda,
+                    fontSize: 72,
+                  ),
                 ),
               ),
             ],

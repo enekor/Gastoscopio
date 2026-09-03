@@ -1612,4 +1612,7 @@ class AppLocalizationsEs extends AppLocalizations {
 
   @override
   String get available => 'Disponible';
+
+  @override
+  String get navManagement => 'Gestión';
 }

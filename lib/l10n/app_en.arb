@@ -544,5 +544,6 @@
   "advancedSearch": "Advanced search",
   "cardHolder": "Cardholder",
   "days": "days",
-  "available": "Available"
+  "available": "Available",
+  "navManagement": "Management"
 }

@@ -1594,4 +1594,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get available => 'Available';
+
+  @override
+  String get navManagement => 'Management';
 }

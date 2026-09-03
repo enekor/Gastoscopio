@@ -16,7 +16,10 @@ import 'package:flutter/material.dart';
 import 'package:cashly/l10n/app_localizations.dart';
 
 class FixedMovementsScreen extends StatefulWidget {
-  const FixedMovementsScreen({super.key});
+  /// When embedded in the Gestión tab, renders content only (no Scaffold/AppBar);
+  /// the "add" action is shown inline instead of a FloatingActionButton.
+  final bool embedded;
+  const FixedMovementsScreen({super.key, this.embedded = false});
 
   @override
   State<FixedMovementsScreen> createState() => _FixedMovementsScreenState();
@@ -577,6 +580,45 @@ class _FixedMovementsScreenState extends State<FixedMovementsScreen> {
     final scheme = Theme.of(context).colorScheme;
     final hasItems =
         _fixedMovements.isNotEmpty || _monthlyDebtDefinitions.isNotEmpty;
+
+    final listView = ListView(
+      physics: const BouncingScrollPhysics(),
+      padding: EdgeInsets.fromLTRB(16, 8, 16, widget.embedded ? 120 : 96),
+      children: [
+        if (widget.embedded)
+          Align(
+            alignment: Alignment.centerRight,
+            child: TextButton.icon(
+              onPressed: _openRecurringForm,
+              icon: const Icon(Icons.add, size: 18),
+              label: Text(AppLocalizations.of(context)!.newMovementTitle),
+            ),
+          ),
+        _buildTotalCard(context),
+        const SizedBox(height: 24),
+        SectionHeader(title: AppLocalizations.of(context)!.upcomingCharges),
+        const SizedBox(height: 8),
+        if (!hasItems)
+          _buildInlineEmpty(
+            AppLocalizations.of(context)!.noFixedMovements,
+          )
+        else ...[
+          for (int i = 0; i < _fixedMovements.length; i++) ...[
+            _buildMovementCard(_fixedMovements[i], i),
+            const SizedBox(height: 12),
+          ],
+          for (int i = 0; i < _monthlyDebtDefinitions.length; i++) ...[
+            _buildMonthlyDebtDefinitionCard(_monthlyDebtDefinitions[i], i),
+            const SizedBox(height: 12),
+          ],
+        ],
+      ],
+    );
+
+    if (widget.embedded) {
+      return listView;
+    }
+
     return Scaffold(
       backgroundColor: Colors.transparent,
       appBar: AppBar(
@@ -597,33 +639,7 @@ class _FixedMovementsScreenState extends State<FixedMovementsScreen> {
         centerTitle: true,
       ),
       body: AppBackground(
-        child: SafeArea(
-          top: false,
-          child: ListView(
-            physics: const BouncingScrollPhysics(),
-            padding: const EdgeInsets.fromLTRB(16, 8, 16, 96),
-            children: [
-              _buildTotalCard(context),
-              const SizedBox(height: 24),
-              SectionHeader(title: AppLocalizations.of(context)!.upcomingCharges),
-              const SizedBox(height: 8),
-              if (!hasItems)
-                _buildInlineEmpty(
-                  AppLocalizations.of(context)!.noFixedMovements,
-                )
-              else ...[
-                for (int i = 0; i < _fixedMovements.length; i++) ...[
-                  _buildMovementCard(_fixedMovements[i], i),
-                  const SizedBox(height: 12),
-                ],
-                for (int i = 0; i < _monthlyDebtDefinitions.length; i++) ...[
-                  _buildMonthlyDebtDefinitionCard(_monthlyDebtDefinitions[i], i),
-                  const SizedBox(height: 12),
-                ],
-              ],
-            ],
-          ),
-        ),
+        child: SafeArea(top: false, child: listView),
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: _openRecurringForm,

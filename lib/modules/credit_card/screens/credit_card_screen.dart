@@ -48,12 +48,23 @@ class _CreditCardScreenState extends State<CreditCardScreen> {
   void initState() {
     super.initState();
     _selectedDate = DateTime.now();
-    _loadData();
+    _initSelectedMonth();
     _loadCurrency();
     _loadBillingConfig();
     _loadCardHolderName();
     NotificationService().requestPermissions();
     _startReceivingIfPaired();
+  }
+
+  /// Opens on the current billing/statement month (where purchases actually land
+  /// per the billing cycle), not the raw calendar month — otherwise the list
+  /// looks empty because expenses are stored under their target billing month.
+  Future<void> _initSelectedMonth() async {
+    final target = await _service.getTargetMonth(DateTime.now());
+    if (mounted) {
+      setState(() => _selectedDate = target);
+    }
+    await _loadData();
   }
 
   Future<void> _loadCardHolderName() async {
@@ -509,7 +520,9 @@ class _CreditCardScreenState extends State<CreditCardScreen> {
                   ],
                 );
               }
+              // Single scroll (same pattern as the History screen).
               return ListView(
+                physics: const BouncingScrollPhysics(),
                 padding: const EdgeInsets.fromLTRB(16, 8, 16, 120),
                 children: [
                   _buildCreditCardVisual(),
@@ -517,10 +530,8 @@ class _CreditCardScreenState extends State<CreditCardScreen> {
                   _buildBalanceCard(),
                   const SizedBox(height: 16),
                   _buildBillingRow(),
-                  const SizedBox(height: 16),
-                  _buildInfoNote(),
                   const SizedBox(height: 20),
-                  _buildExpensesSection(),
+                  ..._expenseWidgets(),
                 ],
               );
             },
@@ -849,7 +860,8 @@ class _CreditCardScreenState extends State<CreditCardScreen> {
       );
     }
 
-    return Row(
+    return IntrinsicHeight(
+      child: Row(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         Expanded(
@@ -874,67 +886,41 @@ class _CreditCardScreenState extends State<CreditCardScreen> {
           ),
         ),
       ],
-    );
-  }
-
-  Widget _buildInfoNote() {
-    final scheme = Theme.of(context).colorScheme;
-    final glass = Theme.of(context).extension<AppGlass>()!;
-    return GlassCard(
-      padding: const EdgeInsets.all(16),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Icon(Icons.info_outline, size: 18, color: glass.mutedText),
-          const SizedBox(width: 12),
-          Expanded(
-            child: Text(
-              'Estos valores representan exclusivamente el estado de su tarjeta de crédito y no afectan ni se reflejan en el saldo principal de sus cuentas bancarias.',
-              style: TextStyle(
-                color: scheme.onSurfaceVariant,
-                fontSize: 13,
-                height: 1.4,
-              ),
-            ),
-          ),
-        ],
       ),
     );
   }
 
-  Widget _buildExpensesSection() {
+  List<Widget> _expenseWidgets() {
     final scheme = Theme.of(context).colorScheme;
     final glass = Theme.of(context).extension<AppGlass>()!;
     final expenses = _service.currentExpenses;
 
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          AppLocalizations.of(context)!.expenses,
-          style: TextStyle(
-            color: scheme.onSurface,
-            fontSize: 16,
-            fontWeight: FontWeight.w700,
-          ),
-        ),
-        const SizedBox(height: 12),
-        if (expenses.isEmpty)
-          Padding(
-            padding: const EdgeInsets.symmetric(vertical: 24),
-            child: Center(
-              child: Text(
-                'No hay gastos este mes',
-                style: TextStyle(color: glass.mutedText),
-              ),
+    return [
+          Text(
+            '${AppLocalizations.of(context)!.expenses} (${expenses.length})',
+            style: TextStyle(
+              color: scheme.onSurface,
+              fontSize: 16,
+              fontWeight: FontWeight.w700,
             ),
-          )
-        else
-          ...expenses.map((expense) {
+          ),
+          const SizedBox(height: 12),
+          if (expenses.isEmpty)
+            Padding(
+              padding: const EdgeInsets.symmetric(vertical: 24),
+              child: Center(
+                child: Text(
+                  'No hay gastos este mes',
+                  style: TextStyle(color: glass.mutedText),
+                ),
+              ),
+            )
+          else
+            ...expenses.map((expense) {
             return Padding(
               padding: const EdgeInsets.only(bottom: 10),
               child: Dismissible(
-                key: Key(expense.id.toString()),
+                key: ValueKey('cc_${expense.id}_${expense.uuid}'),
                 background: Container(
                   decoration: BoxDecoration(
                     color: scheme.primary.withOpacity(0.8),
@@ -1009,7 +995,6 @@ class _CreditCardScreenState extends State<CreditCardScreen> {
               ),
             );
           }),
-      ],
-    );
+    ];
   }
 }
