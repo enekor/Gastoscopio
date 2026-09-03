@@ -1573,4 +1573,25 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get linkedDevices => 'Linked Devices';
+
+  @override
+  String get today => 'Today';
+
+  @override
+  String get yesterday => 'Yesterday';
+
+  @override
+  String get noName => 'No name';
+
+  @override
+  String get advancedSearch => 'Advanced search';
+
+  @override
+  String get cardHolder => 'Cardholder';
+
+  @override
+  String get days => 'days';
+
+  @override
+  String get available => 'Available';
 }

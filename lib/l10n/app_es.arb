@@ -1571,5 +1571,12 @@
   "selectCategory": "Seleccionar Categoría",
   "themeLabel": "Tema",
   "visualAspect": "Aspecto Visual",
-  "linkedDevices": "Dispositivos Vinculados"
+  "linkedDevices": "Dispositivos Vinculados",
+  "today": "Hoy",
+  "yesterday": "Ayer",
+  "noName": "Sin nombre",
+  "advancedSearch": "Búsqueda avanzada",
+  "cardHolder": "Titular",
+  "days": "días",
+  "available": "Disponible"
 }

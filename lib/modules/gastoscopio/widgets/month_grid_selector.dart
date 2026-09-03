@@ -1,9 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:cashly/l10n/app_localizations.dart';
 import 'package:cashly/common/month_names.dart';
+import 'package:cashly/data/services/shared_preferences_service.dart';
+import 'package:cashly/data/services/sqlite_service.dart';
+import 'package:cashly/modules/gastoscopio/logic/finance_service.dart';
 import 'package:cashly/theme/app_glass.dart';
 
-class MonthGridSelector extends StatelessWidget {
+class MonthGridSelector extends StatefulWidget {
   final int selectedYear;
   final int selectedMonth;
   final List<int> availableYears;
@@ -12,14 +15,59 @@ class MonthGridSelector extends StatelessWidget {
   final Function(int) onMonthChanged;
 
   const MonthGridSelector({
-    Key? key,
+    super.key,
     required this.selectedYear,
     required this.selectedMonth,
     required this.availableYears,
     required this.availableMonths,
     required this.onYearChanged,
     required this.onMonthChanged,
-  }) : super(key: key);
+  });
+
+  @override
+  State<MonthGridSelector> createState() => _MonthGridSelectorState();
+}
+
+class _MonthGridSelectorState extends State<MonthGridSelector> {
+  Map<int, double> _monthTotals = {};
+  String _currency = '€';
+
+  @override
+  void initState() {
+    super.initState();
+    SharedPreferencesService()
+        .getStringValue(SharedPreferencesKeys.currency)
+        .then((value) {
+          if (mounted) setState(() => _currency = value ?? '€');
+        });
+    _loadTotals(widget.selectedYear);
+  }
+
+  @override
+  void didUpdateWidget(MonthGridSelector oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.selectedYear != widget.selectedYear) {
+      _loadTotals(widget.selectedYear);
+    }
+  }
+
+  Future<void> _loadTotals(int year) async {
+    try {
+      final fs = FinanceService.getInstance(
+        SqliteService().db.monthDao,
+        SqliteService().db.movementValueDao,
+        SqliteService().db.fixedMovementDao,
+      );
+      final data = await fs.getYearlyData(year);
+      final totals = <int, double>{};
+      for (var i = 0; i < data.length; i++) {
+        totals[i + 1] = (data[i]['incomes'] ?? 0) - (data[i]['expenses'] ?? 0);
+      }
+      if (mounted) setState(() => _monthTotals = totals);
+    } catch (_) {
+      // Ignore: totals are a non-critical enhancement.
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -43,18 +91,19 @@ class MonthGridSelector extends StatelessWidget {
     TextTheme textTheme,
     AppGlass glass,
   ) {
-    final canGoPrev = availableYears.contains(selectedYear - 1);
-    final canGoNext = availableYears.contains(selectedYear + 1);
+    final canGoPrev = widget.availableYears.contains(widget.selectedYear - 1);
+    final canGoNext = widget.availableYears.contains(widget.selectedYear + 1);
 
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
         _buildYearArrow(
-          context: context,
           colorScheme: colorScheme,
           glass: glass,
           icon: Icons.chevron_left_rounded,
-          onPressed: canGoPrev ? () => onYearChanged(selectedYear - 1) : null,
+          onPressed: canGoPrev
+              ? () => widget.onYearChanged(widget.selectedYear - 1)
+              : null,
         ),
         Expanded(
           child: Column(
@@ -70,7 +119,7 @@ class MonthGridSelector extends StatelessWidget {
               ),
               const SizedBox(height: 2),
               Text(
-                selectedYear.toString(),
+                widget.selectedYear.toString(),
                 style: textTheme.displaySmall?.copyWith(
                   color: colorScheme.onSurface,
                   fontWeight: FontWeight.bold,
@@ -80,18 +129,18 @@ class MonthGridSelector extends StatelessWidget {
           ),
         ),
         _buildYearArrow(
-          context: context,
           colorScheme: colorScheme,
           glass: glass,
           icon: Icons.chevron_right_rounded,
-          onPressed: canGoNext ? () => onYearChanged(selectedYear + 1) : null,
+          onPressed: canGoNext
+              ? () => widget.onYearChanged(widget.selectedYear + 1)
+              : null,
         ),
       ],
     );
   }
 
   Widget _buildYearArrow({
-    required BuildContext context,
     required ColorScheme colorScheme,
     required AppGlass glass,
     required IconData icon,
@@ -127,12 +176,13 @@ class MonthGridSelector extends StatelessWidget {
       crossAxisCount: 3,
       mainAxisSpacing: 12,
       crossAxisSpacing: 12,
-      childAspectRatio: 1.6,
+      childAspectRatio: 1.35,
       physics: const NeverScrollableScrollPhysics(),
       children: List.generate(12, (index) {
         final month = index + 1;
-        final isAvailable = availableMonths.contains(month);
-        final isSelected = month == selectedMonth;
+        final isAvailable = widget.availableMonths.contains(month);
+        final isSelected = month == widget.selectedMonth;
+        final total = _monthTotals[month];
 
         final Color background;
         final Color textColor;
@@ -157,7 +207,7 @@ class MonthGridSelector extends StatelessWidget {
           borderRadius: BorderRadius.circular(glass.pillRadius),
           clipBehavior: Clip.antiAlias,
           child: InkWell(
-            onTap: isAvailable ? () => onMonthChanged(month) : null,
+            onTap: isAvailable ? () => widget.onMonthChanged(month) : null,
             child: Container(
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(glass.pillRadius),
@@ -177,14 +227,16 @@ class MonthGridSelector extends StatelessWidget {
                             isSelected ? FontWeight.bold : FontWeight.w500,
                       ),
                     ),
-                    if (isSelected) ...[
-                      const SizedBox(height: 4),
-                      Container(
-                        width: 5,
-                        height: 5,
-                        decoration: BoxDecoration(
-                          color: colorScheme.primary,
-                          shape: BoxShape.circle,
+                    if (isAvailable && total != null) ...[
+                      const SizedBox(height: 2),
+                      Text(
+                        '$_currency${total.toStringAsFixed(2)}',
+                        textAlign: TextAlign.center,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: textTheme.labelSmall?.copyWith(
+                          color: isSelected ? colorScheme.primary : glass.mutedText,
+                          fontWeight: FontWeight.w600,
                         ),
                       ),
                     ],

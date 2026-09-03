@@ -1,9 +1,8 @@
-import 'package:cashly/data/services/gemini_service.dart';
-import 'package:cashly/data/services/groq_serice.dart';
 import 'package:cashly/data/services/shared_preferences_service.dart';
 import 'package:cashly/data/services/sqlite_service.dart';
 import 'package:cashly/data/services/log_file_service.dart';
 import 'package:cashly/modules/gastoscopio/screens/movement_form_screen.dart';
+import 'package:cashly/modules/gastoscopio/screens/view_movements_filtered_screen.dart';
 import 'package:cashly/modules/gastoscopio/widgets/loading.dart';
 import 'package:cashly/modules/gastoscopio/widgets/main_screen_widgets.dart';
 import 'package:cashly/modules/gastoscopio/widgets/movement_tile.dart';
@@ -136,81 +135,6 @@ class _MovementsScreenState extends State<MovementsScreen>
     }
   }
 
-  Future<void> _deleteAllTags() async {
-    bool delete =
-        await showDialog<bool>(
-          context: context,
-          builder: (context) => AlertDialog(
-            title: Text(AppLocalizations.of(context).confrmTagDelete),
-            content: Text(AppLocalizations.of(context).confirmDeleteAllTags),
-            actions: [
-              TextButton(
-                onPressed: () => Navigator.of(context).pop(false),
-                child: Text(AppLocalizations.of(context).cancel),
-              ),
-              ElevatedButton(
-                onPressed: () => Navigator.of(context).pop(true),
-                child: Text(AppLocalizations.of(context).ok),
-              ),
-            ],
-          ),
-        ) ??
-        false;
-    
-    if (!delete) return;
-
-    List<MovementValue> movements = await _financeService
-        .getCurrentMonthMovements();
-    movements = movements
-        .where((m) => m.category != null && m.category!.isNotEmpty)
-        .toList();
-
-    if (movements.isEmpty) return;
-
-    for (final movement in movements) {
-      final updatedMovement = movement.copyWith(category: null);
-      await _financeService.updateMovement(updatedMovement);
-      await SharedPreferencesService().haveToUpload();
-    }
-
-    await _loadMovements();
-  }
-
-  Future<void> _autoGenerateTags() async {
-    List<MovementValue> movements = await _financeService
-        .getCurrentMonthMovements();
-    movements = movements
-        .where((m) => m.category == null || m.category!.isEmpty)
-        .toList();
-
-    if (movements.isEmpty) return;
-    List<String> tags = await GroqService().generateTags(
-      movements
-          .map((m) => '${m.description} (${m.isExpense ? "gasto" : "ingreso"})')
-          .join(','),
-      context,
-    );
-    if (tags.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(
-            AppLocalizations.of(context)!.noTagsGenerated,
-            style: TextStyle(color: Theme.of(context).colorScheme.onError),
-          ),
-          backgroundColor: Theme.of(context).colorScheme.error,
-        ),
-      );
-      return;
-    }
-    for (int i = 0; i < movements.length; i++) {
-      final movement = movements[i];
-      final tag = tags[i % tags.length];
-      final updatedMovement = movement.copyWith(category: tag);
-      await _financeService.updateMovement(updatedMovement);
-      await SharedPreferencesService().haveToUpload();
-    }
-  }
-
   @override
   void dispose() {
     _searchController.dispose();
@@ -321,16 +245,22 @@ class _MovementsScreenState extends State<MovementsScreen>
             sliver: AnimatedBuilder(
               animation: _listFadeAnimation,
               builder: (context, child) {
-                List<MovementValue> _showingValues = !_showFutureMovements 
-                  ? filteredMovements 
+                List<MovementValue> _showingValues = !_showFutureMovements
+                  ? filteredMovements
                   : filteredMovements.where((mov) => mov.day <= DateTime.now().day).toList();
+
+                final rows = _buildGroupedRows(_showingValues);
 
                 return SliverOpacity(
                   opacity: _listFadeAnimation.value,
                   sliver: SliverList(
                     delegate: SliverChildBuilderDelegate(
                       (context, index) {
-                        final movement = _showingValues[index];
+                        final row = rows[index];
+                        if (row.isHeader) {
+                          return _buildDayHeader(row.day!);
+                        }
+                        final movement = row.movement!;
                         final isExpanded = _expandedItems[movement.id.toString()] ?? false;
 
                         return Padding(
@@ -341,7 +271,7 @@ class _MovementsScreenState extends State<MovementsScreen>
                           ),
                         );
                       },
-                      childCount: _showingValues.length,
+                      childCount: rows.length,
                     ),
                   ),
                 );
@@ -350,6 +280,60 @@ class _MovementsScreenState extends State<MovementsScreen>
           ),
         const SliverToBoxAdapter(child: SizedBox(height: 100)),
       ],
+    );
+  }
+
+  /// Flattens the given movements into a list of rows (day headers + tiles),
+  /// grouped by day and ordered newest-day-first.
+  List<_MovementRow> _buildGroupedRows(List<MovementValue> movements) {
+    final Map<int, List<MovementValue>> byDay = {};
+    for (final movement in movements) {
+      byDay.putIfAbsent(movement.day, () => []).add(movement);
+    }
+
+    final days = byDay.keys.toList()..sort((a, b) => b.compareTo(a));
+
+    final List<_MovementRow> rows = [];
+    for (final day in days) {
+      rows.add(_MovementRow.header(day));
+      for (final movement in byDay[day]!) {
+        rows.add(_MovementRow.tile(movement));
+      }
+    }
+    return rows;
+  }
+
+  Widget _buildDayHeader(int day) {
+    final glass = Theme.of(context).extension<AppGlass>()!;
+    final month = _financeService.currentMonth!.month;
+    final year = _financeService.currentMonth!.year;
+    final monthName = monthFullNames(AppLocalizations.of(context)!)[month - 1];
+
+    final date = DateTime(year, month, day);
+    final now = DateTime.now();
+    final today = DateTime(now.year, now.month, now.day);
+    final yesterday = today.subtract(const Duration(days: 1));
+
+    final dateLabel = '$day de $monthName';
+    String label;
+    if (date == today) {
+      label = '${AppLocalizations.of(context)!.today}, $dateLabel';
+    } else if (date == yesterday) {
+      label = '${AppLocalizations.of(context)!.yesterday}, $dateLabel';
+    } else {
+      label = dateLabel;
+    }
+
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 8),
+      child: Text(
+        label,
+        style: TextStyle(
+          color: glass.mutedText,
+          fontSize: 13,
+          fontWeight: FontWeight.w600,
+        ),
+      ),
     );
   }
 
@@ -504,17 +488,18 @@ class _MovementsScreenState extends State<MovementsScreen>
           },
         ),
         const SizedBox(width: 8),
-        GestureDetector(
-          onLongPress: _deleteAllTags,
-          child: _buildToolbarIconButton(
-            icon: Icons.auto_awesome,
-            tooltip: 'Auto-etiquetar',
-            active: false,
-            onPressed: () async {
-              await _autoGenerateTags();
-              await _loadMovements();
-            },
-          ),
+        _buildToolbarIconButton(
+          icon: Icons.manage_search,
+          tooltip: 'Búsqueda avanzada',
+          active: false,
+          onPressed: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (_) => const ViewMovementsFilteredScreen(),
+              ),
+            );
+          },
         ),
       ],
     );
@@ -1278,4 +1263,19 @@ class _MovementsScreenState extends State<MovementsScreen>
       LogFileService().appendLog('Error updating movement date: $e');
     }
   }
+}
+
+/// A row in the grouped movements list: either a day header or a movement tile.
+class _MovementRow {
+  final bool isHeader;
+  final int? day;
+  final MovementValue? movement;
+
+  const _MovementRow.header(this.day)
+      : isHeader = true,
+        movement = null;
+
+  const _MovementRow.tile(this.movement)
+      : isHeader = false,
+        day = null;
 }

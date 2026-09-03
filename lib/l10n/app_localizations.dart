@@ -2977,6 +2977,48 @@ abstract class AppLocalizations {
   /// In es, this message translates to:
   /// **'Dispositivos Vinculados'**
   String get linkedDevices;
+
+  /// No description provided for @today.
+  ///
+  /// In es, this message translates to:
+  /// **'Hoy'**
+  String get today;
+
+  /// No description provided for @yesterday.
+  ///
+  /// In es, this message translates to:
+  /// **'Ayer'**
+  String get yesterday;
+
+  /// No description provided for @noName.
+  ///
+  /// In es, this message translates to:
+  /// **'Sin nombre'**
+  String get noName;
+
+  /// No description provided for @advancedSearch.
+  ///
+  /// In es, this message translates to:
+  /// **'Búsqueda avanzada'**
+  String get advancedSearch;
+
+  /// No description provided for @cardHolder.
+  ///
+  /// In es, this message translates to:
+  /// **'Titular'**
+  String get cardHolder;
+
+  /// No description provided for @days.
+  ///
+  /// In es, this message translates to:
+  /// **'días'**
+  String get days;
+
+  /// No description provided for @available.
+  ///
+  /// In es, this message translates to:
+  /// **'Disponible'**
+  String get available;
 }
 
 class _AppLocalizationsDelegate

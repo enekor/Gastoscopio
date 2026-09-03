@@ -6,6 +6,7 @@ import 'package:cashly/theme/widgets/app_background.dart';
 import 'package:cashly/theme/widgets/glass_card.dart';
 import 'package:cashly/theme/widgets/primary_pill_button.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
 class CreditCardExpenseForm extends StatefulWidget {
   final int month;
@@ -191,6 +192,11 @@ class _CreditCardExpenseFormState extends State<CreditCardExpenseForm> {
                                 textAlign: TextAlign.center,
                                 keyboardType: const TextInputType
                                     .numberWithOptions(decimal: true),
+                                inputFormatters: [
+                                  FilteringTextInputFormatter.allow(
+                                    RegExp(r'[0-9.,]'),
+                                  ),
+                                ],
                                 style: TextStyle(
                                   fontSize: 40,
                                   fontWeight: FontWeight.w700,

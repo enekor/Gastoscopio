@@ -1,16 +1,19 @@
+import 'package:cashly/common/month_names.dart';
+import 'package:cashly/data/services/login_service.dart';
 import 'package:cashly/data/services/shared_preferences_service.dart';
 import 'package:cashly/l10n/app_localizations.dart';
 import 'package:cashly/modules/credit_card/logic/credit_card_service.dart';
 import 'package:cashly/modules/credit_card/screens/credit_card_expense_form.dart';
-import 'package:cashly/modules/credit_card/screens/credit_card_history_screen.dart';
 import 'package:cashly/data/services/notification_service.dart';
 import 'package:cashly/theme/app_glass.dart';
 import 'package:cashly/theme/widgets/app_background.dart';
 import 'package:cashly/theme/widgets/amount_text.dart';
 import 'package:cashly/theme/widgets/app_list_row.dart';
 import 'package:cashly/theme/widgets/glass_card.dart';
+import 'package:cashly/theme/widgets/month_chip.dart';
 import 'package:cashly/theme/widgets/primary_pill_button.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
 
 import 'package:cashly/data/services/device_identity_service.dart';
@@ -38,6 +41,9 @@ class _CreditCardScreenState extends State<CreditCardScreen> {
   String _billingCycle = 'monthly';
   int _billingDay = 1;
 
+  // Editable cardholder name shown on the card visual.
+  String? _cardHolderName;
+
   @override
   void initState() {
     super.initState();
@@ -45,8 +51,127 @@ class _CreditCardScreenState extends State<CreditCardScreen> {
     _loadData();
     _loadCurrency();
     _loadBillingConfig();
+    _loadCardHolderName();
     NotificationService().requestPermissions();
     _startReceivingIfPaired();
+  }
+
+  Future<void> _loadCardHolderName() async {
+    final stored = await SharedPreferencesService()
+        .getStringValue(SharedPreferencesKeys.creditCardHolderName);
+    if (mounted) {
+      setState(() {
+        _cardHolderName = (stored != null && stored.isNotEmpty) ? stored : null;
+      });
+    }
+  }
+
+  /// Resolves the name displayed on the card: stored override, else the Google
+  /// display name, else the localized "no name" fallback.
+  String _resolveCardHolderName() {
+    if (_cardHolderName != null && _cardHolderName!.isNotEmpty) {
+      return _cardHolderName!;
+    }
+    final googleName = LoginService().currentUser?.displayName;
+    if (googleName != null && googleName.isNotEmpty) {
+      return googleName;
+    }
+    return AppLocalizations.of(context)!.noName;
+  }
+
+  void _showCardHolderDialog() {
+    final TextEditingController controller =
+        TextEditingController(text: _resolveCardHolderName());
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Titular de la tarjeta'),
+        content: TextField(
+          controller: controller,
+          decoration: const InputDecoration(
+            labelText: 'Nombre',
+            border: OutlineInputBorder(),
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Cancelar'),
+          ),
+          ElevatedButton(
+            onPressed: () async {
+              final name = controller.text.trim();
+              await SharedPreferencesService().setStringValue(
+                SharedPreferencesKeys.creditCardHolderName,
+                name,
+              );
+              if (mounted) {
+                setState(() {
+                  _cardHolderName = name.isNotEmpty ? name : null;
+                });
+                Navigator.pop(context);
+              }
+            },
+            child: const Text('Guardar'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  /// Loads the given credit-card month (from allMonths) and its expenses,
+  /// then refreshes the screen.
+  Future<void> _selectMonth(DateTime date) async {
+    setState(() {
+      _selectedDate = date;
+    });
+    await _service.loadMonthData(date.month, date.year);
+  }
+
+  void _showMonthPicker() {
+    final scheme = Theme.of(context).colorScheme;
+    final l = AppLocalizations.of(context)!;
+    final months = _service.allMonths;
+    showModalBottomSheet(
+      context: context,
+      builder: (context) => SafeArea(
+        child: months.isEmpty
+            ? Padding(
+                padding: const EdgeInsets.all(24),
+                child: Center(
+                  child: Text(
+                    'No hay meses disponibles',
+                    style: TextStyle(color: scheme.onSurface),
+                  ),
+                ),
+              )
+            : ListView(
+                shrinkWrap: true,
+                children: months.map((m) {
+                  final label =
+                      '${monthShortNames(l)[m.month - 1]} ${m.year}';
+                  final isSelected = m.month == _selectedDate.month &&
+                      m.year == _selectedDate.year;
+                  return ListTile(
+                    leading: Icon(
+                      Icons.calendar_month,
+                      color: isSelected
+                          ? scheme.primary
+                          : scheme.onSurfaceVariant,
+                    ),
+                    title: Text(label),
+                    trailing: isSelected
+                        ? Icon(Icons.check, color: scheme.primary)
+                        : null,
+                    onTap: () {
+                      Navigator.pop(context);
+                      _selectMonth(DateTime(m.year, m.month));
+                    },
+                  );
+                }).toList(),
+              ),
+      ),
+    );
   }
 
   Future<void> _startReceivingIfPaired() async {
@@ -199,6 +324,9 @@ class _CreditCardScreenState extends State<CreditCardScreen> {
         content: TextField(
           controller: controller,
           keyboardType: const TextInputType.numberWithOptions(decimal: true),
+          inputFormatters: [
+            FilteringTextInputFormatter.allow(RegExp(r'[0-9.,]')),
+          ],
           decoration: InputDecoration(
             labelText: 'Límite ($_moneda)',
             border: const OutlineInputBorder(),
@@ -248,6 +376,9 @@ class _CreditCardScreenState extends State<CreditCardScreen> {
                 TextField(
                   controller: limitController,
                   keyboardType: const TextInputType.numberWithOptions(decimal: true),
+                  inputFormatters: [
+                    FilteringTextInputFormatter.allow(RegExp(r'[0-9.,]')),
+                  ],
                   decoration: InputDecoration(
                     labelText: 'Límite por defecto ($_moneda)',
                     border: const OutlineInputBorder(),
@@ -339,45 +470,9 @@ class _CreditCardScreenState extends State<CreditCardScreen> {
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back),
-          onPressed: () => Navigator.pop(context),
-        ),
-        title: const Text('Tarjeta de Crédito'),
-        actions: [
-          if (_isSyncing)
-            const Padding(
-              padding: EdgeInsets.symmetric(horizontal: 16.0),
-              child: Center(
-                child: SizedBox(
-                  width: 20,
-                  height: 20,
-                  child: CircularProgressIndicator(strokeWidth: 2),
-                ),
-              ),
-            )
-          else
-            IconButton(
-              icon: const Icon(Icons.sync),
-              tooltip: 'Sincronizar movimientos',
-              onPressed: _service.currentMonth != null ? _syncMovements : null,
-            ),
-          IconButton(
-            icon: const Icon(Icons.history),
-            onPressed: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => const CreditCardHistoryScreen(),
-                ),
-              );
-            },
-          ),
-          IconButton(
-            icon: const Icon(Icons.settings),
-            onPressed: _showSettingsDialog,
-          ),
-        ],
+        automaticallyImplyLeading: false,
+        titleSpacing: 16,
+        title: _buildHeader(),
       ),
       body: AppBackground(
         child: SafeArea(
@@ -388,7 +483,6 @@ class _CreditCardScreenState extends State<CreditCardScreen> {
               if (_service.currentMonth == null) {
                 return Column(
                   children: [
-                    _buildMonthSelector(),
                     Expanded(
                       child: Center(
                         child: Padding(
@@ -418,8 +512,6 @@ class _CreditCardScreenState extends State<CreditCardScreen> {
               return ListView(
                 padding: const EdgeInsets.fromLTRB(16, 8, 16, 120),
                 children: [
-                  _buildMonthSelector(),
-                  const SizedBox(height: 12),
                   _buildCreditCardVisual(),
                   const SizedBox(height: 16),
                   _buildBalanceCard(),
@@ -454,26 +546,61 @@ class _CreditCardScreenState extends State<CreditCardScreen> {
     );
   }
 
-  Widget _buildMonthSelector() {
+  Widget _buildHeader() {
     final scheme = Theme.of(context).colorScheme;
+    final l = AppLocalizations.of(context)!;
+    final chipLabel =
+        '${monthShortNames(l)[_selectedDate.month - 1]} ${_selectedDate.year}';
     return Row(
-      mainAxisAlignment: MainAxisAlignment.center,
       children: [
+        IconButton(
+          padding: EdgeInsets.zero,
+          constraints: const BoxConstraints(),
+          icon: const Icon(Icons.arrow_back),
+          onPressed: () => Navigator.pop(context),
+        ),
+        const SizedBox(width: 8),
+        MonthChip(label: chipLabel, onTap: _showMonthPicker),
         if (_isReceiving)
           const Padding(
-            padding: EdgeInsets.only(right: 8),
+            padding: EdgeInsets.only(left: 8),
             child: Tooltip(
               message: 'Listo para recibir movimientos',
               child: Icon(Icons.sensors, color: Colors.green, size: 20),
             ),
           ),
-        Text(
-          DateFormat('MMMM yyyy').format(_selectedDate).toUpperCase(),
-          style: TextStyle(
-            fontSize: 18,
-            fontWeight: FontWeight.bold,
-            color: scheme.onSurface,
+        const Spacer(),
+        Flexible(
+          child: Text(
+            'Tarjeta de Crédito',
+            textAlign: TextAlign.right,
+            overflow: TextOverflow.ellipsis,
+            style: TextStyle(
+              fontSize: 16,
+              fontWeight: FontWeight.w700,
+              color: scheme.onSurface,
+            ),
           ),
+        ),
+        const SizedBox(width: 4),
+        if (_isSyncing)
+          const Padding(
+            padding: EdgeInsets.symmetric(horizontal: 12.0),
+            child: SizedBox(
+              width: 20,
+              height: 20,
+              child: CircularProgressIndicator(strokeWidth: 2),
+            ),
+          )
+        else
+          IconButton(
+            icon: const Icon(Icons.sync),
+            tooltip: 'Sincronizar movimientos',
+            onPressed: _service.currentMonth != null ? _syncMovements : null,
+          ),
+        IconButton(
+          icon: const Icon(Icons.settings),
+          onPressed: _showSettingsDialog,
         ),
       ],
     );
@@ -543,17 +670,24 @@ class _CreditCardScreenState extends State<CreditCardScreen> {
               const SizedBox(height: 20),
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: const [
-                  Text(
-                    'JUAN PEREZ',
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontSize: 14,
-                      fontWeight: FontWeight.w600,
-                      letterSpacing: 1,
+                children: [
+                  Flexible(
+                    child: GestureDetector(
+                      onTap: _showCardHolderDialog,
+                      child: Text(
+                        _resolveCardHolderName().toUpperCase(),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontSize: 14,
+                          fontWeight: FontWeight.w600,
+                          letterSpacing: 1,
+                        ),
+                      ),
                     ),
                   ),
-                  Text(
+                  const Text(
                     '12/28',
                     style: TextStyle(
                       color: Colors.white70,

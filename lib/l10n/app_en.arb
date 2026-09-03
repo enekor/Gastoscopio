@@ -537,5 +537,12 @@
   "selectCategory": "Select Category",
   "themeLabel": "Theme",
   "visualAspect": "Visual Appearance",
-  "linkedDevices": "Linked Devices"
+  "linkedDevices": "Linked Devices",
+  "today": "Today",
+  "yesterday": "Yesterday",
+  "noName": "No name",
+  "advancedSearch": "Advanced search",
+  "cardHolder": "Cardholder",
+  "days": "days",
+  "available": "Available"
 }

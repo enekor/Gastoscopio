@@ -13,6 +13,7 @@ import 'package:cashly/onboarding/onboarding.dart';
 import 'package:cashly/theme/widgets/app_background.dart';
 import 'package:cashly/theme/widgets/app_bottom_nav.dart';
 import 'package:cashly/theme/widgets/month_chip.dart';
+import 'package:cashly/common/month_names.dart';
 import 'package:cashly/l10n/app_localizations.dart';
 import 'package:flutter/material.dart';
 
@@ -185,6 +186,7 @@ class _MainScreenState extends State<MainScreen>
       key: const ValueKey('home'),
       year: _year,
       month: _month,
+      onNavigateTab: _onDestinationSelected,
     ),
     const ActiveDebtsScreen(key: ValueKey('debts'), embedded: true),
     MovementsScreen(
@@ -210,47 +212,39 @@ class _MainScreenState extends State<MainScreen>
       padding: const EdgeInsets.fromLTRB(20, 8, 12, 8),
       child: Row(
         children: [
-          SizedBox(
-            width: 120,
-            child: Align(
-              alignment: Alignment.centerLeft,
-              child: _selectedIndex != 3
-                  ? AnimatedBuilder(
-                      animation: financeService,
-                      builder: (context, _) => MonthChip(
-                        label: financeService.currentMonthName(context),
-                        onTap: _showMonthSelector,
-                      ),
-                    )
-                  : const SizedBox.shrink(),
-            ),
-          ),
-          Expanded(
-            child: Text(
-              _titleForIndex(context, _selectedIndex),
-              textAlign: TextAlign.center,
-              style: const TextStyle(fontSize: 20, fontWeight: FontWeight.w700),
-            ),
-          ),
-          SizedBox(
-            width: 120,
-            child: Align(
-              alignment: Alignment.centerRight,
-              child: IconButton(
-                icon: const Icon(Icons.settings_outlined),
-                onPressed: () async {
-                  await Navigator.push(
-                    context,
-                    MaterialPageRoute(builder: (context) => const SettingsScreen()),
-                  );
-                  await _reloadConfigs();
-                },
+          if (_selectedIndex != 3)
+            AnimatedBuilder(
+              animation: financeService,
+              builder: (context, _) => MonthChip(
+                label: _monthChipLabel(context, financeService),
+                onTap: _showMonthSelector,
               ),
             ),
+          const Spacer(),
+          Text(
+            _titleForIndex(context, _selectedIndex),
+            style: const TextStyle(fontSize: 20, fontWeight: FontWeight.w700),
+          ),
+          const SizedBox(width: 4),
+          IconButton(
+            icon: const Icon(Icons.settings_outlined),
+            onPressed: () async {
+              await Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => const SettingsScreen()),
+              );
+              await _reloadConfigs();
+            },
           ),
         ],
       ),
     );
+  }
+
+  String _monthChipLabel(BuildContext context, FinanceService financeService) {
+    final month = financeService.currentMonth;
+    if (month == null) return '';
+    return '${monthShortNames(AppLocalizations.of(context)!)[month.month - 1]} ${month.year}';
   }
 
   @override

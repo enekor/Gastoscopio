@@ -1591,4 +1591,25 @@ class AppLocalizationsEs extends AppLocalizations {
 
   @override
   String get linkedDevices => 'Dispositivos Vinculados';
+
+  @override
+  String get today => 'Hoy';
+
+  @override
+  String get yesterday => 'Ayer';
+
+  @override
+  String get noName => 'Sin nombre';
+
+  @override
+  String get advancedSearch => 'Búsqueda avanzada';
+
+  @override
+  String get cardHolder => 'Titular';
+
+  @override
+  String get days => 'días';
+
+  @override
+  String get available => 'Disponible';
 }

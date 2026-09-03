@@ -396,17 +396,11 @@ class _SettingsScreenState extends State<SettingsScreen> with WidgetsBindingObse
                     const SizedBox(height: 12),
                     _buildLanguageCard(context),
                     const SizedBox(height: 12),
-                    _buildAIModelCard(context),
-                    const SizedBox(height: 12),
                     _buildCurrencyCard(context),
-                    const SizedBox(height: 12),
-                    _buildLogoCard(context),
                     const SizedBox(height: 24),
 
                     SectionHeader(title: AppLocalizations.of(context)!.visualAspect),
                     _buildBackgroundImageCard(context),
-                    const SizedBox(height: 12),
-                    _buildBottomNavCard(context),
                     const SizedBox(height: 24),
 
                     SectionHeader(title: AppLocalizations.of(context)!.security),

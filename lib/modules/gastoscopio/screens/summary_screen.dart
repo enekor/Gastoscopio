@@ -1,21 +1,18 @@
 import 'package:cashly/common/month_names.dart';
 import 'package:cashly/common/tag_list.dart';
 import 'package:cashly/data/models/movement_value.dart';
-import 'package:cashly/data/models/month.dart';
-import 'package:cashly/data/services/groq_serice.dart';
 import 'package:cashly/modules/gastoscopio/logic/finance_service.dart';
 import 'package:cashly/modules/gastoscopio/widgets/category_progress_chart.dart';
 import 'package:cashly/modules/gastoscopio/widgets/loading.dart';
 import 'package:cashly/modules/gastoscopio/widgets/month_grid_selector.dart';
+import 'package:cashly/modules/saves/home_saves.dart';
 import 'package:cashly/theme/app_glass.dart';
 import 'package:cashly/theme/widgets/amount_text.dart';
 import 'package:cashly/theme/widgets/glass_card.dart';
-import 'package:cashly/theme/widgets/primary_pill_button.dart';
 import 'package:cashly/theme/widgets/section_header.dart';
 import 'package:cashly/theme/widgets/stat_tile.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_markdown/flutter_markdown.dart';
 import 'package:cashly/data/services/sqlite_service.dart';
 import 'package:cashly/l10n/app_localizations.dart';
 
@@ -26,24 +23,18 @@ class SummaryScreen extends StatefulWidget {
   State<SummaryScreen> createState() => _SummaryScreenState();
 }
 
-class _SummaryScreenState extends State<SummaryScreen>
-    with SingleTickerProviderStateMixin {
-  late TabController _tabController;
+class _SummaryScreenState extends State<SummaryScreen> {
   late FinanceService _financeService;
   List<int> _availableYears = [];
   List<int> _availableMonths = [];
   int _year = DateTime.now().year;
   int _month = DateTime.now().month;
-  String _aiAnalysis = '';
-  bool _isLoadingAnalysis = false;
-  bool _hasData = false;
 
   static const String _currency = '€';
 
   @override
   void initState() {
     super.initState();
-    _tabController = TabController(length: 2, vsync: this);
     _financeService = FinanceService.getInstance(
       SqliteService().db.monthDao,
       SqliteService().db.movementValueDao,
@@ -52,34 +43,14 @@ class _SummaryScreenState extends State<SummaryScreen>
     _loadInitialData();
   }
 
-  @override
-  void dispose() {
-    _tabController.dispose();
-    super.dispose();
-  }
-
   Future<void> _loadInitialData() async {
     _availableYears = await _financeService.getAvailableYears();
     _availableMonths = await _financeService.getAvailableMonths(_year);
-    _hasData = await _financeService.getMonthMovementsCount(_month, _year) > 5;
     if (mounted) setState(() {});
-  }
-
-  Future<void> _loadAiAnalysis() async {
-    setState(() => _isLoadingAnalysis = true);
-    final movements = await _financeService.getMovementsForMonth(_month, _year);
-    final value = await GroqService().generateSummary(movements, Month(_month, _year), context);
-    if (mounted) {
-      setState(() {
-        _aiAnalysis = value;
-        _isLoadingAnalysis = false;
-      });
-    }
   }
 
   Future<void> _setNewDate(int month, int year) async {
     await _financeService.updateSelectedDate(month, year);
-    _hasData = await _financeService.getMonthMovementsCount(month, year) > 5;
     if (mounted) {
       setState(() {
         _month = month;
@@ -133,15 +104,7 @@ class _SummaryScreenState extends State<SummaryScreen>
         return Column(
           children: [
             _buildSubHeader(),
-            Expanded(
-              child: TabBarView(
-                controller: _tabController,
-                children: [
-                  _buildSummaryTab(),
-                  _buildAiAnalysisTab(),
-                ],
-              ),
-            ),
+            Expanded(child: _buildSummaryTab()),
           ],
         );
       },
@@ -151,33 +114,32 @@ class _SummaryScreenState extends State<SummaryScreen>
   Widget _buildSubHeader() {
     final scheme = Theme.of(context).colorScheme;
     final glass = Theme.of(context).extension<AppGlass>()!;
-    return Column(
-      children: [
-        ListTile(
-          title: Text(
-            "${_getMonthName(_month)} $_year",
-            style: TextStyle(
-              fontSize: 18,
-              fontWeight: FontWeight.w700,
-              color: scheme.onSurface,
+    return ListTile(
+      title: Text(
+        "${_getMonthName(_month)} $_year",
+        style: TextStyle(
+          fontSize: 18,
+          fontWeight: FontWeight.w700,
+          color: scheme.onSurface,
+        ),
+      ),
+      trailing: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          IconButton(
+            tooltip: AppLocalizations.of(context)!.savings,
+            icon: Icon(Icons.savings_outlined, color: scheme.primary),
+            onPressed: () => Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => HomeSaves()),
             ),
           ),
-          trailing: IconButton(
+          IconButton(
             icon: Icon(Icons.calendar_month, color: glass.mutedText),
             onPressed: _showMonthSelector,
           ),
-        ),
-        TabBar(
-          controller: _tabController,
-          labelColor: scheme.primary,
-          indicatorColor: scheme.primary,
-          unselectedLabelColor: glass.mutedText,
-          tabs: [
-            Tab(text: AppLocalizations.of(context)!.summary),
-            Tab(text: AppLocalizations.of(context)!.aiAnalysis),
-          ],
-        ),
-      ],
+        ],
+      ),
     );
   }
 
@@ -215,57 +177,6 @@ class _SummaryScreenState extends State<SummaryScreen>
           ],
         );
       },
-    );
-  }
-
-  Widget _buildAiAnalysisTab() {
-    final glass = Theme.of(context).extension<AppGlass>()!;
-    return CustomScrollView(
-      physics: const BouncingScrollPhysics(),
-      slivers: [
-        SliverPadding(
-          padding: const EdgeInsets.all(16),
-          sliver: SliverToBoxAdapter(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                SectionHeader(
-                  title: AppLocalizations.of(context)!.aiAnalysisTitle,
-                ),
-                const SizedBox(height: 8),
-                PrimaryPillButton(
-                  label: AppLocalizations.of(context)!.generate,
-                  icon: Icons.auto_awesome,
-                  loading: _isLoadingAnalysis,
-                  onPressed: _loadAiAnalysis,
-                ),
-              ],
-            ),
-          ),
-        ),
-        if (!_hasData)
-          SliverFillRemaining(hasScrollBody: false, child: _buildEmptyState())
-        else if (_isLoadingAnalysis)
-          SliverFillRemaining(child: Center(child: Loading(context)))
-        else
-          SliverPadding(
-            padding: const EdgeInsets.symmetric(horizontal: 16),
-            sliver: SliverToBoxAdapter(
-              child: GlassCard(
-                child: MarkdownBody(
-                  data: _aiAnalysis.isEmpty
-                      ? AppLocalizations.of(context)!.generateAnalysisHint
-                      : _aiAnalysis,
-                  styleSheet: MarkdownStyleSheet.fromTheme(Theme.of(context))
-                      .copyWith(
-                    p: TextStyle(color: glass.mutedText),
-                  ),
-                ),
-              ),
-            ),
-          ),
-        const SliverToBoxAdapter(child: SizedBox(height: 100)),
-      ],
     );
   }
 

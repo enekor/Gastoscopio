@@ -11,6 +11,7 @@ import 'package:cashly/theme/widgets/app_segmented_control.dart';
 import 'package:cashly/theme/widgets/glass_card.dart';
 import 'package:cashly/theme/widgets/primary_pill_button.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:cashly/l10n/app_localizations.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 
@@ -527,6 +528,9 @@ class _MovementFormScreenState extends State<MovementFormScreen> {
                   textAlign: TextAlign.center,
                   keyboardType:
                       const TextInputType.numberWithOptions(decimal: true),
+                  inputFormatters: [
+                    FilteringTextInputFormatter.allow(RegExp(r'[0-9.,]')),
+                  ],
                   style: TextStyle(
                     fontSize: 40,
                     fontWeight: FontWeight.w700,

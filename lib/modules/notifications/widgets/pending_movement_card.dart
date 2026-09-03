@@ -1,6 +1,7 @@
 import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:cashly/l10n/app_localizations.dart';
 import 'package:cashly/theme/app_glass.dart';
 import 'package:cashly/theme/widgets/glass_card.dart';
@@ -68,7 +69,7 @@ class PendingMovementCard extends StatelessWidget {
             children: [
               _AppIconBadge(
                 appIcon: appIcon,
-                isExpense: movement.isExpense,
+                isCreditCard: movement.isCreditCard,
                 glass: glass,
                 scheme: scheme,
               ),
@@ -94,10 +95,6 @@ class PendingMovementCard extends StatelessWidget {
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                     ),
-                    if (movement.isCreditCard) ...[
-                      const SizedBox(height: 8),
-                      _CardChip(label: localizations.cardChip, glass: glass),
-                    ],
                   ],
                 ),
               ),
@@ -155,6 +152,9 @@ class PendingMovementCard extends StatelessWidget {
             ),
             keyboardType:
                 const TextInputType.numberWithOptions(decimal: true),
+            inputFormatters: [
+              FilteringTextInputFormatter.allow(RegExp(r'[0-9.,]')),
+            ],
             validator: (value) {
               if (value == null || value.isEmpty) {
                 return localizations.pleaseEnterAmount;
@@ -191,23 +191,22 @@ class PendingMovementCard extends StatelessWidget {
   }
 }
 
-/// Leading app icon with a small status badge (expense/income colour).
+/// Leading app icon with a credit-card badge shown ONLY for credit movements.
 class _AppIconBadge extends StatelessWidget {
   final Uint8List? appIcon;
-  final bool isExpense;
+  final bool isCreditCard;
   final AppGlass glass;
   final ColorScheme scheme;
 
   const _AppIconBadge({
     required this.appIcon,
-    required this.isExpense,
+    required this.isCreditCard,
     required this.glass,
     required this.scheme,
   });
 
   @override
   Widget build(BuildContext context) {
-    final badgeColor = isExpense ? glass.expenseColor : glass.incomeColor;
     return SizedBox(
       width: 48,
       height: 48,
@@ -231,60 +230,25 @@ class _AppIconBadge extends StatelessWidget {
                     color: glass.mutedText,
                   ),
           ),
-          Positioned(
-            top: -4,
-            right: -4,
-            child: Container(
-              width: 18,
-              height: 18,
-              decoration: BoxDecoration(
-                color: badgeColor,
-                shape: BoxShape.circle,
-                border: Border.all(color: scheme.surface, width: 2),
-              ),
-              child: Icon(
-                isExpense ? Icons.remove : Icons.add,
-                size: 10,
-                color: scheme.onPrimary,
+          if (isCreditCard)
+            Positioned(
+              top: -4,
+              right: -4,
+              child: Container(
+                width: 20,
+                height: 20,
+                decoration: BoxDecoration(
+                  color: scheme.primary,
+                  shape: BoxShape.circle,
+                  border: Border.all(color: scheme.surface, width: 2),
+                ),
+                child: Icon(
+                  Icons.credit_card,
+                  size: 11,
+                  color: scheme.onPrimary,
+                ),
               ),
             ),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-/// Green "TARJETA" chip for credit-card movements.
-class _CardChip extends StatelessWidget {
-  final String label;
-  final AppGlass glass;
-
-  const _CardChip({required this.label, required this.glass});
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-      decoration: BoxDecoration(
-        color: glass.incomeColor.withValues(alpha: 0.15),
-        borderRadius: BorderRadius.circular(glass.pillRadius),
-        border: Border.all(color: glass.incomeColor.withValues(alpha: 0.5)),
-      ),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Icon(Icons.credit_card, size: 14, color: glass.incomeColor),
-          const SizedBox(width: 6),
-          Text(
-            label,
-            style: TextStyle(
-              color: glass.incomeColor,
-              fontWeight: FontWeight.w700,
-              fontSize: 11,
-              letterSpacing: 0.5,
-            ),
-          ),
         ],
       ),
     );
