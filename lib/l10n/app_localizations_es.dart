@@ -1002,6 +1002,46 @@ class AppLocalizationsEs extends AppLocalizations {
   String get welcomeToApp => 'Bienvenido a Gastoscopio';
 
   @override
+  String get termsTitle => 'Términos y Condiciones';
+
+  @override
+  String get termsSubtitle =>
+      'Por favor, revisa y acepta nuestras condiciones de uso y política de privacidad antes de continuar.';
+
+  @override
+  String get termsLastUpdate => 'Última actualización: Septiembre 2026';
+
+  @override
+  String get termsSection1Title => '1. ALMACENAMIENTO Y BACKUP';
+
+  @override
+  String get termsSection1Body =>
+      'Tus datos se guardan localmente en tu dispositivo. Opcionalmente, puedes usar tu cuenta de Google para copias de seguridad en tu Google Drive personal.';
+
+  @override
+  String get termsSection2Title => '2. PRIVACIDAD Y SEGURIDAD';
+
+  @override
+  String get termsSection2Body =>
+      'No recopilamos datos personales ni financieros. No comercializamos tu información. Tus datos solo se transmiten a tu propio Google Drive si activas el backup.';
+
+  @override
+  String get termsAcceptTitle => 'He leído y acepto los Términos del Servicio';
+
+  @override
+  String get termsAcceptSubtitle =>
+      'Establece los lineamientos operacionales y derechos de propiedad.';
+
+  @override
+  String get termsReadFull => 'Leer términos completos';
+
+  @override
+  String get termsRejectExit => 'Rechazar y salir';
+
+  @override
+  String get termsAcceptContinue => 'Continuar y Aceptar';
+
+  @override
   String get connectGoogleAccount =>
       'Conecta tu cuenta de Google para sincronizar y respaldar tus datos financieros';
 

@@ -985,7 +985,47 @@ class AppLocalizationsEn extends AppLocalizations {
   String get continueAction => 'Continue';
 
   @override
-  String get welcomeToApp => 'Welcome to Cashly';
+  String get welcomeToApp => 'Welcome to Gastoscopio';
+
+  @override
+  String get termsTitle => 'Terms and Conditions';
+
+  @override
+  String get termsSubtitle =>
+      'Please review and accept our terms of use and privacy policy before continuing.';
+
+  @override
+  String get termsLastUpdate => 'Last updated: September 2026';
+
+  @override
+  String get termsSection1Title => '1. STORAGE AND BACKUP';
+
+  @override
+  String get termsSection1Body =>
+      'Your data is stored locally on your device. Optionally, you can use your Google account for backups on your personal Google Drive.';
+
+  @override
+  String get termsSection2Title => '2. PRIVACY AND SECURITY';
+
+  @override
+  String get termsSection2Body =>
+      'We do not collect personal or financial data. We do not sell your information. Your data is only transmitted to your own Google Drive if you enable backup.';
+
+  @override
+  String get termsAcceptTitle => 'I have read and accept the Terms of Service';
+
+  @override
+  String get termsAcceptSubtitle =>
+      'Establishes operational guidelines and property rights.';
+
+  @override
+  String get termsReadFull => 'Read full terms';
+
+  @override
+  String get termsRejectExit => 'Reject and exit';
+
+  @override
+  String get termsAcceptContinue => 'Continue and Accept';
 
   @override
   String get connectGoogleAccount =>

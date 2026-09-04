@@ -5,6 +5,7 @@ import 'package:cashly/theme/widgets/app_background.dart';
 import 'package:cashly/theme/widgets/glass_card.dart';
 import 'package:cashly/theme/widgets/primary_pill_button.dart';
 import 'package:flutter/material.dart';
+import 'package:cashly/l10n/app_localizations.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 /// Full Terms & Conditions (same documents published on the Play Store).
@@ -36,6 +37,7 @@ class _FirstStartupScreenState extends State<FirstStartupScreen> {
   Widget build(BuildContext context) {
     final scheme = Theme.of(context).colorScheme;
     final glass = Theme.of(context).extension<AppGlass>()!;
+    final l10n = AppLocalizations.of(context);
 
     return Scaffold(
       backgroundColor: Colors.transparent,
@@ -54,12 +56,16 @@ class _FirstStartupScreenState extends State<FirstStartupScreen> {
                     borderRadius: BorderRadius.circular(20),
                     border: Border.all(color: glass.glassBorder),
                   ),
-                  child: Icon(Icons.shield_outlined, color: scheme.primary, size: 30),
+                  child: Icon(
+                    Icons.shield_outlined,
+                    color: scheme.primary,
+                    size: 30,
+                  ),
                 ),
               ),
               const SizedBox(height: 20),
               Text(
-                'Términos y Condiciones',
+                l10n.termsTitle,
                 textAlign: TextAlign.center,
                 style: TextStyle(
                   color: scheme.onSurface,
@@ -69,14 +75,21 @@ class _FirstStartupScreenState extends State<FirstStartupScreen> {
               ),
               const SizedBox(height: 8),
               Text(
-                'Por favor, revisa y acepta nuestras condiciones de uso y política de privacidad antes de continuar.',
+                l10n.termsSubtitle,
                 textAlign: TextAlign.center,
-                style: TextStyle(color: glass.mutedText, fontSize: 14, height: 1.4),
+                style: TextStyle(
+                  color: glass.mutedText,
+                  fontSize: 14,
+                  height: 1.4,
+                ),
               ),
               const SizedBox(height: 16),
               Center(
                 child: Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 14,
+                    vertical: 8,
+                  ),
                   decoration: BoxDecoration(
                     color: scheme.surfaceContainerHigh,
                     borderRadius: BorderRadius.circular(999),
@@ -88,7 +101,7 @@ class _FirstStartupScreenState extends State<FirstStartupScreen> {
                       Icon(Icons.circle, size: 8, color: glass.incomeColor),
                       const SizedBox(width: 8),
                       Text(
-                        'Última actualización: Septiembre 2024',
+                        l10n.termsLastUpdate,
                         style: TextStyle(color: scheme.onSurface, fontSize: 12),
                       ),
                     ],
@@ -98,47 +111,46 @@ class _FirstStartupScreenState extends State<FirstStartupScreen> {
               const SizedBox(height: 24),
               _section(
                 context,
-                icon: Icons.receipt_long,
+                icon: Icons.storage_outlined,
                 iconColor: scheme.primary,
-                title: '1. USO Y GESTIÓN DE GASTOS',
-                body:
-                    'La aplicación procesa transacciones monetarias mediante almacenamiento criptográfico en local. Las sincronizaciones en la nube son encriptadas punto a punto (E2EE), asegurando control absoluto sobre tus libros contables personales sin rastreo arbitrario.',
+                title: l10n.termsSection1Title,
+                body: l10n.termsSection1Body,
               ),
               const SizedBox(height: 12),
               _section(
                 context,
                 icon: Icons.lock_outline,
                 iconColor: glass.incomeColor,
-                title: '2. PRIVACIDAD DE DATOS FINANCIEROS',
-                body:
-                    'Garantizamos estrictamente no comercializar, ceder ni monetizar historiales crediticios o hábitos de compra con terceros. Los balances, importes y cuentas son anonimizados y protegidos bajo el estándar bancario AES-256.',
+                title: l10n.termsSection2Title,
+                body: l10n.termsSection2Body,
               ),
               const SizedBox(height: 12),
               Center(
                 child: TextButton.icon(
                   onPressed: _openFullTerms,
                   icon: const Icon(Icons.open_in_new, size: 16),
-                  label: const Text('Leer términos completos'),
+                  label: Text(l10n.termsReadFull),
                 ),
               ),
               const SizedBox(height: 8),
               _buildAcceptTile(context),
               const SizedBox(height: 20),
               PrimaryPillButton(
-                label: 'Continuar y Aceptar',
+                label: l10n.termsAcceptContinue,
                 icon: Icons.arrow_forward,
-                onPressed: _accepted
-                    ? () async {
-                        await widget.onTermsAccepted();
-                      }
-                    : null,
+                onPressed:
+                    _accepted
+                        ? () async {
+                          await widget.onTermsAccepted();
+                        }
+                        : null,
               ),
               const SizedBox(height: 8),
               Center(
                 child: TextButton(
                   onPressed: () => exit(0),
                   child: Text(
-                    'Rechazar y salir',
+                    l10n.termsRejectExit,
                     style: TextStyle(color: glass.mutedText),
                   ),
                 ),
@@ -192,6 +204,7 @@ class _FirstStartupScreenState extends State<FirstStartupScreen> {
   Widget _buildAcceptTile(BuildContext context) {
     final scheme = Theme.of(context).colorScheme;
     final glass = Theme.of(context).extension<AppGlass>()!;
+    final l10n = AppLocalizations.of(context);
     return GlassCard(
       onTap: () => setState(() => _accepted = !_accepted),
       child: Row(
@@ -213,7 +226,7 @@ class _FirstStartupScreenState extends State<FirstStartupScreen> {
                   children: [
                     Flexible(
                       child: Text(
-                        'He leído y acepto los Términos del Servicio',
+                        l10n.termsAcceptTitle,
                         style: TextStyle(
                           color: scheme.onSurface,
                           fontSize: 14,
@@ -227,7 +240,7 @@ class _FirstStartupScreenState extends State<FirstStartupScreen> {
                 ),
                 const SizedBox(height: 4),
                 Text(
-                  'Establece los lineamientos operacionales y derechos de propiedad.',
+                  l10n.termsAcceptSubtitle,
                   style: TextStyle(color: glass.mutedText, fontSize: 12),
                 ),
               ],

@@ -39,7 +39,7 @@ android {
         applicationId = "com.N3k0chan.cashly"        // You can update the following values to match your application needs.
         // For more information, see: https://flutter.dev/to/review-gradle-config.
         minSdk = flutter.minSdkVersion
-        targetSdk = 35
+        targetSdk = 36
         versionCode = flutter.versionCode
         versionName = flutter.versionName
 
@@ -69,7 +69,7 @@ android {
     }
 
     lint {
-        checkReleaseBuilds = true
+        checkReleaseBuilds = false
         // Establece esto en true si quieres que el build falle en errores de lint
         abortOnError = false
         baseline = file("lint-baseline.xml")

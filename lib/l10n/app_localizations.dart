@@ -1904,6 +1904,78 @@ abstract class AppLocalizations {
   /// **'Bienvenido a Gastoscopio'**
   String get welcomeToApp;
 
+  /// No description provided for @termsTitle.
+  ///
+  /// In es, this message translates to:
+  /// **'Términos y Condiciones'**
+  String get termsTitle;
+
+  /// No description provided for @termsSubtitle.
+  ///
+  /// In es, this message translates to:
+  /// **'Por favor, revisa y acepta nuestras condiciones de uso y política de privacidad antes de continuar.'**
+  String get termsSubtitle;
+
+  /// No description provided for @termsLastUpdate.
+  ///
+  /// In es, this message translates to:
+  /// **'Última actualización: Septiembre 2026'**
+  String get termsLastUpdate;
+
+  /// No description provided for @termsSection1Title.
+  ///
+  /// In es, this message translates to:
+  /// **'1. ALMACENAMIENTO Y BACKUP'**
+  String get termsSection1Title;
+
+  /// No description provided for @termsSection1Body.
+  ///
+  /// In es, this message translates to:
+  /// **'Tus datos se guardan localmente en tu dispositivo. Opcionalmente, puedes usar tu cuenta de Google para copias de seguridad en tu Google Drive personal.'**
+  String get termsSection1Body;
+
+  /// No description provided for @termsSection2Title.
+  ///
+  /// In es, this message translates to:
+  /// **'2. PRIVACIDAD Y SEGURIDAD'**
+  String get termsSection2Title;
+
+  /// No description provided for @termsSection2Body.
+  ///
+  /// In es, this message translates to:
+  /// **'No recopilamos datos personales ni financieros. No comercializamos tu información. Tus datos solo se transmiten a tu propio Google Drive si activas el backup.'**
+  String get termsSection2Body;
+
+  /// No description provided for @termsAcceptTitle.
+  ///
+  /// In es, this message translates to:
+  /// **'He leído y acepto los Términos del Servicio'**
+  String get termsAcceptTitle;
+
+  /// No description provided for @termsAcceptSubtitle.
+  ///
+  /// In es, this message translates to:
+  /// **'Establece los lineamientos operacionales y derechos de propiedad.'**
+  String get termsAcceptSubtitle;
+
+  /// No description provided for @termsReadFull.
+  ///
+  /// In es, this message translates to:
+  /// **'Leer términos completos'**
+  String get termsReadFull;
+
+  /// No description provided for @termsRejectExit.
+  ///
+  /// In es, this message translates to:
+  /// **'Rechazar y salir'**
+  String get termsRejectExit;
+
+  /// No description provided for @termsAcceptContinue.
+  ///
+  /// In es, this message translates to:
+  /// **'Continuar y Aceptar'**
+  String get termsAcceptContinue;
+
   /// No description provided for @connectGoogleAccount.
   ///
   /// In es, this message translates to:

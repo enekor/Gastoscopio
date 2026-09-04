@@ -1,6 +1,6 @@
 # TERMS AND CONDITIONS OF USE - Gastoscopio
 
-**Last updated:** September 2024
+**Last updated:** September 2026
 
 ## 1. ACCEPTANCE OF TERMS
 
@@ -8,66 +8,62 @@ By using the Gastoscopio application, you agree to be bound by these terms and c
 
 ## 2. SERVICE DESCRIPTION
 
-Gastoscopio is a personal financial management application that lets users efficiently manage their expenses, income, debts, recurring movements and credit-card spending. The application works **100% locally**, with no account registration or Internet connection required.
+Gastoscopio is a personal financial management application that allows users to manage their expenses, income, and budgets efficiently in a local and private manner.
 
-## 3. LOCAL STORAGE AND ENCRYPTION
+## 3. GOOGLE ACCOUNT USAGE
 
-- All your financial data is stored **locally** on your device.
-- Sensitive information is protected with industry-standard encryption (AES-256).
-- The application can run fully offline, keeping you in control of your data at all times.
+The application offers the option to use your Google account for:
+- Secure authentication in the application (optional).
+- Connection to Google Drive to store and synchronize your financial data.
+- Automatic backup of your financial information in your personal Google Drive.
+- Data restoration when you reinstall the application.
 
-## 4. OPTIONAL USE OF GOOGLE ACCOUNT (BACKUP)
+> **Authorization:** By using this functionality, you expressly authorize Gastoscopio to access your Google Drive solely for the aforementioned purposes. Your data remains in your personal Google Drive account and is not accessible by third parties.
 
-Using a Google account is **entirely optional** and is used only to:
-- Back up your data to your personal Google Drive.
-- Restore your data when reinstalling the app or switching devices.
-
-> **Authorization:** By enabling this feature, you authorize Gastoscopio to access your Google Drive solely to store and restore your own backups. Your data remains in your personal account and is not accessible by third parties. You can link or unlink Google Drive whenever you want from Settings.
-
-## 5. PRIVACY AND DATA PROTECTION
+## 4. PRIVACY AND DATA PROTECTION
 
 - **We do not collect** personal user information.
-- **All data** is stored locally on your device and, if you enable it, in your personal Google Drive.
+- **All data** is stored locally on your device and, optionally, in your personal Google Drive.
 - **We do not have access** to your financial data, bank accounts, or personal information.
-- **We do not sell, share, or monetize** histories, balances, or spending habits with third parties.
-- **We do not transmit data** to external servers, except to your own Google Drive when you enable backup.
+- **We do not transmit data** to our own external servers; synchronization is done directly with your own Google Drive.
+- **Your information** is only used for the application's features within your control.
 
-## 6. LIMITATION OF LIABILITY
+## 5. LIMITATION OF LIABILITY
 
-- The application is provided **"as is"** without any warranties of any kind.
+- The application is provided **"as is"** without warranties of any kind.
 - We are not responsible for **financial losses** resulting from the use of the application.
-- We do not guarantee the **accuracy, completeness, or timeliness** of the information you enter.
+- We do not guarantee the **accuracy, completeness, or timeliness** of the information entered by the user.
 - The user is **fully responsible** for their financial decisions.
 
-## 7. SECURITY
+## 6. SECURITY
 
-- It is **the user's responsibility** to keep their device and, where applicable, their Google account secure.
-- We recommend using **secure devices** and keeping the application updated.
+- It is **the user's responsibility** to keep their Google account and device secure.
+- We recommend using **screen lock** and keeping the application updated.
 - **We do not store sensitive credentials** on external servers.
 
-## 8. MODIFICATIONS
+## 7. MODIFICATIONS
 
-We reserve the right to modify these terms at any time. Changes will take effect immediately upon publication in the application.
+We reserve the right to modify these terms at any time. Changes will be effective immediately upon publication in the application.
 
-## 9. ACCEPTABLE USE
+## 8. ACCEPTABLE USE
 
 The user agrees to:
 - Use the application only for **legal and personal purposes**.
 - Not attempt **unauthorized access** to systems or data.
 - Not use the application for **fraudulent or illegal activities**.
 
-## 10. INTELLECTUAL PROPERTY
+## 9. INTELLECTUAL PROPERTY
 
-All intellectual property rights of the application belong to their respective owners. The user is granted only a **limited license** to use the application.
+All intellectual property rights of the application belong to their respective owners. The user obtains only a **limited license** to use the application.
 
-## 11. TERMINATION
+## 10. TERMINATION
 
-You may stop using the application at any time. Uninstalling it removes the locally stored data from your device.
+You may stop using the application at any time. Upon uninstallation, if no backup exists on Drive, the data will be permanently lost.
 
-## 12. GOVERNING LAW
+## 11. GOVERNING LAW
 
 These terms are governed by the laws of Spain, without prejudice to applicable data protection regulations in the European Union (GDPR).
 
 ---
 
-**By accepting, you confirm that you have read, understood, and agree to be bound by these terms and conditions in their entirety.**
+**By clicking "Continue and Accept", you confirm that you have read, understood, and agree to be bound by these terms and conditions in their entirety.**
