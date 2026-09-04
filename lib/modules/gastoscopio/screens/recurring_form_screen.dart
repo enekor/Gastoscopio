@@ -32,6 +32,7 @@ class _RecurringFormScreenState extends State<RecurringFormScreen> {
   final _amountController = TextEditingController();
 
   _RecurringKind _kind = _RecurringKind.expense;
+  bool _isExpense = true;
   String? _category;
   int _chargeDay = 1;
   String _moneda = '€';
@@ -118,7 +119,7 @@ class _RecurringFormScreenState extends State<RecurringFormScreen> {
     try {
       if (_kind == _RecurringKind.expense) {
         await SqliteService().db.fixedMovementDao.insertFixedMovement(
-          FixedMovement(null, name, amount, true, _chargeDay, _category),
+          FixedMovement(null, name, amount, _isExpense, _chargeDay, _category),
         );
         await SharedPreferencesService().haveToUpload();
       } else {
@@ -130,7 +131,7 @@ class _RecurringFormScreenState extends State<RecurringFormScreen> {
         await financeService.createMonthlyDebtDefinition(
           description: name,
           amount: amount,
-          isExpense: true,
+          isExpense: _isExpense,
           day: _chargeDay,
           category: _category,
         );
@@ -212,6 +213,23 @@ class _RecurringFormScreenState extends State<RecurringFormScreen> {
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
                   _buildAmountField(context),
+                  const SizedBox(height: 24),
+                  AppSegmentedControl<bool>(
+                    segments: [
+                      (
+                        value: true,
+                        label: AppLocalizations.of(context)!.expense,
+                        icon: Icons.remove_circle_outline,
+                      ),
+                      (
+                        value: false,
+                        label: AppLocalizations.of(context)!.income,
+                        icon: Icons.add_circle_outline,
+                      ),
+                    ],
+                    selected: _isExpense,
+                    onChanged: (v) => setState(() => _isExpense = v),
+                  ),
                   const SizedBox(height: 24),
                   _buildNameCategoryCard(context),
                   const SizedBox(height: 20),

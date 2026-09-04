@@ -557,10 +557,10 @@ class _FixedMovementsScreenState extends State<FixedMovementsScreen> {
   double get _estimatedMonthlyTotal {
     double total = 0;
     for (final m in _fixedMovements) {
-      total += m.isExpense ? m.amount : -m.amount;
+      total += !m.isExpense ? m.amount : -m.amount;
     }
     for (final d in _monthlyDebtDefinitions) {
-      total += d.isExpense ? d.amount : -d.amount;
+      total += !d.isExpense ? d.amount : -d.amount;
     }
     return total;
   }

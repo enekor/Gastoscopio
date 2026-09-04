@@ -14,14 +14,32 @@ class ManagementScreen extends StatefulWidget {
 }
 
 class _ManagementScreenState extends State<ManagementScreen> {
+  int _tab = 0; // 0 = Deudas, 1 = Recurrentes
 
   @override
   Widget build(BuildContext context) {
     final l = AppLocalizations.of(context)!;
     return Column(
       children: [
+        Padding(
+          padding: const EdgeInsets.fromLTRB(20, 8, 20, 8),
+          child: AppSegmentedControl<int>(
+            segments: [
+              (value: 0, label: l.navDebts, icon: Icons.credit_score_outlined),
+              (value: 1, label: l.recurrents, icon: Icons.repeat_rounded),
+            ],
+            selected: _tab,
+            onChanged: (v) => setState(() => _tab = v),
+          ),
+        ),
         Expanded(
-          child:  FixedMovementsScreen(embedded: true),
+          child: IndexedStack(
+            index: _tab,
+            children: const [
+              ActiveDebtsScreen(embedded: true),
+              FixedMovementsScreen(embedded: true),
+            ],
+          ),
         ),
       ],
     );
