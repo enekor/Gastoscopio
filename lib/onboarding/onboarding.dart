@@ -78,52 +78,16 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Column(
-        children: [
-          Expanded(
-            child: PageView(
-              controller: _pageController,
-              onPageChanged: (int page) {
-                setState(() {
-                  _currentPage = page;
-                });
-              },
-              children: _pages,
-            ),
-          ),
-          Padding(
-            padding: const EdgeInsets.all(16.0),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Row(
-                  children: List.generate(
-                    _pages.length,
-                    (index) => Container(
-                      margin: const EdgeInsets.symmetric(horizontal: 4),
-                      height: 8,
-                      width: 8,
-                      decoration: BoxDecoration(
-                        shape: BoxShape.circle,
-                        color: _currentPage == index
-                            ? Theme.of(context).primaryColor
-                            : Colors.grey,
-                      ),
-                    ),
-                  ),
-                ),
-                Text(
-                  _statusMessage,
-                  style: TextStyle(
-                    color: _statusMessage.isEmpty
-                        ? Colors.transparent
-                        : Colors.red,
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ],
+      backgroundColor: Colors.transparent,
+      body: PageView(
+        controller: _pageController,
+        physics: const NeverScrollableScrollPhysics(),
+        onPageChanged: (int page) {
+          setState(() {
+            _currentPage = page;
+          });
+        },
+        children: _pages,
       ),
     );
   }

@@ -1,11 +1,9 @@
-import 'dart:io';
-
 import 'package:cashly/data/services/login_service.dart';
-import 'package:cashly/data/services/shared_preferences_service.dart';
 import 'package:cashly/modules/gastoscopio/widgets/loading.dart';
+import 'package:cashly/theme/app_glass.dart';
+import 'package:cashly/theme/widgets/app_background.dart';
+import 'package:cashly/theme/widgets/glass_card.dart';
 import 'package:flutter/material.dart';
-import 'package:google_sign_in/google_sign_in.dart';
-import 'package:cashly/l10n/app_localizations.dart';
 
 class GoogleLoginScreen extends StatefulWidget {
   const GoogleLoginScreen({super.key, required this.onLoginOk});
@@ -21,378 +19,383 @@ class _GoogleLoginScreenState extends State<GoogleLoginScreen> {
   bool _isLoading = false;
   String _statusMessage = '';
   bool _isError = false;
-  GoogleSignInAccount? _currentUser;
-  String? _backgroundImagePath;
 
   @override
   void initState() {
     super.initState();
     _checkExistingUser();
-    _loadBackgroundImage();
-  }
-
-  Future<void> _loadBackgroundImage() async {
-    final path = await SharedPreferencesService().getStringValue(
-      SharedPreferencesKeys.backgroundImage,
-    );
-    if (mounted) {
-      setState(() {
-        _backgroundImagePath = path;
-      });
-    }
-  }
-
-  void changeLoginStatus() {
-    setState(() {
-      if (_loginService.isSignedIn) {
-        _currentUser = _loginService.currentUser;
-      } else {
-        _currentUser = null;
-      }
-    });
   }
 
   Future<void> _checkExistingUser() async {
     await _loginService.silentSignIn();
-    changeLoginStatus();
+    if (mounted && _loginService.isSignedIn) setState(() {});
   }
 
-  Future<void> _handleSignIn() async {
+  Future<void> _handleGoogle() async {
     setState(() {
       _isLoading = true;
-      _statusMessage = AppLocalizations.of(context).signingIn;
+      _statusMessage = '';
       _isError = false;
     });
 
     final status = await _loginService.signIn();
-    changeLoginStatus();
 
+    if (!mounted) return;
     setState(() {
       _isLoading = false;
       _statusMessage = status.message;
       _isError = status.isError;
     });
-  }
 
-  Future<void> _handleSignOut() async {
-    setState(() {
-      _isLoading = true;
-      _statusMessage = AppLocalizations.of(context).signingOut;
-      _isError = false;
-    });
-
-    final status = await _loginService.signOut();
-
-    setState(() {
-      _isLoading = false;
-      _statusMessage = status.message;
-      _isError = status.isError;
-    });
+    if (_loginService.isSignedIn) {
+      widget.onLoginOk();
+    }
   }
 
   @override
   Widget build(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
+    final glass = Theme.of(context).extension<AppGlass>()!;
+
     return Scaffold(
-      body: Stack(
+      backgroundColor: Colors.transparent,
+      body: AppBackground(
+        child: SafeArea(
+          child: _isLoading
+              ? Center(child: Loading(context))
+              : ListView(
+                  padding: const EdgeInsets.fromLTRB(20, 8, 20, 24),
+                  children: [
+                    _buildTopBar(context),
+                    const SizedBox(height: 8),
+                    _buildHero(context),
+                    const SizedBox(height: 24),
+                    _buildCloudCard(context),
+                    const SizedBox(height: 20),
+                    _buildDivider(context, 'O MÁXIMA PRIVACIDAD'),
+                    const SizedBox(height: 20),
+                    _buildOfflineCard(context),
+                    if (_statusMessage.isNotEmpty) ...[
+                      const SizedBox(height: 16),
+                      Text(
+                        _statusMessage,
+                        textAlign: TextAlign.center,
+                        style: TextStyle(
+                          color: _isError ? glass.expenseColor : glass.mutedText,
+                          fontSize: 13,
+                        ),
+                      ),
+                    ],
+                    const SizedBox(height: 20),
+                    _buildFooterNote(context),
+                  ],
+                ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildTopBar(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
+    final glass = Theme.of(context).extension<AppGlass>()!;
+    return Row(
+      children: [
+        IconButton(
+          icon: const Icon(Icons.arrow_back),
+          onPressed: () => Navigator.maybePop(context),
+        ),
+        Expanded(
+          child: Text(
+            'SIGN IN',
+            textAlign: TextAlign.center,
+            style: TextStyle(
+              color: scheme.onSurface,
+              fontWeight: FontWeight.w700,
+              letterSpacing: 1,
+            ),
+          ),
+        ),
+        Container(
+          width: 36,
+          height: 36,
+          decoration: BoxDecoration(
+            color: scheme.surfaceContainerHigh,
+            shape: BoxShape.circle,
+            border: Border.all(color: glass.glassBorder),
+          ),
+          child: Icon(Icons.person_outline, size: 20, color: glass.mutedText),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildHero(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
+    final glass = Theme.of(context).extension<AppGlass>()!;
+    return Column(
+      children: [
+        Container(
+          width: 60,
+          height: 60,
+          decoration: BoxDecoration(
+            color: scheme.surfaceContainerHigh,
+            borderRadius: BorderRadius.circular(18),
+            border: Border.all(color: glass.glassBorder),
+          ),
+          child: Icon(Icons.query_stats, color: scheme.onSurface, size: 28),
+        ),
+        const SizedBox(height: 16),
+        Container(
+          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
+          decoration: BoxDecoration(
+            color: glass.incomeColor.withValues(alpha: 0.15),
+            borderRadius: BorderRadius.circular(999),
+          ),
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Icon(Icons.circle, size: 8, color: glass.incomeColor),
+              const SizedBox(width: 8),
+              Text(
+                'TU DINERO BAJO CONTROL',
+                style: TextStyle(
+                  color: glass.incomeColor,
+                  fontSize: 11,
+                  fontWeight: FontWeight.w700,
+                  letterSpacing: 0.5,
+                ),
+              ),
+            ],
+          ),
+        ),
+        const SizedBox(height: 12),
+        Text(
+          'Gastoscopio',
+          style: TextStyle(
+            color: scheme.onSurface,
+            fontSize: 30,
+            fontWeight: FontWeight.w800,
+          ),
+        ),
+        const SizedBox(height: 8),
+        Text(
+          'Conecta tu cuenta para respaldar tus finanzas o mantén el control de forma 100% privada y local.',
+          textAlign: TextAlign.center,
+          style: TextStyle(color: glass.mutedText, fontSize: 14, height: 1.4),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildCloudCard(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
+    final glass = Theme.of(context).extension<AppGlass>()!;
+    return GlassCard(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          if (_backgroundImagePath != null && _backgroundImagePath!.isNotEmpty)
-            Positioned.fill(
-              child: Image.file(
-                File(_backgroundImagePath!),
-                fit: BoxFit.cover,
+          Row(
+            children: [
+              Expanded(
+                child: Text(
+                  'SINCRONIZACIÓN CLOUD',
+                  style: TextStyle(
+                    color: glass.mutedText,
+                    fontSize: 12,
+                    fontWeight: FontWeight.w700,
+                    letterSpacing: 1,
+                  ),
+                ),
               ),
-            ),
-          if (_backgroundImagePath != null && _backgroundImagePath!.isNotEmpty)
-            Positioned.fill(
-              child: Container(
-                color: Colors.black.withOpacity(0.3),
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                decoration: BoxDecoration(
+                  color: scheme.primary.withValues(alpha: 0.15),
+                  borderRadius: BorderRadius.circular(999),
+                ),
+                child: Text(
+                  'Google Drive Backup',
+                  style: TextStyle(
+                    color: scheme.primary,
+                    fontSize: 11,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
               ),
-            ),
-          SafeArea(
-            child: Padding(
-              padding: const EdgeInsets.all(24.0),
-              child: Column(
-                children: [
-                  const SizedBox(height: 40),
-                  _buildHeader(context),
-                  const SizedBox(height: 32),
-                  Expanded(
-                    child: SingleChildScrollView(
-                      child: Column(
-                        children: [
-                          _buildUserCard(context),
-                          const SizedBox(height: 24),
-                          _buildActionsCard(context),
-                          const SizedBox(height: 24),
-                          if (_statusMessage.isNotEmpty)
-                            _buildStatusMessage(context),
-                          if (_isLoading) ...[
-                            const SizedBox(height: 24),
-                            Loading(context),
-                          ],
-                        ],
+            ],
+          ),
+          const SizedBox(height: 16),
+          Material(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(glass.pillRadius),
+            child: InkWell(
+              borderRadius: BorderRadius.circular(glass.pillRadius),
+              onTap: _handleGoogle,
+              child: Padding(
+                padding: const EdgeInsets.symmetric(vertical: 14),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Container(
+                      width: 22,
+                      height: 22,
+                      alignment: Alignment.center,
+                      decoration: const BoxDecoration(
+                        color: Color(0xFF4285F4),
+                        shape: BoxShape.circle,
+                      ),
+                      child: const Text(
+                        'G',
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontWeight: FontWeight.w800,
+                          fontSize: 14,
+                        ),
                       ),
                     ),
-                  ),
-                ],
+                    const SizedBox(width: 12),
+                    const Text(
+                      'Continuar con Google',
+                      style: TextStyle(
+                        color: Colors.black87,
+                        fontWeight: FontWeight.w700,
+                        fontSize: 16,
+                      ),
+                    ),
+                  ],
+                ),
               ),
             ),
+          ),
+          const SizedBox(height: 16),
+          Row(
+            children: [
+              _feature(context, Icons.backup_outlined, 'Backup\nautomático'),
+              _feature(context, Icons.devices_outlined, 'Multidispositivo'),
+              _feature(context, Icons.restore, 'Restauración\ntotal'),
+            ],
           ),
         ],
       ),
     );
   }
 
-  Widget _buildHeader(BuildContext context) {
-    final hasBackground = _backgroundImagePath != null && _backgroundImagePath!.isNotEmpty;
-    return Column(
+  Widget _feature(BuildContext context, IconData icon, String label) {
+    final scheme = Theme.of(context).colorScheme;
+    final glass = Theme.of(context).extension<AppGlass>()!;
+    return Expanded(
+      child: Column(
+        children: [
+          Icon(icon, color: scheme.primary, size: 22),
+          const SizedBox(height: 6),
+          Text(
+            label,
+            textAlign: TextAlign.center,
+            style: TextStyle(color: glass.mutedText, fontSize: 11, height: 1.2),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildDivider(BuildContext context, String label) {
+    final glass = Theme.of(context).extension<AppGlass>()!;
+    return Row(
       children: [
-        Container(
-          padding: const EdgeInsets.all(16),
-          decoration: BoxDecoration(
-            color: hasBackground 
-                ? Colors.white.withOpacity(0.2)
-                : Theme.of(context).colorScheme.primary.withAlpha(25),
-            shape: BoxShape.circle,
-          ),
-          child: Icon(
-            Icons.account_circle,
-            size: 64,
-            color: hasBackground 
-                ? Colors.white 
-                : Theme.of(context).colorScheme.primary,
+        Expanded(child: Divider(color: glass.glassBorder)),
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 12),
+          child: Text(
+            label,
+            style: TextStyle(
+              color: glass.mutedText,
+              fontSize: 11,
+              fontWeight: FontWeight.w600,
+              letterSpacing: 1,
+            ),
           ),
         ),
-        const SizedBox(height: 16),
-        Text(
-          AppLocalizations.of(context).welcomeToApp,
-          style: Theme.of(
-            context,
-          ).textTheme.headlineMedium?.copyWith(
-            fontWeight: FontWeight.bold,
-            color: hasBackground ? Colors.white : null,
-          ),
-          textAlign: TextAlign.center,
-        ),
-        const SizedBox(height: 8),
-        Text(
-          AppLocalizations.of(context).connectGoogleAccount,
-          style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-            color: hasBackground 
-                ? Colors.white.withOpacity(0.9) 
-                : Theme.of(context).colorScheme.onSurfaceVariant,
-          ),
-          textAlign: TextAlign.center,
-        ),
+        Expanded(child: Divider(color: glass.glassBorder)),
       ],
     );
   }
 
-  Widget _buildUserCard(BuildContext context) {
-    return Card(
-      color: Theme.of(context).colorScheme.secondary.withAlpha(200),
-      elevation: 0,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(16),
-        side: BorderSide(
-          color: Theme.of(context).colorScheme.outline.withAlpha(50),
-        ),
-      ),
-      child: Padding(
-        padding: const EdgeInsets.all(24),
-        child: Column(
-          children: [
-            if (_currentUser != null) ...[
-              CircleAvatar(
-                backgroundImage: _currentUser!.photoUrl != null
-                    ? NetworkImage(_currentUser!.photoUrl!)
-                    : null,
-                radius: 40,
-                backgroundColor: Theme.of(
-                  context,
-                ).colorScheme.primary.withAlpha(25),
-                child: _currentUser!.photoUrl == null
-                    ? Icon(
-                        Icons.person,
-                        size: 40,
-                        color: Theme.of(context).colorScheme.primary,
-                      )
-                    : null,
-              ),
-              const SizedBox(height: 16),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  const Icon(Icons.check_circle, color: Colors.green, size: 20),
-                  const SizedBox(width: 8),
-                  Text(
-                    AppLocalizations.of(context).correctlyConnected,
-                    style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                      color: Colors.green,
-                      fontWeight: FontWeight.w500,
+  Widget _buildOfflineCard(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
+    final glass = Theme.of(context).extension<AppGlass>()!;
+    return GlassCard(
+      onTap: widget.onLoginOk,
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Container(
+            width: 44,
+            height: 44,
+            decoration: BoxDecoration(
+              color: glass.incomeColor.withValues(alpha: 0.15),
+              borderRadius: BorderRadius.circular(14),
+            ),
+            child: Icon(Icons.shield_outlined, color: glass.incomeColor, size: 22),
+          ),
+          const SizedBox(width: 14),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  children: [
+                    Text(
+                      'Continuar en Modo Offline',
+                      style: TextStyle(
+                        color: scheme.onSurface,
+                        fontSize: 15,
+                        fontWeight: FontWeight.w700,
+                      ),
                     ),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 12),
-              Text(
-                _currentUser!.displayName ?? AppLocalizations.of(context).user,
-                style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                  fontWeight: FontWeight.bold,
+                    const SizedBox(width: 6),
+                    Icon(Icons.circle, size: 8, color: glass.incomeColor),
+                  ],
                 ),
-                textAlign: TextAlign.center,
-              ),
-              const SizedBox(height: 4),
-              Text(
-                _currentUser!.email,
-                style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                  color: Theme.of(context).colorScheme.onSurfaceVariant,
-                ),
-                textAlign: TextAlign.center,
-              ),
-            ] else ...[
-              Icon(
-                Icons.cloud_off,
-                size: 64,
-                color: Theme.of(context).colorScheme.onSurfaceVariant,
-              ),
-              const SizedBox(height: 16),
-              Text(
-                AppLocalizations.of(context).noAccountConnected,
-                style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                  fontWeight: FontWeight.bold,
-                ),
-                textAlign: TextAlign.center,
-              ),
-              const SizedBox(height: 8),
-              Text(
-                AppLocalizations.of(context).loginForBackupSync,
-                style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                  color: Theme.of(context).colorScheme.onSurfaceVariant,
-                ),
-                textAlign: TextAlign.center,
-              ),
-            ],
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildActionsCard(BuildContext context) {
-    return Card(
-      color: Theme.of(context).colorScheme.secondary.withAlpha(200),
-      elevation: 0,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(16),
-        side: BorderSide(
-          color: Theme.of(context).colorScheme.outline.withAlpha(50),
-        ),
-      ),
-      child: Padding(
-        padding: const EdgeInsets.all(24),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            if (_currentUser == null) ...[
-              ElevatedButton.icon(
-                onPressed: _isLoading ? null : _handleSignIn,
-                icon: const Icon(Icons.login),
-                label: Text(AppLocalizations.of(context).signInWithGoogle),
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Theme.of(context).colorScheme.primary,
-                  foregroundColor: Theme.of(context).colorScheme.onPrimary,
-                  padding: const EdgeInsets.symmetric(vertical: 16),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                ),
-              ),
-              const SizedBox(height: 12),
-              Text(
-                AppLocalizations.of(context).optionalLogin,
-                style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                  color: Theme.of(context).colorScheme.onSurfaceVariant,
-                ),
-                textAlign: TextAlign.center,
-              ),
-              const SizedBox(height: 12),
-              TextButton(
-                onPressed: widget.onLoginOk,
-                child: Text(
-                  AppLocalizations.of(context).continueWithoutLogin,
+                const SizedBox(height: 6),
+                Text(
+                  'Sin registro ni servidores en la nube. Tus presupuestos y transacciones se almacenan de manera local y cifrada exclusivamente en este dispositivo.',
                   style: TextStyle(
-                    color: Theme.of(context).colorScheme.primary,
-                    fontWeight: FontWeight.bold,
+                    color: glass.mutedText,
+                    fontSize: 12,
+                    height: 1.4,
                   ),
                 ),
-              ),
-            ] else ...[
-              ElevatedButton.icon(
-                onPressed: widget.onLoginOk,
-                icon: const Icon(Icons.navigate_next),
-                label: Text(AppLocalizations.of(context).continueToNextStep),
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Theme.of(context).colorScheme.primary,
-                  foregroundColor: Theme.of(context).colorScheme.onPrimary,
-                  padding: const EdgeInsets.symmetric(vertical: 16),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12),
+                const SizedBox(height: 8),
+                Text(
+                  '100% Funcional sin Internet • Sin backup',
+                  style: TextStyle(
+                    color: glass.incomeColor,
+                    fontSize: 11,
+                    fontWeight: FontWeight.w600,
                   ),
                 ),
-              ),
-              const SizedBox(height: 16),
-              OutlinedButton.icon(
-                onPressed: _isLoading ? null : _handleSignOut,
-                icon: const Icon(Icons.logout),
-                label: Text(AppLocalizations.of(context).signOut),
-                style: OutlinedButton.styleFrom(
-                  foregroundColor: Theme.of(context).colorScheme.error,
-                  side: BorderSide(color: Theme.of(context).colorScheme.error),
-                  padding: const EdgeInsets.symmetric(vertical: 16),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                ),
-              ),
-            ],
-          ],
-        ),
+              ],
+            ),
+          ),
+          const SizedBox(width: 8),
+          Icon(Icons.arrow_forward, color: glass.mutedText, size: 20),
+        ],
       ),
     );
   }
 
-  Widget _buildStatusMessage(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: _isError
-            ? Theme.of(context).colorScheme.errorContainer
-            : Theme.of(context).colorScheme.primaryContainer,
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(
-          color: _isError
-              ? Theme.of(context).colorScheme.error.withAlpha(50)
-              : Theme.of(context).colorScheme.primary.withAlpha(50),
-        ),
-      ),
+  Widget _buildFooterNote(BuildContext context) {
+    final glass = Theme.of(context).extension<AppGlass>()!;
+    return GlassCard(
+      padding: const EdgeInsets.all(14),
       child: Row(
         children: [
-          Icon(
-            _isError ? Icons.error_outline : Icons.check_circle_outline,
-            color: _isError
-                ? Theme.of(context).colorScheme.error
-                : Theme.of(context).colorScheme.primary,
-          ),
-          const SizedBox(width: 12),
+          Icon(Icons.info_outline, size: 16, color: glass.mutedText),
+          const SizedBox(width: 10),
           Expanded(
             child: Text(
-              _statusMessage,
-              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                color: _isError
-                    ? Theme.of(context).colorScheme.onErrorContainer
-                    : Theme.of(context).colorScheme.onPrimaryContainer,
-              ),
+              'Podrás vincular Google Drive cuando quieras desde Ajustes.',
+              style: TextStyle(color: glass.mutedText, fontSize: 12),
             ),
           ),
         ],
