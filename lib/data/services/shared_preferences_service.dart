@@ -99,9 +99,11 @@ enum SharedPreferencesKeys {
   creditCardBillingCycle('credit_card_billing_cycle'),
   creditCardBillingDay('credit_card_billing_day'),
   creditCardDefaultLimit('credit_card_default_limit'),
-  aiModel('ai_model'),
+  classificationOverrides('classification_overrides'),
+  classificationNames('classification_names'),
   themeVariant('theme_variant'),
-  creditCardHolderName('credit_card_holder_name');
+  creditCardHolderName('credit_card_holder_name'),
+  designSystem('design_system');
 
   final String value;
   const SharedPreferencesKeys(this.value);

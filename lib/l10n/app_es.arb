@@ -13,10 +13,7 @@
     "description": "Pestaña de movimientos"
   },
   "summary": "Resumen",
-  "aiAnalysis": "Análisis IA",
-  "@aiAnalysis": {
-    "description": "Pestaña de análisis IA"
-  },
+
   "monthlySummary": "Resumen del Mes",
   "@monthlySummary": {
     "description": "Título del resumen mensual"
@@ -43,18 +40,12 @@
   "@dailyExpenses": {
     "description": "Título de gastos diarios"
   },
-  "aiAnalysisTitle": "Análisis de Gastos",
-  "@aiAnalysisTitle": {
-    "description": "Título del análisis de gastos"
-  },
+
   "generate": "Generar",
   "@generate": {
     "description": "Botón para generar análisis"
   },
-  "generateAnalysisHint": "Pulsa el botón \"Generar Análisis\" para obtener un análisis detallado de tus gastos e ingresos de este mes.",
-  "@generateAnalysisHint": {
-    "description": "Instrucción para generar análisis"
-  },
+
   "noDataForMonth": "No hay datos para {month} - {year}",
   "@noDataForMonth": {
     "description": "Mensaje cuando no hay datos para un mes específico",
@@ -261,10 +252,7 @@
   "@artificialIntelligence": {
     "description": "Sección de IA"
   },
-  "aiDescription": "Configuración para funciones avanzadas con IA.",
-  "@aiDescription": {
-    "description": "Descripción de IA"
-  },
+
   "backupManagement": "Gestión de copia de seguridad",
   "@backupManagement": {
     "description": "Sección de backup"
@@ -852,46 +840,6 @@
   "@appRestartAdvice": {
     "description": "Consejo sobre reinicio de la aplicación"
   },
-  "aiFeaturesActivation": "Para activar las funciones de inteligencia artificial, necesitas obtener una clave API de Google. Te guiamos paso a paso:",
-  "@aiFeaturesActivation": {
-    "description": "Instrucciones para activar funciones de IA"
-  },
-  "step1": "1. Accede a Google AI Studio e inicia sesión con tu cuenta",
-  "@step1": {
-    "description": "Primer paso para activar funciones de IA"
-  },
-  "step2": "2. Haz clic en \"Crear clave de API\" y copia la clave generada",
-  "@step2": {
-    "description": "Segundo paso para activar funciones de IA"
-  },
-  "step2_1": "2.1. Si aparece esta ventana emergente, ciérrala con la X",
-  "@step2_1": {
-    "description": "Instrucciones para cerrar la ventana emergente"
-  },
-  "step2_2":"2.2. Desplázate hacia abajo hasta encontrar la tabla de claves",
-  "@step2_2": {
-    "description": "Instrucciones para encontrar la tabla de claves"
-  },
-  "step2_3": "2.3. Haz clic en el enlace azul para acceder a la clave",
-  "@step2_3": {
-    "description": "Instrucciones para acceder a la clave"
-  },
-  "step3": "3. Pega la clave API en el campo de texto de la aplicación",
-  "@step3": {
-    "description": "Tercer paso para activar funciones de IA"
-  },
-  "step4": "4. Presiona el botón guardar para completar la configuración",
-  "@step4": {
-    "description": "Cuarto paso para activar funciones de IA"
-  },
-  "goToGoogleAiStudio": "Ir a Google AI Studio",
-  "@goToGoogleAiStudio": {
-    "description": "Enlace para ir a Google AI Studio"
-  },
-  "googleApiKey": "Clave API de Google",
-  "@googleApiKey": {
-    "description": "Etiqueta para la clave API de Google"
-  },
   "deleteDatabase": "Borrar base de datos",
   "@deleteDatabase": {
     "description": "Etiqueta para borrar la base de datos"
@@ -984,14 +932,7 @@
   "@errorSavingApiKey": {
     "description": "Mensaje de error al guardar la API Key"
   },
-  "configureApiKey": "Configurar API Key",
-  "@configureApiKey": {
-    "description": "Título del diálogo para configurar la API Key"
-  },
-  "enterApiKeyMessage": "Para utilizar las funciones de IA, por favor ingrese su API Key:",
-  "@enterApiKeyMessage": {
-    "description": "Mensaje que solicita al usuario ingresar su API Key"
-  },
+
   "later": "Más tarde",
   "@later": {
     "description": "Botón para posponer una acción"
@@ -1233,8 +1174,6 @@
   "termsAndConditions": "Términos y Condiciones",
   "agreeToTerms": "Acepto los Términos y Condiciones",
   "pleaseAgreeToTerms": "Por favor acepta los Términos y Condiciones para continuar",
-  "configureGeminiApiKey": "Configura tu API Key de Gemini",
-  "apiKeyRequired": "La API Key es necesaria para utilizar las funciones de IA.\nEs gratis y fácil de obtener.",
   "continueAction": "Continuar",
   "welcomeToApp": "Bienvenido a Gastoscopio",
   "termsTitle": "Términos y Condiciones",
@@ -1541,7 +1480,7 @@
   "pay": "Pagar",
   "newMovementTitle": "Nuevo",
   "expenseNameHint": "Ej: Cena con amigos...",
-  "categoryAiTag": "Categoría (IA Tag)",
+  "categoryAiTag": "Categoría",
   "valueLabel": "Valor",
   "movementType": "Tipo de Movimiento",
   "directExpense": "Gasto Directo",

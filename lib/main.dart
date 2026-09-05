@@ -1,4 +1,5 @@
 import 'package:cashly/app.dart';
+import 'package:cashly/classification/classification_service.dart';
 import 'package:cashly/data/services/auth_service.dart';
 import 'package:cashly/data/services/locale_service.dart';
 import 'package:cashly/modules/auth/screens/auth_screen.dart';
@@ -28,6 +29,8 @@ void main() async {
   
   // Inicializar tareas en segundo plano
   await BackgroundTaskService().initialize();
+
+  await ClassificationService().initialize();
 
   runApp(const MyApp());
 }

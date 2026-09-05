@@ -144,7 +144,6 @@ class _SettingsScreenState extends State<SettingsScreen> with WidgetsBindingObse
     final isOpaque = await prefs.getBoolValue(SharedPreferencesKeys.isOpaqueBottomNav);
     final language = await prefs.getStringValue(SharedPreferencesKeys.selectedLanguage);
     final bg = await prefs.getStringValue(SharedPreferencesKeys.backgroundImage);
-    final aiModel = await prefs.getStringValue(SharedPreferencesKeys.aiModel);
 
     if (mounted) {
       setState(() {
@@ -158,14 +157,8 @@ class _SettingsScreenState extends State<SettingsScreen> with WidgetsBindingObse
         if (isOpaque != null) _isOpaqueBottomNav = isOpaque;
         _selectedLanguage = language ?? 'system';
         _backgroundImagePath = bg;
-        if (aiModel != null) _selectedAIModel = aiModel;
       });
     }
-  }
-
-  Future<void> _saveAIModel(String model) async {
-    await SharedPreferencesService().setStringValue(SharedPreferencesKeys.aiModel, model);
-    setState(() => _selectedAIModel = model);
   }
 
   Future<void> _saveCurrency(String currency) async {
@@ -801,41 +794,6 @@ class _SettingsScreenState extends State<SettingsScreen> with WidgetsBindingObse
                 DropdownMenuItem(value: 'en', child: Text(AppLocalizations.of(context)!.english)),
               ],
               onChanged: (v) { if (v != null) { setState(() => _selectedLanguage = v); _saveLanguageSetting(v); } },
-            ),
-          ],
-        ),
-    );
-  }
-
-  Widget _buildAIModelCard(BuildContext context) {
-    return GlassCard(
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-            Row(
-              children: [
-                Icon(Icons.psychology_outlined, color: Theme.of(context).colorScheme.primary, size: 20),
-                const SizedBox(width: 8),
-                Text('Modelo de Inteligencia Artificial', style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w600)),
-              ],
-            ),
-            const SizedBox(height: 16),
-            DropdownButtonFormField<String>(
-              value: _selectedAIModel,
-              isExpanded: true,
-              decoration: InputDecoration(
-                border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
-                prefixIcon: const Icon(Icons.smart_toy_outlined),
-              ),
-              items: const [
-                DropdownMenuItem(value: 'openai/gpt-oss-120b', child: Text('GPT-OSS 120B (Potente)')),
-                DropdownMenuItem(value: 'openai/gpt-oss-20b', child: Text('GPT-OSS 20B (Rápido)')),
-                DropdownMenuItem(value: 'qwen/qwen3.6-27b', child: Text('Qwen 3.6 27B')),
-
-              ],
-              onChanged: (v) {
-                if (v != null) _saveAIModel(v);
-              },
             ),
           ],
         ),

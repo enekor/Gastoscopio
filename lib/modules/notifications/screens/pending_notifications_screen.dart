@@ -1,7 +1,8 @@
 import 'dart:typed_data';
 
 import 'package:cashly/data/models/movement_value.dart';
-import 'package:cashly/data/services/groq_serice.dart';
+import 'package:cashly/classification/classification_service.dart';
+import 'package:cashly/classification/locales/locale_config.dart';
 import 'package:cashly/data/services/log_file_service.dart';
 import 'package:cashly/data/services/notification_capture_service.dart';
 import 'package:cashly/data/services/shared_preferences_service.dart';
@@ -204,35 +205,34 @@ class _PendingNotificationsScreenState
       _aiProcessingCurrent = 0;
     });
 
+    final suggester = ClassificationService().suggester;
+    final locale = LocaleRegistry.get(AppLocalizations.of(context).localeName);
+
     for (int i = 0; i < _movements.length; i++) {
       if (!mounted) return;
       final m = _movements[i];
       setState(() => _aiProcessingCurrent = i + 1);
 
       try {
-        final result = await GroqService().parseNotificationTransaction(
+        final result = suggester.suggest(
           m.originalText,
-          m.appName,
-          fallbackAmounts[i],
-          context,
+          locale: locale,
         );
         if (!mounted) return;
-        if (result != null) {
-          setState(() {
-            final title = result['title'] as String;
-            final amount = result['amount'] as double;
-            final isExpense = result['isExpense'] as bool;
-            m.descriptionController.text = title;
-            m.amountController.text = amount.toStringAsFixed(2);
-            m.isExpense = isExpense;
-          });
-        }
+        setState(() {
+          m.descriptionController.text = result.name;
+          if (result.amount != null) {
+            m.amountController.text = result.amount!.toStringAsFixed(2);
+          }
+          m.isExpense = !result.isIncome;
+        });
       } catch (e) {
         LogFileService().appendLog(
-          'AI parsing failed for notification ${m.id}: $e',
+          'Local parsing failed for notification ${m.id}: $e',
         );
       }
     }
+
 
     if (mounted) {
       setState(() => _isAiProcessing = false);
@@ -287,14 +287,12 @@ class _PendingNotificationsScreenState
           // AI category generation
           String? category;
           try {
-            category = await GroqService()
-                .generateCategory(
-                  m.descriptionController.text,
-                  m.isExpense,
-                  context,
-                )
-                .timeout(const Duration(seconds: 10), onTimeout: () => '');
-            if (category.isEmpty) category = '';
+            final locale = LocaleRegistry.get(AppLocalizations.of(context).localeName);
+            final result = ClassificationService().suggester.suggest(
+              m.descriptionController.text,
+              locale: locale,
+            );
+            category = result.tag;
           } catch (e) {
             category = '';
             LogFileService().appendLog(

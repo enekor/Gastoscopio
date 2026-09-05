@@ -21,9 +21,6 @@ class AppLocalizationsEs extends AppLocalizations {
   String get summary => 'Resumen';
 
   @override
-  String get aiAnalysis => 'Análisis IA';
-
-  @override
   String get monthlySummary => 'Resumen del Mes';
 
   @override
@@ -41,14 +38,7 @@ class AppLocalizationsEs extends AppLocalizations {
   String get dailyExpenses => 'Gastos Diarios';
 
   @override
-  String get aiAnalysisTitle => 'Análisis de Gastos';
-
-  @override
   String get generate => 'Generar';
-
-  @override
-  String get generateAnalysisHint =>
-      'Pulsa el botón \"Generar Análisis\" para obtener un análisis detallado de tus gastos e ingresos de este mes.';
 
   @override
   String noDataForMonth(String month, int year) {
@@ -210,9 +200,6 @@ class AppLocalizationsEs extends AppLocalizations {
 
   @override
   String get artificialIntelligence => 'Inteligencia Artificial';
-
-  @override
-  String get aiDescription => 'Configuración para funciones avanzadas con IA.';
 
   @override
   String get backupManagement => 'Gestión de copia de seguridad';
@@ -647,44 +634,6 @@ class AppLocalizationsEs extends AppLocalizations {
       '💡 Cierra la app completamente y vuelve a abrirla.';
 
   @override
-  String get aiFeaturesActivation =>
-      'Para activar las funciones de inteligencia artificial, necesitas obtener una clave API de Google. Te guiamos paso a paso:';
-
-  @override
-  String get step1 =>
-      '1. Accede a Google AI Studio e inicia sesión con tu cuenta';
-
-  @override
-  String get step2 =>
-      '2. Haz clic en \"Crear clave de API\" y copia la clave generada';
-
-  @override
-  String get step2_1 =>
-      '2.1. Si aparece esta ventana emergente, ciérrala con la X';
-
-  @override
-  String get step2_2 =>
-      '2.2. Desplázate hacia abajo hasta encontrar la tabla de claves';
-
-  @override
-  String get step2_3 =>
-      '2.3. Haz clic en el enlace azul para acceder a la clave';
-
-  @override
-  String get step3 =>
-      '3. Pega la clave API en el campo de texto de la aplicación';
-
-  @override
-  String get step4 =>
-      '4. Presiona el botón guardar para completar la configuración';
-
-  @override
-  String get goToGoogleAiStudio => 'Ir a Google AI Studio';
-
-  @override
-  String get googleApiKey => 'Clave API de Google';
-
-  @override
   String get deleteDatabase => 'Borrar base de datos';
 
   @override
@@ -760,13 +709,6 @@ class AppLocalizationsEs extends AppLocalizations {
 
   @override
   String get errorSavingApiKey => 'No se ha podido guardar la API Key';
-
-  @override
-  String get configureApiKey => 'Configurar API Key';
-
-  @override
-  String get enterApiKeyMessage =>
-      'Para utilizar las funciones de IA, por favor ingrese su API Key:';
 
   @override
   String get later => 'Más tarde';
@@ -987,13 +929,6 @@ class AppLocalizationsEs extends AppLocalizations {
   @override
   String get pleaseAgreeToTerms =>
       'Por favor acepta los Términos y Condiciones para continuar';
-
-  @override
-  String get configureGeminiApiKey => 'Configura tu API Key de Gemini';
-
-  @override
-  String get apiKeyRequired =>
-      'La API Key es necesaria para utilizar las funciones de IA.\nEs gratis y fácil de obtener.';
 
   @override
   String get continueAction => 'Continuar';
@@ -1510,7 +1445,7 @@ class AppLocalizationsEs extends AppLocalizations {
   String get expenseNameHint => 'Ej: Cena con amigos...';
 
   @override
-  String get categoryAiTag => 'Categoría (IA Tag)';
+  String get categoryAiTag => 'Categoría';
 
   @override
   String get valueLabel => 'Valor';

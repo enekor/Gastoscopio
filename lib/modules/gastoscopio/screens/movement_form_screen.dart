@@ -1,5 +1,4 @@
 import 'package:cashly/common/tag_list.dart';
-import 'package:cashly/data/services/groq_serice.dart';
 import 'package:cashly/data/services/shared_preferences_service.dart';
 import 'package:cashly/data/services/sqlite_service.dart';
 import 'package:cashly/data/models/movement_value.dart';
@@ -14,6 +13,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:cashly/l10n/app_localizations.dart';
 import 'package:fluttertoast/fluttertoast.dart';
+import 'package:cashly/classification/classification_service.dart';
+import 'package:cashly/classification/locales/locale_config.dart';
+
 
 class MovementFormScreen extends StatefulWidget {
   final MovementValue? movement;
@@ -222,16 +224,12 @@ class _MovementFormScreenState extends State<MovementFormScreen> {
 
       if (_category == null) {
         try {
-          final generatedCategory = await GroqService()
-              .generateCategory(
-                _descriptionController.text,
-                widget.isExpense,
-                context,
-              )
-              .timeout(
-                const Duration(seconds: 10),
-                onTimeout: () => '',
-              );
+          final locale = LocaleRegistry.get(AppLocalizations.of(context).localeName);
+          final result = ClassificationService().suggester.suggest(
+            _descriptionController.text,
+            locale: locale,
+          );
+          final generatedCategory = result.tag;
 
           if (generatedCategory.isEmpty && mounted) {
             ScaffoldMessenger.of(context).showSnackBar(

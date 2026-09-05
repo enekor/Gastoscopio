@@ -122,12 +122,6 @@ abstract class AppLocalizations {
   /// **'Resumen'**
   String get summary;
 
-  /// Pestaña de análisis IA
-  ///
-  /// In es, this message translates to:
-  /// **'Análisis IA'**
-  String get aiAnalysis;
-
   /// Título del resumen mensual
   ///
   /// In es, this message translates to:
@@ -158,23 +152,11 @@ abstract class AppLocalizations {
   /// **'Gastos Diarios'**
   String get dailyExpenses;
 
-  /// Título del análisis de gastos
-  ///
-  /// In es, this message translates to:
-  /// **'Análisis de Gastos'**
-  String get aiAnalysisTitle;
-
   /// Botón para generar análisis
   ///
   /// In es, this message translates to:
   /// **'Generar'**
   String get generate;
-
-  /// Instrucción para generar análisis
-  ///
-  /// In es, this message translates to:
-  /// **'Pulsa el botón \"Generar Análisis\" para obtener un análisis detallado de tus gastos e ingresos de este mes.'**
-  String get generateAnalysisHint;
 
   /// Mensaje cuando no hay datos para un mes específico
   ///
@@ -469,12 +451,6 @@ abstract class AppLocalizations {
   /// In es, this message translates to:
   /// **'Inteligencia Artificial'**
   String get artificialIntelligence;
-
-  /// Descripción de IA
-  ///
-  /// In es, this message translates to:
-  /// **'Configuración para funciones avanzadas con IA.'**
-  String get aiDescription;
 
   /// Sección de backup
   ///
@@ -1256,66 +1232,6 @@ abstract class AppLocalizations {
   /// **'💡 Cierra la app completamente y vuelve a abrirla.'**
   String get appRestartAdvice;
 
-  /// Instrucciones para activar funciones de IA
-  ///
-  /// In es, this message translates to:
-  /// **'Para activar las funciones de inteligencia artificial, necesitas obtener una clave API de Google. Te guiamos paso a paso:'**
-  String get aiFeaturesActivation;
-
-  /// Primer paso para activar funciones de IA
-  ///
-  /// In es, this message translates to:
-  /// **'1. Accede a Google AI Studio e inicia sesión con tu cuenta'**
-  String get step1;
-
-  /// Segundo paso para activar funciones de IA
-  ///
-  /// In es, this message translates to:
-  /// **'2. Haz clic en \"Crear clave de API\" y copia la clave generada'**
-  String get step2;
-
-  /// Instrucciones para cerrar la ventana emergente
-  ///
-  /// In es, this message translates to:
-  /// **'2.1. Si aparece esta ventana emergente, ciérrala con la X'**
-  String get step2_1;
-
-  /// Instrucciones para encontrar la tabla de claves
-  ///
-  /// In es, this message translates to:
-  /// **'2.2. Desplázate hacia abajo hasta encontrar la tabla de claves'**
-  String get step2_2;
-
-  /// Instrucciones para acceder a la clave
-  ///
-  /// In es, this message translates to:
-  /// **'2.3. Haz clic en el enlace azul para acceder a la clave'**
-  String get step2_3;
-
-  /// Tercer paso para activar funciones de IA
-  ///
-  /// In es, this message translates to:
-  /// **'3. Pega la clave API en el campo de texto de la aplicación'**
-  String get step3;
-
-  /// Cuarto paso para activar funciones de IA
-  ///
-  /// In es, this message translates to:
-  /// **'4. Presiona el botón guardar para completar la configuración'**
-  String get step4;
-
-  /// Enlace para ir a Google AI Studio
-  ///
-  /// In es, this message translates to:
-  /// **'Ir a Google AI Studio'**
-  String get goToGoogleAiStudio;
-
-  /// Etiqueta para la clave API de Google
-  ///
-  /// In es, this message translates to:
-  /// **'Clave API de Google'**
-  String get googleApiKey;
-
   /// Etiqueta para borrar la base de datos
   ///
   /// In es, this message translates to:
@@ -1453,18 +1369,6 @@ abstract class AppLocalizations {
   /// In es, this message translates to:
   /// **'No se ha podido guardar la API Key'**
   String get errorSavingApiKey;
-
-  /// Título del diálogo para configurar la API Key
-  ///
-  /// In es, this message translates to:
-  /// **'Configurar API Key'**
-  String get configureApiKey;
-
-  /// Mensaje que solicita al usuario ingresar su API Key
-  ///
-  /// In es, this message translates to:
-  /// **'Para utilizar las funciones de IA, por favor ingrese su API Key:'**
-  String get enterApiKeyMessage;
 
   /// Botón para posponer una acción
   ///
@@ -1879,18 +1783,6 @@ abstract class AppLocalizations {
   /// In es, this message translates to:
   /// **'Por favor acepta los Términos y Condiciones para continuar'**
   String get pleaseAgreeToTerms;
-
-  /// No description provided for @configureGeminiApiKey.
-  ///
-  /// In es, this message translates to:
-  /// **'Configura tu API Key de Gemini'**
-  String get configureGeminiApiKey;
-
-  /// No description provided for @apiKeyRequired.
-  ///
-  /// In es, this message translates to:
-  /// **'La API Key es necesaria para utilizar las funciones de IA.\nEs gratis y fácil de obtener.'**
-  String get apiKeyRequired;
 
   /// No description provided for @continueAction.
   ///
@@ -2807,7 +2699,7 @@ abstract class AppLocalizations {
   /// No description provided for @categoryAiTag.
   ///
   /// In es, this message translates to:
-  /// **'Categoría (IA Tag)'**
+  /// **'Categoría'**
   String get categoryAiTag;
 
   /// No description provided for @valueLabel.
