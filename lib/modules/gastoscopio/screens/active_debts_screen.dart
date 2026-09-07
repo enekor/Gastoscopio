@@ -179,25 +179,6 @@ class _ActiveDebtsScreenState extends State<ActiveDebtsScreen> {
         children: [
           _buildHeaderCard(totalPending),
           const SizedBox(height: 12),
-          Row(
-            children: [
-              Expanded(
-                child: GlassButton(
-                  icon: Icons.repeat,
-                  label: AppLocalizations.of(context)!.createMonthlyDebt,
-                  onPressed: _createMonthlyDebt,
-                ),
-              ),
-              const SizedBox(width: 10),
-              Expanded(
-                child: GlassButton(
-                  icon: Icons.request_page_outlined,
-                  label: AppLocalizations.of(context)!.createDebt,
-                  onPressed: _createOneTimeDebt,
-                ),
-              ),
-            ],
-          ),
           if (_pendingDebts.isEmpty)
             Padding(
               padding: const EdgeInsets.only(top: 48),
@@ -233,7 +214,7 @@ class _ActiveDebtsScreenState extends State<ActiveDebtsScreen> {
     final glass = Theme.of(context).extension<AppGlass>()!;
     return GlassCard(
       child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
+        crossAxisAlignment: CrossAxisAlignment.center,
         children: [
           Text(
             AppLocalizations.of(context)!.totalPending.toUpperCase(),

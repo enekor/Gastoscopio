@@ -40,7 +40,7 @@ class StatTile extends StatelessWidget {
           ),
           const SizedBox(height: 8),
           Text(
-            '$currency${amount.toStringAsFixed(2)}',
+            '${amount.toStringAsFixed(2)}$currency',
             style: TextStyle(
               color: scheme.onSurface,
               fontSize: 20,

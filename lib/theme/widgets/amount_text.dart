@@ -29,7 +29,7 @@ class AmountText extends StatelessWidget {
       resolved = color ?? (isExpense! ? glass.expenseColor : glass.incomeColor);
     }
     return Text(
-      '$prefix$currency${amount.toStringAsFixed(2)}',
+      '$prefix${amount.toStringAsFixed(2)}$currency',
       style: TextStyle(
         fontSize: fontSize,
         fontWeight: FontWeight.w700,
