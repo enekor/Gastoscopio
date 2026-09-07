@@ -4,6 +4,7 @@ import 'package:cashly/modules/gastoscopio/logic/finance_service.dart';
 import 'package:cashly/data/services/log_file_service.dart';
 import 'package:cashly/modules/credit_card/logic/credit_card_service.dart';
 import 'package:cashly/modules/credit_card/screens/credit_card_screen.dart';
+import 'package:cashly/modules/gastoscopio/screens/active_debts_screen.dart';
 import 'package:cashly/data/models/movement_value.dart';
 import 'package:cashly/modules/settings.dart/settings.dart';
 import 'package:cashly/modules/notifications/screens/pending_notifications_screen.dart';
@@ -25,7 +26,7 @@ class GastoscopioHomeScreen extends StatefulWidget {
   final int year;
   final int month;
 
-  /// Switches the MainScreen bottom-nav tab (0 Inicio, 1 Deudas, 2 Historial,
+  /// Switches the MainScreen bottom-nav tab (0 Inicio, 1 Historial, 2 Gestión,
   /// 3 Estadísticas).
   final void Function(int index)? onNavigateTab;
 
@@ -172,7 +173,7 @@ class _GastoscopioHomeScreenState extends State<GastoscopioHomeScreen>
               SectionHeader(
                 title: AppLocalizations.of(context)!.recentExpenses,
                 actionLabel: AppLocalizations.of(context)!.seeAll,
-                onAction: () => widget.onNavigateTab?.call(2),
+                onAction: () => widget.onNavigateTab?.call(1),
               ),
               const SizedBox(height: 4),
             ]),
@@ -494,7 +495,13 @@ class _GastoscopioHomeScreenState extends State<GastoscopioHomeScreen>
     }
 
     return GlassCard(
-      onTap: () => widget.onNavigateTab?.call(1),
+      onTap: () async {
+        await Navigator.push(
+          context,
+          MaterialPageRoute(builder: (context) => const ActiveDebtsScreen()),
+        );
+        _loadCards();
+      },
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [

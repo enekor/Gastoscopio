@@ -188,18 +188,18 @@ class _MainScreenState extends State<MainScreen>
       month: _month,
       onNavigateTab: _onDestinationSelected,
     ),
-    const ManagementScreen(key: ValueKey('management')),
     MovementsScreen(
       key: const ValueKey('movements'),
       year: _year,
       month: _month,
     ),
+    const ManagementScreen(key: ValueKey('management')),
     const SummaryScreen(key: ValueKey('summary')),
   ];
 
   String _titleForIndex(BuildContext context, int index) {
     final l = AppLocalizations.of(context)!;
-    return [l.home, l.navManagement, l.navHistory, l.navStatistics][index];
+    return [l.home, l.navHistory, l.navManagement, l.navStatistics][index];
   }
 
   Widget _buildTopBar() {
@@ -296,14 +296,14 @@ class _MainScreenState extends State<MainScreen>
                 label: AppLocalizations.of(context)!.home,
               ),
               (
-                icon: Icons.credit_score_outlined,
-                selectedIcon: Icons.credit_score,
-                label: AppLocalizations.of(context)!.navManagement,
-              ),
-              (
                 icon: Icons.history,
                 selectedIcon: Icons.history,
                 label: AppLocalizations.of(context)!.navHistory,
+              ),
+              (
+                icon: Icons.repeat_rounded,
+                selectedIcon: Icons.repeat_rounded,
+                label: AppLocalizations.of(context)!.navManagement,
               ),
               (
                 icon: Icons.bar_chart_outlined,
