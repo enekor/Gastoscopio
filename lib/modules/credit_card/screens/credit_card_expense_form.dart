@@ -7,6 +7,9 @@ import 'package:cashly/theme/widgets/glass_card.dart';
 import 'package:cashly/theme/widgets/primary_pill_button.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:intl/intl.dart';
+import 'package:cashly/l10n/app_localizations.dart';
+import 'package:cashly/data/services/locale_service.dart';
 
 class CreditCardExpenseForm extends StatefulWidget {
   final int month;
@@ -40,12 +43,7 @@ class _CreditCardExpenseFormState extends State<CreditCardExpenseForm> {
       _amountController.text = widget.expenseToEdit!.amount.toStringAsFixed(2);
       _selectedDate = DateTime.parse(widget.expenseToEdit!.date);
     } else {
-      final now = DateTime.now();
-      if (now.month == widget.month && now.year == widget.year) {
-        _selectedDate = now;
-      } else {
-        _selectedDate = DateTime(widget.year, widget.month, 1);
-      }
+      _selectedDate = DateTime.now();
     }
   }
 
@@ -69,8 +67,9 @@ class _CreditCardExpenseFormState extends State<CreditCardExpenseForm> {
     final DateTime? picked = await showDatePicker(
       context: context,
       initialDate: _selectedDate,
-      firstDate: DateTime(widget.year, widget.month, 1),
-      lastDate: DateTime(widget.year, widget.month + 1, 0),
+      firstDate: DateTime(widget.year - 1, 1, 1),
+      lastDate: DateTime(widget.year + 1, 12, 31),
+      locale: LocaleService().getEffectiveLocale(),
     );
     if (picked != null && picked != _selectedDate) {
       setState(() {
@@ -100,6 +99,36 @@ class _CreditCardExpenseFormState extends State<CreditCardExpenseForm> {
         await CreditCardService.getInstance().addExpense(description, amount, _selectedDate);
       }
 
+      if (mounted) Navigator.pop(context);
+    }
+  }
+
+  void _deleteExpense() async {
+    final l = AppLocalizations.of(context)!;
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('¿Eliminar gasto?'),
+        content: const Text('Esta acción no se puede deshacer.'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context, false),
+            child: Text(l.cancel),
+          ),
+          ElevatedButton(
+            style: ElevatedButton.styleFrom(
+              backgroundColor: Theme.of(context).colorScheme.error,
+              foregroundColor: Theme.of(context).colorScheme.onError,
+            ),
+            onPressed: () => Navigator.pop(context, true),
+            child: const Text('Eliminar'),
+          ),
+        ],
+      ),
+    );
+
+    if (confirmed == true && widget.expenseToEdit != null) {
+      await CreditCardService.getInstance().deleteExpense(widget.expenseToEdit!);
       if (mounted) Navigator.pop(context);
     }
   }
@@ -265,10 +294,24 @@ class _CreditCardExpenseFormState extends State<CreditCardExpenseForm> {
                   ),
                   const Spacer(),
                   PrimaryPillButton(
-                    label: 'Guardar Gasto',
+                    label: widget.expenseToEdit != null ? 'Guardar Cambios' : 'Guardar Gasto',
                     icon: Icons.check_circle_outline,
                     onPressed: _saveExpense,
                   ),
+                  if (widget.expenseToEdit != null) ...[
+                    const SizedBox(height: 12),
+                    TextButton.icon(
+                      onPressed: _deleteExpense,
+                      icon: Icon(Icons.delete_outline, color: scheme.error),
+                      label: Text(
+                        'Eliminar Movimiento',
+                        style: TextStyle(color: scheme.error, fontWeight: FontWeight.w600),
+                      ),
+                      style: TextButton.styleFrom(
+                        padding: const EdgeInsets.symmetric(vertical: 12),
+                      ),
+                    ),
+                  ],
                   const SizedBox(height: 8),
                 ],
               ),

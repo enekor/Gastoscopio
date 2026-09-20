@@ -460,9 +460,11 @@ class _CreditCardScreenState extends State<CreditCardScreen> {
                   await prefs.setStringValue(SharedPreferencesKeys.creditCardBillingCycle, selectedCycle);
                   await prefs.setDoubleValue(SharedPreferencesKeys.creditCardBillingDay, selectedBillingDay.toDouble());
 
-                  if (mounted) Navigator.pop(context);
-                  _loadBillingConfig();
-                  _loadData();
+                  if (mounted) {
+                    Navigator.pop(context);
+                    await _loadBillingConfig();
+                    await _initSelectedMonth();
+                  }
                 }
               },
               child: const Text('Guardar'),
@@ -983,7 +985,19 @@ class _CreditCardScreenState extends State<CreditCardScreen> {
                 child: AppListRow(
                   leadingIcon: Icons.credit_card,
                   title: expense.description,
-                  subtitle: '${expense.day}/${_selectedDate.month}/${_selectedDate.year}',
+                  subtitle: DateFormat('dd/MM/yyyy').format(DateTime.parse(expense.date)),
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => CreditCardExpenseForm(
+                          month: _selectedDate.month,
+                          year: _selectedDate.year,
+                          expenseToEdit: expense,
+                        ),
+                      ),
+                    );
+                  },
                   trailing: AmountText(
                     amount: expense.amount,
                     currency: _moneda,

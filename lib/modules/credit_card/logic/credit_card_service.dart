@@ -72,35 +72,25 @@ class CreditCardService extends ChangeNotifier {
     final cycle = await prefs.getStringValue(SharedPreferencesKeys.creditCardBillingCycle) ?? 'monthly';
     final billingDay = (await prefs.getDoubleValue(SharedPreferencesKeys.creditCardBillingDay))?.toInt() ?? 1;
 
+    final pureDate = DateTime(date.year, date.month, date.day);
+
     if (cycle == 'weekly') {
       // Si es semanal, billingDay es el día de la semana (1=Lunes, 7=Domingo)
       // Buscamos el próximo día de cobro.
-      DateTime nextBilling = date;
-      // Si hoy es el día de cobro, el gasto de hoy ya podría contar para el siguiente ciclo si el cobro es a primera hora, 
-      // pero usualmente es al final del día. El usuario dice "martes 30 ... cuente para el siguiente".
-      // Si el cobro fue el lunes 29, el martes 30 ya es del siguiente ciclo.
-      // Así que si date.weekday >= billingDay, pertenece al ciclo que termina en el próximo billingDay.
       
-      // Lógica: Si el día de la semana es MAYOR O IGUAL al billingDay, 
-      // avanzamos hasta el próximo billingDay (que será en la semana siguiente).
-      // Si ese próximo billingDay cae en otro mes, el gasto es del mes siguiente.
-      
-      int daysToAdd = (billingDay - date.weekday) % 7;
+      int daysToAdd = (billingDay - pureDate.weekday) % 7;
       if (daysToAdd <= 0) daysToAdd += 7;
       
-      DateTime nextBillingDay = date.add(Duration(days: daysToAdd));
+      DateTime nextBillingDay = pureDate.add(Duration(days: daysToAdd));
       
-      if (nextBillingDay.month != date.month) {
-        return DateTime(nextBillingDay.year, nextBillingDay.month);
-      }
-      return DateTime(date.year, date.month);
+      return DateTime(nextBillingDay.year, nextBillingDay.month);
     } else {
       // Mensual: si el día es >= billingDay, pasa al mes siguiente.
-      if (date.day >= billingDay) {
-        final nextMonth = DateTime(date.year, date.month + 1);
+      if (pureDate.day >= billingDay) {
+        final nextMonth = DateTime(pureDate.year, pureDate.month + 1);
         return DateTime(nextMonth.year, nextMonth.month);
       }
-      return DateTime(date.year, date.month);
+      return DateTime(pureDate.year, pureDate.month);
     }
   }
 
@@ -111,6 +101,13 @@ class CreditCardService extends ChangeNotifier {
 
   Future<void> addExpense(String description, double amount, DateTime date) async {
     final targetDate = await getTargetMonth(date);
+    
+    // Si el mes de cobro es distinto al mes del gasto, forzamos el día 1 del mes de cobro
+    DateTime finalDate = date;
+    if (targetDate.month != date.month || targetDate.year != date.year) {
+      finalDate = targetDate; // targetDate ya es el día 1
+    }
+
     final db = SqliteService().db;
     
     CreditCardMonth? month = await db.creditCardMonthDao.findMonth(targetDate.month, targetDate.year);
@@ -132,8 +129,8 @@ class CreditCardService extends ChangeNotifier {
       monthId: month.id!,
       description: description,
       amount: amount,
-      day: date.day,
-      date: date.toIso8601String(),
+      day: finalDate.day,
+      date: finalDate.toIso8601String(),
       uuid: const Uuid().v4(),
       ts: DateTime.now().millisecondsSinceEpoch,
     );
@@ -151,9 +148,47 @@ class CreditCardService extends ChangeNotifier {
 
   Future<void> updateExpense(CreditCardExpense expense) async {
     final db = SqliteService().db;
-    await db.creditCardExpenseDao.updateExpense(expense);
+    
+    // Recalculamos el mes objetivo por si la fecha cambió al editar
+    final expenseDate = DateTime.parse(expense.date);
+    final targetDate = await getTargetMonth(expenseDate);
+    
+    // Aplicamos lógica de salto al día 1 si cambia de mes
+    DateTime finalDate = expenseDate;
+    if (targetDate.month != expenseDate.month || targetDate.year != expenseDate.year) {
+      finalDate = targetDate;
+    }
+
+    // Buscamos o creamos el mes correspondiente
+    CreditCardMonth? month = await db.creditCardMonthDao.findMonth(targetDate.month, targetDate.year);
+    if (month == null) {
+      final limit = await getDefaultLimit();
+      final newMonth = CreditCardMonth(
+        month: targetDate.month,
+        year: targetDate.year,
+        limitAmount: limit,
+      );
+      await db.creditCardMonthDao.insertMonth(newMonth);
+      month = await db.creditCardMonthDao.findMonth(targetDate.month, targetDate.year);
+    }
+
+    if (month == null) return;
+
+    final updatedExpense = CreditCardExpense(
+      id: expense.id,
+      monthId: month.id!,
+      description: expense.description,
+      amount: expense.amount,
+      day: finalDate.day,
+      date: finalDate.toIso8601String(),
+      uuid: expense.uuid,
+      ts: DateTime.now().millisecondsSinceEpoch,
+    );
+
+    await db.creditCardExpenseDao.updateExpense(updatedExpense);
     
     if (currentMonth != null) {
+      // Si el gasto se movió de mes, recargamos el mes actual
       currentExpenses = await db.creditCardExpenseDao.findExpensesByMonthId(currentMonth!.id!);
       notifyListeners();
       await _updateNotification();
