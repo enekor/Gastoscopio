@@ -221,6 +221,7 @@ class _PendingNotificationsScreenState
         if (!mounted) return;
         setState(() {
           m.descriptionController.text = result.name;
+          m.suggestedName = result.name;
           if (result.amount != null) {
             m.amountController.text = result.amount!.toStringAsFixed(2);
           }
@@ -269,6 +270,15 @@ class _PendingNotificationsScreenState
           m.amountController.text.replaceAll(',', '.'),
         );
         final date = DateTime.tryParse(m.timestamp) ?? DateTime.now();
+
+        // El usuario corrigió el nombre sugerido: se aprende para la próxima vez.
+        final currentName = m.descriptionController.text.trim();
+        if (m.suggestedName != null &&
+            currentName.isNotEmpty &&
+            currentName != m.suggestedName) {
+          ClassificationService().suggester.learnName(m.originalText, currentName);
+          await ClassificationService().saveOverrides();
+        }
 
         if (m.isCreditCard) {
           // Handle credit card expense

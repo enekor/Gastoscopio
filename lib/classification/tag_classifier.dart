@@ -48,5 +48,7 @@ class TagClassifier {
     _userOverrides[merchant.toLowerCase().trim()] = tagEs;
   }
 
+  void clearOverrides() => _userOverrides.clear();
+
   Map<String, String> get overrides => Map.unmodifiable(_userOverrides);
 }

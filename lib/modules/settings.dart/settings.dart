@@ -1,6 +1,7 @@
 import 'dart:io';
 import 'dart:typed_data';
 
+import 'package:cashly/classification/classification_service.dart';
 import 'package:cashly/data/models/fixed_movement.dart';
 import 'package:cashly/data/models/month.dart';
 import 'package:cashly/data/models/movement_value.dart';
@@ -195,6 +196,41 @@ class _SettingsScreenState extends State<SettingsScreen> with WidgetsBindingObse
   Future<void> _removeBackgroundImage() async {
     await SharedPreferencesService().setStringValue(SharedPreferencesKeys.backgroundImage, "");
     setState(() => _backgroundImagePath = null);
+  }
+
+  Future<void> _clearLearnedClassificationData() async {
+    final localizations = AppLocalizations.of(context)!;
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        icon: const Icon(Icons.model_training_outlined),
+        title: Text(localizations.clearLearnedDataConfirmTitle),
+        content: Text(localizations.clearLearnedDataConfirmContent),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context, false),
+            child: Text(localizations.cancel),
+          ),
+          FilledButton(
+            onPressed: () => Navigator.pop(context, true),
+            child: Text(localizations.clearLearnedData),
+          ),
+        ],
+      ),
+    );
+
+    if (confirmed != true) return;
+
+    await ClassificationService().clearLearnedData();
+    if (mounted) {
+      setState(() {});
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(localizations.learnedDataCleared),
+          behavior: SnackBarBehavior.floating,
+        ),
+      );
+    }
   }
 
   Future<void> _handleLogout() async {
@@ -406,6 +442,10 @@ class _SettingsScreenState extends State<SettingsScreen> with WidgetsBindingObse
 
                     SectionHeader(title: AppLocalizations.of(context)!.backupManagement),
                     const BackupRestoreWidget(),
+                    const SizedBox(height: 24),
+
+                    SectionHeader(title: AppLocalizations.of(context)!.autoClassificationSection),
+                    _buildClassificationCard(context),
                     const SizedBox(height: 24),
 
                     SectionHeader(
@@ -629,6 +669,55 @@ class _SettingsScreenState extends State<SettingsScreen> with WidgetsBindingObse
             ],
           ],
         ),
+    );
+  }
+
+  Widget _buildClassificationCard(BuildContext context) {
+    final localizations = AppLocalizations.of(context)!;
+    final learnedCount = ClassificationService().learnedCount;
+    return GlassCard(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Icon(Icons.model_training_outlined, color: Theme.of(context).colorScheme.primary, size: 20),
+              const SizedBox(width: 8),
+              Expanded(
+                child: Text(
+                  localizations.autoClassificationSection,
+                  style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w600),
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 8),
+          Text(
+            localizations.autoClassificationDescription,
+            style: Theme.of(context).textTheme.bodySmall?.copyWith(
+              color: Theme.of(context).colorScheme.onSurfaceVariant,
+            ),
+          ),
+          const SizedBox(height: 8),
+          Text(
+            localizations.learnedCorrectionsCount(learnedCount),
+            style: Theme.of(context).textTheme.bodySmall?.copyWith(fontWeight: FontWeight.w600),
+          ),
+          const SizedBox(height: 16),
+          SizedBox(
+            width: double.infinity,
+            child: OutlinedButton.icon(
+              onPressed: learnedCount == 0 ? null : _clearLearnedClassificationData,
+              icon: const Icon(Icons.delete_sweep_outlined),
+              label: Text(localizations.clearLearnedData),
+              style: OutlinedButton.styleFrom(
+                foregroundColor: Theme.of(context).colorScheme.error,
+                side: BorderSide(color: Theme.of(context).colorScheme.error),
+              ),
+            ),
+          ),
+        ],
+      ),
     );
   }
 

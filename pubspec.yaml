@@ -100,7 +100,6 @@ flutter:
     - assets/terms-and-conditions-en.md
     - assets/icons/
     - assets/loading/loading.gif
-    - config.properties
 
   fonts:
     - family: Space Grotesk

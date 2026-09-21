@@ -45,4 +45,14 @@ class ClassificationService {
     await prefs.setStringValue(SharedPreferencesKeys.classificationOverrides, jsonEncode(_classifier.overrides));
     await prefs.setStringValue(SharedPreferencesKeys.classificationNames, jsonEncode(_suggester.nameOverrides));
   }
+
+  /// Borra todo lo aprendido (tags y nombres corregidos por el usuario).
+  Future<void> clearLearnedData() async {
+    _classifier.clearOverrides();
+    _suggester.clearNames();
+    await saveOverrides();
+  }
+
+  /// Número de correcciones aprendidas (tags + nombres).
+  int get learnedCount => _classifier.overrides.length + _suggester.nameOverrides.length;
 }

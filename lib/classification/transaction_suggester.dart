@@ -51,5 +51,7 @@ class TransactionSuggester {
     _userNames[rawMerchant.toLowerCase().trim()] = userChosenName;
   }
 
+  void clearNames() => _userNames.clear();
+
   Map<String, String> get nameOverrides => Map.unmodifiable(_userNames);
 }

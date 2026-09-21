@@ -1530,5 +1530,17 @@
   "cardHolder": "Titular",
   "days": "días",
   "available": "Disponible",
-  "navManagement": "Gestión"
+  "navManagement": "Gestión",
+  "autoClassificationSection": "Clasificación automática",
+  "autoClassificationDescription": "Cuando corriges manualmente una categoría o un nombre sugerido, la app lo recuerda para la próxima vez.",
+  "learnedCorrectionsCount": "{count} correcciones aprendidas",
+  "@learnedCorrectionsCount": {
+    "placeholders": {
+      "count": { "type": "int" }
+    }
+  },
+  "clearLearnedData": "Borrar aprendizaje",
+  "clearLearnedDataConfirmTitle": "¿Borrar todo lo aprendido?",
+  "clearLearnedDataConfirmContent": "Se perderán todas las correcciones de categorías y nombres que la app ha aprendido. Esta acción no se puede deshacer.",
+  "learnedDataCleared": "Aprendizaje borrado correctamente"
 }

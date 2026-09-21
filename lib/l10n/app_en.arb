@@ -539,5 +539,17 @@
   "cardHolder": "Cardholder",
   "days": "days",
   "available": "Available",
-  "navManagement": "Management"
+  "navManagement": "Management",
+  "autoClassificationSection": "Automatic classification",
+  "autoClassificationDescription": "When you manually correct a suggested category or name, the app remembers it for next time.",
+  "learnedCorrectionsCount": "{count} corrections learned",
+  "@learnedCorrectionsCount": {
+    "placeholders": {
+      "count": { "type": "int" }
+    }
+  },
+  "clearLearnedData": "Clear learned data",
+  "clearLearnedDataConfirmTitle": "Clear everything learned?",
+  "clearLearnedDataConfirmContent": "All learned category and name corrections will be lost. This cannot be undone.",
+  "learnedDataCleared": "Learned data cleared"
 }

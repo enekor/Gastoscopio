@@ -2989,6 +2989,48 @@ abstract class AppLocalizations {
   /// In es, this message translates to:
   /// **'Gestión'**
   String get navManagement;
+
+  /// No description provided for @autoClassificationSection.
+  ///
+  /// In es, this message translates to:
+  /// **'Clasificación automática'**
+  String get autoClassificationSection;
+
+  /// No description provided for @autoClassificationDescription.
+  ///
+  /// In es, this message translates to:
+  /// **'Cuando corriges manualmente una categoría o un nombre sugerido, la app lo recuerda para la próxima vez.'**
+  String get autoClassificationDescription;
+
+  /// No description provided for @learnedCorrectionsCount.
+  ///
+  /// In es, this message translates to:
+  /// **'{count} correcciones aprendidas'**
+  String learnedCorrectionsCount(int count);
+
+  /// No description provided for @clearLearnedData.
+  ///
+  /// In es, this message translates to:
+  /// **'Borrar aprendizaje'**
+  String get clearLearnedData;
+
+  /// No description provided for @clearLearnedDataConfirmTitle.
+  ///
+  /// In es, this message translates to:
+  /// **'¿Borrar todo lo aprendido?'**
+  String get clearLearnedDataConfirmTitle;
+
+  /// No description provided for @clearLearnedDataConfirmContent.
+  ///
+  /// In es, this message translates to:
+  /// **'Se perderán todas las correcciones de categorías y nombres que la app ha aprendido. Esta acción no se puede deshacer.'**
+  String get clearLearnedDataConfirmContent;
+
+  /// No description provided for @learnedDataCleared.
+  ///
+  /// In es, this message translates to:
+  /// **'Aprendizaje borrado correctamente'**
+  String get learnedDataCleared;
 }
 
 class _AppLocalizationsDelegate

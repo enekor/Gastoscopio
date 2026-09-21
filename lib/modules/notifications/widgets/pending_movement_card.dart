@@ -17,6 +17,10 @@ class EditablePendingMovement {
   bool isExpense;
   bool isCreditCard;
 
+  /// Nombre limpio propuesto por el clasificador local, usado para detectar
+  /// si el usuario lo corrigió manualmente antes de guardar.
+  String? suggestedName;
+
   EditablePendingMovement({
     this.id,
     required this.originalText,
@@ -26,6 +30,7 @@ class EditablePendingMovement {
     required this.amountController,
     this.isExpense = true,
     this.isCreditCard = false,
+    this.suggestedName,
   });
 
   void dispose() {

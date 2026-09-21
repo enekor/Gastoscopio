@@ -1578,4 +1578,29 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get navManagement => 'Management';
+
+  @override
+  String get autoClassificationSection => 'Automatic classification';
+
+  @override
+  String get autoClassificationDescription =>
+      'When you manually correct a suggested category or name, the app remembers it for next time.';
+
+  @override
+  String learnedCorrectionsCount(int count) {
+    return '$count corrections learned';
+  }
+
+  @override
+  String get clearLearnedData => 'Clear learned data';
+
+  @override
+  String get clearLearnedDataConfirmTitle => 'Clear everything learned?';
+
+  @override
+  String get clearLearnedDataConfirmContent =>
+      'All learned category and name corrections will be lost. This cannot be undone.';
+
+  @override
+  String get learnedDataCleared => 'Learned data cleared';
 }

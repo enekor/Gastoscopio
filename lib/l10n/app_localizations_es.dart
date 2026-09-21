@@ -1590,4 +1590,29 @@ class AppLocalizationsEs extends AppLocalizations {
 
   @override
   String get navManagement => 'Gestión';
+
+  @override
+  String get autoClassificationSection => 'Clasificación automática';
+
+  @override
+  String get autoClassificationDescription =>
+      'Cuando corriges manualmente una categoría o un nombre sugerido, la app lo recuerda para la próxima vez.';
+
+  @override
+  String learnedCorrectionsCount(int count) {
+    return '$count correcciones aprendidas';
+  }
+
+  @override
+  String get clearLearnedData => 'Borrar aprendizaje';
+
+  @override
+  String get clearLearnedDataConfirmTitle => '¿Borrar todo lo aprendido?';
+
+  @override
+  String get clearLearnedDataConfirmContent =>
+      'Se perderán todas las correcciones de categorías y nombres que la app ha aprendido. Esta acción no se puede deshacer.';
+
+  @override
+  String get learnedDataCleared => 'Aprendizaje borrado correctamente';
 }

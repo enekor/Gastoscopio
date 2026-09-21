@@ -163,6 +163,11 @@ class _MovementFormScreenState extends State<MovementFormScreen> {
       ),
     );
     if (selected != null) {
+      final description = _descriptionController.text.trim();
+      if (description.isNotEmpty) {
+        ClassificationService().classifier.learn(description, selected);
+        await ClassificationService().saveOverrides();
+      }
       setState(() {
         _category = selected;
       });
