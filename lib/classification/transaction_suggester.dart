@@ -14,7 +14,11 @@ class TransactionSuggester {
   })  : _classifier = classifier,
         _userNames = savedUserNames ?? {};
 
-  ({String name, String tag, bool isIncome, double? amount}) suggest(
+  /// [rawMerchant] es el comercio extraído por el parser (o la notificación
+  /// completa si no se pudo extraer). Es la clave que debe usarse en
+  /// [learnName] para que la corrección se reutilice en futuras notificaciones.
+  ({String name, String tag, bool isIncome, double? amount, String rawMerchant})
+      suggest(
     String notification, {
     required LocaleConfig locale,
   }) {
@@ -36,7 +40,13 @@ class TransactionSuggester {
       locale: locale,
     );
 
-    return (name: name, tag: tag, isIncome: isIncome, amount: parsed.amount);
+    return (
+      name: name,
+      tag: tag,
+      isIncome: isIncome,
+      amount: parsed.amount,
+      rawMerchant: rawMerchant,
+    );
   }
 
   String _suggestName(String rawMerchant, LocaleConfig locale) {
@@ -47,8 +57,13 @@ class TransactionSuggester {
     return MerchantNameCleaner.suggest(rawMerchant, locale);
   }
 
+  /// Aprende el nombre elegido por el usuario para [rawMerchant] (el comercio
+  /// devuelto por [suggest], no el texto completo de la notificación).
   void learnName(String rawMerchant, String userChosenName) {
-    _userNames[rawMerchant.toLowerCase().trim()] = userChosenName;
+    final key = rawMerchant.toLowerCase().trim();
+    final value = userChosenName.trim();
+    if (key.isEmpty || value.isEmpty) return;
+    _userNames[key] = value;
   }
 
   void clearNames() => _userNames.clear();

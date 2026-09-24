@@ -220,8 +220,12 @@ class _PendingNotificationsScreenState
         );
         if (!mounted) return;
         setState(() {
-          m.descriptionController.text = result.name;
+          // No pisar el texto si el usuario ya lo editó mientras se parseaba.
+          if (m.descriptionController.text == m.originalText) {
+            m.descriptionController.text = result.name;
+          }
           m.suggestedName = result.name;
+          m.rawMerchant = result.rawMerchant;
           if (result.amount != null) {
             m.amountController.text = result.amount!.toStringAsFixed(2);
           }
@@ -276,7 +280,10 @@ class _PendingNotificationsScreenState
         if (m.suggestedName != null &&
             currentName.isNotEmpty &&
             currentName != m.suggestedName) {
-          ClassificationService().suggester.learnName(m.originalText, currentName);
+          ClassificationService().suggester.learnName(
+            m.rawMerchant ?? m.originalText,
+            currentName,
+          );
           await ClassificationService().saveOverrides();
         }
 

@@ -21,6 +21,10 @@ class EditablePendingMovement {
   /// si el usuario lo corrigió manualmente antes de guardar.
   String? suggestedName;
 
+  /// Comercio extraído de la notificación por el parser local. Es la clave
+  /// con la que se aprende el nombre corregido por el usuario.
+  String? rawMerchant;
+
   EditablePendingMovement({
     this.id,
     required this.originalText,
@@ -31,6 +35,7 @@ class EditablePendingMovement {
     this.isExpense = true,
     this.isCreditCard = false,
     this.suggestedName,
+    this.rawMerchant,
   });
 
   void dispose() {

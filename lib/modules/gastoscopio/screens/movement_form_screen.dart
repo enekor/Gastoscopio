@@ -51,6 +51,10 @@ class _MovementFormScreenState extends State<MovementFormScreen> {
   bool _showDatePicker = true;
   bool _createAsOneTimeDebt = false;
 
+  /// True si el usuario eligió la categoría a mano en este formulario. Solo
+  /// entonces se aprende la asociación descripción → tag al guardar.
+  bool _categoryPickedByUser = false;
+
   @override
   void initState() {
     super.initState();
@@ -163,13 +167,9 @@ class _MovementFormScreenState extends State<MovementFormScreen> {
       ),
     );
     if (selected != null) {
-      final description = _descriptionController.text.trim();
-      if (description.isNotEmpty) {
-        ClassificationService().classifier.learn(description, selected);
-        await ClassificationService().saveOverrides();
-      }
       setState(() {
         _category = selected;
+        _categoryPickedByUser = selected != widget.movement?.category;
       });
     }
   }
@@ -291,6 +291,17 @@ class _MovementFormScreenState extends State<MovementFormScreen> {
           _category?.trim(),
         );
         await db.movementValueDao.insertMovementValue(movement);
+      }
+
+      // Aprendizaje: solo cuando el usuario eligió el tag a mano, y con la
+      // descripción final (puede haberla editado después de elegir el tag).
+      final learnedDescription = _descriptionController.text.trim();
+      final learnedCategory = _category?.trim() ?? '';
+      if (_categoryPickedByUser &&
+          learnedDescription.isNotEmpty &&
+          learnedCategory.isNotEmpty) {
+        ClassificationService().classifier.learn(learnedDescription, learnedCategory);
+        await ClassificationService().saveOverrides();
       }
 
       await SharedPreferencesService().haveToUpload();

@@ -1,3 +1,4 @@
+import 'package:cashly/classification/classification_service.dart';
 import 'package:cashly/data/services/shared_preferences_service.dart';
 import 'package:cashly/data/services/sqlite_service.dart';
 import 'package:cashly/data/services/log_file_service.dart';
@@ -1218,6 +1219,12 @@ class _MovementsScreenState extends State<MovementsScreen>
               onTagSelected: (tag) async {
                 final updated = movement.copyWith(category: tag);
                 showDialog(context: context, barrierDismissible: false, builder: (context) => Center(child: Loading(context)));
+                // El usuario corrigió el tag: se aprende para futuras clasificaciones.
+                final description = movement.description.trim();
+                if (description.isNotEmpty && tag != movement.category) {
+                  ClassificationService().classifier.learn(description, tag);
+                  await ClassificationService().saveOverrides();
+                }
                 await _financeService.updateMovement(updated);
                 Navigator.pop(context);
                 Navigator.pop(context);
