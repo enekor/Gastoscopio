@@ -22,8 +22,20 @@ class EditablePendingMovement {
   String? suggestedName;
 
   /// Comercio extraído de la notificación por el parser local. Es la clave
-  /// con la que se aprende el nombre corregido por el usuario.
+  /// con la que se aprende el nombre y la categoría corregidos por el usuario.
   String? rawMerchant;
+
+  /// Categoría propuesta por el clasificador local.
+  String? suggestedTag;
+
+  /// Categoría actual del movimiento (propuesta o elegida por el usuario).
+  String? category;
+
+  /// True cuando el usuario escribió en el nombre de esta tarjeta.
+  bool nameEditedByUser = false;
+
+  /// True cuando el usuario eligió la categoría de esta tarjeta.
+  bool tagEditedByUser = false;
 
   EditablePendingMovement({
     this.id,
@@ -52,6 +64,12 @@ class PendingMovementCard extends StatelessWidget {
   final String? resolvedAppName;
   final Uint8List? appIcon;
 
+  /// Se llama cada vez que el usuario escribe en el nombre.
+  final ValueChanged<String>? onDescriptionEdited;
+
+  /// Abre el selector de categoría. Sin callback no se muestra el selector.
+  final VoidCallback? onPickCategory;
+
   const PendingMovementCard({
     super.key,
     required this.movement,
@@ -60,6 +78,8 @@ class PendingMovementCard extends StatelessWidget {
     this.onDisallowApp,
     this.resolvedAppName,
     this.appIcon,
+    this.onDescriptionEdited,
+    this.onPickCategory,
   });
 
   @override
@@ -140,6 +160,7 @@ class PendingMovementCard extends StatelessWidget {
               labelText: localizations.description,
               isDense: true,
             ),
+            onChanged: onDescriptionEdited,
             validator: (value) {
               if (value == null || value.isEmpty) {
                 return localizations.pleaseEnterDescription;
@@ -176,6 +197,27 @@ class PendingMovementCard extends StatelessWidget {
               return null;
             },
           ),
+
+          // Category picker (credit card expenses have no category)
+          if (onPickCategory != null && !movement.isCreditCard) ...[
+            const SizedBox(height: 12),
+            Align(
+              alignment: Alignment.centerLeft,
+              child: ActionChip(
+                avatar: Icon(
+                  Icons.sell_outlined,
+                  size: 18,
+                  color: scheme.primary,
+                ),
+                label: Text(
+                  (movement.category?.isNotEmpty ?? false)
+                      ? movement.category!
+                      : localizations.selectCategory,
+                ),
+                onPressed: onPickCategory,
+              ),
+            ),
+          ],
           const SizedBox(height: 16),
 
           // Expense/Income toggle (true = Gasto/expense)

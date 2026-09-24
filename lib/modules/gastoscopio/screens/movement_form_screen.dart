@@ -55,6 +55,10 @@ class _MovementFormScreenState extends State<MovementFormScreen> {
   /// entonces se aprende la asociación descripción → tag al guardar.
   bool _categoryPickedByUser = false;
 
+  /// Comercio de origen si el movimiento vino de una notificación. Permite
+  /// aprender nombres y categorías corregidos más adelante.
+  String? _storedMerchantKey;
+
   @override
   void initState() {
     super.initState();
@@ -71,6 +75,10 @@ class _MovementFormScreenState extends State<MovementFormScreen> {
 
       _category = widget.movement!.category;
       _showDatePicker = false;
+
+      ClassificationService()
+          .merchantKeyForMovement(widget.movement!.id)
+          .then((key) => _storedMerchantKey = key);
     }
     if (widget.forceDebtMode && widget.movement == null) {
       _createAsOneTimeDebt = true;
@@ -182,6 +190,8 @@ class _MovementFormScreenState extends State<MovementFormScreen> {
     setState(() {
       _isLoading = true;
     });
+    final learningLocale =
+        LocaleRegistry.get(AppLocalizations.of(context).localeName);
     try {
       String amountText = _amountController.text.trim();
       amountText = amountText.replaceAll(',', '.');
@@ -293,15 +303,25 @@ class _MovementFormScreenState extends State<MovementFormScreen> {
         await db.movementValueDao.insertMovementValue(movement);
       }
 
-      // Aprendizaje: solo cuando el usuario eligió el tag a mano, y con la
-      // descripción final (puede haberla editado después de elegir el tag).
+      // Aprendizaje, con la descripción final (puede haberla editado después
+      // de elegir el tag).
+      final classification = ClassificationService();
       final learnedDescription = _descriptionController.text.trim();
       final learnedCategory = _category?.trim() ?? '';
       if (_categoryPickedByUser &&
           learnedDescription.isNotEmpty &&
           learnedCategory.isNotEmpty) {
-        ClassificationService().classifier.learn(learnedDescription, learnedCategory);
-        await ClassificationService().saveOverrides();
+        await classification.learnTag([
+          classification.merchantKeyFor(learnedDescription, learningLocale),
+          _storedMerchantKey,
+        ], learnedCategory);
+      }
+      // Nombre corregido de un movimiento que vino de una notificación.
+      if (widget.movement != null &&
+          _storedMerchantKey != null &&
+          learnedDescription.isNotEmpty &&
+          learnedDescription != widget.movement!.description.trim()) {
+        await classification.learnName(_storedMerchantKey!, learnedDescription);
       }
 
       await SharedPreferencesService().haveToUpload();

@@ -2,7 +2,9 @@ import 'dart:typed_data';
 
 import 'package:cashly/data/models/movement_value.dart';
 import 'package:cashly/classification/classification_service.dart';
+import 'package:cashly/classification/learning_key.dart';
 import 'package:cashly/classification/locales/locale_config.dart';
+import 'package:cashly/common/tag_list.dart' show getTagList;
 import 'package:cashly/data/services/log_file_service.dart';
 import 'package:cashly/data/services/notification_capture_service.dart';
 import 'package:cashly/data/services/shared_preferences_service.dart';
@@ -220,12 +222,16 @@ class _PendingNotificationsScreenState
         );
         if (!mounted) return;
         setState(() {
-          // No pisar el texto si el usuario ya lo editó mientras se parseaba.
-          if (m.descriptionController.text == m.originalText) {
+          // No pisar lo que el usuario ya editó mientras se parseaba.
+          if (!m.nameEditedByUser) {
             m.descriptionController.text = result.name;
           }
           m.suggestedName = result.name;
           m.rawMerchant = result.rawMerchant;
+          m.suggestedTag = result.tag;
+          if (!m.tagEditedByUser) {
+            m.category = result.tag;
+          }
           if (result.amount != null) {
             m.amountController.text = result.amount!.toStringAsFixed(2);
           }
@@ -242,6 +248,90 @@ class _PendingNotificationsScreenState
     if (mounted) {
       setState(() => _isAiProcessing = false);
     }
+  }
+
+  String? _merchantKeyOf(EditablePendingMovement m) {
+    if (m.rawMerchant == null) return null;
+    final key = LearningKey.normalize(m.rawMerchant!);
+    return LearningKey.isValid(key) ? key : null;
+  }
+
+  /// El usuario editó el nombre de una tarjeta: se copia a las tarjetas del
+  /// mismo comercio que todavía no ha tocado.
+  void _onNameEdited(EditablePendingMovement edited) {
+    edited.nameEditedByUser = true;
+    final key = _merchantKeyOf(edited);
+    final text = edited.descriptionController.text;
+    if (key == null || text.trim().isEmpty) return;
+    setState(() {
+      for (final other in _movements) {
+        if (identical(other, edited) || other.nameEditedByUser) continue;
+        if (_merchantKeyOf(other) != key) continue;
+        other.descriptionController.text = text;
+      }
+    });
+  }
+
+  /// Selector de categoría de una tarjeta. La elección se copia a las
+  /// tarjetas del mismo comercio que todavía no ha tocado.
+  Future<void> _pickCategory(EditablePendingMovement target) async {
+    final tags = getTagList(AppLocalizations.of(context).localeName);
+    final scheme = Theme.of(context).colorScheme;
+    final selected = await showModalBottomSheet<String>(
+      context: context,
+      showDragHandle: true,
+      backgroundColor: scheme.surfaceContainerHigh,
+      builder: (context) => SafeArea(
+        child: SingleChildScrollView(
+          padding: const EdgeInsets.all(16),
+          child: Wrap(
+            spacing: 8,
+            runSpacing: 8,
+            children: tags
+                .map(
+                  (t) => ActionChip(
+                    label: Text(t),
+                    onPressed: () => Navigator.pop(context, t),
+                  ),
+                )
+                .toList(),
+          ),
+        ),
+      ),
+    );
+    if (selected == null || !mounted) return;
+    final key = _merchantKeyOf(target);
+    setState(() {
+      target.category = selected;
+      target.tagEditedByUser = true;
+      if (key == null) return;
+      for (final other in _movements) {
+        if (identical(other, target) ||
+            other.tagEditedByUser ||
+            other.isCreditCard) {
+          continue;
+        }
+        if (_merchantKeyOf(other) == key) other.category = selected;
+      }
+    });
+  }
+
+  /// Al cambiar entre gasto e ingreso se recalcula la categoría propuesta,
+  /// salvo que el usuario ya la haya elegido.
+  void _onExpenseChanged(EditablePendingMovement movement, bool isExpense) {
+    setState(() {
+      movement.isExpense = isExpense;
+      if (movement.tagEditedByUser || movement.rawMerchant == null) return;
+      final locale =
+          LocaleRegistry.get(AppLocalizations.of(context).localeName);
+      final tag = ClassificationService().classifier.classify(
+        movement.rawMerchant!,
+        isIncome: !isExpense,
+        locale: locale,
+      );
+      movement.suggestedTag = tag;
+      movement.category = tag;
+    });
   }
 
   Future<void> _saveAll() async {
@@ -264,6 +354,13 @@ class _PendingNotificationsScreenState
       db.fixedMovementDao,
     );
     final creditCardService = CreditCardService.getInstance();
+    final classification = ClassificationService();
+    final locale = LocaleRegistry.get(AppLocalizations.of(context).localeName);
+
+    // Lo aprendido se acumula por comercio y se guarda una sola vez al final,
+    // para que corregir varias tarjetas del mismo comercio cuente como una.
+    final namesToLearn = <String, String>{};
+    final tagsToLearn = <String, String>{};
 
     try {
       for (int i = 0; i < movementsToSave.length; i++) {
@@ -275,16 +372,16 @@ class _PendingNotificationsScreenState
         );
         final date = DateTime.tryParse(m.timestamp) ?? DateTime.now();
 
+        final merchantText = m.rawMerchant ??
+            classification.suggester.merchantTextFor(m.originalText, locale);
+        final merchantKey = LearningKey.normalize(merchantText);
+
         // El usuario corrigió el nombre sugerido: se aprende para la próxima vez.
         final currentName = m.descriptionController.text.trim();
-        if (m.suggestedName != null &&
+        if (m.nameEditedByUser &&
             currentName.isNotEmpty &&
             currentName != m.suggestedName) {
-          ClassificationService().suggester.learnName(
-            m.rawMerchant ?? m.originalText,
-            currentName,
-          );
-          await ClassificationService().saveOverrides();
+          namesToLearn[merchantKey] = currentName;
         }
 
         if (m.isCreditCard) {
@@ -301,32 +398,41 @@ class _PendingNotificationsScreenState
             date.year,
           );
 
-          // AI category generation
-          String? category;
-          try {
-            final locale = LocaleRegistry.get(AppLocalizations.of(context).localeName);
-            final result = ClassificationService().suggester.suggest(
-              m.descriptionController.text,
-              locale: locale,
-            );
-            category = result.tag;
-          } catch (e) {
-            category = '';
-            LogFileService().appendLog(
-              'Error generating category for notification movement: $e',
-            );
+          // Categoría: la de la tarjeta (propuesta o elegida) o, si no hay,
+          // se genera a partir de la notificación original.
+          String category = m.category?.trim() ?? '';
+          if (category.isEmpty) {
+            try {
+              category = classification.suggester
+                  .suggest(m.originalText, locale: locale)
+                  .tag;
+            } catch (e) {
+              category = '';
+              LogFileService().appendLog(
+                'Error generating category for notification movement: $e',
+              );
+            }
+          }
+          if (m.tagEditedByUser &&
+              category.isNotEmpty &&
+              category != m.suggestedTag) {
+            tagsToLearn[merchantKey] = category;
           }
 
+          final movementId = DateTime.now().millisecondsSinceEpoch;
           final movement = MovementValue(
-            DateTime.now().millisecondsSinceEpoch,
+            movementId,
             monthId,
             m.descriptionController.text,
             amount,
             m.isExpense,
             date.day,
-            category?.trim(),
+            category,
           );
           await db.movementValueDao.insertMovementValue(movement);
+          // Se recuerda el comercio de origen para seguir aprendiendo si el
+          // usuario corrige este movimiento más adelante.
+          await classification.saveMovementMerchantKey(movementId, merchantText);
         }
 
         // Remove from DB and local list
@@ -374,6 +480,12 @@ class _PendingNotificationsScreenState
         );
       }
     } finally {
+      for (final entry in namesToLearn.entries) {
+        await classification.learnName(entry.key, entry.value);
+      }
+      for (final entry in tagsToLearn.entries) {
+        await classification.learnTag([entry.key], entry.value);
+      }
       if (mounted) setState(() => _isSaving = false);
     }
   }
@@ -573,11 +685,13 @@ class _PendingNotificationsScreenState
                                         onDelete: () => _removeMovement(index),
                                         onDisallowApp: () => _disallowApp(
                                             _movements.indexOf(movement)),
-                                        onExpenseChanged: (isExpense) {
-                                          setState(() {
-                                            movement.isExpense = isExpense;
-                                          });
-                                        },
+                                        onExpenseChanged: (isExpense) =>
+                                            _onExpenseChanged(
+                                                movement, isExpense),
+                                        onDescriptionEdited: (_) =>
+                                            _onNameEdited(movement),
+                                        onPickCategory: () =>
+                                            _pickCategory(movement),
                                       ),
                                     );
                                   },

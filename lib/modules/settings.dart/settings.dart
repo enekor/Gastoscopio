@@ -18,6 +18,7 @@ import 'package:cashly/l10n/app_localizations.dart';
 import 'package:flutter_colorpicker/flutter_colorpicker.dart';
 import 'package:svg_flutter/svg.dart';
 import 'package:cashly/modules/settings.dart/screens/device_pairing_screen.dart';
+import 'package:cashly/modules/settings.dart/screens/learned_rules_screen.dart';
 import 'package:cashly/modules/settings.dart/widgets/security_settings_card.dart';
 import 'package:cashly/data/services/notification_capture_service.dart';
 import 'package:cashly/theme/app_theme_variant.dart';
@@ -704,6 +705,25 @@ class _SettingsScreenState extends State<SettingsScreen> with WidgetsBindingObse
             style: Theme.of(context).textTheme.bodySmall?.copyWith(fontWeight: FontWeight.w600),
           ),
           const SizedBox(height: 16),
+          SizedBox(
+            width: double.infinity,
+            child: OutlinedButton.icon(
+              onPressed: learnedCount == 0
+                  ? null
+                  : () async {
+                      await Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => const LearnedRulesScreen(),
+                        ),
+                      );
+                      if (mounted) setState(() {});
+                    },
+              icon: const Icon(Icons.list_alt_outlined),
+              label: Text(localizations.viewLearnedRules),
+            ),
+          ),
+          const SizedBox(height: 8),
           SizedBox(
             width: double.infinity,
             child: OutlinedButton.icon(

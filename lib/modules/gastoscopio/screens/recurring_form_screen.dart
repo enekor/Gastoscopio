@@ -1,3 +1,5 @@
+import 'package:cashly/classification/classification_service.dart';
+import 'package:cashly/classification/locales/locale_config.dart';
 import 'package:cashly/common/tag_list.dart';
 import 'package:cashly/data/models/fixed_movement.dart';
 import 'package:cashly/data/services/log_file_service.dart';
@@ -34,6 +36,9 @@ class _RecurringFormScreenState extends State<RecurringFormScreen> {
   _RecurringKind _kind = _RecurringKind.expense;
   bool _isExpense = true;
   String? _category;
+
+  /// True si el usuario eligió la categoría a mano: solo entonces se aprende.
+  bool _categoryPickedByUser = false;
   int _chargeDay = 1;
   String _moneda = '€';
   bool _isLoading = false;
@@ -87,6 +92,7 @@ class _RecurringFormScreenState extends State<RecurringFormScreen> {
     if (selected != null) {
       setState(() {
         _category = selected;
+        _categoryPickedByUser = true;
       });
     }
   }
@@ -115,6 +121,8 @@ class _RecurringFormScreenState extends State<RecurringFormScreen> {
     setState(() {
       _isLoading = true;
     });
+    final learningLocale =
+        LocaleRegistry.get(AppLocalizations.of(context).localeName);
 
     try {
       if (_kind == _RecurringKind.expense) {
@@ -134,6 +142,15 @@ class _RecurringFormScreenState extends State<RecurringFormScreen> {
           isExpense: _isExpense,
           day: _chargeDay,
           category: _category,
+        );
+      }
+
+      final learnedCategory = _category?.trim() ?? '';
+      if (_categoryPickedByUser && learnedCategory.isNotEmpty) {
+        final classification = ClassificationService();
+        await classification.learnTag(
+          [classification.merchantKeyFor(name, learningLocale)],
+          learnedCategory,
         );
       }
 

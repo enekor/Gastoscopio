@@ -1,4 +1,5 @@
 import 'package:cashly/classification/classification_service.dart';
+import 'package:cashly/classification/locales/locale_config.dart';
 import 'package:cashly/data/services/shared_preferences_service.dart';
 import 'package:cashly/data/services/sqlite_service.dart';
 import 'package:cashly/data/services/log_file_service.dart';
@@ -1196,6 +1197,7 @@ class _MovementsScreenState extends State<MovementsScreen>
     final movements = await _financeService.getCurrentMonthMovements();
     final existingCategories = _getAvailableCategories(movements);
     final locale = AppLocalizations.of(context).localeName;
+    final learningLocale = LocaleRegistry.get(locale);
     final localizedTags = getTagList(locale);
     final allCategories = {...existingCategories, ...localizedTags}.toList()
       ..sort((a, b) => a.compareTo(b));
@@ -1219,11 +1221,15 @@ class _MovementsScreenState extends State<MovementsScreen>
               onTagSelected: (tag) async {
                 final updated = movement.copyWith(category: tag);
                 showDialog(context: context, barrierDismissible: false, builder: (context) => Center(child: Loading(context)));
-                // El usuario corrigió el tag: se aprende para futuras clasificaciones.
-                final description = movement.description.trim();
-                if (description.isNotEmpty && tag != movement.category) {
-                  ClassificationService().classifier.learn(description, tag);
-                  await ClassificationService().saveOverrides();
+                // El usuario corrigió el tag: se aprende para futuras
+                // clasificaciones, por descripción y por comercio de origen.
+                if (tag != movement.category) {
+                  final classification = ClassificationService();
+                  await classification.learnTag([
+                    classification.merchantKeyFor(
+                        movement.description, learningLocale),
+                    await classification.merchantKeyForMovement(movement.id),
+                  ], tag);
                 }
                 await _financeService.updateMovement(updated);
                 Navigator.pop(context);

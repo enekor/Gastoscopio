@@ -220,6 +220,25 @@ class SqliteService {
         'ON DebtOccurrence (debtDefinitionId, monthId)',
       );
 
+      // Modo aprendizaje: reglas aprendidas y comercio de origen de cada
+      // movimiento. Viven aquí para que viajen con el backup de la base de datos.
+      await database.database.execute(
+        'CREATE TABLE IF NOT EXISTS ClassificationRule ('
+        'kind TEXT NOT NULL, '
+        'ruleKey TEXT NOT NULL, '
+        'value TEXT NOT NULL, '
+        'hits INTEGER NOT NULL, '
+        'updatedAt INTEGER NOT NULL, '
+        'PRIMARY KEY (kind, ruleKey, value)'
+        ')',
+      );
+      await database.database.execute(
+        'CREATE TABLE IF NOT EXISTS MovementMerchantKey ('
+        'movementId INTEGER PRIMARY KEY, '
+        'merchantKey TEXT NOT NULL'
+        ')',
+      );
+
       isInitialized = true;
     } catch (e) {
       print('Error al inicializar la base de datos: $e');

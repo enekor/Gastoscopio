@@ -1,3 +1,4 @@
+import 'package:cashly/classification/classification_service.dart';
 import 'package:cashly/data/services/shared_preferences_service.dart';
 import 'package:cashly/data/services/sqlite_service.dart';
 import 'package:cashly/modules/gastoscopio/logic/finance_service.dart';
@@ -80,6 +81,7 @@ class _MainScreenState extends State<MainScreen>
 
     if (!isFirstStartup) {
       await SqliteService().initializeDatabase();
+      await ClassificationService().loadLearnedRules();
       await Future.microtask(() async {
         final financeService = FinanceService.getInstance(
           SqliteService().db.monthDao,

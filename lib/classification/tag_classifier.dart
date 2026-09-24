@@ -1,22 +1,32 @@
 import 'data/merchant_tag_keywords.dart';
+import 'learned_rules.dart';
+import 'learning_key.dart';
 import 'locales/locale_config.dart';
 
 class TagClassifier {
-  final Map<String, String> _userOverrides;
+  final LearnedRuleSet _learnedTags;
 
-  TagClassifier({Map<String, String>? savedOverrides})
-      : _userOverrides = savedOverrides ?? {};
+  TagClassifier({LearnedRuleSet? learnedTags})
+      : _learnedTags = learnedTags ?? LearnedRuleSet();
 
-  String classify(String merchant, {
+  /// Clasifica [merchant].
+  ///
+  /// [learnedLookupText] permite buscar lo aprendido sobre un texto distinto
+  /// del usado para las keywords (p. ej. el nombre limpio cuando el parser no
+  /// pudo extraer el comercio). Por defecto se usa [merchant].
+  String classify(
+    String merchant, {
     required bool isIncome,
     required LocaleConfig locale,
+    String? learnedLookupText,
   }) {
-    final lower = merchant.toLowerCase().trim();
+    // 1. Lo aprendido del usuario (máxima prioridad, sin idioma).
+    final learned = _learnedTags.lookup(
+      LearningKey.normalize(learnedLookupText ?? merchant),
+    );
+    if (learned != null) return learned;
 
-    // 1. Override del usuario (máxima prioridad, sin idioma)
-    if (_userOverrides.containsKey(lower)) {
-      return _userOverrides[lower]!;
-    }
+    final lower = merchant.toLowerCase().trim();
 
     // 2. Mapa de comercios UNIVERSALES (sin idioma)
     for (final entry in merchantTagKeywords.entries) {
@@ -43,12 +53,4 @@ class TagClassifier {
     // 4. Fallback
     return isIncome ? 'Otros ingresos' : 'Otros Gastos Misceláneos';
   }
-
-  void learn(String merchant, String tagEs) {
-    _userOverrides[merchant.toLowerCase().trim()] = tagEs;
-  }
-
-  void clearOverrides() => _userOverrides.clear();
-
-  Map<String, String> get overrides => Map.unmodifiable(_userOverrides);
 }
