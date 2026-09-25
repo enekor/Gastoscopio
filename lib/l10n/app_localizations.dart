@@ -3031,6 +3031,48 @@ abstract class AppLocalizations {
   /// In es, this message translates to:
   /// **'Aprendizaje borrado correctamente'**
   String get learnedDataCleared;
+
+  /// No description provided for @viewLearnedRules.
+  ///
+  /// In es, this message translates to:
+  /// **'Ver lo aprendido'**
+  String get viewLearnedRules;
+
+  /// No description provided for @learnedRulesTitle.
+  ///
+  /// In es, this message translates to:
+  /// **'Lo aprendido'**
+  String get learnedRulesTitle;
+
+  /// No description provided for @learnedTagsSection.
+  ///
+  /// In es, this message translates to:
+  /// **'Categorías'**
+  String get learnedTagsSection;
+
+  /// No description provided for @learnedNamesSection.
+  ///
+  /// In es, this message translates to:
+  /// **'Nombres'**
+  String get learnedNamesSection;
+
+  /// No description provided for @learnedRulesEmpty.
+  ///
+  /// In es, this message translates to:
+  /// **'Todavía no hay correcciones aprendidas. Corrige el nombre o la categoría de un movimiento y aparecerá aquí.'**
+  String get learnedRulesEmpty;
+
+  /// No description provided for @learnedRuleDeleted.
+  ///
+  /// In es, this message translates to:
+  /// **'Regla eliminada'**
+  String get learnedRuleDeleted;
+
+  /// No description provided for @learnedRuleAlternatives.
+  ///
+  /// In es, this message translates to:
+  /// **'También elegido: {options}'**
+  String learnedRuleAlternatives(String options);
 }
 
 class _AppLocalizationsDelegate

@@ -60,6 +60,11 @@ class SharedPreferencesService {
     return ret;
   }
 
+  Future<void> remove(SharedPreferencesKeys key) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.remove(key.toString());
+  }
+
   Future<void> haveToUpload() async {
     final prefs = await SharedPreferences.getInstance();
     var ret = prefs.getInt(SharedPreferencesKeys.numberOfMovements.toString());

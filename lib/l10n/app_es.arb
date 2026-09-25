@@ -1542,5 +1542,17 @@
   "clearLearnedData": "Borrar aprendizaje",
   "clearLearnedDataConfirmTitle": "¿Borrar todo lo aprendido?",
   "clearLearnedDataConfirmContent": "Se perderán todas las correcciones de categorías y nombres que la app ha aprendido. Esta acción no se puede deshacer.",
-  "learnedDataCleared": "Aprendizaje borrado correctamente"
+  "learnedDataCleared": "Aprendizaje borrado correctamente",
+  "viewLearnedRules": "Ver lo aprendido",
+  "learnedRulesTitle": "Lo aprendido",
+  "learnedTagsSection": "Categorías",
+  "learnedNamesSection": "Nombres",
+  "learnedRulesEmpty": "Todavía no hay correcciones aprendidas. Corrige el nombre o la categoría de un movimiento y aparecerá aquí.",
+  "learnedRuleDeleted": "Regla eliminada",
+  "learnedRuleAlternatives": "También elegido: {options}",
+  "@learnedRuleAlternatives": {
+    "placeholders": {
+      "options": { "type": "String" }
+    }
+  }
 }

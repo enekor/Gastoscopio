@@ -1,3 +1,5 @@
+import 'learned_rules.dart';
+import 'learning_key.dart';
 import 'locales/locale_config.dart';
 import 'transaction_parser.dart';
 import 'transaction_direction.dart';
@@ -6,15 +8,19 @@ import 'tag_classifier.dart';
 
 class TransactionSuggester {
   final TagClassifier _classifier;
-  final Map<String, String> _userNames;
+  final LearnedRuleSet _learnedNames;
 
   TransactionSuggester({
     required TagClassifier classifier,
-    Map<String, String>? savedUserNames,
+    LearnedRuleSet? learnedNames,
   })  : _classifier = classifier,
-        _userNames = savedUserNames ?? {};
+        _learnedNames = learnedNames ?? LearnedRuleSet();
 
-  ({String name, String tag, bool isIncome, double? amount}) suggest(
+  /// [rawMerchant] es el texto del comercio con el que se aprende y se busca:
+  /// el comercio extraído por el parser o, si no se pudo extraer, el nombre
+  /// limpio del texto. Nunca es la notificación completa, que no se repite.
+  ({String name, String tag, bool isIncome, double? amount, String rawMerchant})
+      suggest(
     String notification, {
     required LocaleConfig locale,
   }) {
@@ -23,35 +29,47 @@ class TransactionSuggester {
 
     // 2. Extraer merchant y cantidad
     final parsed = TransactionParser.parse(notification, locale);
+    final keywordText = parsed.merchant ?? notification;
+    final merchantText = _merchantTextFrom(parsed.merchant, notification, locale);
 
-    // 3. Nombre limpio
-    final String name;
-    final rawMerchant = parsed.merchant ?? notification;
-    name = _suggestName(rawMerchant, locale);
+    // 3. Nombre: lo aprendido o el nombre limpio
+    final name = _learnedNames.lookup(LearningKey.normalize(merchantText)) ??
+        MerchantNameCleaner.suggest(merchantText, locale);
 
     // 4. Clasificar tag
     final tag = _classifier.classify(
-      rawMerchant,
+      keywordText,
       isIncome: isIncome,
       locale: locale,
+      learnedLookupText: merchantText,
     );
 
-    return (name: name, tag: tag, isIncome: isIncome, amount: parsed.amount);
+    return (
+      name: name,
+      tag: tag,
+      isIncome: isIncome,
+      amount: parsed.amount,
+      rawMerchant: merchantText,
+    );
   }
 
-  String _suggestName(String rawMerchant, LocaleConfig locale) {
-    final lower = rawMerchant.toLowerCase().trim();
-    for (final entry in _userNames.entries) {
-      if (lower.contains(entry.key)) return entry.value;
+  /// Texto del comercio para [text], el mismo que usa [suggest]. Sirve para
+  /// aprender a partir de descripciones escritas a mano.
+  String merchantTextFor(String text, LocaleConfig locale) {
+    final parsed = TransactionParser.parse(text, locale);
+    return _merchantTextFrom(parsed.merchant, text, locale);
+  }
+
+  String _merchantTextFrom(
+    String? parsedMerchant,
+    String original,
+    LocaleConfig locale,
+  ) {
+    if (parsedMerchant != null && parsedMerchant.trim().isNotEmpty) {
+      return parsedMerchant;
     }
-    return MerchantNameCleaner.suggest(rawMerchant, locale);
+    // Sin comercio extraído: la notificación completa lleva importes y fechas
+    // que no se repiten, así que se usa su versión limpia.
+    return MerchantNameCleaner.suggest(original, locale);
   }
-
-  void learnName(String rawMerchant, String userChosenName) {
-    _userNames[rawMerchant.toLowerCase().trim()] = userChosenName;
-  }
-
-  void clearNames() => _userNames.clear();
-
-  Map<String, String> get nameOverrides => Map.unmodifiable(_userNames);
 }

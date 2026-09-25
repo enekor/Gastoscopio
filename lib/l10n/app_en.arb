@@ -551,5 +551,17 @@
   "clearLearnedData": "Clear learned data",
   "clearLearnedDataConfirmTitle": "Clear everything learned?",
   "clearLearnedDataConfirmContent": "All learned category and name corrections will be lost. This cannot be undone.",
-  "learnedDataCleared": "Learned data cleared"
+  "learnedDataCleared": "Learned data cleared",
+  "viewLearnedRules": "View learned rules",
+  "learnedRulesTitle": "Learned rules",
+  "learnedTagsSection": "Categories",
+  "learnedNamesSection": "Names",
+  "learnedRulesEmpty": "No learned corrections yet. Correct the name or category of a movement and it will show up here.",
+  "learnedRuleDeleted": "Rule deleted",
+  "learnedRuleAlternatives": "Also chosen: {options}",
+  "@learnedRuleAlternatives": {
+    "placeholders": {
+      "options": { "type": "String" }
+    }
+  }
 }

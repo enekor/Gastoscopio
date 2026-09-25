@@ -1615,4 +1615,27 @@ class AppLocalizationsEs extends AppLocalizations {
 
   @override
   String get learnedDataCleared => 'Aprendizaje borrado correctamente';
+
+  @override
+  String get viewLearnedRules => 'Ver lo aprendido';
+
+  @override
+  String get learnedRulesTitle => 'Lo aprendido';
+
+  @override
+  String get learnedTagsSection => 'Categorías';
+
+  @override
+  String get learnedNamesSection => 'Nombres';
+
+  @override
+  String get learnedRulesEmpty => 'Todavía no hay correcciones aprendidas. Corrige el nombre o la categoría de un movimiento y aparecerá aquí.';
+
+  @override
+  String get learnedRuleDeleted => 'Regla eliminada';
+
+  @override
+  String learnedRuleAlternatives(String options) {
+    return 'También elegido: $options';
+  }
 }

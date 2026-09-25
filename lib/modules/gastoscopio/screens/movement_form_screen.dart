@@ -51,6 +51,14 @@ class _MovementFormScreenState extends State<MovementFormScreen> {
   bool _showDatePicker = true;
   bool _createAsOneTimeDebt = false;
 
+  /// True si el usuario eligió la categoría a mano en este formulario. Solo
+  /// entonces se aprende la asociación descripción → tag al guardar.
+  bool _categoryPickedByUser = false;
+
+  /// Comercio de origen si el movimiento vino de una notificación. Permite
+  /// aprender nombres y categorías corregidos más adelante.
+  String? _storedMerchantKey;
+
   @override
   void initState() {
     super.initState();
@@ -67,6 +75,10 @@ class _MovementFormScreenState extends State<MovementFormScreen> {
 
       _category = widget.movement!.category;
       _showDatePicker = false;
+
+      ClassificationService()
+          .merchantKeyForMovement(widget.movement!.id)
+          .then((key) => _storedMerchantKey = key);
     }
     if (widget.forceDebtMode && widget.movement == null) {
       _createAsOneTimeDebt = true;
@@ -163,13 +175,9 @@ class _MovementFormScreenState extends State<MovementFormScreen> {
       ),
     );
     if (selected != null) {
-      final description = _descriptionController.text.trim();
-      if (description.isNotEmpty) {
-        ClassificationService().classifier.learn(description, selected);
-        await ClassificationService().saveOverrides();
-      }
       setState(() {
         _category = selected;
+        _categoryPickedByUser = selected != widget.movement?.category;
       });
     }
   }
@@ -182,6 +190,8 @@ class _MovementFormScreenState extends State<MovementFormScreen> {
     setState(() {
       _isLoading = true;
     });
+    final learningLocale =
+        LocaleRegistry.get(AppLocalizations.of(context).localeName);
     try {
       String amountText = _amountController.text.trim();
       amountText = amountText.replaceAll(',', '.');
@@ -291,6 +301,27 @@ class _MovementFormScreenState extends State<MovementFormScreen> {
           _category?.trim(),
         );
         await db.movementValueDao.insertMovementValue(movement);
+      }
+
+      // Aprendizaje, con la descripción final (puede haberla editado después
+      // de elegir el tag).
+      final classification = ClassificationService();
+      final learnedDescription = _descriptionController.text.trim();
+      final learnedCategory = _category?.trim() ?? '';
+      if (_categoryPickedByUser &&
+          learnedDescription.isNotEmpty &&
+          learnedCategory.isNotEmpty) {
+        await classification.learnTag([
+          classification.merchantKeyFor(learnedDescription, learningLocale),
+          _storedMerchantKey,
+        ], learnedCategory);
+      }
+      // Nombre corregido de un movimiento que vino de una notificación.
+      if (widget.movement != null &&
+          _storedMerchantKey != null &&
+          learnedDescription.isNotEmpty &&
+          learnedDescription != widget.movement!.description.trim()) {
+        await classification.learnName(_storedMerchantKey!, learnedDescription);
       }
 
       await SharedPreferencesService().haveToUpload();
