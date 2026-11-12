@@ -1462,10 +1462,10 @@
   "navStatistics": "Estadísticas",
   "totalBalance": "Balance total",
   "quickAccess": "Accesos rápidos",
-  "recentExpenses": "Gastos Recientes",
+  "recentExpenses": "Últimos movimientos",
   "seeAll": "Ver todos",
   "cardLabel": "Tarjeta",
-  "pendingTransactions": "{count} transacciones pendientes",
+  "pendingTransactions": "{count, plural, =1{1 transacción pendiente} other{{count} transacciones pendientes}}",
   "@pendingTransactions": {
     "placeholders": {
       "count": { "type": "int" }
@@ -1554,5 +1554,26 @@
     "placeholders": {
       "options": { "type": "String" }
     }
-  }
+  },
+  "noMovementsThisMonth": "Aún no hay movimientos este mes.",
+  "addFirstMovement": "Añadir movimiento",
+  "dailyAllowance": "{amount}/día {days, plural, =1{para el último día del mes} other{para los próximos {days} días}}",
+  "@dailyAllowance": {
+    "placeholders": {
+      "amount": { "type": "String" },
+      "days": { "type": "int" }
+    }
+  },
+  "overspentThisMonth": "Este mes has gastado más de lo que has ingresado",
+  "setUpCard": "Configurar tarjeta",
+  "payDebtConfirmTitle": "¿Marcar como pagada?",
+  "payDebtConfirmBody": "Se creará un gasto de {amount} por «{description}».",
+  "@payDebtConfirmBody": {
+    "placeholders": {
+      "amount": { "type": "String" },
+      "description": { "type": "String" }
+    }
+  },
+  "creditCardStopSearching": "Dejar de buscar",
+  "creditCardStopSearchingDescription": "Pausa la lectura de notificaciones de la tarjeta de crédito. Las apps configuradas se conservan."
 }

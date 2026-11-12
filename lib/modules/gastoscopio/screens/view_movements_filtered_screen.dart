@@ -13,7 +13,19 @@ import 'package:cashly/theme/widgets/glass_card.dart';
 import 'package:flutter/material.dart';
 
 class ViewMovementsFilteredScreen extends StatefulWidget {
-  const ViewMovementsFilteredScreen({super.key});
+  const ViewMovementsFilteredScreen({
+    super.key,
+    this.initialIsExpense,
+    this.initialMonth,
+    this.initialYear,
+  });
+
+  /// Optional initial type filter (true = expenses, false = incomes).
+  final bool? initialIsExpense;
+
+  /// When both are set, the screen opens already filtered to that month.
+  final int? initialMonth;
+  final int? initialYear;
 
   @override
   State<ViewMovementsFilteredScreen> createState() =>
@@ -35,13 +47,22 @@ class _ViewMovementsFilteredScreenState
   void initState() {
     super.initState();
     _searchController.text = _searchQuery;
+    if (widget.initialIsExpense != null) {
+      isExpense = widget.initialIsExpense!;
+    }
+    if (widget.initialMonth != null && widget.initialYear != null) {
+      final start = DateTime(widget.initialYear!, widget.initialMonth!);
+      selectedDateRange = DateTimeRange(start: start, end: start);
+      _loadMovements();
+    }
     SharedPreferencesService()
         .getStringValue(SharedPreferencesKeys.currency)
-        .then(
-          (currency) => setState(() {
+        .then((currency) {
+          if (!mounted) return;
+          setState(() {
             _moneda = currency ?? '€';
-          }),
-        );
+          });
+        });
   }
 
   @override
@@ -79,6 +100,7 @@ class _ViewMovementsFilteredScreenState
       }
     }
 
+    if (!mounted) return;
     setState(() {});
   }
 

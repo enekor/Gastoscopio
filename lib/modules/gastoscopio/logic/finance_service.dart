@@ -23,6 +23,8 @@ class FinanceService extends ChangeNotifier {
   final FixedMovementDao _fixedMovementDao;
   Month? _currentMonth;
   List<MovementValue> _todayMovements = [];
+  List<MovementValue> _recentMovements = [];
+  Map<String, double> _expenseCategoryTotals = {};
   Map<String, double> _monthSummary = {};
   double _monthTotal = 0;
   double _monthIncomes = 0;
@@ -51,6 +53,13 @@ class FinanceService extends ChangeNotifier {
 
   Month? get currentMonth => _currentMonth;
   List<MovementValue> get todayMovements => _todayMovements;
+
+  /// Latest movements (expenses and incomes) of the selected month, newest
+  /// first.
+  List<MovementValue> get recentMovements => _recentMovements;
+
+  /// Expense totals per category for the selected month (incomes excluded).
+  Map<String, double> get expenseCategoryTotals => _expenseCategoryTotals;
   Map<String, double> get monthSummary => _monthSummary;
   double get monthTotal => _monthTotal;
   double get monthIncomes => _monthIncomes;
@@ -616,6 +625,25 @@ class FinanceService extends ChangeNotifier {
     } else {
       _todayMovements = [];
     }
+
+    // Últimos movimientos del mes (más recientes primero)
+    _recentMovements = [...expenses, ...incomes]
+      ..sort((a, b) {
+        final byDay = b.day.compareTo(a.day);
+        return byDay != 0 ? byDay : (b.id ?? 0).compareTo(a.id ?? 0);
+      });
+    if (_recentMovements.length > 5) {
+      _recentMovements = _recentMovements.sublist(0, 5);
+    }
+
+    // Gastos por categoría del mes
+    final Map<String, double> categoryTotals = {};
+    for (final m in expenses) {
+      final category = m.category?.trim();
+      if (category == null || category.isEmpty) continue;
+      categoryTotals[category] = (categoryTotals[category] ?? 0) + m.amount;
+    }
+    _expenseCategoryTotals = categoryTotals;
 
     await generateSavesByMonth(_monthTotal);
 

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:cashly/common/money_format.dart';
 import 'package:cashly/theme/app_glass.dart';
 import 'package:cashly/theme/widgets/glass_card.dart';
 
@@ -9,6 +10,7 @@ class StatTile extends StatelessWidget {
   final String currency;
   final IconData icon;
   final bool isIncome;
+  final VoidCallback? onTap;
   const StatTile({
     super.key,
     required this.label,
@@ -16,6 +18,7 @@ class StatTile extends StatelessWidget {
     required this.currency,
     required this.icon,
     this.isIncome = true,
+    this.onTap,
   });
 
   @override
@@ -25,6 +28,7 @@ class StatTile extends StatelessWidget {
     final accent = isIncome ? glass.incomeColor : glass.expenseColor;
     return GlassCard(
       padding: const EdgeInsets.all(16),
+      onTap: onTap,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -32,19 +36,27 @@ class StatTile extends StatelessWidget {
             children: [
               Icon(icon, size: 16, color: accent),
               const SizedBox(width: 6),
-              Text(
-                label,
-                style: TextStyle(color: glass.mutedText, fontSize: 13),
+              Expanded(
+                child: Text(
+                  label,
+                  style: TextStyle(color: glass.mutedText, fontSize: 13),
+                ),
               ),
+              if (onTap != null)
+                Icon(Icons.chevron_right, size: 16, color: glass.mutedText),
             ],
           ),
           const SizedBox(height: 8),
-          Text(
-            '${amount.toStringAsFixed(2)}$currency',
-            style: TextStyle(
-              color: scheme.onSurface,
-              fontSize: 20,
-              fontWeight: FontWeight.w700,
+          FittedBox(
+            fit: BoxFit.scaleDown,
+            alignment: Alignment.centerLeft,
+            child: Text(
+              formatMoney(context, amount, currency),
+              style: TextStyle(
+                color: scheme.onSurface,
+                fontSize: 20,
+                fontWeight: FontWeight.w700,
+              ),
             ),
           ),
         ],

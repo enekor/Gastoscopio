@@ -5,6 +5,7 @@ import 'package:cashly/l10n/app_localizations.dart';
 import 'package:cashly/modules/credit_card/logic/credit_card_service.dart';
 import 'package:cashly/modules/credit_card/screens/credit_card_expense_form.dart';
 import 'package:cashly/data/services/notification_service.dart';
+import 'package:cashly/data/services/notification_capture_service.dart';
 import 'package:cashly/theme/app_glass.dart';
 import 'package:cashly/theme/widgets/app_background.dart';
 import 'package:cashly/theme/widgets/amount_text.dart';
@@ -368,6 +369,8 @@ class _CreditCardScreenState extends State<CreditCardScreen> {
     final currentCycle = await prefs.getStringValue(SharedPreferencesKeys.creditCardBillingCycle) ?? 'monthly';
     final currentBillingDay = (await prefs.getDoubleValue(SharedPreferencesKeys.creditCardBillingDay))?.toInt() ?? 1;
     final currentDefaultLimit = await _service.getDefaultLimit();
+    bool capturePaused =
+        await NotificationCaptureService().isCreditCapturePaused();
 
     if (!mounted) return;
 
@@ -444,6 +447,26 @@ class _CreditCardScreenState extends State<CreditCardScreen> {
                     ],
                     onChanged: (value) => selectedBillingDay = value!,
                   ),
+                const Divider(height: 32),
+                // Applied immediately (independent of "Guardar"): the native
+                // notification listener reads this flag on every notification.
+                SwitchListTile(
+                  contentPadding: EdgeInsets.zero,
+                  secondary: const Icon(Icons.notifications_off_outlined),
+                  title: Text(
+                    AppLocalizations.of(context)!.creditCardStopSearching,
+                  ),
+                  subtitle: Text(
+                    AppLocalizations.of(context)!
+                        .creditCardStopSearchingDescription,
+                  ),
+                  value: capturePaused,
+                  onChanged: (value) async {
+                    setDialogState(() => capturePaused = value);
+                    await NotificationCaptureService()
+                        .setCreditCapturePaused(value);
+                  },
+                ),
               ],
             ),
           ),

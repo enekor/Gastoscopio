@@ -1404,7 +1404,7 @@ class AppLocalizationsEs extends AppLocalizations {
   String get quickAccess => 'Accesos rápidos';
 
   @override
-  String get recentExpenses => 'Gastos Recientes';
+  String get recentExpenses => 'Últimos movimientos';
 
   @override
   String get seeAll => 'Ver todos';
@@ -1414,7 +1414,13 @@ class AppLocalizationsEs extends AppLocalizations {
 
   @override
   String pendingTransactions(int count) {
-    return '$count transacciones pendientes';
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count transacciones pendientes',
+      one: '1 transacción pendiente',
+    );
+    return '$_temp0';
   }
 
   @override
@@ -1629,7 +1635,8 @@ class AppLocalizationsEs extends AppLocalizations {
   String get learnedNamesSection => 'Nombres';
 
   @override
-  String get learnedRulesEmpty => 'Todavía no hay correcciones aprendidas. Corrige el nombre o la categoría de un movimiento y aparecerá aquí.';
+  String get learnedRulesEmpty =>
+      'Todavía no hay correcciones aprendidas. Corrige el nombre o la categoría de un movimiento y aparecerá aquí.';
 
   @override
   String get learnedRuleDeleted => 'Regla eliminada';
@@ -1638,4 +1645,43 @@ class AppLocalizationsEs extends AppLocalizations {
   String learnedRuleAlternatives(String options) {
     return 'También elegido: $options';
   }
+
+  @override
+  String get noMovementsThisMonth => 'Aún no hay movimientos este mes.';
+
+  @override
+  String get addFirstMovement => 'Añadir movimiento';
+
+  @override
+  String dailyAllowance(String amount, int days) {
+    String _temp0 = intl.Intl.pluralLogic(
+      days,
+      locale: localeName,
+      other: 'para los próximos $days días',
+      one: 'para el último día del mes',
+    );
+    return '$amount/día $_temp0';
+  }
+
+  @override
+  String get overspentThisMonth =>
+      'Este mes has gastado más de lo que has ingresado';
+
+  @override
+  String get setUpCard => 'Configurar tarjeta';
+
+  @override
+  String get payDebtConfirmTitle => '¿Marcar como pagada?';
+
+  @override
+  String payDebtConfirmBody(String amount, String description) {
+    return 'Se creará un gasto de $amount por «$description».';
+  }
+
+  @override
+  String get creditCardStopSearching => 'Dejar de buscar';
+
+  @override
+  String get creditCardStopSearchingDescription =>
+      'Pausa la lectura de notificaciones de la tarjeta de crédito. Las apps configuradas se conservan.';
 }

@@ -1392,7 +1392,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get quickAccess => 'Quick access';
 
   @override
-  String get recentExpenses => 'Recent Expenses';
+  String get recentExpenses => 'Latest movements';
 
   @override
   String get seeAll => 'See all';
@@ -1402,7 +1402,13 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String pendingTransactions(int count) {
-    return '$count pending transactions';
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count pending transactions',
+      one: '1 pending transaction',
+    );
+    return '$_temp0';
   }
 
   @override
@@ -1617,7 +1623,8 @@ class AppLocalizationsEn extends AppLocalizations {
   String get learnedNamesSection => 'Names';
 
   @override
-  String get learnedRulesEmpty => 'No learned corrections yet. Correct the name or category of a movement and it will show up here.';
+  String get learnedRulesEmpty =>
+      'No learned corrections yet. Correct the name or category of a movement and it will show up here.';
 
   @override
   String get learnedRuleDeleted => 'Rule deleted';
@@ -1626,4 +1633,43 @@ class AppLocalizationsEn extends AppLocalizations {
   String learnedRuleAlternatives(String options) {
     return 'Also chosen: $options';
   }
+
+  @override
+  String get noMovementsThisMonth => 'No movements this month yet.';
+
+  @override
+  String get addFirstMovement => 'Add movement';
+
+  @override
+  String dailyAllowance(String amount, int days) {
+    String _temp0 = intl.Intl.pluralLogic(
+      days,
+      locale: localeName,
+      other: 'for the next $days days',
+      one: 'for the last day of the month',
+    );
+    return '$amount/day $_temp0';
+  }
+
+  @override
+  String get overspentThisMonth =>
+      'You have spent more than you earned this month';
+
+  @override
+  String get setUpCard => 'Set up card';
+
+  @override
+  String get payDebtConfirmTitle => 'Mark as paid?';
+
+  @override
+  String payDebtConfirmBody(String amount, String description) {
+    return 'An expense of $amount will be created for \"$description\".';
+  }
+
+  @override
+  String get creditCardStopSearching => 'Stop searching';
+
+  @override
+  String get creditCardStopSearchingDescription =>
+      'Pauses reading credit card notifications. Your configured apps are kept.';
 }

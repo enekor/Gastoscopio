@@ -108,7 +108,11 @@ enum SharedPreferencesKeys {
   classificationNames('classification_names'),
   themeVariant('theme_variant'),
   creditCardHolderName('credit_card_holder_name'),
-  designSystem('design_system');
+  designSystem('design_system'),
+  notificationBannerDismissed('notification_banner_dismissed'),
+  // Read natively by TransactionNotificationListener.kt as
+  // "flutter.credit_card_notifications_paused": keep both names in sync.
+  creditCardNotificationsPaused('credit_card_notifications_paused');
 
   final String value;
   const SharedPreferencesKeys(this.value);

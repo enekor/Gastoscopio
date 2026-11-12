@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:cashly/common/money_format.dart';
 import 'package:cashly/theme/app_glass.dart';
 
 class AmountText extends StatelessWidget {
@@ -23,13 +24,15 @@ class AmountText extends StatelessWidget {
     final scheme = Theme.of(context).colorScheme;
     final glass = Theme.of(context).extension<AppGlass>()!;
     String prefix = '';
+    double value = amount;
     Color resolved = color ?? scheme.onSurface;
     if (signed && isExpense != null) {
       prefix = isExpense! ? '-' : '+';
+      value = amount.abs();
       resolved = color ?? (isExpense! ? glass.expenseColor : glass.incomeColor);
     }
     return Text(
-      '$prefix${amount.toStringAsFixed(2)}$currency',
+      '$prefix${formatMoney(context, value, currency)}',
       style: TextStyle(
         fontSize: fontSize,
         fontWeight: FontWeight.w700,

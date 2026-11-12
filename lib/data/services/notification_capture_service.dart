@@ -103,6 +103,24 @@ class NotificationCaptureService {
     );
   }
 
+  /// Whether credit card notification capture is paused ("Dejar de buscar").
+  /// The native listener checks the same flag before saving credit movements.
+  Future<bool> isCreditCapturePaused() async {
+    return await SharedPreferencesService().getBoolValue(
+          SharedPreferencesKeys.creditCardNotificationsPaused,
+        ) ??
+        false;
+  }
+
+  /// Pauses or resumes credit card notification capture. The allowed credit
+  /// apps list is kept so capture resumes with the same configuration.
+  Future<void> setCreditCapturePaused(bool paused) async {
+    await SharedPreferencesService().setBoolValue(
+      SharedPreferencesKeys.creditCardNotificationsPaused,
+      paused,
+    );
+  }
+
   /// Returns the app icon as PNG bytes for a given package name.
   Future<Uint8List?> getAppIcon(String packageName) async {
     try {

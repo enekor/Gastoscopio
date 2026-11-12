@@ -20,6 +20,8 @@ class TransactionNotificationListener : NotificationListenerService() {
         private const val PREFS_NAME = "FlutterSharedPreferences"
         private const val PREF_ALLOWED_APPS = "flutter.notification_allowed_apps"
         private const val PREF_ALLOWED_APPS_CREDIT = "flutter.notification_allowed_apps_credit"
+        // Written from Dart (SharedPreferencesKeys.creditCardNotificationsPaused).
+        private const val PREF_CREDIT_PAUSED = "flutter.credit_card_notifications_paused"
 
         // Matches: €12.50, 12,50€, $100, 100$, € 12.50, 12.50 €, etc.
         private val CURRENCY_REGEX = Pattern.compile(
@@ -45,6 +47,17 @@ class TransactionNotificationListener : NotificationListenerService() {
         }
     }
 
+    private fun isCreditCapturePaused(): Boolean {
+        return try {
+            applicationContext
+                .getSharedPreferences(PREFS_NAME, MODE_PRIVATE)
+                .getBoolean(PREF_CREDIT_PAUSED, false)
+        } catch (e: Exception) {
+            Log.e(TAG, "Error reading credit pause flag", e)
+            false
+        }
+    }
+
     override fun onNotificationPosted(sbn: StatusBarNotification?) {
         if (sbn == null) return
 
@@ -60,7 +73,13 @@ class TransactionNotificationListener : NotificationListenerService() {
 
             // Only process notifications from user-allowed apps
             val allowedApps = getAllowedApps(PREF_ALLOWED_APPS)
-            val allowedCreditApps = getAllowedApps(PREF_ALLOWED_APPS_CREDIT)
+            // When the user pauses credit card capture, behave as if no app
+            // were in the credit list.
+            val allowedCreditApps = if (isCreditCapturePaused()) {
+                emptySet<String>()
+            } else {
+                getAllowedApps(PREF_ALLOWED_APPS_CREDIT)
+            }
 
             val isInNormal = allowedApps.contains(packageName)
             val isInCredit = allowedCreditApps.contains(packageName)

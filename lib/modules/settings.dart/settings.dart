@@ -50,6 +50,7 @@ class _SettingsScreenState extends State<SettingsScreen> with WidgetsBindingObse
   String _selectedAIModel = 'openai/gpt-oss-120b';
   List<String> _allowedApps = [];
   List<String> _allowedAppsCredit = [];
+  bool _creditCapturePaused = false;
   final Map<String, String> _allowedAppNames = {};
   final Map<String, Uint8List> _allowedAppIcons = {};
 
@@ -250,12 +251,15 @@ class _SettingsScreenState extends State<SettingsScreen> with WidgetsBindingObse
     final permission = await NotificationCaptureService().isPermissionGranted();
     final allowed = await NotificationCaptureService().getAllowedApps();
     final allowedCredit = await NotificationCaptureService().getAllowedCreditApps();
+    final creditPaused =
+        await NotificationCaptureService().isCreditCapturePaused();
     if (mounted) {
       setState(() {
         _notificationListenerEnabled = enabled ?? false;
         _notificationPermissionGranted = permission;
         _allowedApps = allowed;
         _allowedAppsCredit = allowedCredit;
+        _creditCapturePaused = creditPaused;
       });
       _resolveAllowedAppInfo();
     }
@@ -627,6 +631,20 @@ class _SettingsScreenState extends State<SettingsScreen> with WidgetsBindingObse
                 style: Theme.of(context).textTheme.bodySmall?.copyWith(
                   color: Theme.of(context).colorScheme.onSurfaceVariant,
                 ),
+              ),
+              const SizedBox(height: 4),
+              SwitchListTile(
+                contentPadding: EdgeInsets.zero,
+                secondary: const Icon(Icons.notifications_off_outlined),
+                title: Text(AppLocalizations.of(context)!.creditCardStopSearching),
+                subtitle: Text(
+                  AppLocalizations.of(context)!.creditCardStopSearchingDescription,
+                ),
+                value: _creditCapturePaused,
+                onChanged: (value) async {
+                  setState(() => _creditCapturePaused = value);
+                  await NotificationCaptureService().setCreditCapturePaused(value);
+                },
               ),
               const SizedBox(height: 12),
               if (_allowedAppsCredit.isEmpty)

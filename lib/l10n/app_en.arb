@@ -471,10 +471,10 @@
   "navStatistics": "Statistics",
   "totalBalance": "Total balance",
   "quickAccess": "Quick access",
-  "recentExpenses": "Recent Expenses",
+  "recentExpenses": "Latest movements",
   "seeAll": "See all",
   "cardLabel": "Card",
-  "pendingTransactions": "{count} pending transactions",
+  "pendingTransactions": "{count, plural, =1{1 pending transaction} other{{count} pending transactions}}",
   "@pendingTransactions": {
     "placeholders": {
       "count": { "type": "int" }
@@ -563,5 +563,14 @@
     "placeholders": {
       "options": { "type": "String" }
     }
-  }
+  },
+  "noMovementsThisMonth": "No movements this month yet.",
+  "addFirstMovement": "Add movement",
+  "dailyAllowance": "{amount}/day {days, plural, =1{for the last day of the month} other{for the next {days} days}}",
+  "overspentThisMonth": "You have spent more than you earned this month",
+  "setUpCard": "Set up card",
+  "payDebtConfirmTitle": "Mark as paid?",
+  "payDebtConfirmBody": "An expense of {amount} will be created for \"{description}\".",
+  "creditCardStopSearching": "Stop searching",
+  "creditCardStopSearchingDescription": "Pauses reading credit card notifications. Your configured apps are kept."
 }

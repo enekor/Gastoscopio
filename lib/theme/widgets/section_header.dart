@@ -19,23 +19,28 @@ class SectionHeader extends StatelessWidget {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          Text(
-            title,
-            style: TextStyle(
-              color: scheme.onSurface,
-              fontSize: 20,
-              fontWeight: FontWeight.w700,
+          Flexible(
+            child: Text(
+              title,
+              overflow: TextOverflow.ellipsis,
+              style: TextStyle(
+                color: scheme.onSurface,
+                fontSize: 20,
+                fontWeight: FontWeight.w700,
+              ),
             ),
           ),
           if (actionLabel != null)
-            GestureDetector(
-              onTap: onAction,
+            TextButton(
+              onPressed: onAction,
+              style: TextButton.styleFrom(
+                foregroundColor: scheme.primary,
+                padding: const EdgeInsets.symmetric(horizontal: 12),
+                minimumSize: const Size(48, 40),
+              ),
               child: Text(
                 actionLabel!,
-                style: TextStyle(
-                  color: scheme.primary,
-                  fontWeight: FontWeight.w600,
-                ),
+                style: const TextStyle(fontWeight: FontWeight.w600),
               ),
             ),
         ],

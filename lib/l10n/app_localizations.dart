@@ -2621,7 +2621,7 @@ abstract class AppLocalizations {
   /// No description provided for @recentExpenses.
   ///
   /// In es, this message translates to:
-  /// **'Gastos Recientes'**
+  /// **'Últimos movimientos'**
   String get recentExpenses;
 
   /// No description provided for @seeAll.
@@ -2639,7 +2639,7 @@ abstract class AppLocalizations {
   /// No description provided for @pendingTransactions.
   ///
   /// In es, this message translates to:
-  /// **'{count} transacciones pendientes'**
+  /// **'{count, plural, =1{1 transacción pendiente} other{{count} transacciones pendientes}}'**
   String pendingTransactions(int count);
 
   /// No description provided for @totalPending.
@@ -3073,6 +3073,60 @@ abstract class AppLocalizations {
   /// In es, this message translates to:
   /// **'También elegido: {options}'**
   String learnedRuleAlternatives(String options);
+
+  /// No description provided for @noMovementsThisMonth.
+  ///
+  /// In es, this message translates to:
+  /// **'Aún no hay movimientos este mes.'**
+  String get noMovementsThisMonth;
+
+  /// No description provided for @addFirstMovement.
+  ///
+  /// In es, this message translates to:
+  /// **'Añadir movimiento'**
+  String get addFirstMovement;
+
+  /// No description provided for @dailyAllowance.
+  ///
+  /// In es, this message translates to:
+  /// **'{amount}/día {days, plural, =1{para el último día del mes} other{para los próximos {days} días}}'**
+  String dailyAllowance(String amount, int days);
+
+  /// No description provided for @overspentThisMonth.
+  ///
+  /// In es, this message translates to:
+  /// **'Este mes has gastado más de lo que has ingresado'**
+  String get overspentThisMonth;
+
+  /// No description provided for @setUpCard.
+  ///
+  /// In es, this message translates to:
+  /// **'Configurar tarjeta'**
+  String get setUpCard;
+
+  /// No description provided for @payDebtConfirmTitle.
+  ///
+  /// In es, this message translates to:
+  /// **'¿Marcar como pagada?'**
+  String get payDebtConfirmTitle;
+
+  /// No description provided for @payDebtConfirmBody.
+  ///
+  /// In es, this message translates to:
+  /// **'Se creará un gasto de {amount} por «{description}».'**
+  String payDebtConfirmBody(String amount, String description);
+
+  /// No description provided for @creditCardStopSearching.
+  ///
+  /// In es, this message translates to:
+  /// **'Dejar de buscar'**
+  String get creditCardStopSearching;
+
+  /// No description provided for @creditCardStopSearchingDescription.
+  ///
+  /// In es, this message translates to:
+  /// **'Pausa la lectura de notificaciones de la tarjeta de crédito. Las apps configuradas se conservan.'**
+  String get creditCardStopSearchingDescription;
 }
 
 class _AppLocalizationsDelegate
