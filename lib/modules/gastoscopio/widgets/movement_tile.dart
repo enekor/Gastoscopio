@@ -87,7 +87,9 @@ class MovementTile extends StatelessWidget {
                         children: [
                           if (movement.category != null &&
                               movement.category!.isNotEmpty)
-                            _CategoryChip(label: movement.category!),
+                            Flexible(
+                              child: _CategoryChip(label: movement.category!),
+                            ),
                           if (movement.category != null &&
                               movement.category!.isNotEmpty)
                             const SizedBox(width: 8),
@@ -151,6 +153,8 @@ class _CategoryChip extends StatelessWidget {
       ),
       child: Text(
         label.toUpperCase(),
+        maxLines: 1,
+        overflow: TextOverflow.ellipsis,
         style: TextStyle(
           color: glass.mutedText,
           fontSize: 10,
