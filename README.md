@@ -29,12 +29,6 @@
 - **Estadísticas detalladas** filtradas por mes y año
 - **Análisis con IA** que proporciona insights personalizados sobre tus hábitos de gasto
 
-#### 🤖 **Inteligencia Artificial Integrada**
-- **Categorización inteligente** de movimientos usando Gemini AI
-- **Resúmenes financieros** generados automáticamente
-- **Recomendaciones personalizadas** para mejorar tus finanzas
-- **Análisis de patrones** de gasto y sugerencias de ahorro
-
 #### 🎨 **Experiencia de Usuario**
 - **Interfaz moderna** con Material Design 3
 - **Modo oscuro/claro** con soporte para colores dinámicos del sistema
@@ -60,12 +54,6 @@
 - **Respaldo automático** en Google Drive
 - **Preferencias del usuario** con SharedPreferences
 - **Gestión de archivos** para importación/exportación
-
-### 🧠 **Inteligencia Artificial**
-- **Integración con Gemini AI** para análisis financiero
-- **Categorización automática** de transacciones
-- **Generación de resúmenes** personalizados
-- **API Key configurable** por el usuario
 
 ## 📋 Funcionalidades Detalladas
 
@@ -108,7 +96,6 @@
 - Dart SDK 3.0+
 - Android Studio / VS Code
 - Cuenta de Google (opcional para respaldo)
-- API Key de Gemini AI (opcional para funciones de IA)
 
 ### Pasos de Instalación
 
@@ -145,13 +132,6 @@ flutter build apk --release
 2. **Configura tu moneda preferida**
 3. **Personaliza tu avatar y colores**
 4. **Opcionalmente inicia sesión con Google**
-5. **Configura tu API Key de Gemini AI** para funciones inteligentes
-
-### Configuración de IA
-1. Ve a **Configuración > Generador de API Key**
-2. Sigue el enlace para obtener tu API Key de Gemini
-3. Introduce la clave en el campo correspondiente
-4. ¡Disfruta de las funciones de IA!
 
 ## 🔧 Opciones de Desarrollador
 

@@ -1,9 +1,20 @@
+import 'package:cashly/common/month_names.dart';
+import 'package:cashly/data/services/login_service.dart';
 import 'package:cashly/data/services/shared_preferences_service.dart';
+import 'package:cashly/l10n/app_localizations.dart';
 import 'package:cashly/modules/credit_card/logic/credit_card_service.dart';
 import 'package:cashly/modules/credit_card/screens/credit_card_expense_form.dart';
-import 'package:cashly/modules/credit_card/screens/credit_card_history_screen.dart';
 import 'package:cashly/data/services/notification_service.dart';
+import 'package:cashly/data/services/notification_capture_service.dart';
+import 'package:cashly/theme/app_glass.dart';
+import 'package:cashly/theme/widgets/app_background.dart';
+import 'package:cashly/theme/widgets/amount_text.dart';
+import 'package:cashly/theme/widgets/app_list_row.dart';
+import 'package:cashly/theme/widgets/glass_card.dart';
+import 'package:cashly/theme/widgets/month_chip.dart';
+import 'package:cashly/theme/widgets/primary_pill_button.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
 
 import 'package:cashly/data/services/device_identity_service.dart';
@@ -27,14 +38,152 @@ class _CreditCardScreenState extends State<CreditCardScreen> {
 
   bool _isReceiving = false;
 
+  // Billing config (loaded from prefs) used to compute next payment / cycle end.
+  String _billingCycle = 'monthly';
+  int _billingDay = 1;
+
+  // Editable cardholder name shown on the card visual.
+  String? _cardHolderName;
+
   @override
   void initState() {
     super.initState();
     _selectedDate = DateTime.now();
-    _loadData();
+    _initSelectedMonth();
     _loadCurrency();
+    _loadBillingConfig();
+    _loadCardHolderName();
     NotificationService().requestPermissions();
     _startReceivingIfPaired();
+  }
+
+  /// Opens on the current billing/statement month (where purchases actually land
+  /// per the billing cycle), not the raw calendar month — otherwise the list
+  /// looks empty because expenses are stored under their target billing month.
+  Future<void> _initSelectedMonth() async {
+    final target = await _service.getTargetMonth(DateTime.now());
+    if (mounted) {
+      setState(() => _selectedDate = target);
+    }
+    await _loadData();
+  }
+
+  Future<void> _loadCardHolderName() async {
+    final stored = await SharedPreferencesService()
+        .getStringValue(SharedPreferencesKeys.creditCardHolderName);
+    if (mounted) {
+      setState(() {
+        _cardHolderName = (stored != null && stored.isNotEmpty) ? stored : null;
+      });
+    }
+  }
+
+  /// Resolves the name displayed on the card: stored override, else the Google
+  /// display name, else the localized "no name" fallback.
+  String _resolveCardHolderName() {
+    if (_cardHolderName != null && _cardHolderName!.isNotEmpty) {
+      return _cardHolderName!;
+    }
+    final googleName = LoginService().currentUser?.displayName;
+    if (googleName != null && googleName.isNotEmpty) {
+      return googleName;
+    }
+    return AppLocalizations.of(context)!.noName;
+  }
+
+  void _showCardHolderDialog() {
+    final TextEditingController controller =
+        TextEditingController(text: _resolveCardHolderName());
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Titular de la tarjeta'),
+        content: TextField(
+          controller: controller,
+          decoration: const InputDecoration(
+            labelText: 'Nombre',
+            border: OutlineInputBorder(),
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Cancelar'),
+          ),
+          ElevatedButton(
+            onPressed: () async {
+              final name = controller.text.trim();
+              await SharedPreferencesService().setStringValue(
+                SharedPreferencesKeys.creditCardHolderName,
+                name,
+              );
+              if (mounted) {
+                setState(() {
+                  _cardHolderName = name.isNotEmpty ? name : null;
+                });
+                Navigator.pop(context);
+              }
+            },
+            child: const Text('Guardar'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  /// Loads the given credit-card month (from allMonths) and its expenses,
+  /// then refreshes the screen.
+  Future<void> _selectMonth(DateTime date) async {
+    setState(() {
+      _selectedDate = date;
+    });
+    await _service.loadMonthData(date.month, date.year);
+  }
+
+  void _showMonthPicker() {
+    final scheme = Theme.of(context).colorScheme;
+    final l = AppLocalizations.of(context)!;
+    final months = _service.allMonths;
+    showModalBottomSheet(
+      context: context,
+      builder: (context) => SafeArea(
+        child: months.isEmpty
+            ? Padding(
+                padding: const EdgeInsets.all(24),
+                child: Center(
+                  child: Text(
+                    'No hay meses disponibles',
+                    style: TextStyle(color: scheme.onSurface),
+                  ),
+                ),
+              )
+            : ListView(
+                shrinkWrap: true,
+                children: months.map((m) {
+                  final label =
+                      '${monthShortNames(l)[m.month - 1]} ${m.year}';
+                  final isSelected = m.month == _selectedDate.month &&
+                      m.year == _selectedDate.year;
+                  return ListTile(
+                    leading: Icon(
+                      Icons.calendar_month,
+                      color: isSelected
+                          ? scheme.primary
+                          : scheme.onSurfaceVariant,
+                    ),
+                    title: Text(label),
+                    trailing: isSelected
+                        ? Icon(Icons.check, color: scheme.primary)
+                        : null,
+                    onTap: () {
+                      Navigator.pop(context);
+                      _selectMonth(DateTime(m.year, m.month));
+                    },
+                  );
+                }).toList(),
+              ),
+      ),
+    );
   }
 
   Future<void> _startReceivingIfPaired() async {
@@ -62,7 +211,7 @@ class _CreditCardScreenState extends State<CreditCardScreen> {
 
   Future<void> _syncMovements() async {
     final trustedPeer = await DeviceIdentityService().getTrustedPeer();
-    
+
     if (trustedPeer == null) {
       if (!mounted) return;
       showDialog(
@@ -159,6 +308,18 @@ class _CreditCardScreenState extends State<CreditCardScreen> {
     }
   }
 
+  Future<void> _loadBillingConfig() async {
+    final prefs = SharedPreferencesService();
+    final cycle = await prefs.getStringValue(SharedPreferencesKeys.creditCardBillingCycle) ?? 'monthly';
+    final day = (await prefs.getDoubleValue(SharedPreferencesKeys.creditCardBillingDay))?.toInt() ?? 1;
+    if (mounted) {
+      setState(() {
+        _billingCycle = cycle;
+        _billingDay = day;
+      });
+    }
+  }
+
   Future<void> _loadData() async {
     await _service.loadMonthData(_selectedDate.month, _selectedDate.year);
   }
@@ -175,6 +336,9 @@ class _CreditCardScreenState extends State<CreditCardScreen> {
         content: TextField(
           controller: controller,
           keyboardType: const TextInputType.numberWithOptions(decimal: true),
+          inputFormatters: [
+            FilteringTextInputFormatter.allow(RegExp(r'[0-9.,]')),
+          ],
           decoration: InputDecoration(
             labelText: 'Límite ($_moneda)',
             border: const OutlineInputBorder(),
@@ -205,6 +369,8 @@ class _CreditCardScreenState extends State<CreditCardScreen> {
     final currentCycle = await prefs.getStringValue(SharedPreferencesKeys.creditCardBillingCycle) ?? 'monthly';
     final currentBillingDay = (await prefs.getDoubleValue(SharedPreferencesKeys.creditCardBillingDay))?.toInt() ?? 1;
     final currentDefaultLimit = await _service.getDefaultLimit();
+    bool capturePaused =
+        await NotificationCaptureService().isCreditCapturePaused();
 
     if (!mounted) return;
 
@@ -224,6 +390,9 @@ class _CreditCardScreenState extends State<CreditCardScreen> {
                 TextField(
                   controller: limitController,
                   keyboardType: const TextInputType.numberWithOptions(decimal: true),
+                  inputFormatters: [
+                    FilteringTextInputFormatter.allow(RegExp(r'[0-9.,]')),
+                  ],
                   decoration: InputDecoration(
                     labelText: 'Límite por defecto ($_moneda)',
                     border: const OutlineInputBorder(),
@@ -278,6 +447,26 @@ class _CreditCardScreenState extends State<CreditCardScreen> {
                     ],
                     onChanged: (value) => selectedBillingDay = value!,
                   ),
+                const Divider(height: 32),
+                // Applied immediately (independent of "Guardar"): the native
+                // notification listener reads this flag on every notification.
+                SwitchListTile(
+                  contentPadding: EdgeInsets.zero,
+                  secondary: const Icon(Icons.notifications_off_outlined),
+                  title: Text(
+                    AppLocalizations.of(context)!.creditCardStopSearching,
+                  ),
+                  subtitle: Text(
+                    AppLocalizations.of(context)!
+                        .creditCardStopSearchingDescription,
+                  ),
+                  value: capturePaused,
+                  onChanged: (value) async {
+                    setDialogState(() => capturePaused = value);
+                    await NotificationCaptureService()
+                        .setCreditCapturePaused(value);
+                  },
+                ),
               ],
             ),
           ),
@@ -293,9 +482,12 @@ class _CreditCardScreenState extends State<CreditCardScreen> {
                   await prefs.setDoubleValue(SharedPreferencesKeys.creditCardDefaultLimit, limit);
                   await prefs.setStringValue(SharedPreferencesKeys.creditCardBillingCycle, selectedCycle);
                   await prefs.setDoubleValue(SharedPreferencesKeys.creditCardBillingDay, selectedBillingDay.toDouble());
-                  
-                  if (mounted) Navigator.pop(context);
-                  _loadData();
+
+                  if (mounted) {
+                    Navigator.pop(context);
+                    await _loadBillingConfig();
+                    await _initSelectedMonth();
+                  }
                 }
               },
               child: const Text('Guardar'),
@@ -308,279 +500,538 @@ class _CreditCardScreenState extends State<CreditCardScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
     return Scaffold(
+      backgroundColor: Colors.transparent,
       appBar: AppBar(
-        title: const Text('Tarjeta de Crédito'),
-        actions: [
-          if (_isSyncing)
-            const Padding(
-              padding: EdgeInsets.symmetric(horizontal: 16.0),
-              child: Center(
-                child: SizedBox(
-                  width: 20,
-                  height: 20,
-                  child: CircularProgressIndicator(strokeWidth: 2),
-                ),
-              ),
-            )
-          else
-            IconButton(
-              icon: const Icon(Icons.sync),
-              tooltip: 'Sincronizar movimientos',
-              onPressed: _service.currentMonth != null ? _syncMovements : null,
-            ),
-          IconButton(
-            icon: const Icon(Icons.history),
-            onPressed: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => const CreditCardHistoryScreen(),
-                ),
+        backgroundColor: Colors.transparent,
+        elevation: 0,
+        automaticallyImplyLeading: false,
+        titleSpacing: 16,
+        title: _buildHeader(),
+      ),
+      body: AppBackground(
+        child: SafeArea(
+          top: false,
+          child: AnimatedBuilder(
+            animation: _service,
+            builder: (context, child) {
+              if (_service.currentMonth == null) {
+                return Column(
+                  children: [
+                    Expanded(
+                      child: Center(
+                        child: Padding(
+                          padding: const EdgeInsets.all(24),
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Text(
+                                'No hay límite establecido para este mes',
+                                textAlign: TextAlign.center,
+                                style: TextStyle(color: scheme.onSurface),
+                              ),
+                              const SizedBox(height: 16),
+                              PrimaryPillButton(
+                                label: 'Establecer Límite',
+                                expand: false,
+                                onPressed: _showLimitDialog,
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
+                );
+              }
+              // Single scroll (same pattern as the History screen).
+              return ListView(
+                physics: const BouncingScrollPhysics(),
+                padding: const EdgeInsets.fromLTRB(16, 8, 16, 120),
+                children: [
+                  _buildCreditCardVisual(),
+                  const SizedBox(height: 16),
+                  _buildBalanceCard(),
+                  const SizedBox(height: 16),
+                  _buildBillingRow(),
+                  const SizedBox(height: 20),
+                  ..._expenseWidgets(),
+                ],
               );
             },
           ),
-          IconButton(
-            icon: const Icon(Icons.settings),
-            onPressed: _showSettingsDialog,
-          ),
-        ],
-      ),
-      body: AnimatedBuilder(
-        animation: _service,
-        builder: (context, child) {
-          return Column(
-            children: [
-              _buildMonthSelector(),
-              if (_service.currentMonth == null)
-                Expanded(
-                  child: Center(
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        const Text('No hay límite establecido para este mes'),
-                        const SizedBox(height: 16),
-                        ElevatedButton(
-                          onPressed: _showLimitDialog,
-                          child: const Text('Establecer Límite'),
-                        ),
-                      ],
-                    ),
-                  ),
-                )
-              else ...[
-                _buildSummaryCard(),
-                const Divider(),
-                Expanded(
-                  child: _buildExpensesList(),
-                ),
-              ],
-            ],
-          );
-        },
+        ),
       ),
       floatingActionButton: _service.currentMonth != null
-          ? Padding(
-              padding: const EdgeInsets.only(bottom: 16, right: 16),
-              child: FloatingActionButton(
-                onPressed: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => CreditCardExpenseForm(
-                        month: _selectedDate.month,
-                        year: _selectedDate.year,
-                      ),
+          ? FloatingActionButton(
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => CreditCardExpenseForm(
+                      month: _selectedDate.month,
+                      year: _selectedDate.year,
                     ),
-                  );
-                },
-                child: const Icon(Icons.add),
-              ),
+                  ),
+                );
+              },
+              child: const Icon(Icons.add),
             )
           : null,
     );
   }
 
-  Widget _buildMonthSelector() {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 16.0),
-      child: Stack(
-        alignment: Alignment.center,
-        children: [
-          if (_isReceiving)
-            const Align(
-              alignment: Alignment.centerLeft,
-              child: Tooltip(
-                message: 'Listo para recibir movimientos',
-                child: Icon(Icons.sensors, color: Colors.green, size: 20),
-              ),
+  Widget _buildHeader() {
+    final scheme = Theme.of(context).colorScheme;
+    final l = AppLocalizations.of(context)!;
+    final chipLabel =
+        '${monthShortNames(l)[_selectedDate.month - 1]} ${_selectedDate.year}';
+    return Row(
+      children: [
+        IconButton(
+          padding: EdgeInsets.zero,
+          constraints: const BoxConstraints(),
+          icon: const Icon(Icons.arrow_back),
+          onPressed: () => Navigator.pop(context),
+        ),
+        const SizedBox(width: 8),
+        MonthChip(label: chipLabel, onTap: _showMonthPicker),
+        if (_isReceiving)
+          const Padding(
+            padding: EdgeInsets.only(left: 8),
+            child: Tooltip(
+              message: 'Listo para recibir movimientos',
+              child: Icon(Icons.sensors, color: Colors.green, size: 20),
             ),
-          Text(
-            DateFormat('MMMM yyyy').format(_selectedDate).toUpperCase(),
-            style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+          ),
+        const Spacer(),
+        Flexible(
+          child: Text(
+            'Tarjeta de Crédito',
+            textAlign: TextAlign.right,
+            overflow: TextOverflow.ellipsis,
+            style: TextStyle(
+              fontSize: 16,
+              fontWeight: FontWeight.w700,
+              color: scheme.onSurface,
+            ),
+          ),
+        ),
+        const SizedBox(width: 4),
+        if (_isSyncing)
+          const Padding(
+            padding: EdgeInsets.symmetric(horizontal: 12.0),
+            child: SizedBox(
+              width: 20,
+              height: 20,
+              child: CircularProgressIndicator(strokeWidth: 2),
+            ),
+          )
+        else
+          IconButton(
+            icon: const Icon(Icons.sync),
+            tooltip: 'Sincronizar movimientos',
+            onPressed: _service.currentMonth != null ? _syncMovements : null,
+          ),
+        IconButton(
+          icon: const Icon(Icons.settings),
+          onPressed: _showSettingsDialog,
+        ),
+      ],
+    );
+  }
+
+  Widget _buildCreditCardVisual() {
+    // Decorative premium card: dark navy -> emerald gradient.
+    const cardGradient = LinearGradient(
+      begin: Alignment.topLeft,
+      end: Alignment.bottomRight,
+      colors: [Color(0xFF0F172A), Color(0xFF134E4A), Color(0xFF10B981)],
+      stops: [0.0, 0.6, 1.0],
+    );
+    return GlassCard(
+      padding: EdgeInsets.zero,
+      radius: 20,
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(20),
+        child: Container(
+          padding: const EdgeInsets.all(20),
+          decoration: const BoxDecoration(gradient: cardGradient),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text(
+                    AppLocalizations.of(context)!.premiumCard,
+                    style: const TextStyle(
+                      color: Colors.white70,
+                      fontSize: 12,
+                      fontWeight: FontWeight.w600,
+                      letterSpacing: 1.5,
+                    ),
+                  ),
+                  if (_isSyncing)
+                    const SizedBox(
+                      width: 20,
+                      height: 20,
+                      child: CircularProgressIndicator(
+                        strokeWidth: 2,
+                        color: Colors.white70,
+                      ),
+                    )
+                  else
+                    IconButton(
+                      padding: EdgeInsets.zero,
+                      constraints: const BoxConstraints(),
+                      icon: const Icon(Icons.contactless, color: Colors.white70),
+                      tooltip: 'Sincronizar movimientos',
+                      onPressed:
+                          _service.currentMonth != null ? _syncMovements : null,
+                    ),
+                ],
+              ),
+              const SizedBox(height: 28),
+              const Text(
+                '****  ****  ****  4921',
+                style: TextStyle(
+                  color: Colors.white,
+                  fontSize: 22,
+                  fontWeight: FontWeight.w600,
+                  letterSpacing: 3,
+                ),
+              ),
+              const SizedBox(height: 20),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Flexible(
+                    child: GestureDetector(
+                      onTap: _showCardHolderDialog,
+                      child: Text(
+                        _resolveCardHolderName().toUpperCase(),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontSize: 14,
+                          fontWeight: FontWeight.w600,
+                          letterSpacing: 1,
+                        ),
+                      ),
+                    ),
+                  ),
+                  const Text(
+                    '12/28',
+                    style: TextStyle(
+                      color: Colors.white70,
+                      fontSize: 14,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                ],
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildBalanceCard() {
+    final scheme = Theme.of(context).colorScheme;
+    final glass = Theme.of(context).extension<AppGlass>()!;
+    final totalSpent = _service.totalSpent;
+    final limit = _service.currentMonth!.limitAmount;
+    final remaining = _service.remainingAmount;
+    final isOverLimit = remaining < 0;
+    final progress = limit > 0 ? (totalSpent / limit).clamp(0.0, 1.0) : 0.0;
+
+    return GlassCard(
+      onTap: _showLimitDialog,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              Text(
+                AppLocalizations.of(context)!.usedBalance,
+                style: TextStyle(color: glass.mutedText, fontSize: 15),
+              ),
+              AmountText(
+                amount: totalSpent,
+                currency: _moneda,
+                fontSize: 28,
+                color: isOverLimit ? glass.expenseColor : scheme.onSurface,
+              ),
+            ],
+          ),
+          const SizedBox(height: 16),
+          ClipRRect(
+            borderRadius: BorderRadius.circular(8),
+            child: LinearProgressIndicator(
+              value: progress,
+              backgroundColor: scheme.surfaceContainerHigh,
+              color: isOverLimit ? glass.expenseColor : scheme.primary,
+              minHeight: 8,
+            ),
+          ),
+          const SizedBox(height: 12),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text(
+                AppLocalizations.of(context)!.creditLimit,
+                style: TextStyle(color: glass.mutedText, fontSize: 14),
+              ),
+              Text(
+                '${limit.toStringAsFixed(2)} $_moneda',
+                style: TextStyle(
+                  color: scheme.onSurface,
+                  fontSize: 15,
+                  fontWeight: FontWeight.w700,
+                ),
+              ),
+            ],
           ),
         ],
       ),
     );
   }
 
-  Widget _buildSummaryCard() {
-    final remaining = _service.remainingAmount;
-    final totalSpent = _service.totalSpent;
-    final limit = _service.currentMonth!.limitAmount;
-    final isOverLimit = remaining < 0;
+  /// Computes the next payment date and the current cycle closing date from the
+  /// stored billing config (reusing prefs creditCardBillingDay/Cycle).
+  ({DateTime nextPayment, DateTime cycleClose, int daysLeft}) _billingInfo() {
+    final now = DateTime.now();
+    DateTime cycleClose;
+    if (_billingCycle == 'weekly') {
+      int daysToAdd = (_billingDay - now.weekday) % 7;
+      if (daysToAdd <= 0) daysToAdd += 7;
+      cycleClose = DateTime(now.year, now.month, now.day).add(Duration(days: daysToAdd));
+    } else {
+      final day = _billingDay.clamp(1, 28);
+      if (now.day < day) {
+        cycleClose = DateTime(now.year, now.month, day);
+      } else {
+        cycleClose = DateTime(now.year, now.month + 1, day);
+      }
+    }
+    final daysLeft = cycleClose.difference(DateTime(now.year, now.month, now.day)).inDays;
+    // Payment is typically due after the cycle closes.
+    final nextPayment = cycleClose;
+    return (nextPayment: nextPayment, cycleClose: cycleClose, daysLeft: daysLeft);
+  }
 
-    return GestureDetector(
-      onTap: _showLimitDialog,
-      child: Container(
-        margin: const EdgeInsets.all(16),
-        padding: const EdgeInsets.all(24),
-        decoration: BoxDecoration(
-          color: isOverLimit ? Colors.red.withOpacity(0.1) : Theme.of(context).colorScheme.primaryContainer,
-          borderRadius: BorderRadius.circular(24),
-          border: Border.all(
-            color: isOverLimit ? Colors.red : Theme.of(context).colorScheme.primary.withOpacity(0.5),
-            width: 2,
-          ),
-        ),
+  Widget _buildBillingRow() {
+    final scheme = Theme.of(context).colorScheme;
+    final glass = Theme.of(context).extension<AppGlass>()!;
+    final info = _billingInfo();
+    final remaining = _service.remainingAmount;
+    // Minimum payment heuristic reused from existing values (used balance).
+    final minimum = _service.totalSpent > 0
+        ? (_service.totalSpent * 0.05).clamp(0.0, _service.totalSpent)
+        : 0.0;
+
+    Widget miniCard({
+      required IconData icon,
+      required String label,
+      required String value,
+      String? footer,
+      Color? footerColor,
+    }) {
+      return GlassCard(
+        padding: const EdgeInsets.all(16),
         child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Text(
-              'Puedes gastar',
-              style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
-            ),
-            const SizedBox(height: 8),
-            Text(
-              '${remaining.toStringAsFixed(2)} $_moneda',
-              style: TextStyle(
-                fontSize: 42,
-                fontWeight: FontWeight.bold,
-                color: isOverLimit ? Colors.red : Theme.of(context).colorScheme.primary,
-              ),
-            ),
-            const SizedBox(height: 16),
             Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    const Text('Límite', style: TextStyle(fontSize: 12)),
-                    Text('${limit.toStringAsFixed(2)} $_moneda', style: const TextStyle(fontWeight: FontWeight.bold)),
-                  ],
-                ),
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.end,
-                  children: [
-                    const Text('Gastado', style: TextStyle(fontSize: 12)),
-                    Text('${totalSpent.toStringAsFixed(2)} $_moneda', style: const TextStyle(fontWeight: FontWeight.bold)),
-                  ],
+                Icon(icon, size: 16, color: glass.mutedText),
+                const SizedBox(width: 6),
+                Flexible(
+                  child: Text(
+                    label,
+                    style: TextStyle(color: glass.mutedText, fontSize: 13),
+                  ),
                 ),
               ],
             ),
-            const SizedBox(height: 12),
-            LinearProgressIndicator(
-              value: limit > 0 ? (totalSpent / limit).clamp(0.0, 1.0) : 0,
-              backgroundColor: Colors.grey.withOpacity(0.2),
-              color: isOverLimit ? Colors.red : Theme.of(context).colorScheme.primary,
-              minHeight: 8,
-              borderRadius: BorderRadius.circular(4),
+            const SizedBox(height: 10),
+            Text(
+              value,
+              style: TextStyle(
+                color: scheme.onSurface,
+                fontSize: 22,
+                fontWeight: FontWeight.w700,
+              ),
             ),
+            if (footer != null) ...[
+              const SizedBox(height: 4),
+              Text(
+                footer,
+                style: TextStyle(
+                  color: footerColor ?? glass.mutedText,
+                  fontSize: 13,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+            ],
           ],
         ),
+      );
+    }
+
+    return IntrinsicHeight(
+      child: Row(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        Expanded(
+          child: miniCard(
+            icon: Icons.event,
+            label: AppLocalizations.of(context)!.nextPayment,
+            value: DateFormat('dd MMM').format(info.nextPayment),
+            footer:
+                '${AppLocalizations.of(context)!.minimumLabel}: ${minimum.toStringAsFixed(2)} $_moneda',
+            footerColor: glass.expenseColor,
+          ),
+        ),
+        const SizedBox(width: 12),
+        Expanded(
+          child: miniCard(
+            icon: Icons.receipt_long,
+            label: AppLocalizations.of(context)!.billingClose,
+            value: DateFormat('dd MMM').format(info.cycleClose),
+            footer: info.daysLeft == 1
+                ? 'Falta 1 día'
+                : 'Faltan ${info.daysLeft} días',
+          ),
+        ),
+      ],
       ),
     );
   }
 
-  Widget _buildExpensesList() {
+  List<Widget> _expenseWidgets() {
+    final scheme = Theme.of(context).colorScheme;
+    final glass = Theme.of(context).extension<AppGlass>()!;
     final expenses = _service.currentExpenses;
 
-    if (expenses.isEmpty) {
-      return const Center(
-        child: Text('No hay gastos este mes'),
-      );
-    }
-
-    return ListView.builder(
-      itemCount: expenses.length,
-      itemBuilder: (context, index) {
-        final expense = expenses[index];
-        return Dismissible(
-          key: Key(expense.id.toString()),
-          background: Container(
-            color: Theme.of(context).colorScheme.primary.withOpacity(0.8),
-            alignment: Alignment.centerRight,
-            padding: const EdgeInsets.only(right: 20),
-            child: const Icon(Icons.edit, color: Colors.white),
+    return [
+          Text(
+            '${AppLocalizations.of(context)!.expenses} (${expenses.length})',
+            style: TextStyle(
+              color: scheme.onSurface,
+              fontSize: 16,
+              fontWeight: FontWeight.w700,
+            ),
           ),
-          direction: DismissDirection.endToStart,
-          confirmDismiss: (direction) async {
-            return await showModalBottomSheet<bool>(
-              context: context,
-              builder: (BuildContext context) {
-                return SafeArea(
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      const Padding(
-                        padding: EdgeInsets.all(16.0),
-                        child: Text(
-                          'Opciones del gasto',
-                          style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-                        ),
-                      ),
-                      ListTile(
-                        leading: const Icon(Icons.edit),
-                        title: const Text('Editar'),
-                        onTap: () {
-                          Navigator.pop(context, false); // No dismiss
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) => CreditCardExpenseForm(
-                                month: _selectedDate.month,
-                                year: _selectedDate.year,
-                                expenseToEdit: expense,
+          const SizedBox(height: 12),
+          if (expenses.isEmpty)
+            Padding(
+              padding: const EdgeInsets.symmetric(vertical: 24),
+              child: Center(
+                child: Text(
+                  'No hay gastos este mes',
+                  style: TextStyle(color: glass.mutedText),
+                ),
+              ),
+            )
+          else
+            ...expenses.map((expense) {
+            return Padding(
+              padding: const EdgeInsets.only(bottom: 10),
+              child: Dismissible(
+                key: ValueKey('cc_${expense.id}_${expense.uuid}'),
+                background: Container(
+                  decoration: BoxDecoration(
+                    color: scheme.primary.withOpacity(0.8),
+                    borderRadius: BorderRadius.circular(glass.cardRadius),
+                  ),
+                  alignment: Alignment.centerRight,
+                  padding: const EdgeInsets.only(right: 20),
+                  child: const Icon(Icons.edit, color: Colors.white),
+                ),
+                direction: DismissDirection.endToStart,
+                confirmDismiss: (direction) async {
+                  return await showModalBottomSheet<bool>(
+                    context: context,
+                    builder: (BuildContext context) {
+                      return SafeArea(
+                        child: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            const Padding(
+                              padding: EdgeInsets.all(16.0),
+                              child: Text(
+                                'Opciones del gasto',
+                                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                               ),
                             ),
-                          );
-                        },
+                            ListTile(
+                              leading: const Icon(Icons.edit),
+                              title: const Text('Editar'),
+                              onTap: () {
+                                Navigator.pop(context, false); // No dismiss
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (context) => CreditCardExpenseForm(
+                                      month: _selectedDate.month,
+                                      year: _selectedDate.year,
+                                      expenseToEdit: expense,
+                                    ),
+                                  ),
+                                );
+                              },
+                            ),
+                            ListTile(
+                              leading: const Icon(Icons.delete, color: Colors.red),
+                              title: const Text('Borrar', style: TextStyle(color: Colors.red)),
+                              onTap: () {
+                                Navigator.pop(context, true); // Dismiss and delete
+                              },
+                            ),
+                            const SizedBox(height: 8),
+                          ],
+                        ),
+                      );
+                    },
+                  );
+                },
+                onDismissed: (direction) {
+                  _service.deleteExpense(expense);
+                },
+                child: AppListRow(
+                  leadingIcon: Icons.credit_card,
+                  title: expense.description,
+                  subtitle: DateFormat('dd/MM/yyyy').format(DateTime.parse(expense.date)),
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => CreditCardExpenseForm(
+                          month: _selectedDate.month,
+                          year: _selectedDate.year,
+                          expenseToEdit: expense,
+                        ),
                       ),
-                      ListTile(
-                        leading: const Icon(Icons.delete, color: Colors.red),
-                        title: const Text('Borrar', style: TextStyle(color: Colors.red)),
-                        onTap: () {
-                          Navigator.pop(context, true); // Dismiss and delete
-                        },
-                      ),
-                      const SizedBox(height: 8),
-                    ],
+                    );
+                  },
+                  trailing: AmountText(
+                    amount: expense.amount,
+                    currency: _moneda,
+                    isExpense: true,
+                    signed: true,
+                    fontSize: 16,
                   ),
-                );
-              },
-            );
-          },
-          onDismissed: (direction) {
-            _service.deleteExpense(expense);
-          },
-          child: ListTile(
-            leading: CircleAvatar(
-              backgroundColor: Theme.of(context).colorScheme.secondaryContainer,
-              child: const Icon(Icons.credit_card),
-            ),
-            title: Text(expense.description),
-            subtitle: Text('${expense.day}/${_selectedDate.month}/${_selectedDate.year}'),
-            trailing: Text(
-              '-${expense.amount.toStringAsFixed(2)} $_moneda',
-              style: const TextStyle(
-                fontWeight: FontWeight.bold,
-                color: Colors.red,
-                fontSize: 16,
+                ),
               ),
-            ),
-          ),
-        );
-      },
-    );
+            );
+          }),
+    ];
   }
 }

@@ -1,3 +1,4 @@
+import 'package:cashly/classification/classification_service.dart';
 import 'package:cashly/data/services/notification_capture_service.dart';
 import 'package:cashly/data/services/sqlite_service.dart';
 import 'package:cashly/modules/gastoscopio/logic/finance_service.dart';
@@ -25,6 +26,7 @@ class _AppState extends State<App> {
   Future<bool> init() async {
     try {
       await SqliteService().initializeDatabase();
+      await ClassificationService().loadLearnedRules();
 
       FinanceService.getInstance(
         SqliteService().db.monthDao,

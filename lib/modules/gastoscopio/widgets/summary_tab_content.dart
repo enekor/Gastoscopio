@@ -2,10 +2,17 @@ import 'package:flutter/material.dart';
 import 'package:cashly/data/models/movement_value.dart';
 import 'package:cashly/modules/gastoscopio/widgets/category_progress_chart.dart';
 import 'package:cashly/l10n/app_localizations.dart';
+import 'package:cashly/theme/app_glass.dart';
+import 'package:cashly/theme/widgets/amount_text.dart';
+import 'package:cashly/theme/widgets/glass_card.dart';
+import 'package:cashly/theme/widgets/section_header.dart';
+import 'package:cashly/theme/widgets/stat_tile.dart';
 import 'package:fl_chart/fl_chart.dart';
 
 class SummaryTabContent extends StatelessWidget {
   final List<MovementValue> movements;
+
+  static const String _currency = '€';
 
   const SummaryTabContent({Key? key, required this.movements})
     : super(key: key);
@@ -25,15 +32,16 @@ class SummaryTabContent extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
+            SectionHeader(title: AppLocalizations.of(context)!.financialSummary),
+            const SizedBox(height: 8),
             _buildMonthlyOverview(context, movements),
             const SizedBox(height: 24),
-            Text(
-              AppLocalizations.of(context).categoryDistribution,
-              style: Theme.of(context).textTheme.titleLarge,
-            ),
-            const SizedBox(height: 16),
-            CategoryProgressChart(categoryData: categoryData),
+            SectionHeader(title: AppLocalizations.of(context)!.distribution),
+            const SizedBox(height: 8),
+            GlassCard(child: CategoryProgressChart(categoryData: categoryData)),
             const SizedBox(height: 24),
+            SectionHeader(title: AppLocalizations.of(context)!.evolution),
+            const SizedBox(height: 8),
             _buildDailySpendingChart(context, expenses),
           ],
         ),
@@ -43,15 +51,12 @@ class SummaryTabContent extends StatelessWidget {
 
   Widget _buildEmptyState(BuildContext context) {
     final localizations = AppLocalizations.of(context);
+    final glass = Theme.of(context).extension<AppGlass>()!;
     return Center(
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Icon(
-            Icons.folder_open,
-            size: 64,
-            color: Theme.of(context).colorScheme.secondary,
-          ),
+          Icon(Icons.folder_open, size: 64, color: glass.mutedText),
           const SizedBox(height: 16),
           Text(
             localizations.noDataForMonth('', 0),
@@ -97,6 +102,7 @@ class SummaryTabContent extends StatelessWidget {
     BuildContext context,
     List<MovementValue> movements,
   ) {
+    final glass = Theme.of(context).extension<AppGlass>()!;
     final expenses = movements
         .where((m) => m.isExpense)
         .fold<double>(0, (sum, mov) => sum + mov.amount);
@@ -104,83 +110,112 @@ class SummaryTabContent extends StatelessWidget {
         .where((m) => !m.isExpense)
         .fold<double>(0, (sum, mov) => sum + mov.amount);
     final balance = incomes - expenses;
-    final expenseRatio = expenses > 0 ? (expenses / incomes) * 100 : 0;
-    final localizations = AppLocalizations.of(context);
+    final ratio = incomes > 0 ? (balance / incomes) * 100 : 0.0;
 
-    return Card(
-      color: Theme.of(context).colorScheme.secondary.withAlpha(25),
-      child: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              localizations.monthlySummary,
-              style: Theme.of(context).textTheme.titleLarge,
-            ),
-            const SizedBox(height: 16),
-            _buildOverviewRow(
-              context,
-              localizations.incomes,
-              incomes,
-              Colors.green,
-            ),
-            const SizedBox(height: 8),
-            _buildOverviewRow(
-              context,
-              localizations.expenses,
-              expenses,
-              Colors.red,
-            ),
-            const Divider(),
-            _buildOverviewRow(
-              context,
-              localizations.balance,
-              balance,
-              balance >= 0 ? Colors.green : Colors.red,
-            ),
-            if (incomes > 0) ...[
-              const SizedBox(height: 16),
-              Text(
-                localizations.youSpentPercent(
-                  int.parse(expenseRatio.toStringAsFixed(1)),
-                ),
-                style: Theme.of(context).textTheme.bodyMedium,
+    return Column(
+      children: [
+        GlassCard(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                children: [
+                  Icon(
+                    Icons.account_balance,
+                    size: 18,
+                    color: glass.incomeColor,
+                  ),
+                  const SizedBox(width: 8),
+                  Text(
+                    AppLocalizations.of(context)!.netSavings.toUpperCase(),
+                    style: TextStyle(
+                      color: glass.mutedText,
+                      fontSize: 12,
+                      fontWeight: FontWeight.w600,
+                      letterSpacing: 0.5,
+                    ),
+                  ),
+                ],
               ),
               const SizedBox(height: 8),
-              LinearProgressIndicator(
-                value: expenseRatio / 100,
-                backgroundColor: Theme.of(
-                  context,
-                ).colorScheme.primary.withOpacity(0.1),
-                valueColor: AlwaysStoppedAnimation(
-                  expenseRatio > 100
-                      ? Theme.of(context).colorScheme.error
-                      : Theme.of(context).colorScheme.primary,
-                ),
+              Row(
+                children: [
+                  Flexible(
+                    child: FittedBox(
+                      fit: BoxFit.scaleDown,
+                      alignment: Alignment.centerLeft,
+                      child: AmountText(
+                        amount: balance.abs(),
+                        currency: _currency,
+                        isExpense: balance < 0,
+                        signed: true,
+                        fontSize: 40,
+                      ),
+                    ),
+                  ),
+                  const SizedBox(width: 12),
+                  _buildRatioBadge(ratio, glass),
+                ],
               ),
             ],
+          ),
+        ),
+        const SizedBox(height: 12),
+        Row(
+          children: [
+            Expanded(
+              child: StatTile(
+                label: AppLocalizations.of(context).incomes,
+                amount: incomes,
+                currency: _currency,
+                icon: Icons.arrow_downward,
+                isIncome: true,
+              ),
+            ),
+            const SizedBox(width: 12),
+            Expanded(
+              child: StatTile(
+                label: AppLocalizations.of(context).expenses,
+                amount: expenses,
+                currency: _currency,
+                icon: Icons.arrow_upward,
+                isIncome: false,
+              ),
+            ),
           ],
         ),
-      ),
+      ],
     );
   }
 
-  Widget _buildOverviewRow(
-    BuildContext context,
-    String label,
-    double amount,
-    Color color,
-  ) {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      children: [
-        Text(label),
-        Text(
-          '${amount.toStringAsFixed(2)}€',
-          style: TextStyle(color: color, fontWeight: FontWeight.bold),
-        ),
-      ],
+  Widget _buildRatioBadge(double ratio, AppGlass glass) {
+    final positive = ratio >= 0;
+    final color = positive ? glass.incomeColor : glass.expenseColor;
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+      decoration: BoxDecoration(
+        color: color.withValues(alpha: 0.15),
+        borderRadius: BorderRadius.circular(glass.pillRadius),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(
+            positive ? Icons.trending_up : Icons.trending_down,
+            size: 14,
+            color: color,
+          ),
+          const SizedBox(width: 4),
+          Text(
+            '${positive ? '+' : ''}${ratio.toStringAsFixed(0)}%',
+            style: TextStyle(
+              color: color,
+              fontSize: 13,
+              fontWeight: FontWeight.w700,
+            ),
+          ),
+        ],
+      ),
     );
   }
 
@@ -189,6 +224,9 @@ class SummaryTabContent extends StatelessWidget {
     List<MovementValue> expenses,
   ) {
     if (expenses.isEmpty) return const SizedBox.shrink();
+
+    final scheme = Theme.of(context).colorScheme;
+    final glass = Theme.of(context).extension<AppGlass>()!;
 
     final dailyTotals = <int, double>{};
     for (var movement in expenses) {
@@ -202,114 +240,66 @@ class SummaryTabContent extends StatelessWidget {
             .toList()
           ..sort((a, b) => a.x.compareTo(b.x));
 
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          AppLocalizations.of(context).dailyExpenses,
-          style: Theme.of(context).textTheme.titleLarge,
-        ),
-        const SizedBox(height: 16),
-        Card(
-          color: Theme.of(context).colorScheme.secondary.withAlpha(25),
-          child: Padding(
-            padding: const EdgeInsets.all(16),
-            child: SizedBox(
-              height: 300,
-              child: LineChart(
-                LineChartData(
-                  gridData: FlGridData(
-                    show: true,
-                    drawHorizontalLine: true,
-                    horizontalInterval: 100,
-                    getDrawingHorizontalLine: (value) {
-                      return FlLine(
-                        color: Theme.of(context).dividerColor.withOpacity(0.2),
-                        strokeWidth: 1,
-                      );
-                    },
-                  ),
-                  titlesData: FlTitlesData(
-                    leftTitles: AxisTitles(
-                      sideTitles: SideTitles(
-                        showTitles: true,
-                        reservedSize: 60,
-                        getTitlesWidget: (value, meta) {
-                          return Text(
-                            '${value.toInt()}€',
-                            style: TextStyle(
-                              color: Theme.of(
-                                context,
-                              ).colorScheme.onSurface.withOpacity(0.6),
-                              fontSize: 12,
-                            ),
-                          );
-                        },
+    return GlassCard(
+      child: SizedBox(
+        height: 220,
+        child: LineChart(
+          LineChartData(
+            gridData: const FlGridData(show: false),
+            borderData: FlBorderData(show: false),
+            titlesData: FlTitlesData(
+              leftTitles: const AxisTitles(
+                sideTitles: SideTitles(showTitles: false),
+              ),
+              rightTitles: const AxisTitles(
+                sideTitles: SideTitles(showTitles: false),
+              ),
+              topTitles: const AxisTitles(
+                sideTitles: SideTitles(showTitles: false),
+              ),
+              bottomTitles: AxisTitles(
+                sideTitles: SideTitles(
+                  showTitles: true,
+                  reservedSize: 28,
+                  interval: 5,
+                  getTitlesWidget: (value, meta) {
+                    if (value < 1 || value > 31) {
+                      return const SizedBox.shrink();
+                    }
+                    return Padding(
+                      padding: const EdgeInsets.only(top: 8),
+                      child: Text(
+                        value.toInt().toString(),
+                        style: TextStyle(color: glass.mutedText, fontSize: 11),
                       ),
-                    ),
-                    bottomTitles: AxisTitles(
-                      sideTitles: SideTitles(
-                        showTitles: true,
-                        reservedSize: 30,
-                        interval: 2,
-                        getTitlesWidget: (value, meta) {
-                          if (value < 1 || value > 31) return const Text('');
-                          return Padding(
-                            padding: const EdgeInsets.only(top: 8),
-                            child: Text(
-                              value.toInt().toString(),
-                              style: TextStyle(
-                                color: Theme.of(
-                                  context,
-                                ).colorScheme.onSurface.withOpacity(0.6),
-                                fontSize: 12,
-                              ),
-                            ),
-                          );
-                        },
-                      ),
-                    ),
-                    rightTitles: AxisTitles(
-                      sideTitles: SideTitles(showTitles: false),
-                    ),
-                    topTitles: AxisTitles(
-                      sideTitles: SideTitles(showTitles: false),
-                    ),
-                  ),
-                  borderData: FlBorderData(show: true),
-                  lineBarsData: [
-                    LineChartBarData(
-                      spots: spots,
-                      isCurved: true,
-                      barWidth: 2.5,
-                      color: Theme.of(context).colorScheme.error,
-                      dotData: FlDotData(
-                        show: true,
-                        getDotPainter:
-                            (spot, percent, barData, index) =>
-                                FlDotCirclePainter(
-                                  radius: 4,
-                                  color: Theme.of(context).colorScheme.error,
-                                  strokeWidth: 1,
-                                  strokeColor: Theme.of(
-                                    context,
-                                  ).colorScheme.error.withOpacity(0.5),
-                                ),
-                      ),
-                      belowBarData: BarAreaData(
-                        show: true,
-                        color: Theme.of(
-                          context,
-                        ).colorScheme.error.withOpacity(0.1),
-                      ),
-                    ),
-                  ],
+                    );
+                  },
                 ),
               ),
             ),
+            lineBarsData: [
+              LineChartBarData(
+                spots: spots,
+                isCurved: true,
+                barWidth: 2,
+                color: scheme.primary,
+                dotData: const FlDotData(show: false),
+                belowBarData: BarAreaData(
+                  show: true,
+                  gradient: LinearGradient(
+                    begin: Alignment.topCenter,
+                    end: Alignment.bottomCenter,
+                    colors: [
+                      scheme.primary.withValues(alpha: 0.35),
+                      scheme.primary.withValues(alpha: 0.0),
+                    ],
+                  ),
+                ),
+              ),
+            ],
           ),
         ),
-      ],
+      ),
     );
   }
 }

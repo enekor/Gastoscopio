@@ -60,6 +60,11 @@ class SharedPreferencesService {
     return ret;
   }
 
+  Future<void> remove(SharedPreferencesKeys key) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.remove(key.toString());
+  }
+
   Future<void> haveToUpload() async {
     final prefs = await SharedPreferences.getInstance();
     var ret = prefs.getInt(SharedPreferencesKeys.numberOfMovements.toString());
@@ -99,9 +104,15 @@ enum SharedPreferencesKeys {
   creditCardBillingCycle('credit_card_billing_cycle'),
   creditCardBillingDay('credit_card_billing_day'),
   creditCardDefaultLimit('credit_card_default_limit'),
-  aiModel('ai_model'),
   classificationOverrides('classification_overrides'),
-  classificationNames('classification_names');
+  classificationNames('classification_names'),
+  themeVariant('theme_variant'),
+  creditCardHolderName('credit_card_holder_name'),
+  designSystem('design_system'),
+  notificationBannerDismissed('notification_banner_dismissed'),
+  // Read natively by TransactionNotificationListener.kt as
+  // "flutter.credit_card_notifications_paused": keep both names in sync.
+  creditCardNotificationsPaused('credit_card_notifications_paused');
 
   final String value;
   const SharedPreferencesKeys(this.value);

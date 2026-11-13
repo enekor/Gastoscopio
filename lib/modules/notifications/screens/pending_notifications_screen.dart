@@ -2,7 +2,9 @@ import 'dart:typed_data';
 
 import 'package:cashly/data/models/movement_value.dart';
 import 'package:cashly/classification/classification_service.dart';
+import 'package:cashly/classification/learning_key.dart';
 import 'package:cashly/classification/locales/locale_config.dart';
+import 'package:cashly/common/tag_list.dart' show getTagList;
 import 'package:cashly/data/services/log_file_service.dart';
 import 'package:cashly/data/services/notification_capture_service.dart';
 import 'package:cashly/data/services/shared_preferences_service.dart';
@@ -11,6 +13,10 @@ import 'package:cashly/modules/gastoscopio/logic/finance_service.dart';
 import 'package:cashly/modules/gastoscopio/widgets/loading.dart';
 import 'package:cashly/modules/notifications/widgets/pending_movement_card.dart';
 import 'package:cashly/l10n/app_localizations.dart';
+import 'package:cashly/theme/app_glass.dart';
+import 'package:cashly/theme/widgets/app_background.dart';
+import 'package:cashly/theme/widgets/glass_card.dart';
+import 'package:cashly/theme/widgets/primary_pill_button.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:cashly/modules/credit_card/logic/credit_card_service.dart';
@@ -216,7 +222,16 @@ class _PendingNotificationsScreenState
         );
         if (!mounted) return;
         setState(() {
-          m.descriptionController.text = result.name;
+          // No pisar lo que el usuario ya editó mientras se parseaba.
+          if (!m.nameEditedByUser) {
+            m.descriptionController.text = result.name;
+          }
+          m.suggestedName = result.name;
+          m.rawMerchant = result.rawMerchant;
+          m.suggestedTag = result.tag;
+          if (!m.tagEditedByUser) {
+            m.category = result.tag;
+          }
           if (result.amount != null) {
             m.amountController.text = result.amount!.toStringAsFixed(2);
           }
@@ -229,9 +244,94 @@ class _PendingNotificationsScreenState
       }
     }
 
+
     if (mounted) {
       setState(() => _isAiProcessing = false);
     }
+  }
+
+  String? _merchantKeyOf(EditablePendingMovement m) {
+    if (m.rawMerchant == null) return null;
+    final key = LearningKey.normalize(m.rawMerchant!);
+    return LearningKey.isValid(key) ? key : null;
+  }
+
+  /// El usuario editó el nombre de una tarjeta: se copia a las tarjetas del
+  /// mismo comercio que todavía no ha tocado.
+  void _onNameEdited(EditablePendingMovement edited) {
+    edited.nameEditedByUser = true;
+    final key = _merchantKeyOf(edited);
+    final text = edited.descriptionController.text;
+    if (key == null || text.trim().isEmpty) return;
+    setState(() {
+      for (final other in _movements) {
+        if (identical(other, edited) || other.nameEditedByUser) continue;
+        if (_merchantKeyOf(other) != key) continue;
+        other.descriptionController.text = text;
+      }
+    });
+  }
+
+  /// Selector de categoría de una tarjeta. La elección se copia a las
+  /// tarjetas del mismo comercio que todavía no ha tocado.
+  Future<void> _pickCategory(EditablePendingMovement target) async {
+    final tags = getTagList(AppLocalizations.of(context).localeName);
+    final scheme = Theme.of(context).colorScheme;
+    final selected = await showModalBottomSheet<String>(
+      context: context,
+      showDragHandle: true,
+      backgroundColor: scheme.surfaceContainerHigh,
+      builder: (context) => SafeArea(
+        child: SingleChildScrollView(
+          padding: const EdgeInsets.all(16),
+          child: Wrap(
+            spacing: 8,
+            runSpacing: 8,
+            children: tags
+                .map(
+                  (t) => ActionChip(
+                    label: Text(t),
+                    onPressed: () => Navigator.pop(context, t),
+                  ),
+                )
+                .toList(),
+          ),
+        ),
+      ),
+    );
+    if (selected == null || !mounted) return;
+    final key = _merchantKeyOf(target);
+    setState(() {
+      target.category = selected;
+      target.tagEditedByUser = true;
+      if (key == null) return;
+      for (final other in _movements) {
+        if (identical(other, target) ||
+            other.tagEditedByUser ||
+            other.isCreditCard) {
+          continue;
+        }
+        if (_merchantKeyOf(other) == key) other.category = selected;
+      }
+    });
+  }
+
+  /// Al cambiar entre gasto e ingreso se recalcula la categoría propuesta,
+  /// salvo que el usuario ya la haya elegido.
+  void _onExpenseChanged(EditablePendingMovement movement, bool isExpense) {
+    setState(() {
+      movement.isExpense = isExpense;
+      if (movement.tagEditedByUser || movement.rawMerchant == null) return;
+      final locale =
+          LocaleRegistry.get(AppLocalizations.of(context).localeName);
+      final tag = ClassificationService().classifier.classify(
+        movement.rawMerchant!,
+        isIncome: !isExpense,
+        locale: locale,
+      );
+      movement.suggestedTag = tag;
+      movement.category = tag;
+    });
   }
 
   Future<void> _saveAll() async {
@@ -254,6 +354,13 @@ class _PendingNotificationsScreenState
       db.fixedMovementDao,
     );
     final creditCardService = CreditCardService.getInstance();
+    final classification = ClassificationService();
+    final locale = LocaleRegistry.get(AppLocalizations.of(context).localeName);
+
+    // Lo aprendido se acumula por comercio y se guarda una sola vez al final,
+    // para que corregir varias tarjetas del mismo comercio cuente como una.
+    final namesToLearn = <String, String>{};
+    final tagsToLearn = <String, String>{};
 
     try {
       for (int i = 0; i < movementsToSave.length; i++) {
@@ -264,6 +371,18 @@ class _PendingNotificationsScreenState
           m.amountController.text.replaceAll(',', '.'),
         );
         final date = DateTime.tryParse(m.timestamp) ?? DateTime.now();
+
+        final merchantText = m.rawMerchant ??
+            classification.suggester.merchantTextFor(m.originalText, locale);
+        final merchantKey = LearningKey.normalize(merchantText);
+
+        // El usuario corrigió el nombre sugerido: se aprende para la próxima vez.
+        final currentName = m.descriptionController.text.trim();
+        if (m.nameEditedByUser &&
+            currentName.isNotEmpty &&
+            currentName != m.suggestedName) {
+          namesToLearn[merchantKey] = currentName;
+        }
 
         if (m.isCreditCard) {
           // Handle credit card expense
@@ -279,32 +398,41 @@ class _PendingNotificationsScreenState
             date.year,
           );
 
-          // Local category generation
-          String? category;
-          try {
-            final locale = LocaleRegistry.get(AppLocalizations.of(context).localeName);
-            final result = ClassificationService().suggester.suggest(
-                  m.descriptionController.text,
-                  locale: locale,
-                );
-            category = result.tag;
-          } catch (e) {
-            category = '';
-            LogFileService().appendLog(
-              'Error generating category for notification movement: $e',
-            );
+          // Categoría: la de la tarjeta (propuesta o elegida) o, si no hay,
+          // se genera a partir de la notificación original.
+          String category = m.category?.trim() ?? '';
+          if (category.isEmpty) {
+            try {
+              category = classification.suggester
+                  .suggest(m.originalText, locale: locale)
+                  .tag;
+            } catch (e) {
+              category = '';
+              LogFileService().appendLog(
+                'Error generating category for notification movement: $e',
+              );
+            }
+          }
+          if (m.tagEditedByUser &&
+              category.isNotEmpty &&
+              category != m.suggestedTag) {
+            tagsToLearn[merchantKey] = category;
           }
 
+          final movementId = DateTime.now().millisecondsSinceEpoch;
           final movement = MovementValue(
-            DateTime.now().millisecondsSinceEpoch,
+            movementId,
             monthId,
             m.descriptionController.text,
             amount,
             m.isExpense,
             date.day,
-            category?.trim(),
+            category,
           );
           await db.movementValueDao.insertMovementValue(movement);
+          // Se recuerda el comercio de origen para seguir aprendiendo si el
+          // usuario corrige este movimiento más adelante.
+          await classification.saveMovementMerchantKey(movementId, merchantText);
         }
 
         // Remove from DB and local list
@@ -352,6 +480,12 @@ class _PendingNotificationsScreenState
         );
       }
     } finally {
+      for (final entry in namesToLearn.entries) {
+        await classification.learnName(entry.key, entry.value);
+      }
+      for (final entry in tagsToLearn.entries) {
+        await classification.learnTag([entry.key], entry.value);
+      }
       if (mounted) setState(() => _isSaving = false);
     }
   }
@@ -387,167 +521,246 @@ class _PendingNotificationsScreenState
   Widget build(BuildContext context) {
     final localizations = AppLocalizations.of(context)!;
     final theme = Theme.of(context);
+    final glass = theme.extension<AppGlass>()!;
 
     if (_isLoading) {
       return Scaffold(
-        appBar: AppBar(),
-        body: Center(child: Loading(context)),
+        backgroundColor: Colors.transparent,
+        appBar: AppBar(
+          backgroundColor: Colors.transparent,
+          elevation: 0,
+        ),
+        body: AppBackground(child: Center(child: Loading(context))),
       );
     }
 
     return Scaffold(
-      body: Form(
-        key: _formKey,
-        child: CustomScrollView(
-          slivers: [
-            SliverAppBar(automaticallyImplyLeading: false),
-            SliverToBoxAdapter(
-              child: Container(
-                width: double.infinity,
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 24,
-                  vertical: 12,
-                ),
-                color: theme.colorScheme.primaryContainer.withAlpha(80),
-                child: Row(
-                  children: [
-                    if (_isAiProcessing)
-                      SizedBox(
-                        width: 20,
-                        height: 20,
-                        child: CircularProgressIndicator(
-                          strokeWidth: 2,
-                          color: theme.colorScheme.primary,
-                        ),
-                      )
-                    else
-                      Icon(
-                        Icons.notifications_active_outlined,
-                        color: theme.colorScheme.primary,
-                        size: 20,
-                      ),
-                    const SizedBox(width: 12),
-                    Expanded(
-                      child: Text(
-                        _isAiProcessing
-                            ? localizations.savingProgress(
-                                _aiProcessingCurrent,
-                                _aiProcessingTotal,
-                              )
-                            : localizations.pendingNotificationsDescription,
-                        style: theme.textTheme.bodySmall?.copyWith(
-                          color: theme.colorScheme.onPrimaryContainer,
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ),
-            if (_availableDates.isNotEmpty)
-              SliverToBoxAdapter(
-                child: Container(
-                  padding: const EdgeInsets.symmetric(vertical: 16),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 24),
-                        child: Text(
-                          localizations.selectDateToView,
-                          style: theme.textTheme.titleSmall?.copyWith(
-                            fontWeight: FontWeight.bold,
+      backgroundColor: Colors.transparent,
+      appBar: AppBar(
+        backgroundColor: Colors.transparent,
+        elevation: 0,
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back),
+          onPressed: () => Navigator.of(context).maybePop(),
+        ),
+        title: Text(localizations.pendingNotifications),
+        centerTitle: true,
+      ),
+      body: AppBackground(
+        child: SafeArea(
+          top: false,
+          child: Form(
+            key: _formKey,
+            child: Column(
+              children: [
+                Expanded(
+                  child: CustomScrollView(
+                    slivers: [
+                      // AI processing progress banner
+                      SliverToBoxAdapter(
+                        child: Padding(
+                          padding: const EdgeInsets.fromLTRB(16, 8, 16, 4),
+                          child: GlassCard(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 16,
+                              vertical: 14,
+                            ),
+                            child: Row(
+                              children: [
+                                if (_isAiProcessing)
+                                  SizedBox(
+                                    width: 20,
+                                    height: 20,
+                                    child: CircularProgressIndicator(
+                                      strokeWidth: 2,
+                                      color: theme.colorScheme.primary,
+                                    ),
+                                  )
+                                else
+                                  Icon(
+                                    Icons.auto_awesome_outlined,
+                                    color: theme.colorScheme.primary,
+                                    size: 20,
+                                  ),
+                                const SizedBox(width: 12),
+                                Expanded(
+                                  child: Text(
+                                    _isAiProcessing
+                                        ? localizations.savingProgress(
+                                            _aiProcessingCurrent,
+                                            _aiProcessingTotal,
+                                          )
+                                        : localizations
+                                            .pendingNotificationsDescription,
+                                    style: theme.textTheme.bodySmall?.copyWith(
+                                      color: glass.mutedText,
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
                           ),
                         ),
                       ),
-                      const SizedBox(height: 12),
-                      SingleChildScrollView(
-                        scrollDirection: Axis.horizontal,
-                        padding: const EdgeInsets.symmetric(horizontal: 16),
-                        child: Row(
-                          children: _availableDates.map((date) {
-                            final isSelected = _selectedDate != null &&
-                                date.year == _selectedDate!.year &&
-                                date.month == _selectedDate!.month &&
-                                date.day == _selectedDate!.day;
-                            return Padding(
-                              padding: const EdgeInsets.symmetric(horizontal: 4),
-                              child: ChoiceChip(
-                                label: Text(
-                                  DateFormat('dd/MM/yyyy').format(date),
+                      // Date filter chips
+                      if (_availableDates.isNotEmpty)
+                        SliverToBoxAdapter(
+                          child: Padding(
+                            padding: const EdgeInsets.only(top: 12, bottom: 4),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Padding(
+                                  padding: const EdgeInsets.symmetric(
+                                    horizontal: 20,
+                                  ),
+                                  child: Text(
+                                    localizations.selectDateToView,
+                                    style: theme.textTheme.titleSmall?.copyWith(
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
                                 ),
-                                selected: isSelected,
-                                onSelected: (selected) {
-                                  if (selected) {
-                                    setState(() => _selectedDate = date);
-                                  }
-                                },
-                              ),
-                            );
-                          }).toList(),
+                                const SizedBox(height: 10),
+                                SingleChildScrollView(
+                                  scrollDirection: Axis.horizontal,
+                                  padding: const EdgeInsets.symmetric(
+                                    horizontal: 16,
+                                  ),
+                                  child: Row(
+                                    children: _availableDates.map((date) {
+                                      final isSelected = _selectedDate != null &&
+                                          date.year == _selectedDate!.year &&
+                                          date.month == _selectedDate!.month &&
+                                          date.day == _selectedDate!.day;
+                                      return Padding(
+                                        padding: const EdgeInsets.symmetric(
+                                          horizontal: 4,
+                                        ),
+                                        child: _DateChip(
+                                          label: DateFormat('dd/MM/yyyy')
+                                              .format(date),
+                                          selected: isSelected,
+                                          glass: glass,
+                                          onTap: () {
+                                            setState(
+                                              () => _selectedDate = date,
+                                            );
+                                          },
+                                        ),
+                                      );
+                                    }).toList(),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
                         ),
+                      SliverPadding(
+                        padding: const EdgeInsets.all(16),
+                        sliver: _filteredMovements.isEmpty
+                            ? SliverFillRemaining(
+                                hasScrollBody: false,
+                                child: Center(
+                                  child: Text(
+                                    localizations.noPendingForDate,
+                                    style: theme.textTheme.bodyMedium
+                                        ?.copyWith(color: glass.mutedText),
+                                  ),
+                                ),
+                              )
+                            : SliverList(
+                                delegate: SliverChildBuilderDelegate(
+                                  (context, index) {
+                                    final movement = _filteredMovements[index];
+                                    return Padding(
+                                      padding:
+                                          const EdgeInsets.only(bottom: 12),
+                                      child: PendingMovementCard(
+                                        movement: movement,
+                                        resolvedAppName:
+                                            _resolvedAppNames[movement.appName],
+                                        appIcon: _resolvedAppIcons[
+                                            movement.appName],
+                                        onDelete: () => _removeMovement(index),
+                                        onDisallowApp: () => _disallowApp(
+                                            _movements.indexOf(movement)),
+                                        onExpenseChanged: (isExpense) =>
+                                            _onExpenseChanged(
+                                                movement, isExpense),
+                                        onDescriptionEdited: (_) =>
+                                            _onNameEdited(movement),
+                                        onPickCategory: () =>
+                                            _pickCategory(movement),
+                                      ),
+                                    );
+                                  },
+                                  childCount: _filteredMovements.length,
+                                ),
+                              ),
                       ),
                     ],
                   ),
                 ),
-              ),
-            SliverPadding(
-              padding: const EdgeInsets.all(16),
-              sliver: _filteredMovements.isEmpty
-                  ? SliverFillRemaining(
-                      hasScrollBody: false,
-                      child: Center(
-                        child: Text(localizations.noPendingForDate),
-                      ),
-                    )
-                  : SliverList(
-                      delegate: SliverChildBuilderDelegate((context, index) {
-                        final movement = _filteredMovements[index];
-                        return Padding(
-                          padding: const EdgeInsets.only(bottom: 12),
-                          child: PendingMovementCard(
-                            movement: movement,
-                            resolvedAppName:
-                                _resolvedAppNames[movement.appName],
-                            appIcon: _resolvedAppIcons[movement.appName],
-                            onDelete: () => _removeMovement(index),
-                            onDisallowApp: () => _disallowApp(_movements.indexOf(movement)),
-                            onExpenseChanged: (isExpense) {
-                              setState(() {
-                                movement.isExpense = isExpense;
-                              });
-                            },
-                          ),
-                        );
-                      }, childCount: _filteredMovements.length),
+                // Pinned bottom process button
+                SafeArea(
+                  top: false,
+                  child: Padding(
+                    padding: const EdgeInsets.all(16),
+                    child: PrimaryPillButton(
+                      label: _isSaving
+                          ? localizations.savingProgress(
+                              _savingCurrent, _savingTotal)
+                          : localizations.processSelected,
+                      icon: _isSaving ? null : Icons.check_circle_outline,
+                      loading: _isSaving,
+                      onPressed: _isSaving ? null : _saveAll,
                     ),
+                  ),
+                ),
+              ],
             ),
-          ],
+          ),
         ),
       ),
-      bottomNavigationBar: SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.all(16),
-          child: SizedBox(
-            width: double.infinity,
-            child: FilledButton.icon(
-              onPressed: _isSaving ? null : _saveAll,
-              icon: _isSaving
-                  ? const SizedBox(
-                      width: 16,
-                      height: 16,
-                      child: CircularProgressIndicator(
-                        strokeWidth: 2,
-                        color: Colors.white,
-                      ),
-                    )
-                  : const Icon(Icons.check),
-              label: Text(
-                _isSaving
-                    ? localizations.savingProgress(_savingCurrent, _savingTotal)
-                    : localizations.saveAll,
-              ),
-            ),
+    );
+  }
+}
+
+/// Themed selectable date chip.
+class _DateChip extends StatelessWidget {
+  final String label;
+  final bool selected;
+  final AppGlass glass;
+  final VoidCallback onTap;
+
+  const _DateChip({
+    required this.label,
+    required this.selected,
+    required this.glass,
+    required this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
+    return GestureDetector(
+      onTap: onTap,
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 200),
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+        decoration: BoxDecoration(
+          color: selected ? scheme.primary : glass.glassFill,
+          borderRadius: BorderRadius.circular(glass.pillRadius),
+          border: Border.all(
+            color: selected ? scheme.primary : glass.glassBorder,
+          ),
+        ),
+        child: Text(
+          label,
+          style: TextStyle(
+            color: selected ? scheme.onPrimary : glass.mutedText,
+            fontWeight: FontWeight.w600,
           ),
         ),
       ),

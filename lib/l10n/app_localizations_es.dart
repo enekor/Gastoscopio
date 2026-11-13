@@ -21,9 +21,6 @@ class AppLocalizationsEs extends AppLocalizations {
   String get summary => 'Resumen';
 
   @override
-  String get aiAnalysis => 'Análisis IA';
-
-  @override
   String get monthlySummary => 'Resumen del Mes';
 
   @override
@@ -41,14 +38,7 @@ class AppLocalizationsEs extends AppLocalizations {
   String get dailyExpenses => 'Gastos Diarios';
 
   @override
-  String get aiAnalysisTitle => 'Análisis de Gastos';
-
-  @override
   String get generate => 'Generar';
-
-  @override
-  String get generateAnalysisHint =>
-      'Pulsa el botón \"Generar Análisis\" para obtener un análisis detallado de tus gastos e ingresos de este mes.';
 
   @override
   String noDataForMonth(String month, int year) {
@@ -210,9 +200,6 @@ class AppLocalizationsEs extends AppLocalizations {
 
   @override
   String get artificialIntelligence => 'Inteligencia Artificial';
-
-  @override
-  String get aiDescription => 'Configuración para funciones avanzadas con IA.';
 
   @override
   String get backupManagement => 'Gestión de copia de seguridad';
@@ -524,7 +511,7 @@ class AppLocalizationsEs extends AppLocalizations {
   String get dayMustBeBetween1And31 => 'El día debe estar entre 1 y 31.';
 
   @override
-  String get movementType => 'Tipo de movimiento';
+  String get movementType => 'Tipo de Movimiento';
 
   @override
   String get saveInCurrentMonth => 'Guardar gasto en mes actual: ';
@@ -593,7 +580,7 @@ class AppLocalizationsEs extends AppLocalizations {
   String get changeCategory => 'Cambiar categoría';
 
   @override
-  String get selectCategory => 'Selecciona una categoría';
+  String get selectCategory => 'Seleccionar Categoría';
 
   @override
   String categoryUpdated(String category) {
@@ -645,44 +632,6 @@ class AppLocalizationsEs extends AppLocalizations {
   @override
   String get appRestartAdvice =>
       '💡 Cierra la app completamente y vuelve a abrirla.';
-
-  @override
-  String get aiFeaturesActivation =>
-      'Para activar las funciones de inteligencia artificial, necesitas obtener una clave API de Google. Te guiamos paso a paso:';
-
-  @override
-  String get step1 =>
-      '1. Accede a Google AI Studio e inicia sesión con tu cuenta';
-
-  @override
-  String get step2 =>
-      '2. Haz clic en \"Crear clave de API\" y copia la clave generada';
-
-  @override
-  String get step2_1 =>
-      '2.1. Si aparece esta ventana emergente, ciérrala con la X';
-
-  @override
-  String get step2_2 =>
-      '2.2. Desplázate hacia abajo hasta encontrar la tabla de claves';
-
-  @override
-  String get step2_3 =>
-      '2.3. Haz clic en el enlace azul para acceder a la clave';
-
-  @override
-  String get step3 =>
-      '3. Pega la clave API en el campo de texto de la aplicación';
-
-  @override
-  String get step4 =>
-      '4. Presiona el botón guardar para completar la configuración';
-
-  @override
-  String get goToGoogleAiStudio => 'Ir a Google AI Studio';
-
-  @override
-  String get googleApiKey => 'Clave API de Google';
 
   @override
   String get deleteDatabase => 'Borrar base de datos';
@@ -760,13 +709,6 @@ class AppLocalizationsEs extends AppLocalizations {
 
   @override
   String get errorSavingApiKey => 'No se ha podido guardar la API Key';
-
-  @override
-  String get configureApiKey => 'Configurar API Key';
-
-  @override
-  String get enterApiKeyMessage =>
-      'Para utilizar las funciones de IA, por favor ingrese su API Key:';
 
   @override
   String get later => 'Más tarde';
@@ -989,17 +931,50 @@ class AppLocalizationsEs extends AppLocalizations {
       'Por favor acepta los Términos y Condiciones para continuar';
 
   @override
-  String get configureGeminiApiKey => 'Configura tu API Key de Gemini';
-
-  @override
-  String get apiKeyRequired =>
-      'La API Key es necesaria para utilizar las funciones de IA.\nEs gratis y fácil de obtener.';
-
-  @override
   String get continueAction => 'Continuar';
 
   @override
   String get welcomeToApp => 'Bienvenido a Gastoscopio';
+
+  @override
+  String get termsTitle => 'Términos y Condiciones';
+
+  @override
+  String get termsSubtitle =>
+      'Por favor, revisa y acepta nuestras condiciones de uso y política de privacidad antes de continuar.';
+
+  @override
+  String get termsLastUpdate => 'Última actualización: Septiembre 2026';
+
+  @override
+  String get termsSection1Title => '1. ALMACENAMIENTO Y BACKUP';
+
+  @override
+  String get termsSection1Body =>
+      'Tus datos se guardan localmente en tu dispositivo. Opcionalmente, puedes usar tu cuenta de Google para copias de seguridad en tu Google Drive personal.';
+
+  @override
+  String get termsSection2Title => '2. PRIVACIDAD Y SEGURIDAD';
+
+  @override
+  String get termsSection2Body =>
+      'No recopilamos datos personales ni financieros. No comercializamos tu información. Tus datos solo se transmiten a tu propio Google Drive si activas el backup.';
+
+  @override
+  String get termsAcceptTitle => 'He leído y acepto los Términos del Servicio';
+
+  @override
+  String get termsAcceptSubtitle =>
+      'Establece los lineamientos operacionales y derechos de propiedad.';
+
+  @override
+  String get termsReadFull => 'Leer términos completos';
+
+  @override
+  String get termsRejectExit => 'Rechazar y salir';
+
+  @override
+  String get termsAcceptContinue => 'Continuar y Aceptar';
 
   @override
   String get connectGoogleAccount =>
@@ -1412,4 +1387,301 @@ class AppLocalizationsEs extends AppLocalizations {
   @override
   String get noPendingForDate =>
       'No hay transacciones pendientes para este día.';
+
+  @override
+  String get navDebts => 'Deudas';
+
+  @override
+  String get navHistory => 'Historial';
+
+  @override
+  String get navStatistics => 'Estadísticas';
+
+  @override
+  String get totalBalance => 'Balance total';
+
+  @override
+  String get quickAccess => 'Accesos rápidos';
+
+  @override
+  String get recentExpenses => 'Últimos movimientos';
+
+  @override
+  String get seeAll => 'Ver todos';
+
+  @override
+  String get cardLabel => 'Tarjeta';
+
+  @override
+  String pendingTransactions(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count transacciones pendientes',
+      one: '1 transacción pendiente',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get totalPending => 'Total pendiente';
+
+  @override
+  String get previousMonth => 'Mes Anterior';
+
+  @override
+  String get recurrents => 'Recurrentes';
+
+  @override
+  String get oneTimeDebts => 'Puntuales';
+
+  @override
+  String get urgent => 'URGENTE';
+
+  @override
+  String get resolve => 'Resolver';
+
+  @override
+  String get pay => 'Pagar';
+
+  @override
+  String get newMovementTitle => 'Nuevo';
+
+  @override
+  String get expenseNameHint => 'Ej: Cena con amigos...';
+
+  @override
+  String get categoryAiTag => 'Categoría';
+
+  @override
+  String get valueLabel => 'Valor';
+
+  @override
+  String get directExpense => 'Gasto Directo';
+
+  @override
+  String get oneTimeDebtLabel => 'Deuda Puntual';
+
+  @override
+  String get saveExpense => 'Guardar Gasto';
+
+  @override
+  String get saveIncome => 'Guardar Ingreso';
+
+  @override
+  String get searchByName => 'Buscar por nombre...';
+
+  @override
+  String get searchByNameCategory => 'Buscar por nombre, categoría...';
+
+  @override
+  String get dateRange => 'Rango de fechas';
+
+  @override
+  String get matches => 'Coincidencias';
+
+  @override
+  String get customRange => 'Rango personalizado';
+
+  @override
+  String get financialSummary => 'Resumen Financiero';
+
+  @override
+  String get netSavings => 'Ahorro Neto';
+
+  @override
+  String get evolution => 'Evolución';
+
+  @override
+  String get distribution => 'Distribución';
+
+  @override
+  String get noData => 'Sin datos';
+
+  @override
+  String get usedBalance => 'Saldo Utilizado';
+
+  @override
+  String get creditLimit => 'Límite de Crédito';
+
+  @override
+  String get nextPayment => 'Próximo Pago';
+
+  @override
+  String get billingClose => 'Cierre Facturación';
+
+  @override
+  String get premiumCard => 'PREMIUM CARD';
+
+  @override
+  String get minimumLabel => 'Mínimo';
+
+  @override
+  String get estimatedMonthlyTotal => 'Total mensual estimado';
+
+  @override
+  String get upcomingCharges => 'Próximos Cobros';
+
+  @override
+  String get recurringExpense => 'Gasto Recurrente';
+
+  @override
+  String get recurringDebt => 'Deuda Recurrente';
+
+  @override
+  String get scheduleLabel => 'Programación';
+
+  @override
+  String get frequency => 'Frecuencia';
+
+  @override
+  String get monthly => 'Mensual';
+
+  @override
+  String get chargeDay => 'Día de Cobro';
+
+  @override
+  String get saveRecurring => 'Guardar Recurrente';
+
+  @override
+  String get detailsLabel => 'Detalles';
+
+  @override
+  String get activeStatus => 'ACTIVO';
+
+  @override
+  String get pendingStatus => 'PENDIENTE';
+
+  @override
+  String get processSelected => 'Procesar Seleccionados';
+
+  @override
+  String get cardChip => 'TARJETA';
+
+  @override
+  String get categoryLabel => 'Categoría';
+
+  @override
+  String get yearLabel => 'AÑO';
+
+  @override
+  String get themeLabel => 'Tema';
+
+  @override
+  String get visualAspect => 'Aspecto Visual';
+
+  @override
+  String get linkedDevices => 'Dispositivos Vinculados';
+
+  @override
+  String get today => 'Hoy';
+
+  @override
+  String get yesterday => 'Ayer';
+
+  @override
+  String get noName => 'Sin nombre';
+
+  @override
+  String get advancedSearch => 'Búsqueda avanzada';
+
+  @override
+  String get cardHolder => 'Titular';
+
+  @override
+  String get days => 'días';
+
+  @override
+  String get available => 'Disponible';
+
+  @override
+  String get navManagement => 'Gestión';
+
+  @override
+  String get autoClassificationSection => 'Clasificación automática';
+
+  @override
+  String get autoClassificationDescription =>
+      'Cuando corriges manualmente una categoría o un nombre sugerido, la app lo recuerda para la próxima vez.';
+
+  @override
+  String learnedCorrectionsCount(int count) {
+    return '$count correcciones aprendidas';
+  }
+
+  @override
+  String get clearLearnedData => 'Borrar aprendizaje';
+
+  @override
+  String get clearLearnedDataConfirmTitle => '¿Borrar todo lo aprendido?';
+
+  @override
+  String get clearLearnedDataConfirmContent =>
+      'Se perderán todas las correcciones de categorías y nombres que la app ha aprendido. Esta acción no se puede deshacer.';
+
+  @override
+  String get learnedDataCleared => 'Aprendizaje borrado correctamente';
+
+  @override
+  String get viewLearnedRules => 'Ver lo aprendido';
+
+  @override
+  String get learnedRulesTitle => 'Lo aprendido';
+
+  @override
+  String get learnedTagsSection => 'Categorías';
+
+  @override
+  String get learnedNamesSection => 'Nombres';
+
+  @override
+  String get learnedRulesEmpty =>
+      'Todavía no hay correcciones aprendidas. Corrige el nombre o la categoría de un movimiento y aparecerá aquí.';
+
+  @override
+  String get learnedRuleDeleted => 'Regla eliminada';
+
+  @override
+  String learnedRuleAlternatives(String options) {
+    return 'También elegido: $options';
+  }
+
+  @override
+  String get noMovementsThisMonth => 'Aún no hay movimientos este mes.';
+
+  @override
+  String get addFirstMovement => 'Añadir movimiento';
+
+  @override
+  String dailyAllowance(String amount, int days) {
+    String _temp0 = intl.Intl.pluralLogic(
+      days,
+      locale: localeName,
+      other: 'para los próximos $days días',
+      one: 'para el último día del mes',
+    );
+    return '$amount/día $_temp0';
+  }
+
+  @override
+  String get overspentThisMonth =>
+      'Este mes has gastado más de lo que has ingresado';
+
+  @override
+  String get setUpCard => 'Configurar tarjeta';
+
+  @override
+  String get payDebtConfirmTitle => '¿Marcar como pagada?';
+
+  @override
+  String payDebtConfirmBody(String amount, String description) {
+    return 'Se creará un gasto de $amount por «$description».';
+  }
+
+  @override
+  String get creditCardStopSearching => 'Dejar de buscar';
+
+  @override
+  String get creditCardStopSearchingDescription =>
+      'Pausa la lectura de notificaciones de la tarjeta de crédito. Las apps configuradas se conservan.';
 }

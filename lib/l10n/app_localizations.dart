@@ -122,12 +122,6 @@ abstract class AppLocalizations {
   /// **'Resumen'**
   String get summary;
 
-  /// Pestaña de análisis IA
-  ///
-  /// In es, this message translates to:
-  /// **'Análisis IA'**
-  String get aiAnalysis;
-
   /// Título del resumen mensual
   ///
   /// In es, this message translates to:
@@ -158,23 +152,11 @@ abstract class AppLocalizations {
   /// **'Gastos Diarios'**
   String get dailyExpenses;
 
-  /// Título del análisis de gastos
-  ///
-  /// In es, this message translates to:
-  /// **'Análisis de Gastos'**
-  String get aiAnalysisTitle;
-
   /// Botón para generar análisis
   ///
   /// In es, this message translates to:
   /// **'Generar'**
   String get generate;
-
-  /// Instrucción para generar análisis
-  ///
-  /// In es, this message translates to:
-  /// **'Pulsa el botón \"Generar Análisis\" para obtener un análisis detallado de tus gastos e ingresos de este mes.'**
-  String get generateAnalysisHint;
 
   /// Mensaje cuando no hay datos para un mes específico
   ///
@@ -469,12 +451,6 @@ abstract class AppLocalizations {
   /// In es, this message translates to:
   /// **'Inteligencia Artificial'**
   String get artificialIntelligence;
-
-  /// Descripción de IA
-  ///
-  /// In es, this message translates to:
-  /// **'Configuración para funciones avanzadas con IA.'**
-  String get aiDescription;
 
   /// Sección de backup
   ///
@@ -1037,7 +1013,7 @@ abstract class AppLocalizations {
   /// Etiqueta de tipo de movimiento
   ///
   /// In es, this message translates to:
-  /// **'Tipo de movimiento'**
+  /// **'Tipo de Movimiento'**
   String get movementType;
 
   /// Etiqueta para guardar en mes actual
@@ -1163,7 +1139,7 @@ abstract class AppLocalizations {
   /// Título del selector de categorías
   ///
   /// In es, this message translates to:
-  /// **'Selecciona una categoría'**
+  /// **'Seleccionar Categoría'**
   String get selectCategory;
 
   /// Mensaje de éxito al actualizar categoría
@@ -1255,66 +1231,6 @@ abstract class AppLocalizations {
   /// In es, this message translates to:
   /// **'💡 Cierra la app completamente y vuelve a abrirla.'**
   String get appRestartAdvice;
-
-  /// Instrucciones para activar funciones de IA
-  ///
-  /// In es, this message translates to:
-  /// **'Para activar las funciones de inteligencia artificial, necesitas obtener una clave API de Google. Te guiamos paso a paso:'**
-  String get aiFeaturesActivation;
-
-  /// Primer paso para activar funciones de IA
-  ///
-  /// In es, this message translates to:
-  /// **'1. Accede a Google AI Studio e inicia sesión con tu cuenta'**
-  String get step1;
-
-  /// Segundo paso para activar funciones de IA
-  ///
-  /// In es, this message translates to:
-  /// **'2. Haz clic en \"Crear clave de API\" y copia la clave generada'**
-  String get step2;
-
-  /// Instrucciones para cerrar la ventana emergente
-  ///
-  /// In es, this message translates to:
-  /// **'2.1. Si aparece esta ventana emergente, ciérrala con la X'**
-  String get step2_1;
-
-  /// Instrucciones para encontrar la tabla de claves
-  ///
-  /// In es, this message translates to:
-  /// **'2.2. Desplázate hacia abajo hasta encontrar la tabla de claves'**
-  String get step2_2;
-
-  /// Instrucciones para acceder a la clave
-  ///
-  /// In es, this message translates to:
-  /// **'2.3. Haz clic en el enlace azul para acceder a la clave'**
-  String get step2_3;
-
-  /// Tercer paso para activar funciones de IA
-  ///
-  /// In es, this message translates to:
-  /// **'3. Pega la clave API en el campo de texto de la aplicación'**
-  String get step3;
-
-  /// Cuarto paso para activar funciones de IA
-  ///
-  /// In es, this message translates to:
-  /// **'4. Presiona el botón guardar para completar la configuración'**
-  String get step4;
-
-  /// Enlace para ir a Google AI Studio
-  ///
-  /// In es, this message translates to:
-  /// **'Ir a Google AI Studio'**
-  String get goToGoogleAiStudio;
-
-  /// Etiqueta para la clave API de Google
-  ///
-  /// In es, this message translates to:
-  /// **'Clave API de Google'**
-  String get googleApiKey;
 
   /// Etiqueta para borrar la base de datos
   ///
@@ -1453,18 +1369,6 @@ abstract class AppLocalizations {
   /// In es, this message translates to:
   /// **'No se ha podido guardar la API Key'**
   String get errorSavingApiKey;
-
-  /// Título del diálogo para configurar la API Key
-  ///
-  /// In es, this message translates to:
-  /// **'Configurar API Key'**
-  String get configureApiKey;
-
-  /// Mensaje que solicita al usuario ingresar su API Key
-  ///
-  /// In es, this message translates to:
-  /// **'Para utilizar las funciones de IA, por favor ingrese su API Key:'**
-  String get enterApiKeyMessage;
 
   /// Botón para posponer una acción
   ///
@@ -1880,18 +1784,6 @@ abstract class AppLocalizations {
   /// **'Por favor acepta los Términos y Condiciones para continuar'**
   String get pleaseAgreeToTerms;
 
-  /// No description provided for @configureGeminiApiKey.
-  ///
-  /// In es, this message translates to:
-  /// **'Configura tu API Key de Gemini'**
-  String get configureGeminiApiKey;
-
-  /// No description provided for @apiKeyRequired.
-  ///
-  /// In es, this message translates to:
-  /// **'La API Key es necesaria para utilizar las funciones de IA.\nEs gratis y fácil de obtener.'**
-  String get apiKeyRequired;
-
   /// No description provided for @continueAction.
   ///
   /// In es, this message translates to:
@@ -1903,6 +1795,78 @@ abstract class AppLocalizations {
   /// In es, this message translates to:
   /// **'Bienvenido a Gastoscopio'**
   String get welcomeToApp;
+
+  /// No description provided for @termsTitle.
+  ///
+  /// In es, this message translates to:
+  /// **'Términos y Condiciones'**
+  String get termsTitle;
+
+  /// No description provided for @termsSubtitle.
+  ///
+  /// In es, this message translates to:
+  /// **'Por favor, revisa y acepta nuestras condiciones de uso y política de privacidad antes de continuar.'**
+  String get termsSubtitle;
+
+  /// No description provided for @termsLastUpdate.
+  ///
+  /// In es, this message translates to:
+  /// **'Última actualización: Septiembre 2026'**
+  String get termsLastUpdate;
+
+  /// No description provided for @termsSection1Title.
+  ///
+  /// In es, this message translates to:
+  /// **'1. ALMACENAMIENTO Y BACKUP'**
+  String get termsSection1Title;
+
+  /// No description provided for @termsSection1Body.
+  ///
+  /// In es, this message translates to:
+  /// **'Tus datos se guardan localmente en tu dispositivo. Opcionalmente, puedes usar tu cuenta de Google para copias de seguridad en tu Google Drive personal.'**
+  String get termsSection1Body;
+
+  /// No description provided for @termsSection2Title.
+  ///
+  /// In es, this message translates to:
+  /// **'2. PRIVACIDAD Y SEGURIDAD'**
+  String get termsSection2Title;
+
+  /// No description provided for @termsSection2Body.
+  ///
+  /// In es, this message translates to:
+  /// **'No recopilamos datos personales ni financieros. No comercializamos tu información. Tus datos solo se transmiten a tu propio Google Drive si activas el backup.'**
+  String get termsSection2Body;
+
+  /// No description provided for @termsAcceptTitle.
+  ///
+  /// In es, this message translates to:
+  /// **'He leído y acepto los Términos del Servicio'**
+  String get termsAcceptTitle;
+
+  /// No description provided for @termsAcceptSubtitle.
+  ///
+  /// In es, this message translates to:
+  /// **'Establece los lineamientos operacionales y derechos de propiedad.'**
+  String get termsAcceptSubtitle;
+
+  /// No description provided for @termsReadFull.
+  ///
+  /// In es, this message translates to:
+  /// **'Leer términos completos'**
+  String get termsReadFull;
+
+  /// No description provided for @termsRejectExit.
+  ///
+  /// In es, this message translates to:
+  /// **'Rechazar y salir'**
+  String get termsRejectExit;
+
+  /// No description provided for @termsAcceptContinue.
+  ///
+  /// In es, this message translates to:
+  /// **'Continuar y Aceptar'**
+  String get termsAcceptContinue;
 
   /// No description provided for @connectGoogleAccount.
   ///
@@ -2623,6 +2587,546 @@ abstract class AppLocalizations {
   /// In es, this message translates to:
   /// **'No hay transacciones pendientes para este día.'**
   String get noPendingForDate;
+
+  /// No description provided for @navDebts.
+  ///
+  /// In es, this message translates to:
+  /// **'Deudas'**
+  String get navDebts;
+
+  /// No description provided for @navHistory.
+  ///
+  /// In es, this message translates to:
+  /// **'Historial'**
+  String get navHistory;
+
+  /// No description provided for @navStatistics.
+  ///
+  /// In es, this message translates to:
+  /// **'Estadísticas'**
+  String get navStatistics;
+
+  /// No description provided for @totalBalance.
+  ///
+  /// In es, this message translates to:
+  /// **'Balance total'**
+  String get totalBalance;
+
+  /// No description provided for @quickAccess.
+  ///
+  /// In es, this message translates to:
+  /// **'Accesos rápidos'**
+  String get quickAccess;
+
+  /// No description provided for @recentExpenses.
+  ///
+  /// In es, this message translates to:
+  /// **'Últimos movimientos'**
+  String get recentExpenses;
+
+  /// No description provided for @seeAll.
+  ///
+  /// In es, this message translates to:
+  /// **'Ver todos'**
+  String get seeAll;
+
+  /// No description provided for @cardLabel.
+  ///
+  /// In es, this message translates to:
+  /// **'Tarjeta'**
+  String get cardLabel;
+
+  /// No description provided for @pendingTransactions.
+  ///
+  /// In es, this message translates to:
+  /// **'{count, plural, =1{1 transacción pendiente} other{{count} transacciones pendientes}}'**
+  String pendingTransactions(int count);
+
+  /// No description provided for @totalPending.
+  ///
+  /// In es, this message translates to:
+  /// **'Total pendiente'**
+  String get totalPending;
+
+  /// No description provided for @previousMonth.
+  ///
+  /// In es, this message translates to:
+  /// **'Mes Anterior'**
+  String get previousMonth;
+
+  /// No description provided for @recurrents.
+  ///
+  /// In es, this message translates to:
+  /// **'Recurrentes'**
+  String get recurrents;
+
+  /// No description provided for @oneTimeDebts.
+  ///
+  /// In es, this message translates to:
+  /// **'Puntuales'**
+  String get oneTimeDebts;
+
+  /// No description provided for @urgent.
+  ///
+  /// In es, this message translates to:
+  /// **'URGENTE'**
+  String get urgent;
+
+  /// No description provided for @resolve.
+  ///
+  /// In es, this message translates to:
+  /// **'Resolver'**
+  String get resolve;
+
+  /// No description provided for @pay.
+  ///
+  /// In es, this message translates to:
+  /// **'Pagar'**
+  String get pay;
+
+  /// No description provided for @newMovementTitle.
+  ///
+  /// In es, this message translates to:
+  /// **'Nuevo'**
+  String get newMovementTitle;
+
+  /// No description provided for @expenseNameHint.
+  ///
+  /// In es, this message translates to:
+  /// **'Ej: Cena con amigos...'**
+  String get expenseNameHint;
+
+  /// No description provided for @categoryAiTag.
+  ///
+  /// In es, this message translates to:
+  /// **'Categoría'**
+  String get categoryAiTag;
+
+  /// No description provided for @valueLabel.
+  ///
+  /// In es, this message translates to:
+  /// **'Valor'**
+  String get valueLabel;
+
+  /// No description provided for @directExpense.
+  ///
+  /// In es, this message translates to:
+  /// **'Gasto Directo'**
+  String get directExpense;
+
+  /// No description provided for @oneTimeDebtLabel.
+  ///
+  /// In es, this message translates to:
+  /// **'Deuda Puntual'**
+  String get oneTimeDebtLabel;
+
+  /// No description provided for @saveExpense.
+  ///
+  /// In es, this message translates to:
+  /// **'Guardar Gasto'**
+  String get saveExpense;
+
+  /// No description provided for @saveIncome.
+  ///
+  /// In es, this message translates to:
+  /// **'Guardar Ingreso'**
+  String get saveIncome;
+
+  /// No description provided for @searchByName.
+  ///
+  /// In es, this message translates to:
+  /// **'Buscar por nombre...'**
+  String get searchByName;
+
+  /// No description provided for @searchByNameCategory.
+  ///
+  /// In es, this message translates to:
+  /// **'Buscar por nombre, categoría...'**
+  String get searchByNameCategory;
+
+  /// No description provided for @dateRange.
+  ///
+  /// In es, this message translates to:
+  /// **'Rango de fechas'**
+  String get dateRange;
+
+  /// No description provided for @matches.
+  ///
+  /// In es, this message translates to:
+  /// **'Coincidencias'**
+  String get matches;
+
+  /// No description provided for @customRange.
+  ///
+  /// In es, this message translates to:
+  /// **'Rango personalizado'**
+  String get customRange;
+
+  /// No description provided for @financialSummary.
+  ///
+  /// In es, this message translates to:
+  /// **'Resumen Financiero'**
+  String get financialSummary;
+
+  /// No description provided for @netSavings.
+  ///
+  /// In es, this message translates to:
+  /// **'Ahorro Neto'**
+  String get netSavings;
+
+  /// No description provided for @evolution.
+  ///
+  /// In es, this message translates to:
+  /// **'Evolución'**
+  String get evolution;
+
+  /// No description provided for @distribution.
+  ///
+  /// In es, this message translates to:
+  /// **'Distribución'**
+  String get distribution;
+
+  /// No description provided for @noData.
+  ///
+  /// In es, this message translates to:
+  /// **'Sin datos'**
+  String get noData;
+
+  /// No description provided for @usedBalance.
+  ///
+  /// In es, this message translates to:
+  /// **'Saldo Utilizado'**
+  String get usedBalance;
+
+  /// No description provided for @creditLimit.
+  ///
+  /// In es, this message translates to:
+  /// **'Límite de Crédito'**
+  String get creditLimit;
+
+  /// No description provided for @nextPayment.
+  ///
+  /// In es, this message translates to:
+  /// **'Próximo Pago'**
+  String get nextPayment;
+
+  /// No description provided for @billingClose.
+  ///
+  /// In es, this message translates to:
+  /// **'Cierre Facturación'**
+  String get billingClose;
+
+  /// No description provided for @premiumCard.
+  ///
+  /// In es, this message translates to:
+  /// **'PREMIUM CARD'**
+  String get premiumCard;
+
+  /// No description provided for @minimumLabel.
+  ///
+  /// In es, this message translates to:
+  /// **'Mínimo'**
+  String get minimumLabel;
+
+  /// No description provided for @estimatedMonthlyTotal.
+  ///
+  /// In es, this message translates to:
+  /// **'Total mensual estimado'**
+  String get estimatedMonthlyTotal;
+
+  /// No description provided for @upcomingCharges.
+  ///
+  /// In es, this message translates to:
+  /// **'Próximos Cobros'**
+  String get upcomingCharges;
+
+  /// No description provided for @recurringExpense.
+  ///
+  /// In es, this message translates to:
+  /// **'Gasto Recurrente'**
+  String get recurringExpense;
+
+  /// No description provided for @recurringDebt.
+  ///
+  /// In es, this message translates to:
+  /// **'Deuda Recurrente'**
+  String get recurringDebt;
+
+  /// No description provided for @scheduleLabel.
+  ///
+  /// In es, this message translates to:
+  /// **'Programación'**
+  String get scheduleLabel;
+
+  /// No description provided for @frequency.
+  ///
+  /// In es, this message translates to:
+  /// **'Frecuencia'**
+  String get frequency;
+
+  /// No description provided for @monthly.
+  ///
+  /// In es, this message translates to:
+  /// **'Mensual'**
+  String get monthly;
+
+  /// No description provided for @chargeDay.
+  ///
+  /// In es, this message translates to:
+  /// **'Día de Cobro'**
+  String get chargeDay;
+
+  /// No description provided for @saveRecurring.
+  ///
+  /// In es, this message translates to:
+  /// **'Guardar Recurrente'**
+  String get saveRecurring;
+
+  /// No description provided for @detailsLabel.
+  ///
+  /// In es, this message translates to:
+  /// **'Detalles'**
+  String get detailsLabel;
+
+  /// No description provided for @activeStatus.
+  ///
+  /// In es, this message translates to:
+  /// **'ACTIVO'**
+  String get activeStatus;
+
+  /// No description provided for @pendingStatus.
+  ///
+  /// In es, this message translates to:
+  /// **'PENDIENTE'**
+  String get pendingStatus;
+
+  /// No description provided for @processSelected.
+  ///
+  /// In es, this message translates to:
+  /// **'Procesar Seleccionados'**
+  String get processSelected;
+
+  /// No description provided for @cardChip.
+  ///
+  /// In es, this message translates to:
+  /// **'TARJETA'**
+  String get cardChip;
+
+  /// No description provided for @categoryLabel.
+  ///
+  /// In es, this message translates to:
+  /// **'Categoría'**
+  String get categoryLabel;
+
+  /// No description provided for @yearLabel.
+  ///
+  /// In es, this message translates to:
+  /// **'AÑO'**
+  String get yearLabel;
+
+  /// No description provided for @themeLabel.
+  ///
+  /// In es, this message translates to:
+  /// **'Tema'**
+  String get themeLabel;
+
+  /// No description provided for @visualAspect.
+  ///
+  /// In es, this message translates to:
+  /// **'Aspecto Visual'**
+  String get visualAspect;
+
+  /// No description provided for @linkedDevices.
+  ///
+  /// In es, this message translates to:
+  /// **'Dispositivos Vinculados'**
+  String get linkedDevices;
+
+  /// No description provided for @today.
+  ///
+  /// In es, this message translates to:
+  /// **'Hoy'**
+  String get today;
+
+  /// No description provided for @yesterday.
+  ///
+  /// In es, this message translates to:
+  /// **'Ayer'**
+  String get yesterday;
+
+  /// No description provided for @noName.
+  ///
+  /// In es, this message translates to:
+  /// **'Sin nombre'**
+  String get noName;
+
+  /// No description provided for @advancedSearch.
+  ///
+  /// In es, this message translates to:
+  /// **'Búsqueda avanzada'**
+  String get advancedSearch;
+
+  /// No description provided for @cardHolder.
+  ///
+  /// In es, this message translates to:
+  /// **'Titular'**
+  String get cardHolder;
+
+  /// No description provided for @days.
+  ///
+  /// In es, this message translates to:
+  /// **'días'**
+  String get days;
+
+  /// No description provided for @available.
+  ///
+  /// In es, this message translates to:
+  /// **'Disponible'**
+  String get available;
+
+  /// No description provided for @navManagement.
+  ///
+  /// In es, this message translates to:
+  /// **'Gestión'**
+  String get navManagement;
+
+  /// No description provided for @autoClassificationSection.
+  ///
+  /// In es, this message translates to:
+  /// **'Clasificación automática'**
+  String get autoClassificationSection;
+
+  /// No description provided for @autoClassificationDescription.
+  ///
+  /// In es, this message translates to:
+  /// **'Cuando corriges manualmente una categoría o un nombre sugerido, la app lo recuerda para la próxima vez.'**
+  String get autoClassificationDescription;
+
+  /// No description provided for @learnedCorrectionsCount.
+  ///
+  /// In es, this message translates to:
+  /// **'{count} correcciones aprendidas'**
+  String learnedCorrectionsCount(int count);
+
+  /// No description provided for @clearLearnedData.
+  ///
+  /// In es, this message translates to:
+  /// **'Borrar aprendizaje'**
+  String get clearLearnedData;
+
+  /// No description provided for @clearLearnedDataConfirmTitle.
+  ///
+  /// In es, this message translates to:
+  /// **'¿Borrar todo lo aprendido?'**
+  String get clearLearnedDataConfirmTitle;
+
+  /// No description provided for @clearLearnedDataConfirmContent.
+  ///
+  /// In es, this message translates to:
+  /// **'Se perderán todas las correcciones de categorías y nombres que la app ha aprendido. Esta acción no se puede deshacer.'**
+  String get clearLearnedDataConfirmContent;
+
+  /// No description provided for @learnedDataCleared.
+  ///
+  /// In es, this message translates to:
+  /// **'Aprendizaje borrado correctamente'**
+  String get learnedDataCleared;
+
+  /// No description provided for @viewLearnedRules.
+  ///
+  /// In es, this message translates to:
+  /// **'Ver lo aprendido'**
+  String get viewLearnedRules;
+
+  /// No description provided for @learnedRulesTitle.
+  ///
+  /// In es, this message translates to:
+  /// **'Lo aprendido'**
+  String get learnedRulesTitle;
+
+  /// No description provided for @learnedTagsSection.
+  ///
+  /// In es, this message translates to:
+  /// **'Categorías'**
+  String get learnedTagsSection;
+
+  /// No description provided for @learnedNamesSection.
+  ///
+  /// In es, this message translates to:
+  /// **'Nombres'**
+  String get learnedNamesSection;
+
+  /// No description provided for @learnedRulesEmpty.
+  ///
+  /// In es, this message translates to:
+  /// **'Todavía no hay correcciones aprendidas. Corrige el nombre o la categoría de un movimiento y aparecerá aquí.'**
+  String get learnedRulesEmpty;
+
+  /// No description provided for @learnedRuleDeleted.
+  ///
+  /// In es, this message translates to:
+  /// **'Regla eliminada'**
+  String get learnedRuleDeleted;
+
+  /// No description provided for @learnedRuleAlternatives.
+  ///
+  /// In es, this message translates to:
+  /// **'También elegido: {options}'**
+  String learnedRuleAlternatives(String options);
+
+  /// No description provided for @noMovementsThisMonth.
+  ///
+  /// In es, this message translates to:
+  /// **'Aún no hay movimientos este mes.'**
+  String get noMovementsThisMonth;
+
+  /// No description provided for @addFirstMovement.
+  ///
+  /// In es, this message translates to:
+  /// **'Añadir movimiento'**
+  String get addFirstMovement;
+
+  /// No description provided for @dailyAllowance.
+  ///
+  /// In es, this message translates to:
+  /// **'{amount}/día {days, plural, =1{para el último día del mes} other{para los próximos {days} días}}'**
+  String dailyAllowance(String amount, int days);
+
+  /// No description provided for @overspentThisMonth.
+  ///
+  /// In es, this message translates to:
+  /// **'Este mes has gastado más de lo que has ingresado'**
+  String get overspentThisMonth;
+
+  /// No description provided for @setUpCard.
+  ///
+  /// In es, this message translates to:
+  /// **'Configurar tarjeta'**
+  String get setUpCard;
+
+  /// No description provided for @payDebtConfirmTitle.
+  ///
+  /// In es, this message translates to:
+  /// **'¿Marcar como pagada?'**
+  String get payDebtConfirmTitle;
+
+  /// No description provided for @payDebtConfirmBody.
+  ///
+  /// In es, this message translates to:
+  /// **'Se creará un gasto de {amount} por «{description}».'**
+  String payDebtConfirmBody(String amount, String description);
+
+  /// No description provided for @creditCardStopSearching.
+  ///
+  /// In es, this message translates to:
+  /// **'Dejar de buscar'**
+  String get creditCardStopSearching;
+
+  /// No description provided for @creditCardStopSearchingDescription.
+  ///
+  /// In es, this message translates to:
+  /// **'Pausa la lectura de notificaciones de la tarjeta de crédito. Las apps configuradas se conservan.'**
+  String get creditCardStopSearchingDescription;
 }
 
 class _AppLocalizationsDelegate

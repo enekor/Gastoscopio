@@ -1,7 +1,11 @@
 import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:cashly/l10n/app_localizations.dart';
+import 'package:cashly/theme/app_glass.dart';
+import 'package:cashly/theme/widgets/glass_card.dart';
+import 'package:cashly/theme/widgets/app_segmented_control.dart';
 
 class EditablePendingMovement {
   final int? id;
@@ -13,6 +17,26 @@ class EditablePendingMovement {
   bool isExpense;
   bool isCreditCard;
 
+  /// Nombre limpio propuesto por el clasificador local, usado para detectar
+  /// si el usuario lo corrigió manualmente antes de guardar.
+  String? suggestedName;
+
+  /// Comercio extraído de la notificación por el parser local. Es la clave
+  /// con la que se aprende el nombre y la categoría corregidos por el usuario.
+  String? rawMerchant;
+
+  /// Categoría propuesta por el clasificador local.
+  String? suggestedTag;
+
+  /// Categoría actual del movimiento (propuesta o elegida por el usuario).
+  String? category;
+
+  /// True cuando el usuario escribió en el nombre de esta tarjeta.
+  bool nameEditedByUser = false;
+
+  /// True cuando el usuario eligió la categoría de esta tarjeta.
+  bool tagEditedByUser = false;
+
   EditablePendingMovement({
     this.id,
     required this.originalText,
@@ -22,6 +46,8 @@ class EditablePendingMovement {
     required this.amountController,
     this.isExpense = true,
     this.isCreditCard = false,
+    this.suggestedName,
+    this.rawMerchant,
   });
 
   void dispose() {
@@ -38,6 +64,12 @@ class PendingMovementCard extends StatelessWidget {
   final String? resolvedAppName;
   final Uint8List? appIcon;
 
+  /// Se llama cada vez que el usuario escribe en el nombre.
+  final ValueChanged<String>? onDescriptionEdited;
+
+  /// Abre el selector de categoría. Sin callback no se muestra el selector.
+  final VoidCallback? onPickCategory;
+
   const PendingMovementCard({
     super.key,
     required this.movement,
@@ -46,168 +78,230 @@ class PendingMovementCard extends StatelessWidget {
     this.onDisallowApp,
     this.resolvedAppName,
     this.appIcon,
+    this.onDescriptionEdited,
+    this.onPickCategory,
   });
 
   @override
   Widget build(BuildContext context) {
     final localizations = AppLocalizations.of(context)!;
     final theme = Theme.of(context);
+    final scheme = theme.colorScheme;
+    final glass = theme.extension<AppGlass>()!;
 
-    return Card(
-      color: theme.colorScheme.secondary.withAlpha(25),
-      elevation: 0,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(16),
-        side: BorderSide(
-          color: theme.colorScheme.outline.withAlpha(50),
-        ),
-      ),
-      child: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            // Header: app name chip + block button + delete button
-            Row(
-              children: [
-                Expanded(
-                  child: Wrap(
-                    spacing: 8,
-                    runSpacing: 4,
-                    crossAxisAlignment: WrapCrossAlignment.center,
-                    children: [
-                      Chip(
-                        avatar: appIcon != null
-                            ? CircleAvatar(
-                                backgroundImage: MemoryImage(appIcon!),
-                                radius: 12,
-                              )
-                            : const Icon(Icons.notifications_outlined, size: 16),
-                        label: Text(
-                          resolvedAppName ?? movement.appName,
-                          style: theme.textTheme.labelSmall,
-                        ),
-                        materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                        visualDensity: VisualDensity.compact,
+    return GlassCard(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // Header: leading app icon (with badge) + name + actions
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              _AppIconBadge(
+                appIcon: appIcon,
+                isCreditCard: movement.isCreditCard,
+                glass: glass,
+                scheme: scheme,
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      resolvedAppName ?? movement.appName,
+                      style: theme.textTheme.titleMedium?.copyWith(
+                        fontWeight: FontWeight.w700,
                       ),
-                      if (movement.isCreditCard)
-                        Chip(
-                          avatar: const Icon(Icons.credit_card, size: 16),
-                          label: Text(
-                            localizations.credit,
-                            style: theme.textTheme.labelSmall,
-                          ),
-                          materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                          visualDensity: VisualDensity.compact,
-                          backgroundColor: theme.colorScheme.primaryContainer.withAlpha(100),
-                        ),
-                    ],
-                  ),
-                ),
-                if (onDisallowApp != null)
-                  IconButton(
-                    icon: Icon(
-                      Icons.notifications_off_outlined,
-                      color: theme.colorScheme.onSurfaceVariant,
-                      size: 20,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
                     ),
-                    tooltip: localizations.disallowApp,
-                    onPressed: onDisallowApp,
-                    visualDensity: VisualDensity.compact,
-                  ),
+                    const SizedBox(height: 2),
+                    Text(
+                      movement.timestamp,
+                      style: theme.textTheme.bodySmall?.copyWith(
+                        color: glass.mutedText,
+                      ),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ],
+                ),
+              ),
+              if (onDisallowApp != null)
                 IconButton(
                   icon: Icon(
-                    Icons.close,
-                    color: theme.colorScheme.error,
+                    Icons.notifications_off_outlined,
+                    color: glass.mutedText,
                     size: 20,
                   ),
-                  onPressed: onDelete,
+                  tooltip: localizations.disallowApp,
+                  onPressed: onDisallowApp,
                   visualDensity: VisualDensity.compact,
                 ),
-              ],
-            ),
-
-            // Original notification text
-            Container(
-              width: double.infinity,
-              padding: const EdgeInsets.all(8),
-              decoration: BoxDecoration(
-                color: theme.colorScheme.surfaceContainerHighest.withAlpha(80),
-                borderRadius: BorderRadius.circular(8),
-              ),
-              child: Text(
-                movement.originalText,
-                style: theme.textTheme.bodySmall?.copyWith(
-                  color: theme.colorScheme.onSurfaceVariant,
+              IconButton(
+                icon: Icon(
+                  Icons.delete_outline,
+                  color: scheme.error,
+                  size: 20,
                 ),
-                maxLines: 3,
-                overflow: TextOverflow.ellipsis,
+                onPressed: onDelete,
+                visualDensity: VisualDensity.compact,
               ),
-            ),
-            const SizedBox(height: 12),
+            ],
+          ),
+          const SizedBox(height: 16),
 
-            // Expense/Income toggle
-            SegmentedButton<bool>(
-              segments: [
-                ButtonSegment<bool>(
-                  value: true,
-                  label: Text(localizations.expense),
-                  icon: const Icon(Icons.remove_circle_outline),
+          // Editable description field
+          TextFormField(
+            controller: movement.descriptionController,
+            style: theme.textTheme.bodyMedium,
+            decoration: InputDecoration(
+              labelText: localizations.description,
+              isDense: true,
+            ),
+            onChanged: onDescriptionEdited,
+            validator: (value) {
+              if (value == null || value.isEmpty) {
+                return localizations.pleaseEnterDescription;
+              }
+              return null;
+            },
+          ),
+          const SizedBox(height: 12),
+
+          // Editable amount field
+          TextFormField(
+            controller: movement.amountController,
+            style: theme.textTheme.titleMedium?.copyWith(
+              fontWeight: FontWeight.w700,
+            ),
+            decoration: InputDecoration(
+              labelText: localizations.amount,
+              isDense: true,
+              prefixText: '€ ',
+            ),
+            keyboardType:
+                const TextInputType.numberWithOptions(decimal: true),
+            inputFormatters: [
+              FilteringTextInputFormatter.allow(RegExp(r'[0-9.,]')),
+            ],
+            validator: (value) {
+              if (value == null || value.isEmpty) {
+                return localizations.pleaseEnterAmount;
+              }
+              final parsed = double.tryParse(value.replaceAll(',', '.'));
+              if (parsed == null || parsed <= 0) {
+                return localizations.pleaseEnterValidAmountGreaterThanZero;
+              }
+              return null;
+            },
+          ),
+
+          // Category picker (credit card expenses have no category)
+          if (onPickCategory != null && !movement.isCreditCard) ...[
+            const SizedBox(height: 12),
+            Align(
+              alignment: Alignment.centerLeft,
+              child: ActionChip(
+                avatar: Icon(
+                  Icons.sell_outlined,
+                  size: 18,
+                  color: scheme.primary,
                 ),
-                ButtonSegment<bool>(
-                  value: false,
-                  label: Text(localizations.income),
-                  icon: const Icon(Icons.add_circle_outline),
+                label: Text(
+                  (movement.category?.isNotEmpty ?? false)
+                      ? movement.category!
+                      : localizations.selectCategory,
                 ),
-              ],
-              selected: {movement.isExpense},
-              onSelectionChanged: (Set<bool> selection) {
-                onExpenseChanged(selection.first);
-              },
-            ),
-            const SizedBox(height: 12),
-
-            // Description field
-            TextFormField(
-              controller: movement.descriptionController,
-              decoration: InputDecoration(
-                labelText: localizations.description,
-                border: const OutlineInputBorder(),
-                isDense: true,
+                onPressed: onPickCategory,
               ),
-              validator: (value) {
-                if (value == null || value.isEmpty) {
-                  return localizations.pleaseEnterDescription;
-                }
-                return null;
-              },
-            ),
-            const SizedBox(height: 12),
-
-            // Amount field
-            TextFormField(
-              controller: movement.amountController,
-              decoration: InputDecoration(
-                labelText: localizations.amount,
-                border: const OutlineInputBorder(),
-                isDense: true,
-              ),
-              keyboardType:
-                  const TextInputType.numberWithOptions(decimal: true),
-              validator: (value) {
-                if (value == null || value.isEmpty) {
-                  return localizations.pleaseEnterAmount;
-                }
-                final parsed =
-                    double.tryParse(value.replaceAll(',', '.'));
-                if (parsed == null || parsed <= 0) {
-                  return localizations.pleaseEnterValidAmountGreaterThanZero;
-                }
-                return null;
-              },
             ),
           ],
-        ),
+          const SizedBox(height: 16),
+
+          // Expense/Income toggle (true = Gasto/expense)
+          AppSegmentedControl<bool>(
+            selected: movement.isExpense,
+            onChanged: onExpenseChanged,
+            segments: [
+              (
+                value: true,
+                label: localizations.expense,
+                icon: Icons.remove_circle_outline,
+              ),
+              (
+                value: false,
+                label: localizations.income,
+                icon: Icons.add_circle_outline,
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+/// Leading app icon with a credit-card badge shown ONLY for credit movements.
+class _AppIconBadge extends StatelessWidget {
+  final Uint8List? appIcon;
+  final bool isCreditCard;
+  final AppGlass glass;
+  final ColorScheme scheme;
+
+  const _AppIconBadge({
+    required this.appIcon,
+    required this.isCreditCard,
+    required this.glass,
+    required this.scheme,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return SizedBox(
+      width: 48,
+      height: 48,
+      child: Stack(
+        clipBehavior: Clip.none,
+        children: [
+          Container(
+            width: 48,
+            height: 48,
+            decoration: BoxDecoration(
+              color: glass.glassFill,
+              borderRadius: BorderRadius.circular(14),
+              border: Border.all(color: glass.glassBorder),
+            ),
+            clipBehavior: Clip.antiAlias,
+            child: appIcon != null
+                ? Image.memory(appIcon!, fit: BoxFit.cover)
+                : Icon(
+                    Icons.notifications_outlined,
+                    size: 22,
+                    color: glass.mutedText,
+                  ),
+          ),
+          if (isCreditCard)
+            Positioned(
+              top: -4,
+              right: -4,
+              child: Container(
+                width: 20,
+                height: 20,
+                decoration: BoxDecoration(
+                  color: scheme.primary,
+                  shape: BoxShape.circle,
+                  border: Border.all(color: scheme.surface, width: 2),
+                ),
+                child: Icon(
+                  Icons.credit_card,
+                  size: 11,
+                  color: scheme.onPrimary,
+                ),
+              ),
+            ),
+        ],
       ),
     );
   }

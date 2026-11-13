@@ -21,9 +21,6 @@ class AppLocalizationsEn extends AppLocalizations {
   String get summary => 'Summary';
 
   @override
-  String get aiAnalysis => 'AI Analysis';
-
-  @override
   String get monthlySummary => 'Monthly Summary';
 
   @override
@@ -41,14 +38,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get dailyExpenses => 'Daily Expenses';
 
   @override
-  String get aiAnalysisTitle => 'Expense Analysis';
-
-  @override
   String get generate => 'Generate';
-
-  @override
-  String get generateAnalysisHint =>
-      'Press the \"Generate Analysis\" button to get a detailed analysis of your expenses and income for this month.';
 
   @override
   String noDataForMonth(String month, int year) {
@@ -209,9 +199,6 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get artificialIntelligence => 'Artificial Intelligence';
-
-  @override
-  String get aiDescription => 'Configuration for advanced AI features.';
 
   @override
   String get backupManagement => 'Backup Management';
@@ -521,7 +508,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get dayMustBeBetween1And31 => 'Day must be between 1 and 31.';
 
   @override
-  String get movementType => 'Movement type';
+  String get movementType => 'Movement Type';
 
   @override
   String get saveInCurrentMonth => 'Save expense in current month: ';
@@ -643,38 +630,6 @@ class AppLocalizationsEn extends AppLocalizations {
   String get appRestartAdvice => '💡 Close the app completely and reopen it.';
 
   @override
-  String get aiFeaturesActivation =>
-      'To activate artificial intelligence features, you need to obtain a Google API key. We guide you step by step:';
-
-  @override
-  String get step1 => '1. Go to Google AI Studio and sign in with your account';
-
-  @override
-  String get step2 =>
-      '2. Click on \"Create API key\" and copy the generated key';
-
-  @override
-  String get step2_1 => '2.1. If this popup appears, close it with the X';
-
-  @override
-  String get step2_2 => '2.2. Scroll down until you find the keys table';
-
-  @override
-  String get step2_3 => '2.3. Click the blue link to access the key';
-
-  @override
-  String get step3 => '3. Paste the API key into the app\'s text field';
-
-  @override
-  String get step4 => '4. Press the save button to complete the setup';
-
-  @override
-  String get goToGoogleAiStudio => 'Go to Google AI Studio';
-
-  @override
-  String get googleApiKey => 'Google API Key';
-
-  @override
   String get deleteDatabase => 'Delete database';
 
   @override
@@ -749,13 +704,6 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get errorSavingApiKey => '❌ Error saving API Key';
-
-  @override
-  String get configureApiKey => 'Configure API Key';
-
-  @override
-  String get enterApiKeyMessage =>
-      'To use AI features, please enter your API Key:';
 
   @override
   String get later => 'Later';
@@ -975,17 +923,50 @@ class AppLocalizationsEn extends AppLocalizations {
       'Please agree to the Terms and Conditions to continue';
 
   @override
-  String get configureGeminiApiKey => 'Configure your Gemini API Key';
-
-  @override
-  String get apiKeyRequired =>
-      'API Key is required for AI features.\nIt\'s free and easy to obtain.';
-
-  @override
   String get continueAction => 'Continue';
 
   @override
-  String get welcomeToApp => 'Welcome to Cashly';
+  String get welcomeToApp => 'Welcome to Gastoscopio';
+
+  @override
+  String get termsTitle => 'Terms and Conditions';
+
+  @override
+  String get termsSubtitle =>
+      'Please review and accept our terms of use and privacy policy before continuing.';
+
+  @override
+  String get termsLastUpdate => 'Last updated: September 2026';
+
+  @override
+  String get termsSection1Title => '1. STORAGE AND BACKUP';
+
+  @override
+  String get termsSection1Body =>
+      'Your data is stored locally on your device. Optionally, you can use your Google account for backups on your personal Google Drive.';
+
+  @override
+  String get termsSection2Title => '2. PRIVACY AND SECURITY';
+
+  @override
+  String get termsSection2Body =>
+      'We do not collect personal or financial data. We do not sell your information. Your data is only transmitted to your own Google Drive if you enable backup.';
+
+  @override
+  String get termsAcceptTitle => 'I have read and accept the Terms of Service';
+
+  @override
+  String get termsAcceptSubtitle =>
+      'Establishes operational guidelines and property rights.';
+
+  @override
+  String get termsReadFull => 'Read full terms';
+
+  @override
+  String get termsRejectExit => 'Reject and exit';
+
+  @override
+  String get termsAcceptContinue => 'Continue and Accept';
 
   @override
   String get connectGoogleAccount =>
@@ -1394,4 +1375,301 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get noPendingForDate => 'No pending transactions for this day.';
+
+  @override
+  String get navDebts => 'Debts';
+
+  @override
+  String get navHistory => 'History';
+
+  @override
+  String get navStatistics => 'Statistics';
+
+  @override
+  String get totalBalance => 'Total balance';
+
+  @override
+  String get quickAccess => 'Quick access';
+
+  @override
+  String get recentExpenses => 'Latest movements';
+
+  @override
+  String get seeAll => 'See all';
+
+  @override
+  String get cardLabel => 'Card';
+
+  @override
+  String pendingTransactions(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count pending transactions',
+      one: '1 pending transaction',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get totalPending => 'Total pending';
+
+  @override
+  String get previousMonth => 'Previous Month';
+
+  @override
+  String get recurrents => 'Recurring';
+
+  @override
+  String get oneTimeDebts => 'One-time';
+
+  @override
+  String get urgent => 'URGENT';
+
+  @override
+  String get resolve => 'Resolve';
+
+  @override
+  String get pay => 'Pay';
+
+  @override
+  String get newMovementTitle => 'New';
+
+  @override
+  String get expenseNameHint => 'e.g. Dinner with friends...';
+
+  @override
+  String get categoryAiTag => 'Category';
+
+  @override
+  String get valueLabel => 'Value';
+
+  @override
+  String get directExpense => 'Direct Expense';
+
+  @override
+  String get oneTimeDebtLabel => 'One-time Debt';
+
+  @override
+  String get saveExpense => 'Save Expense';
+
+  @override
+  String get saveIncome => 'Save Income';
+
+  @override
+  String get searchByName => 'Search by name...';
+
+  @override
+  String get searchByNameCategory => 'Search by name, category...';
+
+  @override
+  String get dateRange => 'Date range';
+
+  @override
+  String get matches => 'Matches';
+
+  @override
+  String get customRange => 'Custom range';
+
+  @override
+  String get financialSummary => 'Financial Summary';
+
+  @override
+  String get netSavings => 'Net Savings';
+
+  @override
+  String get evolution => 'Evolution';
+
+  @override
+  String get distribution => 'Distribution';
+
+  @override
+  String get noData => 'No data';
+
+  @override
+  String get usedBalance => 'Used Balance';
+
+  @override
+  String get creditLimit => 'Credit Limit';
+
+  @override
+  String get nextPayment => 'Next Payment';
+
+  @override
+  String get billingClose => 'Billing Close';
+
+  @override
+  String get premiumCard => 'PREMIUM CARD';
+
+  @override
+  String get minimumLabel => 'Minimum';
+
+  @override
+  String get estimatedMonthlyTotal => 'Estimated monthly total';
+
+  @override
+  String get upcomingCharges => 'Upcoming Charges';
+
+  @override
+  String get recurringExpense => 'Recurring Expense';
+
+  @override
+  String get recurringDebt => 'Recurring Debt';
+
+  @override
+  String get scheduleLabel => 'Schedule';
+
+  @override
+  String get frequency => 'Frequency';
+
+  @override
+  String get monthly => 'Monthly';
+
+  @override
+  String get chargeDay => 'Charge Day';
+
+  @override
+  String get saveRecurring => 'Save Recurring';
+
+  @override
+  String get detailsLabel => 'Details';
+
+  @override
+  String get activeStatus => 'ACTIVE';
+
+  @override
+  String get pendingStatus => 'PENDING';
+
+  @override
+  String get processSelected => 'Process Selected';
+
+  @override
+  String get cardChip => 'CARD';
+
+  @override
+  String get categoryLabel => 'Category';
+
+  @override
+  String get yearLabel => 'YEAR';
+
+  @override
+  String get themeLabel => 'Theme';
+
+  @override
+  String get visualAspect => 'Visual Appearance';
+
+  @override
+  String get linkedDevices => 'Linked Devices';
+
+  @override
+  String get today => 'Today';
+
+  @override
+  String get yesterday => 'Yesterday';
+
+  @override
+  String get noName => 'No name';
+
+  @override
+  String get advancedSearch => 'Advanced search';
+
+  @override
+  String get cardHolder => 'Cardholder';
+
+  @override
+  String get days => 'days';
+
+  @override
+  String get available => 'Available';
+
+  @override
+  String get navManagement => 'Management';
+
+  @override
+  String get autoClassificationSection => 'Automatic classification';
+
+  @override
+  String get autoClassificationDescription =>
+      'When you manually correct a suggested category or name, the app remembers it for next time.';
+
+  @override
+  String learnedCorrectionsCount(int count) {
+    return '$count corrections learned';
+  }
+
+  @override
+  String get clearLearnedData => 'Clear learned data';
+
+  @override
+  String get clearLearnedDataConfirmTitle => 'Clear everything learned?';
+
+  @override
+  String get clearLearnedDataConfirmContent =>
+      'All learned category and name corrections will be lost. This cannot be undone.';
+
+  @override
+  String get learnedDataCleared => 'Learned data cleared';
+
+  @override
+  String get viewLearnedRules => 'View learned rules';
+
+  @override
+  String get learnedRulesTitle => 'Learned rules';
+
+  @override
+  String get learnedTagsSection => 'Categories';
+
+  @override
+  String get learnedNamesSection => 'Names';
+
+  @override
+  String get learnedRulesEmpty =>
+      'No learned corrections yet. Correct the name or category of a movement and it will show up here.';
+
+  @override
+  String get learnedRuleDeleted => 'Rule deleted';
+
+  @override
+  String learnedRuleAlternatives(String options) {
+    return 'Also chosen: $options';
+  }
+
+  @override
+  String get noMovementsThisMonth => 'No movements this month yet.';
+
+  @override
+  String get addFirstMovement => 'Add movement';
+
+  @override
+  String dailyAllowance(String amount, int days) {
+    String _temp0 = intl.Intl.pluralLogic(
+      days,
+      locale: localeName,
+      other: 'for the next $days days',
+      one: 'for the last day of the month',
+    );
+    return '$amount/day $_temp0';
+  }
+
+  @override
+  String get overspentThisMonth =>
+      'You have spent more than you earned this month';
+
+  @override
+  String get setUpCard => 'Set up card';
+
+  @override
+  String get payDebtConfirmTitle => 'Mark as paid?';
+
+  @override
+  String payDebtConfirmBody(String amount, String description) {
+    return 'An expense of $amount will be created for \"$description\".';
+  }
+
+  @override
+  String get creditCardStopSearching => 'Stop searching';
+
+  @override
+  String get creditCardStopSearchingDescription =>
+      'Pauses reading credit card notifications. Your configured apps are kept.';
 }

@@ -13,10 +13,7 @@
     "description": "Pestaña de movimientos"
   },
   "summary": "Resumen",
-  "aiAnalysis": "Análisis IA",
-  "@aiAnalysis": {
-    "description": "Pestaña de análisis IA"
-  },
+
   "monthlySummary": "Resumen del Mes",
   "@monthlySummary": {
     "description": "Título del resumen mensual"
@@ -43,18 +40,12 @@
   "@dailyExpenses": {
     "description": "Título de gastos diarios"
   },
-  "aiAnalysisTitle": "Análisis de Gastos",
-  "@aiAnalysisTitle": {
-    "description": "Título del análisis de gastos"
-  },
+
   "generate": "Generar",
   "@generate": {
     "description": "Botón para generar análisis"
   },
-  "generateAnalysisHint": "Pulsa el botón \"Generar Análisis\" para obtener un análisis detallado de tus gastos e ingresos de este mes.",
-  "@generateAnalysisHint": {
-    "description": "Instrucción para generar análisis"
-  },
+
   "noDataForMonth": "No hay datos para {month} - {year}",
   "@noDataForMonth": {
     "description": "Mensaje cuando no hay datos para un mes específico",
@@ -261,10 +252,7 @@
   "@artificialIntelligence": {
     "description": "Sección de IA"
   },
-  "aiDescription": "Configuración para funciones avanzadas con IA.",
-  "@aiDescription": {
-    "description": "Descripción de IA"
-  },
+
   "backupManagement": "Gestión de copia de seguridad",
   "@backupManagement": {
     "description": "Sección de backup"
@@ -852,46 +840,6 @@
   "@appRestartAdvice": {
     "description": "Consejo sobre reinicio de la aplicación"
   },
-  "aiFeaturesActivation": "Para activar las funciones de inteligencia artificial, necesitas obtener una clave API de Google. Te guiamos paso a paso:",
-  "@aiFeaturesActivation": {
-    "description": "Instrucciones para activar funciones de IA"
-  },
-  "step1": "1. Accede a Google AI Studio e inicia sesión con tu cuenta",
-  "@step1": {
-    "description": "Primer paso para activar funciones de IA"
-  },
-  "step2": "2. Haz clic en \"Crear clave de API\" y copia la clave generada",
-  "@step2": {
-    "description": "Segundo paso para activar funciones de IA"
-  },
-  "step2_1": "2.1. Si aparece esta ventana emergente, ciérrala con la X",
-  "@step2_1": {
-    "description": "Instrucciones para cerrar la ventana emergente"
-  },
-  "step2_2":"2.2. Desplázate hacia abajo hasta encontrar la tabla de claves",
-  "@step2_2": {
-    "description": "Instrucciones para encontrar la tabla de claves"
-  },
-  "step2_3": "2.3. Haz clic en el enlace azul para acceder a la clave",
-  "@step2_3": {
-    "description": "Instrucciones para acceder a la clave"
-  },
-  "step3": "3. Pega la clave API en el campo de texto de la aplicación",
-  "@step3": {
-    "description": "Tercer paso para activar funciones de IA"
-  },
-  "step4": "4. Presiona el botón guardar para completar la configuración",
-  "@step4": {
-    "description": "Cuarto paso para activar funciones de IA"
-  },
-  "goToGoogleAiStudio": "Ir a Google AI Studio",
-  "@goToGoogleAiStudio": {
-    "description": "Enlace para ir a Google AI Studio"
-  },
-  "googleApiKey": "Clave API de Google",
-  "@googleApiKey": {
-    "description": "Etiqueta para la clave API de Google"
-  },
   "deleteDatabase": "Borrar base de datos",
   "@deleteDatabase": {
     "description": "Etiqueta para borrar la base de datos"
@@ -984,14 +932,7 @@
   "@errorSavingApiKey": {
     "description": "Mensaje de error al guardar la API Key"
   },
-  "configureApiKey": "Configurar API Key",
-  "@configureApiKey": {
-    "description": "Título del diálogo para configurar la API Key"
-  },
-  "enterApiKeyMessage": "Para utilizar las funciones de IA, por favor ingrese su API Key:",
-  "@enterApiKeyMessage": {
-    "description": "Mensaje que solicita al usuario ingresar su API Key"
-  },
+
   "later": "Más tarde",
   "@later": {
     "description": "Botón para posponer una acción"
@@ -1233,10 +1174,20 @@
   "termsAndConditions": "Términos y Condiciones",
   "agreeToTerms": "Acepto los Términos y Condiciones",
   "pleaseAgreeToTerms": "Por favor acepta los Términos y Condiciones para continuar",
-  "configureGeminiApiKey": "Configura tu API Key de Gemini",
-  "apiKeyRequired": "La API Key es necesaria para utilizar las funciones de IA.\nEs gratis y fácil de obtener.",
   "continueAction": "Continuar",
   "welcomeToApp": "Bienvenido a Gastoscopio",
+  "termsTitle": "Términos y Condiciones",
+  "termsSubtitle": "Por favor, revisa y acepta nuestras condiciones de uso y política de privacidad antes de continuar.",
+  "termsLastUpdate": "Última actualización: Septiembre 2026",
+  "termsSection1Title": "1. ALMACENAMIENTO Y BACKUP",
+  "termsSection1Body": "Tus datos se guardan localmente en tu dispositivo. Opcionalmente, puedes usar tu cuenta de Google para copias de seguridad en tu Google Drive personal.",
+  "termsSection2Title": "2. PRIVACIDAD Y SEGURIDAD",
+  "termsSection2Body": "No recopilamos datos personales ni financieros. No comercializamos tu información. Tus datos solo se transmiten a tu propio Google Drive si activas el backup.",
+  "termsAcceptTitle": "He leído y acepto los Términos del Servicio",
+  "termsAcceptSubtitle": "Establece los lineamientos operacionales y derechos de propiedad.",
+  "termsReadFull": "Leer términos completos",
+  "termsRejectExit": "Rechazar y salir",
+  "termsAcceptContinue": "Continuar y Aceptar",
   "connectGoogleAccount": "Conecta tu cuenta de Google para sincronizar y respaldar tus datos financieros",
   "noAccountConnected": "Sin cuenta conectada",
   "loginForBackupSync": "Inicia sesión con Google para acceder a funciones de respaldo y sincronización",
@@ -1505,5 +1456,124 @@
   "creditCard": "Tarjeta de crédito",
   "credit": "Crédito",
   "selectDateToView": "Selecciona un día para revisar",
-  "noPendingForDate": "No hay transacciones pendientes para este día."
+  "noPendingForDate": "No hay transacciones pendientes para este día.",
+  "navDebts": "Deudas",
+  "navHistory": "Historial",
+  "navStatistics": "Estadísticas",
+  "totalBalance": "Balance total",
+  "quickAccess": "Accesos rápidos",
+  "recentExpenses": "Últimos movimientos",
+  "seeAll": "Ver todos",
+  "cardLabel": "Tarjeta",
+  "pendingTransactions": "{count, plural, =1{1 transacción pendiente} other{{count} transacciones pendientes}}",
+  "@pendingTransactions": {
+    "placeholders": {
+      "count": { "type": "int" }
+    }
+  },
+  "totalPending": "Total pendiente",
+  "previousMonth": "Mes Anterior",
+  "recurrents": "Recurrentes",
+  "oneTimeDebts": "Puntuales",
+  "urgent": "URGENTE",
+  "resolve": "Resolver",
+  "pay": "Pagar",
+  "newMovementTitle": "Nuevo",
+  "expenseNameHint": "Ej: Cena con amigos...",
+  "categoryAiTag": "Categoría",
+  "valueLabel": "Valor",
+  "movementType": "Tipo de Movimiento",
+  "directExpense": "Gasto Directo",
+  "oneTimeDebtLabel": "Deuda Puntual",
+  "saveExpense": "Guardar Gasto",
+  "saveIncome": "Guardar Ingreso",
+  "searchByName": "Buscar por nombre...",
+  "searchByNameCategory": "Buscar por nombre, categoría...",
+  "dateRange": "Rango de fechas",
+  "matches": "Coincidencias",
+  "customRange": "Rango personalizado",
+  "financialSummary": "Resumen Financiero",
+  "netSavings": "Ahorro Neto",
+  "evolution": "Evolución",
+  "distribution": "Distribución",
+  "noData": "Sin datos",
+  "usedBalance": "Saldo Utilizado",
+  "creditLimit": "Límite de Crédito",
+  "nextPayment": "Próximo Pago",
+  "billingClose": "Cierre Facturación",
+  "premiumCard": "PREMIUM CARD",
+  "minimumLabel": "Mínimo",
+  "estimatedMonthlyTotal": "Total mensual estimado",
+  "upcomingCharges": "Próximos Cobros",
+  "recurringExpense": "Gasto Recurrente",
+  "recurringDebt": "Deuda Recurrente",
+  "scheduleLabel": "Programación",
+  "frequency": "Frecuencia",
+  "monthly": "Mensual",
+  "chargeDay": "Día de Cobro",
+  "saveRecurring": "Guardar Recurrente",
+  "detailsLabel": "Detalles",
+  "activeStatus": "ACTIVO",
+  "pendingStatus": "PENDIENTE",
+  "processSelected": "Procesar Seleccionados",
+  "cardChip": "TARJETA",
+  "categoryLabel": "Categoría",
+  "yearLabel": "AÑO",
+  "selectCategory": "Seleccionar Categoría",
+  "themeLabel": "Tema",
+  "visualAspect": "Aspecto Visual",
+  "linkedDevices": "Dispositivos Vinculados",
+  "today": "Hoy",
+  "yesterday": "Ayer",
+  "noName": "Sin nombre",
+  "advancedSearch": "Búsqueda avanzada",
+  "cardHolder": "Titular",
+  "days": "días",
+  "available": "Disponible",
+  "navManagement": "Gestión",
+  "autoClassificationSection": "Clasificación automática",
+  "autoClassificationDescription": "Cuando corriges manualmente una categoría o un nombre sugerido, la app lo recuerda para la próxima vez.",
+  "learnedCorrectionsCount": "{count} correcciones aprendidas",
+  "@learnedCorrectionsCount": {
+    "placeholders": {
+      "count": { "type": "int" }
+    }
+  },
+  "clearLearnedData": "Borrar aprendizaje",
+  "clearLearnedDataConfirmTitle": "¿Borrar todo lo aprendido?",
+  "clearLearnedDataConfirmContent": "Se perderán todas las correcciones de categorías y nombres que la app ha aprendido. Esta acción no se puede deshacer.",
+  "learnedDataCleared": "Aprendizaje borrado correctamente",
+  "viewLearnedRules": "Ver lo aprendido",
+  "learnedRulesTitle": "Lo aprendido",
+  "learnedTagsSection": "Categorías",
+  "learnedNamesSection": "Nombres",
+  "learnedRulesEmpty": "Todavía no hay correcciones aprendidas. Corrige el nombre o la categoría de un movimiento y aparecerá aquí.",
+  "learnedRuleDeleted": "Regla eliminada",
+  "learnedRuleAlternatives": "También elegido: {options}",
+  "@learnedRuleAlternatives": {
+    "placeholders": {
+      "options": { "type": "String" }
+    }
+  },
+  "noMovementsThisMonth": "Aún no hay movimientos este mes.",
+  "addFirstMovement": "Añadir movimiento",
+  "dailyAllowance": "{amount}/día {days, plural, =1{para el último día del mes} other{para los próximos {days} días}}",
+  "@dailyAllowance": {
+    "placeholders": {
+      "amount": { "type": "String" },
+      "days": { "type": "int" }
+    }
+  },
+  "overspentThisMonth": "Este mes has gastado más de lo que has ingresado",
+  "setUpCard": "Configurar tarjeta",
+  "payDebtConfirmTitle": "¿Marcar como pagada?",
+  "payDebtConfirmBody": "Se creará un gasto de {amount} por «{description}».",
+  "@payDebtConfirmBody": {
+    "placeholders": {
+      "amount": { "type": "String" },
+      "description": { "type": "String" }
+    }
+  },
+  "creditCardStopSearching": "Dejar de buscar",
+  "creditCardStopSearchingDescription": "Pausa la lectura de notificaciones de la tarjeta de crédito. Las apps configuradas se conservan."
 }
