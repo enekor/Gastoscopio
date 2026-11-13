@@ -45,7 +45,6 @@ dependencies:
   flutter_markdown: ^0.7.7+1
   flutter_secure_storage: ^9.0.0
   fluttertoast: ^8.2.12
-  google_generative_ai: ^0.4.7
   google_sign_in: ^6.3.0
   googleapis: ^14.0.0
   googleapis_auth: ^2.0.0
